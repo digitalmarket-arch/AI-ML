@@ -1,0 +1,698 @@
+/* AI Marg lab: "matrix" — a 2x2 matrix as a machine that moves the whole plane.
+   Plain classic script (ES2019), no dependencies. Registers window.AILabs.matrix. */
+(function () {
+  'use strict';
+  var Labs = (window.AILabs = window.AILabs || {});
+  var uid = 0;
+
+  var HALF_H = 4.2; // half the canvas height, in grid units
+  var LIM = 3; // slider / drag limit for each matrix entry
+  var R = Math.SQRT1_2; // cos 45° = sin 45°
+  var START = { a: 2, b: 1, c: 0.5, d: 1.5 }; // eigenvalues 2.5 and 1, det 2.5
+  var START_X = { x: -1.5, y: 1 };
+  var IDENTITY = { a: 1, b: 0, c: 0, d: 1 };
+
+  var PRESETS = [
+    { id: 'identity', label: 'Identity', m: { a: 1, b: 0, c: 0, d: 1 } },
+    { id: 'scale', label: 'Scale ×2', m: { a: 2, b: 0, c: 0, d: 2 } },
+    { id: 'rotate', label: 'Rotate 45°', m: { a: R, b: -R, c: R, d: R } },
+    { id: 'shear', label: 'Shear', m: { a: 1, b: 1, c: 0, d: 1 } },
+    { id: 'reflect', label: 'Reflect', m: { a: -1, b: 0, c: 0, d: 1 } },
+    { id: 'squash', label: 'Squash', m: { a: 1, b: 2, c: 0.5, d: 1 } }
+  ];
+
+  var TASKS = [
+    { id: 't1', text: 'Squash the plane flat: make the determinant exactly 0 yourself, so the whole grid collapses onto one line.' },
+    { id: 't2', text: 'Flip space like a mirror: get a negative determinant (try dragging ĵ to the other side of î).' },
+    { id: 't3', text: 'Build a matrix whose eigenvalues are exactly 2 and 0.5.' },
+    { id: 't4', text: 'Rotate the plane by exactly 90° (a quarter turn) with no stretching.' }
+  ];
+
+  /* ---------- small maths helpers ---------- */
+  function copy(m) { return { a: m.a, b: m.b, c: m.c, d: m.d }; }
+  function same(m, n) {
+    return Math.abs(m.a - n.a) < 1e-6 && Math.abs(m.b - n.b) < 1e-6 &&
+      Math.abs(m.c - n.c) < 1e-6 && Math.abs(m.d - n.d) < 1e-6;
+  }
+  function det(m) { return m.a * m.d - m.b * m.c; }
+  function isZero(m) { return Math.abs(m.a) < 1e-9 && Math.abs(m.b) < 1e-9 && Math.abs(m.c) < 1e-9 && Math.abs(m.d) < 1e-9; }
+  function lerp(p, q, t) {
+    return { a: p.a + (q.a - p.a) * t, b: p.b + (q.b - p.b) * t, c: p.c + (q.c - p.c) * t, d: p.d + (q.d - p.d) * t };
+  }
+  function snap(v) { return Math.round(v * 10) / 10; }
+  function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+  function num(v, digits) {
+    var s = (Math.abs(v) < 1e-9 ? 0 : v).toFixed(digits);
+    if (Number(s) === 0) s = s.replace('-', '');
+    return s.replace('-', '−');
+  }
+  function f2(v) { return num(v, 2); }
+  // one decimal when the value sits on the 0.1 grid, else two
+  function fN(v) { return Math.abs(v * 10 - Math.round(v * 10)) < 1e-6 ? num(v, 1) : num(v, 2); }
+  // wrap negative numbers in brackets inside a formula
+  function fP(v) { var s = fN(v); return s.charAt(0) === '\u2212' ? '(' + s + ')' : s; }
+
+  // unit eigenvector for eigenvalue l, or null when every direction works (m = l·I)
+  function evec(m, l) {
+    var x1 = m.b, y1 = l - m.a, x2 = l - m.d, y2 = m.c;
+    var n1 = Math.sqrt(x1 * x1 + y1 * y1), n2 = Math.sqrt(x2 * x2 + y2 * y2);
+    if (Math.max(n1, n2) < 1e-9) return null;
+    return n1 >= n2 ? { x: x1 / n1, y: y1 / n1 } : { x: x2 / n2, y: y2 / n2 };
+  }
+  // eigenvalues of [[a,b],[c,d]] solve l² − (a+d)l + det = 0
+  function eigen(m) {
+    var T = m.a + m.d, D = det(m), disc = T * T - 4 * D;
+    if (Math.abs(disc) < 1e-9) disc = 0;
+    if (disc < 0) return { kind: 'complex', vecs: [] };
+    var r = Math.sqrt(disc), l1 = (T + r) / 2, l2 = (T - r) / 2;
+    if (disc === 0) {
+      var v = evec(m, l1);
+      if (!v) return { kind: 'all', l1: l1, l2: l1, vecs: [] };
+      return { kind: 'repeated', l1: l1, l2: l1, vecs: [{ l: l1, v: v }] };
+    }
+    var vecs = [];
+    var v1 = evec(m, l1), v2 = evec(m, l2);
+    if (v1) vecs.push({ l: l1, v: v1 });
+    if (v2) vecs.push({ l: l2, v: v2 });
+    return { kind: 'distinct', l1: l1, l2: l2, vecs: vecs };
+  }
+
+  function el(tag, attrs, kids) {
+    var n = document.createElement(tag);
+    if (attrs) {
+      for (var k in attrs) {
+        if (!Object.prototype.hasOwnProperty.call(attrs, k)) continue;
+        var v = attrs[k];
+        if (v == null || v === false) continue;
+        if (k === 'text') n.textContent = v;
+        else if (k === 'html') n.innerHTML = v;
+        else if (k === 'class') n.className = v;
+        else n.setAttribute(k, v === true ? '' : String(v));
+      }
+    }
+    if (kids) {
+      for (var i = 0; i < kids.length; i++) {
+        if (kids[i] == null) continue;
+        n.appendChild(typeof kids[i] === 'string' ? document.createTextNode(kids[i]) : kids[i]);
+      }
+    }
+    return n;
+  }
+
+  function mount(root, ctx) {
+    var pre = 'mx' + (++uid) + '-';
+    var m = copy(START); // the chosen matrix (what the sliders show)
+    var view = copy(START); // the matrix being drawn (differs only while animating)
+    var tv = { x: START_X.x, y: START_X.y }; // test vector (input)
+    var source = 'start'; // 'start' | 'user' | 'preset'
+    var lastPreset = null;
+    var drag = null, hover = null, anim = null, raf = 0;
+    var dpr = 1, cw = 0, ch = 0, alive = true;
+    var doneSet = {};
+    TASKS.forEach(function (t) { doneSet[t.id] = !!(ctx && ctx.isTaskDone && ctx.isTaskDone(t.id)); });
+
+    /* ---------- DOM ---------- */
+    root.innerHTML = '';
+    var lab = el('div', { class: 'lab' });
+
+    lab.appendChild(el('p', { class: 'lab-note', html:
+      '<b>What you are seeing:</b> a 2×2 matrix is a machine that moves every point of the plane. ' +
+      'The faint grey squares are the original grid; the blue lines show where that grid lands. ' +
+      'The green arrow <b>î</b> ("i-hat", one step right) lands on the first column <span class="mono">(a, c)</span> and the red arrow ' +
+      '<b>ĵ</b> ("j-hat", one step up) lands on the second column <span class="mono">(b, d)</span>. ' +
+      'The yellow square of area 1 becomes a parallelogram whose signed area is the <b>determinant</b> (how much the matrix scales areas). ' +
+      'Dashed lines are <b>eigenvectors</b> (directions that only stretch and never turn). ' +
+      'Drag the arrow tips, use the sliders, or tap anywhere to move the test vector <b>x</b>.' }));
+
+    var body = el('div', { class: 'lab-body' });
+
+    // left column
+    var left = el('div', { class: 'stack-sm', style: 'min-width:0' });
+    var wrap = el('div', { class: 'lab-canvas-wrap' });
+    var canvas = el('canvas', { role: 'img', tabindex: '0', 'aria-label': 'Transformed grid', style: 'cursor:crosshair;touch-action:none' });
+    wrap.appendChild(canvas);
+    left.appendChild(wrap);
+
+    left.appendChild(el('div', { class: 'lab-legend', 'aria-hidden': 'true' }, [
+      el('span', { style: '--c: var(--ok)', text: 'î = column 1' }),
+      el('span', { style: '--c: var(--sindoor)', text: 'ĵ = column 2' }),
+      el('span', { style: '--c: var(--haldi)', text: 'unit square → area = det' }),
+      el('span', { style: '--c: var(--series-4)', text: 'eigenvector lines' }),
+      el('span', { style: '--c: var(--ink)', text: 'test vector x → Mx' })
+    ]));
+
+    var statDetV = el('div', { class: 'v', text: '' });
+    var statEigV = el('div', { class: 'v', text: '' });
+    var statAreaV = el('div', { class: 'v', text: '' });
+    var statSpace = el('div', { class: 'stat' }, [el('div', { class: 'k', text: 'Space is' }), statAreaV]);
+    var stats = el('div', { class: 'lab-stats' }, [
+      el('div', { class: 'stat' }, [el('div', { class: 'k', text: 'Determinant' }), statDetV]),
+      el('div', { class: 'stat' }, [el('div', { class: 'k', html: 'Eigenvalues <span style="text-transform:none">(λ)</span>' }), statEigV]),
+      statSpace
+    ]);
+    left.appendChild(stats);
+    var insight = el('p', { class: 'lab-note', 'aria-live': 'polite', style: 'color:var(--ink)' });
+    var tvLine = el('p', { class: 'lab-note small' });
+    left.appendChild(insight);
+    left.appendChild(tvLine);
+    left.appendChild(el('p', { class: 'kbd-hint', text: 'Keyboard: sliders take arrow keys; focus the picture and use arrow keys to move the test vector x (hold Shift for small steps).' }));
+    body.appendChild(left);
+
+    // right column: controls
+    var controls = el('div', { class: 'lab-controls' });
+
+    var cells = {};
+    function cell(key, color) {
+      cells[key] = el('span', { style: 'color:' + color + ';min-width:4.2ch;text-align:right', text: '' });
+      return cells[key];
+    }
+    var bracketL = el('span', { 'aria-hidden': 'true', style: 'width:7px;border:2px solid var(--ink);border-right:0;border-radius:3px 0 0 3px' });
+    var bracketR = el('span', { 'aria-hidden': 'true', style: 'width:7px;border:2px solid var(--ink);border-left:0;border-radius:0 3px 3px 0' });
+    var mxGrid = el('div', { style: 'display:grid;grid-template-columns:auto auto;column-gap:14px;padding:2px 7px;font-variant-numeric:tabular-nums' }, [
+      cell('a', 'var(--ok)'), cell('b', 'var(--sindoor)'), cell('c', 'var(--ok)'), cell('d', 'var(--sindoor)')
+    ]);
+    var mxView = el('div', { role: 'group', 'aria-label': 'Matrix M', style: 'display:flex;align-items:stretch;font-family:var(--font-mono);font-size:1.15rem;line-height:1.55' }, [bracketL, mxGrid, bracketR]);
+    var detFormula = el('div', { class: 'mono small', style: 'color:var(--muted);line-height:1.5' });
+    controls.appendChild(el('div', { style: 'background:var(--surface-2);border-radius:var(--radius-sm);padding:12px;display:flex;flex-direction:column;gap:8px' }, [
+      el('div', { style: 'display:flex;align-items:center;gap:12px;flex-wrap:wrap' }, [
+        el('span', { class: 'mono', style: 'font-size:1.1rem', text: 'M =' }),
+        mxView,
+        el('div', { class: 'small', style: 'line-height:1.35;color:var(--muted)', html:
+          '<span style="color:var(--ok);font-weight:700">column 1</span> = where î lands<br>' +
+          '<span style="color:var(--sindoor);font-weight:700">column 2</span> = where ĵ lands' })
+      ]),
+      detFormula
+    ]));
+
+    // presets
+    var presetLbl = el('span', { class: 'control-label', id: pre + 'presets', text: 'Presets' });
+    var seg = el('div', { class: 'seg', role: 'group', 'aria-labelledby': pre + 'presets', style: 'display:grid;grid-template-columns:repeat(3,minmax(0,1fr))' });
+    var presetBtns = PRESETS.map(function (p, i) {
+      var st = 'padding:7px 4px;';
+      if (i % 3 === 2) st += 'border-right:0;';
+      if (i < 3) st += 'border-bottom:1px solid var(--line);';
+      var b = el('button', { type: 'button', 'aria-pressed': 'false', 'data-preset': p.id, style: st, text: p.label });
+      b.addEventListener('click', function () { applyPreset(p); });
+      seg.appendChild(b);
+      return b;
+    });
+    controls.appendChild(el('div', { class: 'control' }, [presetLbl, seg]));
+
+    // sliders, grouped by column
+    var sliders = {}, outs = {};
+    function slider(key, text) {
+      var id = pre + key;
+      var input = el('input', { type: 'range', id: id, min: -LIM, max: LIM, step: '0.1', value: String(m[key]) });
+      var out = el('output', { for: id, text: fN(m[key]) });
+      sliders[key] = input; outs[key] = out;
+      input.addEventListener('input', function () {
+        var v = parseFloat(input.value);
+        if (!isFinite(v)) return;
+        m[key] = v; source = 'user'; lastPreset = null;
+        stopAnim(); view = copy(m);
+        syncUI(); requestDraw();
+      });
+      input.addEventListener('change', checkTasks);
+      return el('div', { class: 'control' }, [el('label', { for: id }, [el('span', { html: text }), out]), input]);
+    }
+    controls.appendChild(el('div', { class: 'small', style: 'font-weight:700;color:var(--ok);margin-bottom:-8px', text: 'Where î lands (column 1)' }));
+    controls.appendChild(slider('a', '<span class="mono">a</span> — across (x)'));
+    controls.appendChild(slider('c', '<span class="mono">c</span> — up (y)'));
+    controls.appendChild(el('div', { class: 'small', style: 'font-weight:700;color:var(--sindoor);margin-bottom:-8px', text: 'Where ĵ lands (column 2)' }));
+    controls.appendChild(slider('b', '<span class="mono">b</span> — across (x)'));
+    controls.appendChild(slider('d', '<span class="mono">d</span> — up (y)'));
+
+    var playBtn = el('button', { type: 'button', class: 'btn btn-primary btn-sm' }, [el('span', { 'aria-hidden': 'true', text: '▶' }), 'Play from identity']);
+    var resetBtn = el('button', { type: 'button', class: 'btn btn-sm', text: 'Reset' });
+    controls.appendChild(el('div', { class: 'row' }, [playBtn, resetBtn]));
+
+    // tasks
+    var taskItems = {};
+    var taskList = el('ul', { class: 'lab-tasks' });
+    TASKS.forEach(function (t) {
+      var sr = el('span', { class: 'visually-hidden', text: doneSet[t.id] ? ' (done)' : '' });
+      var li = el('li', { class: doneSet[t.id] ? 'done' : null }, [el('span', {}, [t.text, sr])]);
+      li._sr = sr;
+      taskItems[t.id] = li;
+      taskList.appendChild(li);
+    });
+    var taskCount = el('span', { class: 'muted small num', text: '' });
+    var taskMsg = el('p', { class: 'small', role: 'status', style: 'color:var(--ok);font-weight:600;min-height:1.2em;margin-top:6px' });
+    controls.appendChild(el('div', {}, [
+      el('div', { class: 'row-between', style: 'margin-bottom:6px' }, [el('h4', { text: 'Tasks' }), taskCount]),
+      taskList, taskMsg
+    ]));
+
+    body.appendChild(controls);
+    lab.appendChild(body);
+    lab.appendChild(el('p', { class: 'lab-note', html:
+      '<b>Why it matters in real ML:</b> every layer of a neural network starts with a matrix multiply exactly like this — it stretches, turns and squashes the space your data lives in; ' +
+      'PCA (finding the main directions in data) is built on eigenvectors, and a determinant of 0 means some information is lost for good.' }));
+    root.appendChild(lab);
+
+    var g = canvas.getContext('2d');
+
+    /* ---------- UI sync ---------- */
+    function reducedMotion() {
+      return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    }
+    function updateTaskCount() {
+      var n = 0;
+      TASKS.forEach(function (t) { if (doneSet[t.id]) n++; });
+      taskCount.textContent = n + ' / ' + TASKS.length + ' done';
+    }
+
+    function insightText() {
+      var D = det(m), parts = [];
+      if (isZero(m)) {
+        return 'Every point lands on (0, 0): the whole plane is crushed to a single point.';
+      }
+      if (Math.abs(D) < 1e-6) {
+        parts.push('det = 0: the whole plane is squashed onto one line. Many points land on the same spot, so this cannot be undone (the matrix has no inverse).');
+      } else {
+        var ad = Math.abs(D), s;
+        if (Math.abs(ad - 1) < 0.005) s = 'areas keep exactly the same size';
+        else if (ad > 1) s = 'every area becomes ' + f2(ad) + '× bigger';
+        else s = 'every area shrinks to ' + f2(ad) + '× its size';
+        parts.push('det = ' + f2(D) + ': ' + s + (D < 0 ? ', and space is flipped over like a mirror image (î and ĵ swapped sides).' : '.'));
+      }
+      var E = eigen(m);
+      if (E.kind === 'complex') {
+        parts.push('No real eigenvectors (this matrix rotates every direction).');
+      } else if (E.kind === 'all') {
+        parts.push('Every direction is an eigenvector: arrows only get scaled by ' + f2(E.l1) + ', never turned.');
+      } else if (E.kind === 'repeated') {
+        parts.push('Only one eigenvector line (dashed), with λ = ' + f2(E.l1) + ': arrows on it keep their direction while everything else slides.');
+      } else {
+        var extra = '';
+        if (Math.abs(E.l1) < 1e-6 || Math.abs(E.l2) < 1e-6) extra += ' Scaling by 0 crushes that whole dashed line to (0, 0).';
+        if (E.l1 < -1e-6 || E.l2 < -1e-6) extra += ' A negative λ flips arrows on that line to point backwards.';
+        parts.push('Arrows on the dashed lines never turn; they only get scaled, by λ = ' + f2(E.l1) + ' on one and λ = ' + f2(E.l2) + ' on the other.' + extra);
+      }
+      if (source === 'preset' && lastPreset) {
+        var tip = '';
+        if (lastPreset === 'squash' && !doneSet.t1) tip = 'Presets do not tick tasks: now squash the plane yourself with the sliders or by dragging.';
+        else if (lastPreset === 'reflect' && !doneSet.t2) tip = 'Presets do not tick tasks: now flip space yourself by dragging ĵ or î.';
+        else if (lastPreset === 'rotate' && !doneSet.t4) tip = 'Can you change the sliders to turn 90° instead of 45°?';
+        if (tip) parts.push(tip);
+      }
+      return parts.join(' ');
+    }
+
+    function syncUI() {
+      ['a', 'b', 'c', 'd'].forEach(function (k) {
+        if (Math.abs(parseFloat(sliders[k].value) - m[k]) > 1e-9) sliders[k].value = String(m[k]);
+        outs[k].textContent = fN(m[k]);
+        cells[k].textContent = fN(m[k]);
+      });
+      var D = det(m), neg = D < -1e-6, zero = Math.abs(D) < 1e-6;
+      detFormula.innerHTML = 'det = ad − bc<br>= ' + fP(m.a) + '×' + fP(m.d) + ' − ' + fP(m.b) + '×' + fP(m.c) +
+        ' <span style="white-space:nowrap">= <b style="color:' + (neg ? 'var(--bad)' : 'var(--ink)') + '">' + f2(zero ? 0 : D) + '</b></span>';
+      statDetV.textContent = f2(zero ? 0 : D);
+      statDetV.style.color = neg ? 'var(--bad)' : '';
+      statAreaV.textContent = isZero(m) ? 'a point' : zero ? 'a line' : neg ? 'flipped' : 'not flipped';
+      statAreaV.style.color = neg ? 'var(--bad)' : '';
+      var E = eigen(m);
+      statEigV.textContent = E.kind === 'complex' ? 'none (real)' :
+        E.kind === 'all' ? f2(E.l1) + ' (all)' :
+        E.kind === 'repeated' ? f2(E.l1) + ' (twice)' : f2(E.l1) + ', ' + f2(E.l2);
+      var s = insightText();
+      if (insight.textContent !== s) insight.textContent = s;
+      var mx = m.a * tv.x + m.b * tv.y, my = m.c * tv.x + m.d * tv.y;
+      tvLine.innerHTML = 'Test vector <b>x</b> = (' + fN(tv.x) + ', ' + fN(tv.y) + ') lands at <b>Mx</b> = ' +
+        fN(tv.x) + '·<b style="color:var(--ok)">î</b> ' + (tv.y < -1e-9 ? '− ' + fN(-tv.y) : '+ ' + fN(tv.y)) +
+        '·<b style="color:var(--sindoor)">ĵ</b> = (' + f2(mx) + ', ' + f2(my) + ')';
+      presetBtns.forEach(function (b, i) { b.setAttribute('aria-pressed', same(m, PRESETS[i].m) ? 'true' : 'false'); });
+      canvas.setAttribute('aria-label', 'Grid transformed by the matrix with rows (' + fN(m.a) + ', ' + fN(m.b) + ') and (' + fN(m.c) + ', ' + fN(m.d) +
+        '). Determinant ' + f2(zero ? 0 : D) + '. Test vector (' + fN(tv.x) + ', ' + fN(tv.y) + ') lands at (' + f2(mx) + ', ' + f2(my) + ').');
+      updateTaskCount();
+    }
+
+    /* ---------- tasks ---------- */
+    function markDone(id) {
+      if (doneSet[id]) return;
+      doneSet[id] = true;
+      var li = taskItems[id];
+      li.classList.add('done');
+      li._sr.textContent = ' (done)';
+      var t = TASKS.filter(function (x) { return x.id === id; })[0];
+      taskMsg.textContent = '✓ Task done: ' + (id === 't1' ? 'space collapsed onto a line!' : id === 't2' ? 'space flipped over!' : id === 't3' ? 'eigenvalues 2 and 0.5!' : 'a perfect quarter turn!');
+      if (ctx && ctx.onTaskDone) ctx.onTaskDone(id);
+      updateTaskCount();
+      return t;
+    }
+    function checkTasks() {
+      if (source !== 'user') return;
+      var D = det(m), E = eigen(m);
+      if (Math.abs(D) < 1e-6 && !isZero(m)) markDone('t1');
+      if (D < -1e-6) markDone('t2');
+      if (E.kind === 'distinct' && Math.abs(E.l1 - 2) < 0.01 && Math.abs(E.l2 - 0.5) < 0.01) markDone('t3');
+      if (Math.abs(m.a) < 0.01 && Math.abs(m.d) < 0.01 && Math.abs(Math.abs(m.c) - 1) < 0.01 && Math.abs(m.b + m.c) < 0.01) markDone('t4');
+      syncUI();
+    }
+
+    /* ---------- animation + drawing loop ---------- */
+    function requestDraw() { if (!raf && alive) raf = requestAnimationFrame(frame); }
+    function stopAnim() { anim = null; }
+    function animateTo(from, to, dur) {
+      if (reducedMotion()) { anim = null; view = copy(to); requestDraw(); return; }
+      anim = { from: copy(from), to: copy(to), t0: null, dur: dur };
+      view = copy(from);
+      requestDraw();
+    }
+    function frame(now) {
+      raf = 0;
+      if (!alive) return;
+      if (anim) {
+        if (anim.t0 == null) anim.t0 = now;
+        var t = Math.min(1, (now - anim.t0) / anim.dur);
+        var e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        view = lerp(anim.from, anim.to, e);
+        if (t >= 1) { view = copy(anim.to); anim = null; }
+      }
+      draw();
+      if (anim) raf = requestAnimationFrame(frame);
+    }
+
+    function applyPreset(p) {
+      var from = copy(view);
+      m = copy(p.m); source = 'preset'; lastPreset = p.id;
+      syncUI();
+      animateTo(from, m, 650);
+    }
+    playBtn.addEventListener('click', function () { animateTo(IDENTITY, m, 1500); });
+    resetBtn.addEventListener('click', function () {
+      var from = copy(view);
+      m = copy(START); tv = { x: START_X.x, y: START_X.y }; source = 'preset'; lastPreset = null;
+      taskMsg.textContent = '';
+      syncUI();
+      animateTo(from, m, 650);
+    });
+
+    function layout() {
+      var r = canvas.getBoundingClientRect();
+      var w = Math.max(1, Math.round(r.width)), h = Math.max(1, Math.round(r.height));
+      return { W: w, H: h, u: h / (2 * HALF_H), ox: w / 2, oy: h / 2 };
+    }
+    var L = layout();
+
+    function resize() {
+      if (!alive) return;
+      L = layout();
+      // narrow screens: two stats per row, the third one spans the full row
+      var narrow = left.getBoundingClientRect().width < 520;
+      stats.style.gridTemplateColumns = narrow ? 'repeat(2, minmax(0, 1fr))' : '';
+      statSpace.style.gridColumn = narrow ? '1 / -1' : '';
+      dpr = Math.min(window.devicePixelRatio || 1, 3);
+      cw = L.W; ch = L.H;
+      var bw = Math.round(cw * dpr), bh = Math.round(ch * dpr);
+      if (canvas.width !== bw) canvas.width = bw;
+      if (canvas.height !== bh) canvas.height = bh;
+      if (raf) { cancelAnimationFrame(raf); raf = 0; }
+      frame(performance.now());
+    }
+
+    function arrow(x0, y0, x1, y1, color, width, head) {
+      var dx = x1 - x0, dy = y1 - y0, len = Math.sqrt(dx * dx + dy * dy);
+      g.strokeStyle = color; g.fillStyle = color; g.lineWidth = width;
+      if (len < 1.5) { g.beginPath(); g.arc(x1, y1, width + 1, 0, Math.PI * 2); g.fill(); return; }
+      var ux = dx / len, uy = dy / len, hl = Math.min(head || 12, len * 0.6), hw = hl * 0.55;
+      var bx = x1 - ux * hl, by = y1 - uy * hl;
+      g.beginPath(); g.moveTo(x0, y0); g.lineTo(bx + ux * 1, by + uy * 1); g.stroke();
+      g.beginPath(); g.moveTo(x1, y1); g.lineTo(bx - uy * hw, by + ux * hw); g.lineTo(bx + uy * hw, by - ux * hw); g.closePath(); g.fill();
+    }
+
+    function draw() {
+      if (!cw || !ch) return;
+      var cs = getComputedStyle(document.documentElement);
+      function C(n, fb) { var v = cs.getPropertyValue(n).trim(); return v || fb; }
+      var bg = C('--surface', '#fff'), ink = C('--ink', '#111'), muted = C('--muted', '#666'), line = C('--line', '#ddd');
+      var indigo = C('--indigo', '#2d388a'), haldi = C('--haldi', '#e2a400'), haldiInk = C('--haldi-ink', haldi), bad = C('--bad', '#b3261e');
+      var ok = C('--ok', '#1d7a4b'), sind = C('--sindoor', '#c0402c'), teal = C('--series-4', '#12807f');
+      var font = C('--font-body', 'system-ui, sans-serif');
+      var W = L.W, H = L.H, u = L.u, ox = L.ox, oy = L.oy, M = view;
+      function X(x) { return ox + x * u; }
+      function Y(y) { return oy - y * u; }
+      function T(x, y) { return [X(M.a * x + M.b * y), Y(M.c * x + M.d * y)]; }
+      function label(text, x, y, color, f, align) {
+        g.font = f; g.textAlign = align || 'center'; g.textBaseline = 'middle';
+        g.lineJoin = 'round'; g.lineWidth = 4; g.strokeStyle = bg; g.strokeText(text, x, y);
+        g.fillStyle = color; g.fillText(text, x, y);
+      }
+      function keepIn(p, mx, my) { return [clamp(p[0], mx, W - mx), clamp(p[1], my, H - my)]; }
+
+      g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      g.setLineDash([]);
+      g.globalAlpha = 1;
+      g.fillStyle = bg; g.fillRect(0, 0, W, H);
+
+      // 1. original grid (faint) + axes + tick numbers
+      var nx = Math.ceil(W / 2 / u), ny = Math.ceil(H / 2 / u), i, k, p, q;
+      g.lineWidth = 1; g.strokeStyle = line; g.beginPath();
+      for (i = -nx; i <= nx; i++) { var px = Math.round(X(i)) + 0.5; g.moveTo(px, 0); g.lineTo(px, H); }
+      for (i = -ny; i <= ny; i++) { var py = Math.round(Y(i)) + 0.5; g.moveTo(0, py); g.lineTo(W, py); }
+      g.stroke();
+      g.globalAlpha = 0.55; g.strokeStyle = muted; g.beginPath();
+      g.moveTo(0, Math.round(oy) + 0.5); g.lineTo(W, Math.round(oy) + 0.5);
+      g.moveTo(Math.round(ox) + 0.5, 0); g.lineTo(Math.round(ox) + 0.5, H); g.stroke();
+      g.globalAlpha = 0.75; g.fillStyle = muted; g.font = (W < 500 ? 9 : 10.5) + 'px ' + font;
+      g.textAlign = 'center'; g.textBaseline = 'top';
+      for (i = -nx; i <= nx; i++) { if (i && X(i) > 8 && X(i) < W - 8) g.fillText(num(i, 0), X(i), oy + 3); }
+      g.textAlign = 'right'; g.textBaseline = 'middle';
+      for (i = -ny; i <= ny; i++) { if (i && Y(i) > 8 && Y(i) < H - 8) g.fillText(num(i, 0), ox - 4, Y(i)); }
+      g.globalAlpha = 1;
+
+      // 2. transformed grid: images of the lines x = k and y = k
+      var N = 12;
+      g.strokeStyle = indigo; g.lineWidth = 1; g.globalAlpha = 0.38; g.beginPath();
+      for (k = -N; k <= N; k++) {
+        if (!k) continue;
+        p = T(k, -N); q = T(k, N); g.moveTo(p[0], p[1]); g.lineTo(q[0], q[1]);
+        p = T(-N, k); q = T(N, k); g.moveTo(p[0], p[1]); g.lineTo(q[0], q[1]);
+      }
+      g.stroke();
+      g.globalAlpha = 0.9; g.lineWidth = 1.75; g.beginPath();
+      p = T(-N, 0); q = T(N, 0); g.moveTo(p[0], p[1]); g.lineTo(q[0], q[1]);
+      p = T(0, -N); q = T(0, N); g.moveTo(p[0], p[1]); g.lineTo(q[0], q[1]);
+      g.stroke(); g.globalAlpha = 1;
+
+      // 3. original unit square (dashed ghost) and its image, the parallelogram
+      g.setLineDash([4, 4]); g.strokeStyle = muted; g.lineWidth = 1; g.globalAlpha = 0.8;
+      g.strokeRect(X(0), Y(1), u, u);
+      g.setLineDash([]); g.globalAlpha = 1;
+      var D = det(M), flipped = D < -1e-6;
+      var areaFill = flipped ? bad : haldi, areaStroke = flipped ? bad : haldiInk;
+      var o = T(0, 0), pi = T(1, 0), pij = T(1, 1), pj = T(0, 1);
+      g.beginPath(); g.moveTo(o[0], o[1]); g.lineTo(pi[0], pi[1]); g.lineTo(pij[0], pij[1]); g.lineTo(pj[0], pj[1]); g.closePath();
+      g.globalAlpha = flipped ? 0.2 : 0.3; g.fillStyle = areaFill; g.fill();
+      g.globalAlpha = 1; g.strokeStyle = areaStroke; g.lineWidth = 1.5; g.stroke();
+
+      // 4. eigenvector lines (only when the picture is at rest)
+      var eigLabels = [];
+      if (!anim) {
+        var E = eigen(M), diag = Math.sqrt(W * W + H * H);
+        E.vecs.forEach(function (ev) {
+          var sx = ev.v.x, sy = -ev.v.y; // screen direction
+          g.setLineDash([7, 6]); g.strokeStyle = teal; g.lineWidth = 1.75; g.globalAlpha = 0.95;
+          g.beginPath(); g.moveTo(ox - sx * diag, oy - sy * diag); g.lineTo(ox + sx * diag, oy + sy * diag); g.stroke();
+          g.setLineDash([]); g.globalAlpha = 1;
+          // label near the canvas edge, preferring the right-hand / upper end
+          if (sx < -1e-6 || (Math.abs(sx) <= 1e-6 && sy > 0)) { sx = -sx; sy = -sy; }
+          var cand = [[sx, sy], [-sx, -sy]];
+          for (var c = 0; c < 2; c++) {
+            var dx = cand[c][0], dy = cand[c][1];
+            var tt = Math.min(Math.abs(dx) > 1e-6 ? (W / 2 - 46) / Math.abs(dx) : 1e9, Math.abs(dy) > 1e-6 ? (H / 2 - 14) / Math.abs(dy) : 1e9);
+            var lp = [ox + dx * tt, oy + dy * tt];
+            var clash = eigLabels.some(function (e2) { return Math.abs(e2[0] - lp[0]) < 80 && Math.abs(e2[1] - lp[1]) < 22; });
+            if (!clash || c === 1) { eigLabels.push([lp[0], lp[1], 'λ = ' + f2(ev.l)]); break; }
+          }
+        });
+      }
+
+      // 5. test vector: x (hollow ring) → Mx (ink arrow), built as x·î + y·ĵ
+      var mxw = M.a * tv.x + M.b * tv.y, myw = M.c * tv.x + M.d * tv.y;
+      var xi = [X(M.a * tv.x), Y(M.c * tv.x)], out = [X(mxw), Y(myw)], inp = [X(tv.x), Y(tv.y)];
+      g.lineWidth = 1.5; g.setLineDash([3, 4]); g.globalAlpha = 0.9;
+      g.strokeStyle = ok; g.beginPath(); g.moveTo(ox, oy); g.lineTo(xi[0], xi[1]); g.stroke();
+      g.strokeStyle = sind; g.beginPath(); g.moveTo(xi[0], xi[1]); g.lineTo(out[0], out[1]); g.stroke();
+      g.setLineDash([1.5, 4]); g.strokeStyle = muted; g.lineWidth = 1.5; g.beginPath(); g.moveTo(inp[0], inp[1]); g.lineTo(out[0], out[1]); g.stroke();
+      g.setLineDash([]); g.globalAlpha = 1;
+      arrow(ox, oy, out[0], out[1], ink, 2.25, 10);
+      g.beginPath(); g.arc(inp[0], inp[1], 5.5, 0, Math.PI * 2); g.fillStyle = bg; g.fill();
+      g.lineWidth = 2; g.strokeStyle = (drag === 'x') ? ink : muted; g.stroke();
+
+      // 6. basis vectors î and ĵ with grab halos
+      var ti = T(1, 0), tj = T(0, 1);
+      [['i', ti, ok], ['j', tj, sind]].forEach(function (b) {
+        var active = hover === b[0] || drag === b[0];
+        g.globalAlpha = active ? 0.3 : 0.14; g.fillStyle = b[2];
+        g.beginPath(); g.arc(b[1][0], b[1][1], active ? 17 : 14, 0, Math.PI * 2); g.fill();
+        g.globalAlpha = 1;
+      });
+      arrow(ox, oy, ti[0], ti[1], ok, 3.25, 13);
+      arrow(ox, oy, tj[0], tj[1], sind, 3.25, 13);
+
+      // 7. labels on top
+      var big = (W < 500 ? 14 : 16), small = (W < 500 ? 11 : 12.5);
+      var ctr = T(0.5, 0.5);
+      var areaTxt = 'area = ' + f2(Math.abs(D) < 1e-6 ? 0 : D) + (flipped ? ' (flipped)' : '');
+      if (Math.abs(D) * u * u < 1500) {
+        // thin or flat parallelogram: lift the label off the line
+        var ddx = pij[0] - o[0], ddy = pij[1] - o[1], dl = Math.sqrt(ddx * ddx + ddy * ddy);
+        if (dl > 1) {
+          var nx2 = -ddy / dl, ny2 = ddx / dl;
+          if (ny2 > 0) { nx2 = -nx2; ny2 = -ny2; }
+          ctr = [ctr[0] + nx2 * 18, ctr[1] + ny2 * 18];
+        } else { ctr = [ctr[0] + 40, ctr[1] - 18]; }
+      }
+      var ap = keepIn(ctr, 60, 12);
+      label(areaTxt, ap[0], ap[1], flipped ? bad : ink, '600 ' + small + 'px ' + font);
+      eigLabels.forEach(function (e2) { label(e2[2], e2[0], e2[1], teal, '700 ' + small + 'px ' + font); });
+      function tipLabel(tip, txt, color) {
+        var dx = tip[0] - ox, dy = tip[1] - oy, len = Math.sqrt(dx * dx + dy * dy);
+        var lx, ly;
+        if (len < 4) { lx = tip[0] + 14; ly = tip[1] - 14; } else { lx = tip[0] + dx / len * 18; ly = tip[1] + dy / len * 18; }
+        var lp = keepIn([lx, ly], 10, 10);
+        label(txt, lp[0], lp[1], color, '700 ' + big + 'px ' + font);
+      }
+      tipLabel(ti, 'î', ok);
+      tipLabel(tj, 'ĵ', sind);
+      var xl = keepIn([inp[0] + 11, inp[1] - 11], 10, 10);
+      label('x', xl[0], xl[1], muted, '700 ' + small + 'px ' + font);
+      var odx = out[0] - ox, ody = out[1] - oy, olen = Math.sqrt(odx * odx + ody * ody) || 1;
+      var ol = keepIn([out[0] + odx / olen * 16, out[1] + ody / olen * 16], 14, 10);
+      label('Mx', ol[0], ol[1], ink, '700 ' + small + 'px ' + font);
+    }
+
+    /* ---------- pointer + keyboard ---------- */
+    function local(e) {
+      var r = canvas.getBoundingClientRect();
+      return { x: e.clientX - r.left, y: e.clientY - r.top };
+    }
+    function toWorld(p) { return { x: (p.x - L.ox) / L.u, y: (L.oy - p.y) / L.u }; }
+    function hitTest(p, coarse) {
+      var rad = coarse ? 26 : 16, best = null, bestD = rad;
+      var tips = { i: [L.ox + view.a * L.u, L.oy - view.c * L.u], j: [L.ox + view.b * L.u, L.oy - view.d * L.u] };
+      ['i', 'j'].forEach(function (k) {
+        var dd = Math.sqrt(Math.pow(p.x - tips[k][0], 2) + Math.pow(p.y - tips[k][1], 2));
+        if (dd <= bestD) { bestD = dd; best = k; }
+      });
+      return best;
+    }
+    function xLimits() { return { x: L.ox / L.u - 0.2, y: L.oy / L.u - 0.2 }; }
+    function moveTo(p) {
+      var w = toWorld(p);
+      if (drag === 'x') {
+        var lim = xLimits();
+        tv = { x: clamp(snap(w.x), -lim.x, lim.x), y: clamp(snap(w.y), -lim.y, lim.y) };
+      } else {
+        var vx = clamp(snap(w.x), -LIM, LIM), vy = clamp(snap(w.y), -LIM, LIM);
+        if (drag === 'i') { m.a = vx; m.c = vy; } else { m.b = vx; m.d = vy; }
+        source = 'user'; lastPreset = null;
+        view = copy(m);
+      }
+      syncUI(); requestDraw();
+    }
+    function onDown(e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      var p = local(e);
+      if (anim) { anim = null; view = copy(m); }
+      drag = hitTest(p, e.pointerType !== 'mouse') || 'x';
+      try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+      canvas.style.cursor = drag === 'x' ? 'crosshair' : 'grabbing';
+      moveTo(p);
+      e.preventDefault();
+    }
+    function onMove(e) {
+      var p = local(e);
+      if (drag) { moveTo(p); return; }
+      if (e.pointerType === 'mouse') {
+        var h = hitTest(p, false);
+        if (h !== hover) { hover = h; canvas.style.cursor = h ? 'grab' : 'crosshair'; requestDraw(); }
+      }
+    }
+    function onUp(e) {
+      if (!drag) return;
+      var was = drag;
+      drag = null;
+      try { canvas.releasePointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+      canvas.style.cursor = hover ? 'grab' : 'crosshair';
+      if (was !== 'x') checkTasks();
+      requestDraw();
+    }
+    function onLeave() { if (!drag && hover) { hover = null; requestDraw(); } }
+    function onKey(e) {
+      var step = e.shiftKey ? 0.1 : 0.5, dx = 0, dy = 0;
+      if (e.key === 'ArrowLeft') dx = -step;
+      else if (e.key === 'ArrowRight') dx = step;
+      else if (e.key === 'ArrowUp') dy = step;
+      else if (e.key === 'ArrowDown') dy = -step;
+      else return;
+      e.preventDefault();
+      var lim = xLimits();
+      tv = { x: clamp(snap(tv.x + dx), -lim.x, lim.x), y: clamp(snap(tv.y + dy), -lim.y, lim.y) };
+      syncUI(); requestDraw();
+    }
+    canvas.addEventListener('pointerdown', onDown);
+    canvas.addEventListener('pointermove', onMove);
+    canvas.addEventListener('pointerup', onUp);
+    canvas.addEventListener('pointercancel', onUp);
+    canvas.addEventListener('pointerleave', onLeave);
+    canvas.addEventListener('keydown', onKey);
+    function onFocus() {
+      var fv = true;
+      try { fv = canvas.matches(':focus-visible'); } catch (err) { /* old browser */ }
+      if (fv) { wrap.style.outline = '3px solid var(--haldi)'; wrap.style.outlineOffset = '2px'; }
+    }
+    function onBlur() { wrap.style.outline = ''; wrap.style.outlineOffset = ''; }
+    canvas.addEventListener('focus', onFocus);
+    canvas.addEventListener('blur', onBlur);
+
+    /* ---------- theme + resize ---------- */
+    function onTheme() { requestDraw(); }
+    var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+    if (mq) { if (mq.addEventListener) mq.addEventListener('change', onTheme); else if (mq.addListener) mq.addListener(onTheme); }
+    document.addEventListener('themechange', onTheme);
+    var mo = null;
+    if (window.MutationObserver) {
+      mo = new MutationObserver(onTheme);
+      mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class', 'style'] });
+    }
+    var ro = null;
+    if (window.ResizeObserver) { ro = new ResizeObserver(function () { resize(); }); ro.observe(wrap); }
+    else window.addEventListener('resize', resize);
+
+    syncUI();
+    resize();
+
+    return {
+      destroy: function () {
+        alive = false;
+        if (raf) cancelAnimationFrame(raf);
+        raf = 0; anim = null;
+        canvas.removeEventListener('pointerdown', onDown);
+        canvas.removeEventListener('pointermove', onMove);
+        canvas.removeEventListener('pointerup', onUp);
+        canvas.removeEventListener('pointercancel', onUp);
+        canvas.removeEventListener('pointerleave', onLeave);
+        canvas.removeEventListener('keydown', onKey);
+        canvas.removeEventListener('focus', onFocus);
+        canvas.removeEventListener('blur', onBlur);
+        if (mq) { if (mq.removeEventListener) mq.removeEventListener('change', onTheme); else if (mq.removeListener) mq.removeListener(onTheme); }
+        document.removeEventListener('themechange', onTheme);
+        if (mo) mo.disconnect();
+        if (ro) ro.disconnect(); else window.removeEventListener('resize', resize);
+        root.innerHTML = '';
+      }
+    };
+  }
+
+  Labs['matrix'] = {
+    id: 'matrix',
+    module: 'l1-linalg-calc',
+    title: 'Matrix transformations',
+    summary: 'See how a 2×2 matrix stretches, turns, flips or flattens the whole plane, and what the determinant and eigenvectors tell you about it.',
+    tasks: TASKS.map(function (t) { return { id: t.id, text: t.text }; }),
+    mount: mount
+  };
+})();
