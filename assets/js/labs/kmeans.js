@@ -14,12 +14,14 @@
   var TWEEN_MS = 420;
   var FLASH_MS = 520;
   /* Extra cluster colours (groups 5 to 8) are derived from the theme's own series colours:
-     same average saturation and lightness, different hue. [hue, lightness shift] */
-  var EXTRA_HUES = [[330, -0.1], [275, 0.05], [60, 0.1], [180, 0.1]];
+     same average saturation and lightness, different hue (magenta, purple, green, sky blue, chosen to stay
+     clear of the theme's indigo, sindoor, haldi and teal). [hue, lightness shift] */
+  var EXTRA_HUES = [[330, -0.05], [280, 0.08], [115, -0.02], [200, 0.1]];
+  var MIN_MARK_CONTRAST = 3; // WCAG 1.4.11: markers need 3:1 against the plot background
   var SHAPES = ['circle', 'square', 'triangle', 'diamond', 'tri-down', 'hexagon', 'star', 'plus'];
 
   var DATASETS = [
-    { id: 'blobs3', name: '3 clear groups', desc: 'Three kinds of shoppers: occasional (low spend, few visits), daily regulars (many small visits) and monthly big-basket buyers (high spend).' },
+    { id: 'blobs3', name: '3 clear groups', desc: 'Three kinds of shoppers: occasional (low spend, few visits), daily regulars (many small visits) and big-basket buyers (high spend, about 10 visits).' },
     { id: 'blobs5', name: '5 groups', desc: 'Five customer types. Can you spot K = 5 on the elbow chart?' },
     { id: 'uneven', name: 'Uneven group sizes', desc: 'One big, spread-out group and two small, tight groups.' },
     { id: 'moons', name: 'Two moons (K-Means fails)', desc: 'Two curved, interlocking shapes instead of round blobs. A made-up shape to test K-Means.' },
@@ -29,7 +31,7 @@
   var TASKS = [
     { id: 't1', text: 'Step by hand: press Assign, then Update, again and again until “Converged” says Yes.' },
     { id: 't2', text: 'On “3 clear groups”, find the bend (the “elbow”) in the elbow chart, set K to it and run to convergence.' },
-    { id: 't3', text: 'With Random starting centres, Re-initialise and Run until K-Means gets stuck with an inertia well above “Best for this K”. Then switch to k-means++ and beat it.' },
+    { id: 't3', text: 'With Random starting centres, Run (and “Run again”) until K-Means gets stuck with an inertia well above “Best for this K” (tip: “5 groups” with K = 5). Then switch to k-means++ and beat it.' },
     { id: 't4', text: 'Pick “Two moons”, set K = 2 and run. See K-Means cut the moons the wrong way.' }
   ];
 
@@ -213,6 +215,12 @@
     return 0.2126 * ch(c[0]) + 0.7152 * ch(c[1]) + 0.0722 * ch(c[2]);
   }
   function contrast(a, b) { var la = luminance(a), lb = luminance(b); return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05); }
+  // darken (light theme) or lighten (dark theme) a colour, keeping its hue, until it stands out from the background
+  function withContrast(c, bg, min) {
+    var hsl = rgbToHsl(c), L = hsl[2], dir = luminance(bg) > 0.4 ? -0.02 : 0.02, out = c;
+    for (var n = 0; n < 45 && contrast(out, bg) < min; n++) { L = clamp(L + dir, 0.04, 0.96); out = hslToRgb(hsl[0], hsl[1], L); }
+    return out;
+  }
 
   var themeCache = { key: '', theme: null };
   function readTheme() {
@@ -229,10 +237,10 @@
     sAvg = Math.min(sAvg / 4, 0.85); lAvg /= 4;
     var pal = series.slice();
     EXTRA_HUES.forEach(function (q) { pal.push(hslToRgb(q[0], sAvg, clamp(lAvg + q[1], 0.2, 0.85))); });
-    T.pal = pal;
+    T.pal = pal.map(function (c) { return withContrast(c, T.surface, MIN_MARK_CONTRAST); });
     T.dark = luminance(T.surface) < 0.2;
     // text colour inside each centre marker: whichever of ink / surface contrasts more
-    T.onPal = pal.map(function (c) { return contrast(c, T.ink) >= contrast(c, T.surface) ? T.ink : T.surface; });
+    T.onPal = T.pal.map(function (c) { return contrast(c, T.ink) >= contrast(c, T.surface) ? T.ink : T.surface; });
     themeCache = { key: key, theme: T };
     return T;
   }
@@ -312,9 +320,9 @@
               '<div class="stat"><div class="k">Converged</div><div class="v" id="' + P + 'conv">No</div></div>' +
               '<div class="stat"><div class="k">Best for this K</div><div class="v" id="' + P + 'best">—</div></div>' +
             '</div>' +
-            '<p class="small muted"><strong style="color:var(--ink)">Elbow chart.</strong> Inertia (how spread out the groups are) for every K, best of 6 tries. Look for the “elbow”: the K after which adding groups stops helping much. Tap a K to try it.</p>' +
+            '<p class="small muted"><strong style="color:var(--ink)">Elbow chart.</strong> Inertia (how spread out the groups are: add up each customer’s squared distance to its own centre) for every K, best of 6 tries. Look for the “elbow”: the K after which adding groups stops helping much. Tap a K to try it.</p>' +
             '<div class="lab-canvas-wrap" id="' + P + 'ewrap" style="aspect-ratio:5/2;max-height:230px"><canvas id="' + P + 'elbow" role="img" aria-label="Elbow chart"></canvas></div>' +
-            '<p class="kbd-hint">Tip: tap an empty spot to add a new customer. Drag a numbered centre to move it by hand.</p>' +
+            '<p class="kbd-hint">Tip: tap an empty spot to add a new customer. Drag a numbered centre to move it by hand. Distances are measured after scaling both axes to 0–1, so ₹ and visits count equally.</p>' +
           '</div>' +
           '<div class="lab-controls">' +
             '<div class="control"><label for="' + P + 'data">Customer data</label>' +
@@ -328,6 +336,7 @@
                 '<button type="button" data-init="kpp" aria-pressed="false">k-means++</button>' +
               '</div>' +
               '<p class="small muted">Random = K random customers become the first centres. k-means++ = first centres picked far apart from each other.</p></div>' +
+            '<div id="' + P + 'steps" style="display:flex;flex-direction:column;gap:14px">' +
             '<div class="control"><span class="control-label">Step by step</span>' +
               '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
                 '<button type="button" class="btn" id="' + P + 'assign">1 · Assign</button>' +
@@ -336,7 +345,7 @@
             '<div style="display:grid;grid-template-columns:minmax(0,1fr);gap:8px">' +
               '<button type="button" class="btn btn-primary" id="' + P + 'run">Run to convergence</button>' +
               '<button type="button" class="btn" id="' + P + 'reinit">Re-initialise (new starting centres)</button>' +
-            '</div>' +
+            '</div></div>' +
             '<div class="row small"><input type="checkbox" id="' + P + 'regions" checked><label for="' + P + 'regions">Tint the area each centre “owns”</label></div>' +
             '<div class="stack-sm"><h4>Your tasks</h4><ul class="lab-tasks" id="' + P + 'tasks">' + tasksHtml + '</ul></div>' +
           '</div>' +
@@ -361,7 +370,7 @@
       phase: 'init', iter: 0, converged: false, inertia: null, csAreMeans: false,
       initUsed: 'random', manualOnly: true, seedCounter: 0, dataVersion: 0,
       best: [], bestVersion: -1, stuck: null, userChangedK: false,
-      running: false, nextAt: 0, flashStart: -1e9, showRegions: true, counts: []
+      running: false, nextAt: 0, flashStart: -1e9, showRegions: true, counts: [], missKey: '', misses: 0
     };
     var done = {};
     var dims = { w: 1, h: 1, dpr: 1, ew: 1, eh: 1 };
@@ -417,8 +426,9 @@
       var er = ewrap.getBoundingClientRect();
       dims.ew = Math.max(1, Math.round(er.width)); dims.eh = Math.max(1, Math.round(er.height));
       ecanvas.width = Math.round(dims.ew * dpr); ecanvas.height = Math.round(dims.eh * dpr);
-      elbowDirty = true;
-      requestDraw();
+      // setting width/height clears both canvases; redraw now so no blank frame is painted
+      drawPlot(performance.now());
+      drawElbow(); elbowDirty = false;
     }
 
     /* ---------- elbow (best inertia per K from several k-means++ restarts) ---------- */
@@ -511,7 +521,7 @@
       elbowDirty = true;
       if (!quiet) {
         var empty = [];
-        res.counts.forEach(function (c, j) { if (!c) empty.push(j + 1); });
+        res.counts.forEach(function (c, g) { if (!c) empty.push(g + 1); });
         setMsg('Update (round ' + S.iter + '): each centre moved to the middle of its customers. Inertia fell to ' + f3(S.inertia) + '. <b>Next: Assign again</b>: some customers may now be nearer a different centre.' +
           (empty.length ? ' Centre ' + empty.join(', ') + ' has no customers, so it stays put.' : ''));
       }
@@ -527,14 +537,25 @@
       var notes = [];
       if (S.initUsed === 'random' && k >= 2 && I > best * 1.1) {
         S.stuck = { key: key, inertia: I };
+        S.misses = 0;
         var ratio = I / best;
         var worse = ratio >= 2 ? 'about ' + ratio.toFixed(1) + ' times' : Math.round((ratio - 1) * 100) + '% higher than';
         notes.push('<b>Stuck!</b> Inertia ' + f3(I) + ' is ' + worse + ' the best known for K = ' + k + ' (' + f3(best) + '). K-Means settled into a poor grouping it cannot escape by itself (a “local minimum”). Now try k-means++.');
       } else if (S.initUsed === 'kpp' && S.stuck && S.stuck.key === key && I < S.stuck.inertia * 0.95 && I <= best * 1.1) {
         notes.push('<b>Fixed!</b> k-means++ spread the starting centres out and reached inertia ' + f3(I) + ' instead of the stuck ' + f3(S.stuck.inertia) + '.');
         completeTask('t3');
+      } else if (S.initUsed === 'random' && k >= 2 && !done.t3 && !S.stuck) {
+        // hunting for a stuck start: after a couple of good runs, say how to find one faster
+        S.misses = S.missKey === key ? S.misses + 1 : 1;
+        S.missKey = key;
+        if (S.misses >= 2) {
+          notes.push(S.dataset === 'blobs5' && k === 5
+            ? 'Not stuck this time. Press “Run again” for a new random start.'
+            : 'Not stuck this time. Stuck starts are rare here: try “5 groups” with K = 5 and press “Run again” a few times.');
+        }
       }
-      if (S.manualOnly && !wasRunning && S.iter >= 2) completeTask('t1');
+      // stepped by hand from a fresh start until nothing changed (at least one full Assign + Update round)
+      if (S.manualOnly && !wasRunning && S.iter >= 1) completeTask('t1');
       if (S.dataset === 'blobs3' && k === 3) {
         if (!S.stuck || S.stuck.key !== key || S.stuck.inertia !== I) notes.push('K = 3 sits at the elbow: going to 4 groups barely lowers inertia, so the extra group is not worth it.');
         if (S.userChangedK) completeTask('t2');
@@ -811,7 +832,7 @@
       ge.fillStyle = rgbStr(T.surface); ge.fillRect(0, 0, w, h);
       if (!S.best.length) return;
       var small = w < 480, fs = small ? 11 : 12;
-      var pl = small ? 40 : 48, pr = 12, pt = 28, pb = 32;
+      var pl = small ? 40 : 48, pr = 12, pt = 28, pb = 36;
       var pw = Math.max(10, w - pl - pr), ph = Math.max(10, h - pt - pb);
       var maxV = S.best[1] || 1;
       if (S.inertia != null) maxV = Math.max(maxV, S.inertia);
@@ -837,7 +858,7 @@
       for (var k = 1; k <= K_MAX; k++) {
         ge.fillStyle = k === S.k ? rgbStr(T.ink) : rgbStr(T.muted);
         ge.font = (k === S.k ? '700 ' : '') + fs + 'px ' + T.font;
-        ge.fillText(String(k), xOf(k), pt + ph + 4);
+        ge.fillText(String(k), xOf(k), pt + ph + 9);
       }
       ge.font = fs + 'px ' + T.font;
       ge.fillStyle = rgbStr(T.muted);
@@ -877,9 +898,9 @@
     var drag = null, down = null;
     function localPos(e, el) { var r = el.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
     function hitCentre(p, touch) {
-      var G = geom(), R = centreRadius() + (touch ? 12 : 6);
-      for (var j = S.cs.length - 1; j >= 0; j--) {
-        var c = toPx(G, S.cs[j]);
+      var G = geom(), R = centreRadius() + (touch ? 12 : 6), shown = displayCentres(performance.now());
+      for (var j = shown.length - 1; j >= 0; j--) {
+        var c = toPx(G, shown[j]);
         if ((c.x - p.x) * (c.x - p.x) + (c.y - p.y) * (c.y - p.y) <= R * R) return j;
       }
       return -1;
@@ -929,13 +950,15 @@
     on(canvas, 'pointerup', onUp);
     on(canvas, 'pointercancel', onCancel);
 
-    function onElbowDown(e) {
+    function onElbowClick(e) {
       var p = localPos(e, ecanvas), small = dims.ew < 480;
       var pl = small ? 40 : 48, pw = Math.max(10, dims.ew - pl - 12);
       var k = clamp(Math.floor((p.x - pl) / pw * K_MAX) + 1, 1, K_MAX);
       setK(k);
     }
-    on(ecanvas, 'pointerdown', onElbowDown);
+    // a click only fires for a tap, so swiping over the chart scrolls the page instead of changing K
+    on(ecanvas, 'click', onElbowClick);
+    ecanvas.style.touchAction = 'pan-y';
     ecanvas.style.cursor = 'pointer';
     canvas.style.cursor = 'crosshair';
 
@@ -967,6 +990,20 @@
     var mql = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
     if (mql) { if (mql.addEventListener) mql.addEventListener('change', onTheme); else if (mql.addListener) mql.addListener(onTheme); }
     on(document, 'themechange', onTheme);
+    // style.css stacks .lab-body into one column at 820px; then the step buttons move right under the plot,
+    // so on a phone you can press Assign / Update and watch the centres move (they move back on wider screens)
+    var stepBox = $('steps'), btnRegionsRow = elRegions.parentNode, controls = btnRegionsRow.parentNode;
+    var mqNarrow = window.matchMedia ? window.matchMedia('(max-width: 820px)') : null;
+    function placeSteps() {
+      if (destroyed) return;
+      var narrow = !!(mqNarrow && mqNarrow.matches), fe = document.activeElement, had = !!(fe && stepBox.contains(fe));
+      if (narrow && stepBox.parentNode !== wrap.parentNode) { wrap.parentNode.insertBefore(stepBox, wrap.nextSibling); stepBox.style.margin = '6px 0 2px'; }
+      else if (!narrow && stepBox.parentNode !== controls) { controls.insertBefore(stepBox, btnRegionsRow); stepBox.style.margin = ''; }
+      else return;
+      if (had) { try { fe.focus({ preventScroll: true }); } catch (err) { /* ignore */ } }
+    }
+    if (mqNarrow) { if (mqNarrow.addEventListener) mqNarrow.addEventListener('change', placeSteps); else if (mqNarrow.addListener) mqNarrow.addListener(placeSteps); }
+    placeSteps();
     applyAspect();
     var ro = null;
     if (window.ResizeObserver) { ro = new ResizeObserver(function () { resize(); }); ro.observe(wrap); ro.observe(ewrap); }
@@ -990,6 +1027,7 @@
         clearTimeout(elbowTimer);
         if (ro) ro.disconnect();
         if (mql) { if (mql.removeEventListener) mql.removeEventListener('change', onTheme); else if (mql.removeListener) mql.removeListener(onTheme); }
+        if (mqNarrow) { if (mqNarrow.removeEventListener) mqNarrow.removeEventListener('change', placeSteps); else if (mqNarrow.removeListener) mqNarrow.removeListener(placeSteps); }
         listeners.forEach(function (l) { l[0].removeEventListener(l[1], l[2], l[3]); });
         listeners = [];
         root.innerHTML = '';

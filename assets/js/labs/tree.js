@@ -833,7 +833,12 @@
     function invalidate() { if (!raf && !destroyed) raf = requestAnimationFrame(frame); }
 
     /* ---------- events ---------- */
-    function onDepth() { st.depth = +depthC.input.value; depthC.out.textContent = String(st.depth); note = ''; invalidate(); }
+    function onDepth() {
+      st.depth = +depthC.input.value; depthC.out.textContent = String(st.depth); note = '';
+      // count every depth the slider passes through, even if a fast drag skips its frame
+      var k = keyBase(); if (!visited[k]) visited[k] = {}; visited[k][st.depth] = true;
+      invalidate();
+    }
     function onLeaf() { st.minLeaf = +leafC.input.value; leafC.out.textContent = String(st.minLeaf); note = ''; invalidate(); }
     function onTrees() { st.nTrees = +treesC.input.value; treesC.out.textContent = String(st.nTrees); invalidate(); }
     depthC.input.addEventListener('input', onDepth);
@@ -869,7 +874,7 @@
       if (a.kind !== b.kind) return false;
       if (a.kind === 'pt') return a.set === b.set && a.i === b.i;
       if (a.kind === 'node') return a.id === b.id;
-      return false;
+      return a.x[0] === b.x[0] && a.x[1] === b.x[1]; // 'loc': same rounded spot
     }
     var pressed = false;
     function onMove(e) {

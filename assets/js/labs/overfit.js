@@ -219,7 +219,7 @@
               legendItem(swatchDot('var(--series-2)', true), 'Test rings') +
             '</div>' +
             '<p class="kbd-hint" id="' + P + 'kbd">Drag a filled dot up or down to see how much the curve reacts. Keyboard: Tab to the plot, ← → picks a dot, ↑ ↓ moves it.</p>' +
-            '<p class="small muted" style="margin-top:6px"><strong style="color:var(--ink)">Error chart.</strong> Training and test error (MSE) for every degree from 0 to 15, on a log scale (each labelled 1, 10, 100 … step is 10 times the one below, so tiny and huge errors fit on one chart). The dashed line is the noise level: on new data, no curve can do much better than that. Tap a degree to try it.</p>' +
+            '<p class="small muted" style="margin-top:6px"><strong style="color:var(--ink)">Error chart.</strong> Training and test error (MSE) for every degree from 0 to 15, on a log scale: from 0.01 to 0.1 to 1 to 10, each step up means 10 times more error, so tiny and huge errors fit on one chart. The dashed line is the noise level: on new data, no curve can do much better than that. Tap a degree to try it.</p>' +
             '<div class="lab-canvas-wrap" id="' + P + 'ewrap" style="aspect-ratio:2/1;max-height:260px"><canvas id="' + P + 'err" role="img" aria-label="Error chart" style="touch-action:pan-y"></canvas></div>' +
             '<div class="lab-legend">' +
               legendItem(swatchLine('var(--series-1)', false, 2) .replace('</svg>', '<circle cx="11" cy="5" r="3" style="fill:var(--series-1)"/></svg>'), 'Training error') +
@@ -652,7 +652,7 @@
       // grid lines at powers of ten
       ge.font = (G.small ? '10px ' : '11px ') + T.font;
       ge.textAlign = 'right'; ge.textBaseline = 'middle';
-      var step = (L1 - L0) > 5 ? 2 : 1;
+      var step = G.ph / (L1 - L0) < 16 ? 2 : 1; // label every power of ten unless they would crowd
       if (L1 - L0 <= 2.01) {
         // narrow range: add faint lines (and labels) at 2× and 5× inside each decade
         for (k = Math.round(L0); k < Math.round(L1); k++) {
