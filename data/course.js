@@ -350,7 +350,8 @@ window.AIM.modules = [
     "note": "A short animated English hook on how ChatGPT-style models predict the next word; watch it after the Hindi generative AI video to lock in the idea."
    }
   ],
-  "best": "apna-college-complete-basics-of-ai-in-one-shot"
+  "best": "apna-college-complete-basics-of-ai-in-one-shot",
+  "figs": true
  },
  {
   "id": "l1-python",
@@ -489,7 +490,8 @@ window.AIM.modules = [
     "note": "Finish the module with these short notebook lessons; they also teach the Kaggle Notebook setup used in later ML modules."
    }
   ],
-  "best": "codewithharry-haris-ali-khan-python-tutorial-for-absolut"
+  "best": "codewithharry-haris-ali-khan-python-tutorial-for-absolut",
+  "figs": true
  },
  {
   "id": "l1-tools",

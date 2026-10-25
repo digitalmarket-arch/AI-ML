@@ -826,37 +826,30 @@
       }
       if (S.hover >= 0) ring(S.hover, rgb(T.haldi), 2.2, 3.5);
 
-      // labels: forced ones first (selected, involved, hovered), then as many others as fit without overlap
-      var placed = [], fsL = G.small ? 11.5 : 12.5, h = fsL + 4, badgeR = 7.5;
+      // labels: the words in focus first (forced: they always get a spot), then the ★ label, then as many
+      // other words as fit without overlapping anything
+      var placed = [], leaders = [], labels = [], fsL = G.small ? 11.5 : 12.5, h = fsL + 4, badgeR = 7.5;
       var obstacles = screenPos.map(function (p) { return { x: p[0] - r - 1, y: p[1] - r - 1, w: 2 * r + 2, h: 2 * r + 2 }; });
-      var order = [], seen = {};
-      function push(j, forced) { if (j >= 0 && !seen[j]) { seen[j] = true; order.push({ i: j, forced: forced }); } }
-      if (S.hover >= 0) push(S.hover, true);
-      Object.keys(inv).forEach(function (key) { push(+key, true); });
-      LABEL_FIRST.forEach(function (nm) { push(indexOf(nm), false); });
-      for (i = 0; i < NW; i++) push(i, false);
-      var labels = [], leaders = [];
-      order.forEach(function (it) {
-        var j = it.i, p = screenPos[j], bold = !!inv[j] || j === S.hover;
-        g.font = font(T, fsL, bold ? '700' : '400');
-        var badge = info.badges[j] || '';
-        g.font = font(T, 10, '700');
-        var bw = badge ? Math.max(2 * badgeR, g.measureText(badge).width + 8) : 0;
-        g.font = font(T, fsL, bold ? '700' : '400');
-        var tw = g.measureText(nameOf(j)).width, w = tw + (badge ? bw + 4 : 0) + 4;
-        var ringed = (S.mode === 'nbrs' && j === S.sel) || (S.mode === 'compare' && (j === S.cmp[0] || j === S.cmp[1])) || (S.mode === 'analogy' && A && j === A.best) || j === S.hover;
-        var off = r + (ringed ? 8 : 3), cands = [
+      var starBox = starXY ? { x: starXY[0] - 10, y: starXY[1] - 10, w: 20, h: 20 } : null;
+      // the arrows / line of the current view: labels try not to sit on them
+      var segs = [];
+      if (S.mode === 'analogy' && A) {
+        segs.push(screenPos[S.ana[1]].concat(screenPos[S.ana[2]]));
+        if (starXY && !starOff) segs.push(screenPos[S.ana[0]].concat(starXY));
+      } else if (S.mode === 'compare' && S.cmp[0] !== S.cmp[1]) segs.push(screenPos[S.cmp[0]].concat(screenPos[S.cmp[1]]));
+      // find the best free spot for a label of width w next to point p
+      function place(p, w, self, forced, off, rings, ignoreSegs) {
+        var cands = [
           [off, -h / 2], [-off - w, -h / 2], [-w / 2, -off - h], [-w / 2, off],
           [off - 2, -off - h + 3], [off - 2, off - 3], [-off - w + 2, -off - h + 3], [-off - w + 2, off - 3]
         ];
         var nearCount = cands.length;
-        // further spots, joined to the dot by a thin leader line: always for the words in focus,
-        // only one ring out for the others, and none for the others on a small map (it gets too busy)
-        (it.forced ? [16, 28, 42] : (G.small ? [] : [17])).forEach(function (d) {
+        // further spots, joined to the point by a thin leader line
+        rings.forEach(function (d) {
           cands.push([d, -h / 2], [-d - w, -h / 2], [-w / 2, -d - h], [-w / 2, d], [d * 0.7, -d * 0.7 - h], [d * 0.7, d * 0.7], [-d * 0.7 - w, -d * 0.7 - h], [-d * 0.7 - w, d * 0.7]);
         });
-        var best = null, bestScore = Infinity;
-        for (var c = 0; c < cands.length; c++) {
+        var best = null, bestScore = Infinity, c, k;
+        for (c = 0; c < cands.length; c++) {
           var rect = { x: p[0] + cands[c][0], y: p[1] + cands[c][1], w: w, h: h };
           // stay inside the plot, clear of the axis titles
           if (rect.x < G.pl - 4 || rect.y < 2 || rect.x + rect.w > W - 2 || rect.y + rect.h > H - (G.small ? 22 : 26)) continue;
@@ -871,21 +864,58 @@
             if (lead && segsCross(lead, leaders[k])) bad += 6;
           }
           for (k = 0; k < NW; k++) {
-            if (k === j) continue;
+            if (k === self) continue;
             if (rectsOverlap(rect, obstacles[k])) bad += inv[k] ? 3 : 1;
             else if (lead && segNearPoint(lead, screenPos[k], r + 1)) bad += 2;
           }
-          if (starXY && rectsOverlap(rect, { x: starXY[0] - 10, y: starXY[1] - 10, w: 20, h: 20 })) bad += 3;
-          if (!it.forced && bad > 0) continue;
+          if (starBox && self !== -2 && rectsOverlap(rect, starBox)) bad += 3;
+          if (!ignoreSegs) for (k = 0; k < segs.length; k++) if (segHitsRect(segs[k], rect)) bad += 2;
+          if (!forced && bad > 0) continue;
           score += bad;
-          if (score < bestScore) { bestScore = score; best = { rect: rect, far: far, lead: lead }; }
+          if (score < bestScore) { bestScore = score; best = { rect: rect, lead: lead }; }
         }
-        if (!best) return;
-        placed.push(best.rect);
-        if (best.lead) leaders.push(best.lead);
-        labels.push({ i: j, rect: best.rect, lead: best.lead, bold: bold, badge: badge, bw: bw, muted: active && !inv[j] && j !== S.hover });
+        if (best) { placed.push(best.rect); if (best.lead) leaders.push(best.lead); }
+        return best;
+      }
+      var order = [], seen = {};
+      function push(j, forced) { if (j >= 0 && !seen[j]) { seen[j] = true; order.push({ i: j, forced: forced }); } }
+      if (S.hover >= 0) push(S.hover, true);
+      Object.keys(inv).forEach(function (key) { push(+key, true); });
+      if (starXY) order.push({ i: -2, forced: true });
+      LABEL_FIRST.forEach(function (nm) { push(indexOf(nm), false); });
+      for (i = 0; i < NW; i++) push(i, false);
+      order.forEach(function (it) {
+        var j = it.i, spot;
+        if (j === -2) {
+          // the label of the analogy result star
+          var st = starOff ? 'A − B + C (off the map)' : 'A − B + C';
+          g.font = font(T, fsL, '700');
+          spot = place(starXY, g.measureText(st).width + 4, -2, true, 13, [24, 38], false);
+          if (spot) labels.push({ text: st, rect: spot.rect, lead: spot.lead, bold: true, badge: '', bw: 0, muted: false });
+          return;
+        }
+        var p = screenPos[j], bold = !!inv[j] || j === S.hover, badge = info.badges[j] || '';
+        g.font = font(T, 10, '700');
+        var bw = badge ? Math.max(2 * badgeR, g.measureText(badge).width + 8) : 0;
+        g.font = font(T, fsL, bold ? '700' : '400');
+        var w = g.measureText(nameOf(j)).width + (badge ? bw + 4 : 0) + 4;
+        var ringed = (S.mode === 'nbrs' && j === S.sel) || (S.mode === 'compare' && (j === S.cmp[0] || j === S.cmp[1])) || (S.mode === 'analogy' && A && j === A.best) || j === S.hover;
+        // far spots: always for the words in focus, only one ring out for the others, none for the others on a small map
+        spot = place(p, w, j, it.forced, r + (ringed ? 8 : 3), it.forced ? [16, 28, 42] : (G.small ? [] : [17]), false);
+        if (spot) labels.push({ text: nameOf(j), rect: spot.rect, lead: spot.lead, bold: bold, badge: badge, bw: bw, muted: active && !inv[j] && j !== S.hover });
       });
-      // leader lines for labels pushed away from their dot
+      // the share-of-width label on the compare line, only where it fits cleanly
+      if (S.mode === 'compare' && S.cmp[0] !== S.cmp[1]) {
+        var a1 = screenPos[S.cmp[0]], a2 = screenPos[S.cmp[1]], cs = cmpStats();
+        var txt = Math.round(cs.share * 100) + '% of width';
+        g.font = font(T, 11, '600');
+        var mw = g.measureText(txt).width + 4;
+        if (Math.hypot(a1[0] - a2[0], a1[1] - a2[1]) > mw + 30) {
+          var spotM = place([(a1[0] + a2[0]) / 2, (a1[1] + a2[1]) / 2], mw, -3, false, 4, [], true);
+          if (spotM) labels.push({ text: txt, rect: spotM.rect, lead: null, bold: true, badge: '', bw: 0, muted: false, small: true });
+        }
+      }
+      // leader lines for labels pushed away from their point
       labels.forEach(function (L) {
         if (!L.lead) return;
         g.beginPath(); g.moveTo(L.lead[0], L.lead[1]); g.lineTo(L.lead[2], L.lead[3]);
@@ -906,34 +936,12 @@
           g.textAlign = 'left';
           x += bw2 + 4;
         }
-        g.font = font(T, fsL, L.bold ? '700' : '400');
+        g.font = L.small ? font(T, 11, '600') : font(T, fsL, L.bold ? '700' : '400');
         g.lineWidth = 3.2; g.strokeStyle = rgb(T.surface, 0.92);
-        g.strokeText(nameOf(L.i), x, y + 0.5);
+        g.strokeText(L.text, x, y + 0.5);
         g.fillStyle = L.muted ? rgb(T.muted) : ink;
-        g.fillText(nameOf(L.i), x, y + 0.5);
+        g.fillText(L.text, x, y + 0.5);
       });
-      // labels for the star and the compare line
-      if (starXY) {
-        var st = starOff ? 'A − B + C (off the map)' : 'A − B + C';
-        g.font = font(T, fsL, '700');
-        var stw = g.measureText(st).width, stx = starXY[0] + 13, sty = starXY[1] - 14;
-        if (stx + stw > W - 4) stx = starXY[0] - 13 - stw;
-        if (sty < 10) sty = starXY[1] + 16;
-        g.lineWidth = 3.2; g.strokeStyle = rgb(T.surface, 0.92); g.strokeText(st, stx, sty);
-        g.fillStyle = ink; g.fillText(st, stx, sty);
-      }
-      if (S.mode === 'compare' && S.cmp[0] !== S.cmp[1]) {
-        var a1 = screenPos[S.cmp[0]], a2 = screenPos[S.cmp[1]], cs = cmpStats();
-        var txt = Math.round(cs.share * 100) + '% of width';
-        g.font = font(T, 11, '600');
-        var mw = g.measureText(txt).width, mxp = (a1[0] + a2[0]) / 2, myp = (a1[1] + a2[1]) / 2;
-        var dist = Math.hypot(a1[0] - a2[0], a1[1] - a2[1]);
-        if (dist > mw + 30) {
-          g.lineWidth = 3.2; g.strokeStyle = rgb(T.surface, 0.95); g.textAlign = 'center';
-          g.strokeText(txt, mxp, myp - 9); g.fillStyle = ink; g.fillText(txt, mxp, myp - 9);
-          g.textAlign = 'left';
-        }
-      }
     }
     function requestDraw() { if (!rafId && !destroyed) rafId = requestAnimationFrame(draw); }
 

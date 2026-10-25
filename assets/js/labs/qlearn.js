@@ -174,7 +174,7 @@
     }
     function slider(id, label, min, max, step, val, help) {
       return '<div class="control"><label for="' + P + id + '">' + label + ' <output id="' + P + id + 'out" for="' + P + id + '"></output></label>' +
-        '<input type="range" id="' + P + id + '" min="' + min + '" max="' + max + '" step="' + step + '" value="' + val + '" aria-describedby="' + P + id + 'help">' +
+        '<input type="range" style="margin-left:0;margin-right:0" id="' + P + id + '" min="' + min + '" max="' + max + '" step="' + step + '" value="' + val + '" aria-describedby="' + P + id + 'help">' +
         '<p class="small muted" id="' + P + id + 'help">' + help + '</p></div>';
     }
     function stat(id, k) { return '<div class="stat"><div class="k">' + k + '</div><div class="v" id="' + P + id + '">—</div></div>'; }
@@ -216,7 +216,7 @@
               '<p class="kbd-hint" id="' + P + 'kbd">Keyboard: Tab to the map, pick a square with the arrow keys, press Enter to tap it, S to move the start there and C to move the customer there.</p>' +
             '</div>' +
           '</div>' +
-          '<div class="stack" id="' + P + 'extras">' +
+          '<div id="' + P + 'extras" style="display:grid;grid-template-columns:minmax(0,1fr);gap:16px">' +
           '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px;align-items:start">' +
             '<div class="stack-sm">' +
               '<h2 class="lab-h">Total reward per episode</h2>' +
