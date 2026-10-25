@@ -44,9 +44,12 @@
   /* ---------- progress maths ---------- */
   function moduleParts(m) {
     var st = S(), parts = [];
-    // the watch step counts as done when ANY of the main picks (in any language) is marked finished
-    var mp = mainPicks(m), mainIds = [mp.main, mp.second].filter(Boolean).map(function (r) { return r.id; });
-    if (mainIds.length) { var w = mainIds.some(function (rid) { return !!st.watched[rid]; }); parts.push({ k: 'Watch the main lessons', done: w, n: w ? 1 : 0, of: 1 }); }
+    // the watch step counts as done when the best pick, or any recommended alternative video or course, is finished
+    var mp = mainPicks(m);
+    if (mp.main) {
+      var w = mp.list.some(function (r) { return st.watched[r.id] && (r === mp.main || (mp.curated.indexOf(r.id) >= 0 && VIDEO_TYPES[r.type])); });
+      parts.push({ k: 'Watch the main lesson', done: w, n: w ? 1 : 0, of: 1 });
+    }
     var lab = labOf(m);
     if (lab) { var t = lab.tasks || [], dn = t.filter(function (x) { return st.labs[lab.id] && st.labs[lab.id][x.id]; }).length; parts.push({ k: 'Lab tasks', done: dn === t.length && t.length > 0, n: dn, of: t.length }); }
     var ex = exOf(m.id).filter(function (e) { return !e.optional; });
@@ -76,12 +79,11 @@
   var VIDEO_TYPES = { playlist: 1, video: 1, course: 1, channel: 1 };
   var STATUS_RANK = { verified: 0, partial: 1, unverified: 2 };
   function watchList(m) {
-    var pref = S().prefs.lang;
     var curated = (m.watch || []).map(function (w) { return w.id; });
     var list = D.resources.filter(function (r) { return (r.modules || []).indexOf(m.id) >= 0; });
     return list.sort(function (a, b) {
       var ca = curated.indexOf(a.id), cb = curated.indexOf(b.id);
-      var la = C.langRank(a.language, pref), lb = C.langRank(b.language, pref);
+      var la = C.langRank(a.language), lb = C.langRank(b.language);
       if (la !== lb) return la - lb;
       if (ca !== cb) return (ca < 0 ? 999 : ca) - (cb < 0 ? 999 : cb);
       var va = VIDEO_TYPES[a.type] ? 0 : 1, vb = VIDEO_TYPES[b.type] ? 0 : 1;
@@ -91,32 +93,22 @@
   }
   var isHiLang = function (r) { return r.language === 'hindi' || r.language === 'hinglish'; };
   function langGroup(r) { return isHiLang(r) ? 'hi' : r.language === 'indian-english' ? 'in' : 'en'; }
+  // the best pick: pinned per module (m.best, chosen by review) or the first confirmed video from the curated list;
+  // Hindi, Hinglish and Indian English count equally
   function mainPicks(m) {
     var list = watchList(m);
-    var vids = list.filter(function (r) { return VIDEO_TYPES[r.type]; });
-    var isVideo = function (r) { return r.type === 'playlist' || r.type === 'video'; };
-    var order = S().prefs.lang === 'en' ? ['in', 'hi', 'en'] : ['hi', 'in', 'en'];
-    var pickFrom = function (pred, exclude) {
-      for (var gi = 0; gi < order.length; gi++) {
-        var hit = vids.filter(function (r) { return langGroup(r) === order[gi] && pred(r) && r !== exclude && (!exclude || langGroup(r) !== langGroup(exclude)); })[0];
-        if (hit) return hit;
-      }
-      return null;
-    };
-    // curated (in the module's watch list) and confirmed links win; an editor can pin a main pick with "main": true
     var curated = (m.watch || []).map(function (w) { return w.id; });
-    var good = function (r) { return curated.indexOf(r.id) >= 0 && r.status === 'verified'; };
-    var pinnedId = ((m.watch || []).filter(function (w) { return w.main; })[0] || {}).id;
-    var pinned = pinnedId ? list.filter(function (r) { return r.id === pinnedId; })[0] : null;
-    var ok = function (r) { return r.status === 'verified'; };
+    var isVideo = function (r) { return r.type === 'playlist' || r.type === 'video'; };
     var indian = function (r) { return langGroup(r) !== 'en'; };
-    var main = pinned || pickFrom(function (r) { return isVideo(r) && good(r); }) || pickFrom(function (r) { return isVideo(r) && ok(r); }) ||
-      pickFrom(function (r) { return isVideo(r) && r.status !== 'unverified'; }) || pickFrom(isVideo) || vids[0] || null;
-    var second = main ? (pickFrom(function (r) { return isVideo(r) && good(r) && indian(r); }, main) ||
-      pickFrom(function (r) { return good(r) && indian(r); }, main) ||
-      pickFrom(function (r) { return isVideo(r) && ok(r) && indian(r); }, main) ||
-      pickFrom(function (r) { return indian(r) && r.status !== 'unverified'; }, main) || pickFrom(isVideo, main)) : null;
-    return { list: list, main: main, second: second };
+    var good = function (r) { return curated.indexOf(r.id) >= 0 && r.status === 'verified'; };
+    var first = function (pred) { return list.filter(pred)[0] || null; };
+    var pinnedId = m.best || ((m.watch || []).filter(function (w) { return w.main; })[0] || {}).id;
+    var best = (pinnedId ? first(function (r) { return r.id === pinnedId; }) : null) ||
+      first(function (r) { return isVideo(r) && indian(r) && good(r); }) ||
+      first(function (r) { return isVideo(r) && indian(r) && r.status === 'verified'; }) ||
+      first(function (r) { return isVideo(r) && r.status !== 'unverified'; }) || first(isVideo) ||
+      first(function (r) { return VIDEO_TYPES[r.type]; }) || list[0] || null;
+    return { list: list, main: best, curated: curated };
   }
   function noteFor(m, r) { var w = (m.watch || []).filter(function (x) { return x.id === r.id; })[0]; return w ? w.note : ''; }
 
@@ -130,7 +122,7 @@
     var isYT = /youtube\.com|youtu\.be/.test(r.url || '');
     var embeddable = C.canEmbed(r);
     return '<article class="res-card' + (opts.featured ? ' featured' : '') + '" data-res="' + esc(r.id) + '">' + player +
-      '<div class="res-meta">' + C.langChip(r.language) + '<span class="chip chip-level">' + esc(r.type) + '</span>' + (embeddable ? posChip(r) : '') +
+      '<div class="res-meta">' + C.langChip(r.language) + '<span class="chip chip-level">' + esc(r.type) + '</span>' + (opts.recommended ? '<span class="chip chip-rec">Recommended</span>' : '') + (embeddable ? posChip(r) : '') +
       (r.approxHours ? '<span class="chip num">~' + esc(r.approxHours) + ' h</span>' : '') +
       '<span class="chip">' + esc(r.platform || '') + '</span>' + status + '</div>' +
       '<h3 class="res-title"><a href="' + esc(r.url) + '" target="_blank" rel="noopener">' + esc(r.title) + '</a></h3>' +
@@ -216,8 +208,8 @@
   }
   // every resource of a module in study order: the main picks first, then the rest
   function checklistOrder(m) {
-    var mp = mainPicks(m), first = [mp.main, mp.second].filter(Boolean);
-    return first.concat(mp.list.filter(function (r) { return first.indexOf(r) < 0; }));
+    var mp = mainPicks(m);
+    return mp.main ? [mp.main].concat(mp.list.filter(function (r) { return r !== mp.main; })) : mp.list;
   }
   function resTicks(m) {
     var list = D.resources.filter(function (r) { return (r.modules || []).indexOf(m.id) >= 0; }), st = S();
@@ -237,9 +229,9 @@
       bar(p, 'Resources finished in this module') + nextHTML +
       '<details id="checklist-all"><summary>Tick off all ' + t.of + ' resources</summary><ul class="checklist small">' + order.map(function (r) {
         return '<li><label><input type="checkbox" data-action="watched" data-id="' + esc(r.id) + '"' + (st.watched[r.id] ? ' checked' : '') + '><span>' + esc(r.title) +
-          ' <span class="muted">· ' + esc(r.type) + (r === mp.main ? ' · main pick' : '') + '</span> ' + (C.canEmbed(r) ? posChip(r) : '') + '</span></label></li>';
+          ' <span class="muted">· ' + esc(r.type) + (r === mp.main ? ' · best pick' : '') + '</span> ' + (C.canEmbed(r) ? posChip(r) : '') + '</span></label></li>';
       }).join('') + '</ul></details>' +
-      '<p class="small muted">Videos tick themselves when you finish them here, and playlists remember which video you were on. Courses on other sites, books and tools: tick them yourself. Only the main lesson is needed for module progress; the rest are extras and alternatives.</p>';
+      '<p class="small muted">Videos tick themselves when you finish them here, and playlists remember which video you were on. Courses on other sites, books and tools: tick them yourself. For module progress, finish the best pick or any option marked Recommended; the rest are extras.</p>';
   }
   function refreshChecklist() {
     var el = document.getElementById('watch-checklist'); if (!el) return;
@@ -289,12 +281,6 @@
   }
   function ring(p) { return '<div class="ring" style="--p:' + p + '" data-label="' + p + '%" role="img" aria-label="' + p + '% complete"></div>'; }
   function bar(p, label) { return '<div class="bar" role="progressbar" aria-label="' + esc(label || 'Progress') + '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + p + '"><span style="width:' + p + '%"></span></div>'; }
-  function langSeg() {
-    var l = S().prefs.lang;
-    return '<div class="seg" role="group" aria-label="Video language preference">' +
-      '<button type="button" data-action="lang" data-lang="hi" aria-pressed="' + (l === 'hi') + '">Hindi / Hinglish first</button>' +
-      '<button type="button" data-action="lang" data-lang="en" aria-pressed="' + (l === 'en') + '">Indian English first</button></div>';
-  }
   function stations() {
     return '<div class="path">' + D.levels.map(function (l) {
       var p = levelProgress(l.id), ms = modulesOf(l.id);
@@ -322,7 +308,6 @@
       '<p class="lede">A guided path through the best free videos from Indian teachers first, in Hindi, Hinglish and Indian English, with interactive labs, Python you can run in the browser, tests and tough projects. No fees, no sign-up.</p>' +
       '<div class="row"><a class="btn btn-primary" href="#start">Start here</a>' +
       (last ? '<a class="btn" href="#m-' + esc(last.id) + '">Continue: ' + esc(last.title) + '</a>' : '<a class="btn" href="#level-1">Open Level 1</a>') + '</div>' +
-      '<div class="stack-sm"><span class="small muted">Show videos in</span>' + langSeg() + '</div>' +
       '</div>' + stations() + '</section>' +
       '<section class="stack"><div class="section-title"><h2>What you get</h2></div><div class="grid">' +
       featureCard('Indian teachers first', nRes + ' free playlists, courses and books. ' + nHi + ' are in Hindi or Hinglish and ' + nIn + ' in Indian English. Global English classics appear as extras.', '#library', 'Browse the library') +
@@ -399,7 +384,7 @@
 
   function viewRoadmap() {
     setView('<div class="wrap stack-lg">' + crumbs([['Home', 'home'], ['Roadmap']]) +
-      '<header class="stack-sm"><h1>The roadmap</h1><p class="lede muted prose">Four levels, ' + D.modules.length + ' modules. Go in order the first time; later, jump to whatever you need.</p>' + langSeg() + '</header>' +
+      '<header class="stack-sm"><h1>The roadmap</h1><p class="lede muted prose">Four levels, ' + D.modules.length + ' modules. Go in order the first time; later, jump to whatever you need.</p></header>' +
       D.levels.map(function (l) { return '<section class="stack">' + levelHeader(l, 'h2') + moduleList(l.id) + '</section>'; }).join('') + '</div>', 'Roadmap');
   }
   function levelHeader(l, tag) {
@@ -506,22 +491,15 @@
         listBlock('Topics covered', m.topics) +
         '</div>';
     } else if (tab === 'watch') {
-      var mp = mainPicks(m), list = mp.list, mainPick = mp.main, otherLangPick = mp.second, group = langGroup;
-      var GROUP_LABEL = { hi: 'Hindi / Hinglish', in: 'Indian English', en: 'English' };
-      var rest = list.filter(function (r) { return r !== mainPick && r !== otherLangPick; });
+      // one best pick, then every other option in one list: recommended ones first, global English last
+      var mp = mainPicks(m), list = mp.list, best = mp.main, shown = 6;
+      var rest = list.filter(function (r) { return r !== best; });
       el.innerHTML = '<div class="stack-lg"><section class="card stack-sm" id="watch-checklist" data-mod="' + esc(m.id) + '">' + checklistHTML(m) + '</section>' +
-        '<div class="row-between"><div class="small muted">' + list.length + ' resources for this module</div>' + langSeg() + '</div>' +
         (location.protocol === 'file:' ? '<div class="callout small">Opened as a file: YouTube may refuse to play embedded videos here. Use "Open on YouTube", or publish the site on GitHub Pages (see README).</div>' : '') +
-        (mainPick ? '<section class="stack"><h2 class="h-sub">Main pick · ' + GROUP_LABEL[group(mainPick)] + '</h2>' + resCard(mainPick, { player: true, featured: true, note: noteFor(m, mainPick) }) + '</section>' : '<div class="empty">Resources for this module are being added.</div>') +
-        (otherLangPick ? '<section class="stack"><h2 class="h-sub">Main pick in ' + GROUP_LABEL[group(otherLangPick)] + '</h2>' + resCard(otherLangPick, { player: true, note: noteFor(m, otherLangPick) }) + '</section>' : '') +
-        (rest.length ? '<section class="stack"><h2 class="h-sub">More options</h2>' + ['hi', 'in', 'en'].map(function (g) {
-          var items = rest.filter(function (r) { return group(r) === g; });
-          if (!items.length) return '';
-          var gid = 'more-' + g, shown = 4;
-          return '<div class="lang-group"><h3 class="h-sub3">' + esc(g === 'en' ? 'Global English (extras)' : GROUP_LABEL[g]) + ' <span class="chip num">' + items.length + '</span></h3><div class="grid" id="' + gid + '">' +
-            items.map(function (r, i) { return '<div' + (i >= shown ? ' hidden' : '') + '>' + resCard(r, { note: noteFor(m, r) }) + '</div>'; }).join('') + '</div>' +
-            (items.length > shown ? '<div><button class="btn btn-sm" type="button" data-more="' + gid + '">Show ' + (items.length - shown) + ' more</button></div>' : '') + '</div>';
-        }).join('') + '</section>' : '') + '</div>';
+        (best ? '<section class="stack"><h2 class="h-sub">Best pick</h2>' + resCard(best, { player: true, featured: true, note: noteFor(m, best) }) + '</section>' : '<div class="empty">Resources for this module are being added.</div>') +
+        (rest.length ? '<section class="stack"><h2 class="h-sub">Other options <span class="chip num">' + rest.length + '</span></h2><div class="grid" id="more-all">' +
+          rest.map(function (r, i) { return '<div' + (i >= shown ? ' hidden' : '') + '>' + resCard(r, { note: noteFor(m, r), recommended: mp.curated.indexOf(r.id) >= 0 }) + '</div>'; }).join('') + '</div>' +
+          (rest.length > shown ? '<div><button class="btn btn-sm" type="button" data-more="more-all">Show ' + (rest.length - shown) + ' more</button></div>' : '') + '</section>' : '') + '</div>';
       el.querySelectorAll('[data-more]').forEach(function (b) {
         b.addEventListener('click', function () { document.querySelectorAll('#' + b.getAttribute('data-more') + ' > [hidden]').forEach(function (x) { x.hidden = false; }); b.remove(); });
       });
@@ -872,7 +850,7 @@
         if (libState.q) { var hay = [r.title, r.creator, r.platform, (r.topics || []).join(' '), r.why].join(' ').toLowerCase(); if (hay.indexOf(libState.q) < 0) return false; }
         return true;
       });
-      list = list.slice().sort(function (a, b) { return C.langRank(a.language, S().prefs.lang) - C.langRank(b.language, S().prefs.lang); });
+      list = list.slice().sort(function (a, b) { return C.langRank(a.language) - C.langRank(b.language); });
       lastList = list;
       var shown = Math.min(libState.shown, list.length);
       document.getElementById('lib-grid').innerHTML = list.slice(0, shown).map(function (r) { return resCard(r); }).join('') || '<div class="empty stack-sm"><span>Nothing matches these filters.</span><div><button class="btn btn-sm" type="button" id="lib-clear">Clear filters</button></div></div>';
@@ -1023,7 +1001,6 @@
     if (a === 'play') { var r = resById[id]; if (r) startPlayer(t.parentNode, r); }
     else if (a === 'play-inline') { var ri = resById[id], art = t.closest('.res-card'); if (ri && art) toggleInline(art, ri, t); }
     else if (a === 'goto-res') { gotoRes(id, t.getAttribute('data-play') === '1'); }
-    else if (a === 'lang') { st.prefs.lang = t.getAttribute('data-lang'); C.save(); var y = window.scrollY; route(); window.scrollTo(0, y); }
     else if (a === 'mod-done') { var cur = st.modules[id] && st.modules[id].done; st.modules[id] = { done: !cur, at: C.today() }; if (!cur) C.logActivity(); C.save(); C.toast(cur ? 'Module marked as not complete' : 'Module complete. Next one!'); refreshSide(); }
     else if (a === 'pdone') { var p = st.projects[id] = st.projects[id] || {}; p.done = !p.done; if (p.done) C.logActivity(); C.save(); C.toast(p.done ? 'Project complete. Add it to your portfolio!' : 'Project marked as in progress'); t.textContent = p.done ? 'Completed ✓ (undo)' : 'Mark project complete'; t.className = 'btn ' + (p.done ? '' : 'btn-haldi'); }
     else if (a === 'export') { var txt = JSON.stringify(st); try { navigator.clipboard.writeText(txt).then(function () { C.toast('Progress copied'); }, function () { fallbackCopy(txt); }); } catch (e) { fallbackCopy(txt); } }

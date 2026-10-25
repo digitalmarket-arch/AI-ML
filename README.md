@@ -4,7 +4,7 @@
 
 The site is interactive:
 
-- **Curated video lessons** for every module. The "main pick" is from an Indian teacher, and a toggle switches between Hindi/Hinglish first and Indian English first.
+- **Curated video lessons** for every module: one "best pick" from an Indian teacher (Hindi, Hinglish and Indian English are treated equally), then other options. Every YouTube video plays inside the site, finished videos tick themselves, and playlists remember where you stopped.
 - **12 interactive labs.** Drag, click and move sliders to *see* gradient descent, overfitting, K-Means, decision trees, neural networks, convolution filters, tokenizers and LLM sampling.
 - **Python in the browser.** Auto-graded coding exercises run on the page using [Pyodide](https://pyodide.org). Nothing to install.
 - **Quizzes and level tests.** Each module has a 10-question quiz with explanations, and each level ends with a tougher 20-question test (pass mark 70%).

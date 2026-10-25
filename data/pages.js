@@ -26,7 +26,7 @@ window.AIM.pages = {
     "bullets": [
      "**1. Open a level** from the [Roadmap](#roadmap) and read its short introduction and outcomes.",
      "**2. Do its modules in order.** Each module page has up to six tabs. **Overview** says what you will learn and why. **Watch & read** has the chosen free lessons. **Lab** (in many modules) is an interactive picture you can play with. **Practice** has small Python exercises that run in your browser, with no install. **Quiz** has 10 questions with a 70% pass mark. **My notes** is for your own notes.",
-     "**3. In Watch & read, start with the Main pick.** When there is one, you also get a main pick in the other Indian language (Hindi/Hinglish or Indian English), plus More options. Use the language switch at the top of the tab.",
+     "**3. In Watch & read, start with the Best pick.** It is the strongest free video for the module, whether it is in Hindi, Hinglish or Indian English. Other options sit below it; the ones marked Recommended are good alternatives if a teacher does not suit you.",
      "**4. Build the level's projects** from the [Projects](#projects) page. Projects turn knowledge into skill, and they become your portfolio (the work you show employers or clients).",
      "**5. Take the level test** on the [Tests](#tests) page: 20 questions from the whole level, an optional 30-minute timer, pass mark 70%. If you score less, revise the modules where you lost marks and retake it after a few days.",
      "**6. Move to the next level.**",
@@ -132,7 +132,7 @@ window.AIM.pages = {
      "Tutorial hell means watching course after course and feeling you understand, but freezing in front of a blank notebook. It is the most common way self-learners get stuck. Signs: you have finished many videos but built nothing alone, you start a new course whenever things get hard, and you cannot explain your own code."
     ],
     "bullets": [
-     "**One main resource per module.** Finish the Main pick before you look at other options. Switch only if it truly does not work for you.",
+     "**One main resource per module.** Finish the Best pick before you look at other options. Switch only if it truly does not work for you.",
      "**Blank-notebook test.** After each module, open an empty notebook and rebuild the main example from memory. Look things up in the documentation, not the video.",
      "**20-minute stuck rule.** Struggle for 20 minutes (read the error, search it, print values), then take a hint. Some struggle is where learning happens; endless struggle is wasted time.",
      "**Build early and small.** Start a tiny project in Level 1. Do not wait until you 'know enough'; nobody ever feels ready.",
