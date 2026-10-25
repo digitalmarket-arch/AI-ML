@@ -586,7 +586,7 @@
 
     /* ---------- tree diagram (SVG, colours via CSS variables so it follows the theme) ---------- */
     var LSP = 74, LV = 56, PADX = 14, PADY = 14, IW = 124, IH = 38, LW = 64, LH = 50;
-    var nodeEls = [], edgeEls = [], diagramPath = [], diagramScale = 1, diagramWide = false;
+    var nodeEls = [], edgeEls = [], diagramPath = [], diagramScale = 1, diagramWide = false, rootScroll = -1;
     function nodeStyle(n, hot) {
       if (n.leaf) {
         var col = n.pred ? 'var(--series-4)' : 'var(--series-2)';
@@ -648,9 +648,9 @@
       treeSvg.setAttribute('aria-label', 'Tree diagram with ' + tree.leaves + ' leaves and depth ' + tree.depth + '. ' +
         (tree.root.leaf ? 'The tree has no questions yet.' : 'First question: is ' + (tree.root.f === 0 ? 'rain' : 'temperature') + ' at most ' + fmtFeat(tree.root.f, tree.root.thr) + '?'));
       // start with the top of the tree in view
-      treeBox.scrollLeft = Math.max(0, tree.root.dx * sc - boxW / 2);
+      rootScroll = Math.max(0, tree.root.dx * sc - boxW / 2); // applied at the end of the frame (one layout pass)
     }
-    function updateDiagramHighlight(scrollTo) {
+    function updateDiagramHighlight() {
       var i;
       for (i = 0; i < diagramPath.length; i++) {
         var on = cur.tree.nodes[diagramPath[i]];
@@ -666,10 +666,14 @@
         if (nodeEls[hn.id]) nodeEls[hn.id].setAttribute('style', nodeStyle(hn, true));
         if (edgeEls[hn.id]) edgeEls[hn.id].setAttribute('style', edgeStyle(true));
       }
-      if (target && scrollTo) {
-        var bw = treeBoxW || 600, tx = target.dx * diagramScale;
-        if (tx - 50 < treeBox.scrollLeft || tx + 50 > treeBox.scrollLeft + bw) treeBox.scrollLeft = tx - bw / 2;
-      }
+      return target;
+    }
+    // Scroll the diagram (only reads/writes layout once, after all DOM updates of the frame)
+    function scrollDiagramTo(target) {
+      if (rootScroll >= 0) { treeBox.scrollLeft = rootScroll; rootScroll = -1; }
+      if (!target || !diagramWide) return;
+      var bw = treeBoxW || 600, tx = target.dx * diagramScale, sl = treeBox.scrollLeft;
+      if (tx - 50 < sl || tx + 50 > sl + bw) treeBox.scrollLeft = tx - bw / 2;
     }
 
     /* ---------- depth experiment chart ---------- */
@@ -803,12 +807,13 @@
       if (dirtyHeat) renderHeat();
       draw();
       if (diagramTree !== cur.tree || Math.abs(treeBoxW - diagramW) > 1) buildDiagram();
-      updateDiagramHighlight(scrollDiagram);
-      scrollDiagram = false;
+      var target = updateDiagramHighlight();
       drawChart();
       updateStats();
       updateReadout();
       checkTasks();
+      scrollDiagramTo(scrollDiagram ? target : null);
+      scrollDiagram = false;
     }
     function invalidate() { if (!raf && !destroyed) raf = requestAnimationFrame(frame); }
 
