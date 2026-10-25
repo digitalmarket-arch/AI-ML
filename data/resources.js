@@ -5669,8 +5669,7 @@ window.AIM.resources = [
   "language": "hinglish",
   "level": "beginner",
   "modules": [
-   "l3-nn-basics",
-   "l4-gen-vision"
+   "l3-nn-basics"
   ],
   "topics": [
    "artificial neural networks",
@@ -5732,7 +5731,6 @@ window.AIM.resources = [
   "modules": [
    "l3-nn-basics",
    "l3-nlp",
-   "l4-gen-vision",
    "l4-research-career"
   ],
   "topics": [
@@ -6064,7 +6062,6 @@ window.AIM.resources = [
    "l3-nn-basics",
    "l3-cv",
    "l3-nlp",
-   "l4-gen-vision",
    "l4-rl",
    "l4-research-career"
   ],
@@ -11116,36 +11113,6 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
-  "id": "hugging-face-computer-vision-community-60-contributors-h",
-  "title": "Hugging Face Community Computer Vision Course",
-  "creator": "Hugging Face Computer Vision community (60+ contributors)",
-  "platform": "Hugging Face / GitHub",
-  "type": "course",
-  "url": "https://github.com/huggingface/computer-vision-course",
-  "firstVideoUrl": "",
-  "language": "english",
-  "level": "intermediate",
-  "modules": [
-   "l4-gen-vision"
-  ],
-  "topics": [
-   "variational autoencoders",
-   "GANs, StyleGAN and CycleGAN",
-   "diffusion models",
-   "Stable Diffusion",
-   "CLIP",
-   "vision-language models"
-  ],
-  "approxHours": 0,
-  "cost": "Free",
-  "why": "A free course of text and runnable Colab notebooks. Its units cover VAEs, GANs, StyleGAN, CycleGAN, diffusion, Stable Diffusion, CLIP and vision-language models.",
-  "caveats": "Written by the community, so quality and style vary by chapter. The GitHub repo holds the source; a hosted reading version on huggingface.co/learn exists but its URL was not verified here. The year is approximate.",
-  "year": 2024,
-  "status": "verified",
-  "listId": "",
-  "videoId": ""
- },
- {
   "id": "hugging-face-hugging-face-diffusion-models-course",
   "title": "Hugging Face Diffusion Models Course",
   "creator": "Hugging Face",
@@ -11170,35 +11137,6 @@ window.AIM.resources = [
   "cost": "Free",
   "why": "Free hands-on notebooks to train, fine-tune and guide diffusion models with the Diffusers library that most open-source image-generation products use.",
   "caveats": "Units were published between Nov 2022 and early 2023 (Stable Diffusion 1.x era). The Diffusers API has changed since, so pin library versions or adapt the code. It needs a GPU (Colab) and good Python plus basic PyTorch.",
-  "year": 2023,
-  "status": "verified",
-  "listId": "",
-  "videoId": ""
- },
- {
-  "id": "hugging-face-hugging-face-diffusion-models-course-2",
-  "title": "Hugging Face Diffusion Models Course",
-  "creator": "Hugging Face",
-  "platform": "GitHub / Hugging Face",
-  "type": "course",
-  "url": "https://github.com/huggingface/diffusion-models-class",
-  "firstVideoUrl": "",
-  "language": "english",
-  "level": "intermediate",
-  "modules": [
-   "l4-gen-vision"
-  ],
-  "topics": [
-   "diffusion from scratch",
-   "Diffusers library",
-   "fine-tuning and guidance",
-   "Stable Diffusion",
-   "conditional generation"
-  ],
-  "approxHours": 12,
-  "cost": "Free",
-  "why": "A free hands-on course: you build a diffusion model from scratch, then use the Diffusers library to fine-tune, guide and run Stable Diffusion.",
-  "caveats": "Published November 2022 to early 2023, so some Diffusers APIs and model names have changed. Needs basic Python and PyTorch. Only 4 units.",
   "year": 2023,
   "status": "verified",
   "listId": "",

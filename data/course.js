@@ -3438,7 +3438,45 @@ window.AIM.modules = [
    "Using generated images commercially without checks. Read the model's licence, never generate real people's faces or other brands' logos without permission, and label AI-generated content where platforms or Indian rules require it; MeitY (the IT ministry) has moved to require such labels under the IT Rules, so check the current version before a campaign."
   ],
   "indiaExample": "Krutrim, the Bengaluru AI company from the Ola group, released Chitrarth (from 'chitra', image, and 'artha', meaning), an open vision-language model for 10 major Indian languages and English. It joins a multilingual LLM with a vision module trained mainly on multilingual image-and-text data, and the team also released BharatBench, a set of tests for judging vision-language models in Indian languages. The team built it because most multimodal models are trained mainly on English or European-language data, so they handle Indian languages and context less well.",
-  "tip": "Keep a 'recipe sheet' for every client image you deliver: the model, prompt, negative prompt, seed, number of steps and guidance scale. You can then recreate or vary any approved image months later."
+  "tip": "Keep a 'recipe sheet' for every client image you deliver: the model, prompt, negative prompt, seed, number of steps and guidance scale. You can then recreate or vary any approved image months later.",
+  "watch": [
+   {
+    "id": "microsoft-ai-for-beginners-12-week-curriculum-hindi-tran",
+    "note": "Read the Hindi lessons on autoencoders/VAEs, GANs and multi-modal networks (CLIP) and run their notebooks on Colab or Kaggle. This course has no diffusion lesson."
+   },
+   {
+    "id": "prof-vineeth-n-balasubramanian-iit-hyderabad-nptel-nptel",
+    "note": "Use the deep generative models part of this course (find the VAE and GAN lectures by their titles) for a careful Indian-English treatment. It was recorded before diffusion and CLIP became important."
+   },
+   {
+    "id": "vizuara-the-principles-of-diffusion-models",
+    "note": "This is your main Indian-English source for diffusion. Watch it in playlist order after the VAE lectures, and skip the heavy derivations the first time through."
+   },
+   {
+    "id": "aakash-n-s-jovian-published-by-freecodecamp-org-deep-lea",
+    "note": "Watch the last session, on GANs, to code a simple image GAN in PyTorch. Use the earlier sessions only if your PyTorch needs a refresher."
+   },
+   {
+    "id": "iit-madras-mathematical-foundations-of-generative-ai-iit",
+    "note": "Optional theory: after the videos above, use it for the probability behind VAEs, GANs and diffusion. Check the lecture titles first, because its syllabus was not verified."
+   },
+   {
+    "id": "hugging-face-community-hugging-face-community-computer-v",
+    "note": "Work through the generative-models unit (VAEs, GANs, diffusion, Stable Diffusion) and the multimodal unit (CLIP, vision-language models) with their notebooks. It is the only resource here that covers every topic in this module, CLIP and vision-language models included."
+   },
+   {
+    "id": "stanford-online-fei-fei-li-s-group-stanford-cs231n-deep-",
+    "note": "Watch the Spring 2025 lectures on generative models (including the one on diffusion models) and any lecture on multimodal or vision-language models; find them by title, since the lecture numbers were not confirmed."
+   },
+   {
+    "id": "polo-club-of-data-science-georgia-tech-diffusion-explain",
+    "note": "Spend 30 to 60 minutes clicking through how a text prompt turns into an image in Stable Diffusion, ideally right after the first Vizuara diffusion videos."
+   },
+   {
+    "id": "polo-club-georgia-tech-google-pair-gan-lab-interactive",
+    "note": "Train a toy GAN in your browser and watch the generator and discriminator compete. This makes the GAN lectures much easier to follow."
+   }
+  ]
  },
  {
   "id": "l4-rl",
@@ -3532,7 +3570,33 @@ window.AIM.modules = [
    "Trusting a single training run. RL results are noisy: run at least 3 seeds, plot the average and the spread, and change one setting at a time."
   ],
   "indiaExample": "In 2025, the Indian ed-tech company PhysicsWallah (PW) released Aryabhata 1.0, an open 7-billion-parameter model for JEE Main mathematics. After merging existing open reasoning models and fine-tuning on checked step-by-step solutions, the team applied reinforcement learning with verifiable rewards: the model attempts maths problems whose final answers are known, and it is rewarded when its answer is correct. The team evaluated it on JEE Main 2025 questions and on standard maths benchmarks, and released the model on Hugging Face.",
-  "tip": "Before writing RL code for a real problem, test your algorithm on a tiny version whose best answer you can work out by hand, such as a 3-armed bandit or a 4×4 grid. If it can't solve that, it won't solve the real one."
+  "tip": "Before writing RL code for a real problem, test your algorithm on a tiny version whose best answer you can work out by hand, such as a 3-armed bandit or a 4×4 grid. If it can't solve that, it won't solve the real one.",
+  "watch": [
+   {
+    "id": "prof-balaraman-ravindran-iit-madras-nptel-nptel-reinforc",
+    "note": "Your main course. Start with the multi-armed bandit lectures (epsilon-greedy, UCB), then MDPs and Bellman equations, Q-learning and finally policy gradients; find them by title, since lecture numbers were not confirmed. DQN and PPO are covered only thinly."
+   },
+   {
+    "id": "iit-kanpur-ee675-introduction-to-reinforcement-learning-",
+    "note": "A 2024 IIT course for cross-checking value functions, Q-learning and policy gradients. Skim the lecture titles first, because its syllabus was not verified."
+   },
+   {
+    "id": "vizuara-reasoning-llms-from-scratch",
+    "note": "For the 'RL for LLMs' topic, watch the videos on reinforcement learning and distillation for reasoning models (pick them by title). The rest is optional."
+   },
+   {
+    "id": "hugging-face-thomas-simonini-omar-sanseviero-hugging-fac",
+    "note": "Do the hands-on units on Q-learning, deep Q-learning and PPO in Colab so that you actually train agents. Skip the AI vs AI unit (Unit 7), which no longer works."
+   },
+   {
+    "id": "david-silver-deepmind-ucl-david-silver-s-reinforcement-l",
+    "note": "Use it to build intuition. Lecture 2 covers Markov decision processes; after that, find the lectures on model-free control (Q-learning) and policy gradients by title."
+   },
+   {
+    "id": "hugging-face-blog-illustrating-reinforcement-learning-fr",
+    "note": "Read it last for the intuition of how a reward model plus PPO trains chat models (RLHF). Then open the RLHF Book for newer methods such as DPO and GRPO."
+   }
+  ]
  },
  {
   "id": "l4-research-career",
@@ -3628,6 +3692,40 @@ window.AIM.modules = [
    "Ignoring tax and contracts when starting freelance or agency work. Know the basics: GST registration is generally required once your aggregate turnover crosses ₹20 lakh in a financial year (₹10 lakh in a few special category states), some cases need it earlier, exports of services can be zero-rated under a LUT, and every project needs a written scope. Confirm your own situation with a chartered accountant (CA)."
   ],
   "indiaExample": "AI4Bharat at IIT Madras published IndicTrans2 (arXiv 2305.16307), an open-source translation model covering all 22 scheduled Indian languages. With the paper, the team released its training data (BPCC), the trained models, the IN22 evaluation sets, training and inference scripts, and a ready-to-run Colab notebook. That makes it an ideal first paper to reproduce: you can run the released model on part of IN22 and compare your scores with the paper's. It is also reused in other Indian work; for example, AI4Bharat used it to translate the training data for its Hindi model Airavata.",
-  "tip": "Read one paper a week from the start of this level, not only in this module. Pick it from the Hugging Face daily papers page (huggingface.co/papers), spend 30 minutes on the first pass, and keep a running list of one-line summaries in a GitHub repository; it doubles as proof of learning for clients and employers."
+  "tip": "Read one paper a week from the start of this level, not only in this module. Pick it from the Hugging Face daily papers page (huggingface.co/papers), spend 30 minutes on the first pass, and keep a running list of one-line summaries in a GitHub repository; it doubles as proof of learning for clients and employers.",
+  "watch": [
+   {
+    "id": "krish-naik-hindi-end-to-end-ml-projects-playlist-hindi",
+    "note": "Build and deploy at least one project from this Hindi playlist, then put it on GitHub with a clear README so that it becomes your first portfolio piece."
+   },
+   {
+    "id": "krish-naik-hindi-krish-naik-hindi-channel-career-roadmap",
+    "note": "Search the channel for 'roadmap' and 'interview' to find advice on the Indian job market in Hinglish, and skip the promotional videos."
+   },
+   {
+    "id": "nptel-iit-madras-introduction-to-machine-learning-nptel-",
+    "note": "Take this as your IIT-level theory course and revise from it before interviews. Consider the NPTEL certificate exam (it has a fee), which Indian employers recognise."
+   },
+   {
+    "id": "ineuron-krish-naik-and-team-data-science-interview-quest",
+    "note": "Treat it as a 30-day plan for revising classic ML interview questions, one PDF a day. Use AIMLInterviews for LLM and GenAI questions."
+   },
+   {
+    "id": "chip-huyen-stanford-university-stanford-cs329s-machine-l",
+    "note": "Your main ML system design course. Read the lecture notes from the Syllabus page in order (data, features, deployment, monitoring), then sketch a design for one product of your own."
+   },
+   {
+    "id": "andrew-ng-and-kian-katanforoosh-stanford-online-stanford",
+    "note": "Watch only the lecture on career advice and reading research papers (find it by title, since its number was not confirmed). It gives Andrew Ng's method for reading papers and his career advice."
+   },
+   {
+    "id": "alireza-dirafzoon-aimlinterviews-formerly-machine-learni",
+    "note": "Use it for current (2026) interview topics: ML breadth, LLM/GenAI system design and post-training. Ignore the coaching links."
+   },
+   {
+    "id": "andrej-karpathy-let-s-reproduce-gpt-2-124m",
+    "note": "Use this as your 'reproduce a paper' project: follow along on a rented cloud GPU with the build-nanogpt code, then write up how your results compare with the GPT-2 paper."
+   }
+  ]
  }
 ];
