@@ -744,7 +744,7 @@
       for (gv = yStep; gv < yMax; gv += yStep) {
         gy = Math.round(mBase - gv * yScale) + 0.5;
         g.beginPath(); g.moveTo(plotL, gy); g.lineTo(plotR, gy); g.stroke();
-        g.fillText(group(gv), plotL - 5, gy + 4);
+        g.fillText(gv >= 1000 ? trim(gv / 1000, 1) + 'k' : group(gv), plotL - 5, gy + 4);   // 1,000 -> 1k keeps the label inside the margin
       }
       g.save();
       g.beginPath(); g.rect(plotL, mTop - 2, plotW, mH + 2); g.clip();

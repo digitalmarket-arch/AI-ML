@@ -433,9 +433,9 @@
       return out;
     }
     function checkRunTasks() {
-      var g = S.gen, n = g.length, i;
+      var run = S.gen, n = run.length, i;
       if (n < GEN_N) return;
-      var last = g.slice(n - GEN_N), auto = last.every(function (t) { return !t.manual; });
+      var last = run.slice(n - GEN_N), auto = last.every(function (t) { return !t.manual; });
       if (!auto) return;
       // t2: 15 tokens at T >= 1.8 with at least 3 words the model never saw in that spot
       if (last.every(function (t) { return t.s.T >= 1.8; })) {
@@ -462,7 +462,7 @@
       if (pv && !pv.example && arrEq(pv.prompt, S.prompt) && pv.gen.length >= GEN_N) {
         var ok = true;
         for (i = 0; i < GEN_N; i++) {
-          var a = pv.gen[i], b = g[i];
+          var a = pv.gen[i], b = run[i];
           if (a.w !== b.w || a.manual || b.manual || a.s.T > 0.1 || b.s.T > 0.1) { ok = false; break; }
         }
         if (ok) {
