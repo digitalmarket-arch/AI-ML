@@ -183,7 +183,7 @@
               '<button type="button" class="btn btn-sm" id="' + P + 'reset">Reset example data</button>' +
               '<button type="button" class="btn btn-sm" id="' + P + 'clear">Clear all loans</button>' +
             '</div>' +
-            '<div class="stack-sm"><h4>Your tasks</h4><ul class="lab-tasks" id="' + P + 'tasks">' + tasksHtml + '</ul></div>' +
+            '<div class="stack-sm"><h2 class="lab-h">Your tasks</h2><ul class="lab-tasks" id="' + P + 'tasks">' + tasksHtml + '</ul></div>' +
           '</div>' +
         '</div>' +
         // explanation, accuracy chart and keyboard hint: under the map on wide screens, below the controls on phones
@@ -191,7 +191,7 @@
         // pair, which would give the chart a 480px minimum width and push a phone page sideways
         '<div class="stack-sm" id="' + P + 'more" style="container-type:inline-size">' +
           '<p class="small muted"><strong style="color:var(--ink)">Training accuracy</strong> checks each loan with the loan itself allowed to vote. <strong style="color:var(--ink)">Leave-one-out accuracy</strong> hides one loan, predicts it from all the others, and repeats for every loan. It is the fairer test, because no loan gets to vote for itself.</p>' +
-          '<div class="row-between" style="margin-top:8px"><h4>Accuracy for each K you try</h4>' +
+          '<div class="row-between" style="margin-top:8px"><h2 class="lab-h">Accuracy for each K you try</h2>' +
             '<button type="button" class="btn btn-sm" id="' + P + 'fill" aria-pressed="false">Show every K</button></div>' +
           '<p class="small muted">K = 1, 5 and 25 are filled in to start. Every K you choose with the slider is added. Where does leave-one-out accuracy peak?</p>' +
           '<div class="lab-legend">' +
