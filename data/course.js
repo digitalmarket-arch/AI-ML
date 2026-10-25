@@ -2837,7 +2837,8 @@ window.AIM.modules = [
     "note": "Read The Illustrated Transformer for the Q/K/V, multi-head attention and positional-encoding diagrams, then The Illustrated BERT to see the encoder-only (BERT) vs decoder-only (GPT) difference."
    }
   ],
-  "best": "campusx-nitish-singh-100-days-of-deep-learning-ann-to-rn"
+  "best": "campusx-nitish-singh-100-days-of-deep-learning-ann-to-rn",
+  "figs": true
  },
  {
   "id": "l3-mlops",
@@ -2976,7 +2977,8 @@ window.AIM.modules = [
     "note": "Once the Indian-teacher videos are done, use this self-paced global-English course to tie everything together: experiment tracking, orchestration, deployment and monitoring, with homework."
    }
   ],
-  "best": "campusx-fastapi-for-machine-learning-playlist"
+  "best": "campusx-fastapi-for-machine-learning-playlist",
+  "figs": true
  },
  {
   "id": "l4-llm-internals",

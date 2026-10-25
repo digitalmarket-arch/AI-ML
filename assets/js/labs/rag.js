@@ -31,18 +31,18 @@
       answer: 'It has 15 characters: the first two digits are your state code, the next ten characters are your PAN, then come an entity number, the letter Z by default, and a final check character.' },
     { id: 'limit', q: 'What is the turnover limit for GST registration if I sell only goods?',
       answer: 'In most states the limit is ₹40 lakh a year if you sell only goods, and ₹20 lakh a year if you provide services or sell both goods and services.' },
+    { id: 'docs', q: 'Which documents do I need to register?',
+      answer: 'You will usually need your PAN, Aadhaar, a photograph, proof of your business address (such as a rent agreement or an electricity bill) and your bank account details.' },
     { id: 'igst', q: 'A shop in Pune sells to a buyer in Bengaluru. Does it charge CGST and SGST, or IGST?',
       answer: 'When the place of supply is in another state, the seller charges IGST (Integrated GST) at the full rate instead, so the same sale to a buyer in Bengaluru would carry 18% IGST.' },
-    { id: 'gstr3b', q: 'When is GSTR-3B due for a monthly filer?',
-      answer: 'Monthly filers usually file GSTR-1 by the 11th and GSTR-3B by the 20th of the next month.' },
     { id: 'nil', q: 'Do I have to file a return in a month when I sold nothing?',
       answer: 'Even in a month with no sales, you still have to file a nil return.' },
     { id: 'comp', q: 'Can a business in the composition scheme claim input tax credit?',
       answer: 'The trade-off is that a composition taxpayer cannot claim input tax credit, cannot collect GST from customers on the bill, cannot sell to other states, and must issue a bill of supply instead of a tax invoice.' },
-    { id: 'vpay', vague: true, means: 'how much GST goes to the government after subtracting the GST on my purchases?', q: 'How much will I pay?',
-      answer: 'Example, with a 5% rate picked for easy maths: a bakery in Kochi buys flour and packing material for ₹10,000 plus ₹500 GST, and sells its cakes for ₹16,000 plus ₹800 GST. It pays only ₹800 − ₹500 = ₹300 to the government.' },
-    { id: 'vneed', vague: true, means: 'does my small business have to register for GST?', q: 'Do I need it?',
-      answer: 'In most states the limit is ₹40 lakh a year if you sell only goods, and ₹20 lakh a year if you provide services or sell both goods and services.' }
+    { id: 'vdue', vague: true, means: 'when is my monthly GSTR-3B return due?', q: 'When is it due?',
+      answer: 'Monthly filers usually file GSTR-1 by the 11th and GSTR-3B by the 20th of the next month.' },
+    { id: 'vpay', vague: true, means: 'how much GST goes to the government after I subtract the GST I paid on purchases?', q: 'How much will I pay?',
+      answer: 'Input tax credit (ITC) lets you subtract the GST you paid on business purchases from the GST you collect on your sales, so that tax is not charged on tax. Example, with a 5% rate picked for easy maths: a bakery in Kochi buys flour and packing material for ₹10,000 plus ₹500 GST, and sells its cakes for ₹16,000 plus ₹800 GST. It pays only ₹800 − ₹500 = ₹300 to the government.' }
   ];
 
   /* ---------- turning text into search terms ---------- */
@@ -60,7 +60,7 @@
   function fold(w) {
     if (/^[0-9]/.test(w) || w.length <= 3) return w;
     if (/ies$/.test(w) && w.length > 4) return w.slice(0, -3) + 'y';
-    if (/(sses|xes|ches|shes)$/.test(w)) return w.slice(0, -2);
+    if (/(sses|xes|ches|shes|oes)$/.test(w)) return w.slice(0, -2);
     if (/s$/.test(w) && !/(ss|us|is)$/.test(w)) return w.slice(0, -1);
     return w;
   }
