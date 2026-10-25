@@ -452,8 +452,10 @@
 
     /* ---------- forest heatmap (coarse cells, smoothed when scaled up) ---------- */
     function renderHeat() {
-      dirtyHeat = false;
+      // keep the flag set while the forest is off, so a theme change or resize in the meantime
+      // still repaints the heatmap the next time the forest is switched on
       if (!st.forest || !cur.trees) return;
+      dirtyHeat = false;
       var cell = 5;
       var cols = Math.max(2, Math.ceil(P.w / cell)), rows = Math.max(2, Math.ceil(P.h / cell));
       heatCanvas.width = cols; heatCanvas.height = rows;
