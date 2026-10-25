@@ -10,33 +10,57 @@
     return { v: 1, prefs: { lang: 'hi', theme: 'system' }, watched: {}, quiz: {}, ex: {}, code: {}, labs: {},
       projects: {}, modules: {}, notes: {}, last: null, log: {} };
   }
+  // Make any stored or restored object safe to use: right shapes, numbers that are numbers.
+  function normalize(d) {
+    var b = blank();
+    if (!d || typeof d !== 'object' || Array.isArray(d)) return b;
+    Object.keys(b).forEach(function (k) {
+      var isObj = b[k] && typeof b[k] === 'object';
+      if (isObj ? (!d[k] || typeof d[k] !== 'object' || Array.isArray(d[k])) : d[k] === undefined) d[k] = b[k];
+    });
+    Object.keys(d.quiz).forEach(function (k) {
+      var q = d.quiz[k] || {};
+      d.quiz[k] = { best: Math.max(0, Math.min(100, Math.round(Number(q.best) || 0))), attempts: Math.max(0, parseInt(q.attempts, 10) || 0), last: Math.max(0, Math.min(100, Number(q.last) || 0)), at: String(q.at || '').slice(0, 10) };
+    });
+    ['lang', 'theme'].forEach(function (k) { if (typeof d.prefs[k] !== 'string') d.prefs[k] = b.prefs[k]; });
+    if (['hi', 'en'].indexOf(d.prefs.lang) < 0) d.prefs.lang = 'hi';
+    if (['system', 'light', 'dark'].indexOf(d.prefs.theme) < 0) d.prefs.theme = 'system';
+    if (d.prefs.hpw != null) d.prefs.hpw = Math.max(3, Math.min(40, parseInt(d.prefs.hpw, 10) || 10));
+    if (d.prefs.start != null && !/^\d{4}-\d{2}-\d{2}$/.test(String(d.prefs.start))) delete d.prefs.start;
+    ['notes', 'code'].forEach(function (k) { Object.keys(d[k]).forEach(function (x) { if (typeof d[k][x] !== 'string') delete d[k][x]; }); });
+    Object.keys(d.log).forEach(function (x) { d.log[x] = parseInt(d.log[x], 10) || 0; });
+    d.v = 1;
+    return d;
+  }
   function load() {
     var data = null;
     try { data = JSON.parse(window.localStorage.getItem(KEY) || 'null'); } catch (e) { data = null; }
     if (!data && memory) data = memory;
-    var b = blank();
-    if (!data || typeof data !== 'object') return b;
-    Object.keys(b).forEach(function (k) { if (data[k] === undefined) data[k] = b[k]; });
-    if (!data.prefs) data.prefs = b.prefs;
-    return data;
+    return normalize(data);
   }
   var state = load();
+  var warned = false;
   function save() {
     memory = state;
-    try { window.localStorage.setItem(KEY, JSON.stringify(state)); return true; } catch (e) { return false; }
+    try { window.localStorage.setItem(KEY, JSON.stringify(state)); return true; }
+    catch (e) {
+      if (!warned) { warned = true; setTimeout(function () { toast('This browser is not letting AI Marg save your progress (private mode or storage full). Use My progress > Download file to keep a copy.'); }, 0); }
+      return false;
+    }
   }
   function today() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
   function logActivity() { state.log[today()] = (state.log[today()] || 0) + 1; }
+  // A streak survives until the end of today: if nothing is logged yet today, count from yesterday.
   function streak() {
-    var n = 0, d = new Date();
-    for (;;) {
-      var k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-      if (state.log[k]) { n++; d.setDate(d.getDate() - 1); } else break;
-    }
+    var d = new Date();
+    function key(x) { return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); }
+    if (!state.log[key(d)]) d.setDate(d.getDate() - 1);
+    var n = 0;
+    while (state.log[key(d)]) { n++; d.setDate(d.getDate() - 1); }
     return n;
   }
   function resetAll() { state = blank(); save(); }
-  function replaceState(obj) { var b = blank(); Object.keys(b).forEach(function (k) { if (obj[k] === undefined) obj[k] = b[k]; }); state = obj; save(); }
+  function replaceState(obj) { state = normalize(obj); save(); }
 
   /* ---------------- HTML helpers ---------------- */
   function esc(s) {
@@ -148,12 +172,12 @@
     this.root = root; this.qs = opts.questions || []; this.mode = opts.mode || 'learn';
     this.key = opts.key; this.title = opts.title || 'Quiz'; this.onFinish = opts.onFinish;
     this.minutes = opts.minutes || 0;
-    this.i = 0; this.answers = {}; this.timer = null; this.deadline = 0;
+    this.i = 0; this.answers = {}; this.picks = {}; this.timer = null; this.deadline = 0;
     this.start();
   }
   Quiz.prototype.start = function () {
     var self = this;
-    this.i = 0; this.answers = {};
+    this.i = 0; this.answers = {}; this.picks = {};
     if (this.timer) clearInterval(this.timer);
     if (this.mode === 'test' && this.minutes) {
       this.deadline = Date.now() + this.minutes * 60000;
@@ -173,27 +197,32 @@
     if (!q) { this.root.innerHTML = '<div class="empty">No questions yet.</div>'; return; }
     var picked = this.answers[q.id];
     var reveal = this.mode === 'learn' && picked != null;
+    var tentative = this.mode === 'learn' ? this.picks[q.id] : picked;
     var opts = q.options.map(function (o, k) {
       var cls = 'q-opt';
       if (reveal && k === q.answer) cls += ' correct';
       if (reveal && k === picked && k !== q.answer) cls += ' wrong';
       return '<label class="' + cls + '"><input type="radio" name="opt-' + esc(q.id) + '" value="' + k + '"' +
-        (picked === k ? ' checked' : '') + (reveal ? ' disabled' : '') + '><span>' + inline(o) + '</span></label>';
+        ((reveal ? picked : tentative) === k ? ' checked' : '') + (reveal ? ' disabled' : '') + '><span>' + inline(o) + '</span></label>';
     }).join('');
     var head = '<div class="row-between"><div class="row"><span class="chip chip-level num">Question ' + (this.i + 1) + ' of ' + n + '</span>' +
       '<span class="chip">' + esc(q.difficulty || '') + '</span></div>' +
       (this.mode === 'test' && this.minutes ? '<span class="chip chip-hi num" aria-live="off">⏱ <span data-timer>' + this.minutes + ':00</span></span>' : '') + '</div>';
     var explain = reveal ? '<div class="q-explain"><strong>' + (picked === q.answer ? 'Correct.' : 'Not quite.') + '</strong> ' + inline(q.explain) + '</div>' : '';
     var last = this.i === n - 1;
+    var checkBtn = this.mode === 'learn' && !reveal ? '<button class="btn btn-primary" data-q="check"' + (tentative == null ? ' disabled' : '') + '>Check answer</button>' : '';
     var nav = '<div class="row-between"><button class="btn btn-ghost" data-q="prev"' + (this.i === 0 ? ' disabled' : '') + '>← Previous</button>' +
-      '<div class="row">' + (this.mode === 'test' ? '<span class="small muted num">' + Object.keys(this.answers).length + '/' + n + ' answered</span>' : '') +
+      '<div class="row">' + checkBtn + (this.mode === 'test' ? '<span class="small muted num">' + Object.keys(this.answers).length + '/' + n + ' answered</span>' : '') +
       (last ? '<button class="btn btn-primary" data-q="finish">' + (this.mode === 'test' ? 'Submit test' : 'See my score') + '</button>'
             : '<button class="btn btn-primary" data-q="next">Next →</button>') + '</div></div>';
     this.root.innerHTML = '<div class="quiz">' + head + '<div class="q"><div class="q-text">' + inline(q.q) +
       (q.code ? '<pre><code>' + esc(q.code) + '</code></pre>' : '') + '</div><div class="q-opts">' + opts + '</div>' + explain + '</div>' +
       '<div class="bar" aria-hidden="true"><span style="width:' + pct(this.i + 1, n) + '%"></span></div>' + nav + '</div>';
     this.root.querySelectorAll('input[type=radio]').forEach(function (inp) {
-      inp.addEventListener('change', function () { self.answers[q.id] = Number(inp.value); if (self.mode === 'learn') self.render(); else self.renderNavOnly(); });
+      inp.addEventListener('change', function () {
+        if (self.mode === 'learn') { self.picks[q.id] = Number(inp.value); var cb = self.root.querySelector('[data-q=check]'); if (cb) cb.disabled = false; }
+        else { self.answers[q.id] = Number(inp.value); self.renderNavOnly(); }
+      });
     });
     this.root.querySelectorAll('[data-q]').forEach(function (b) {
       b.addEventListener('click', function () {
@@ -201,6 +230,10 @@
         if (a === 'prev') { self.i = Math.max(0, self.i - 1); self.render(); self.reveal(); }
         if (a === 'next') { self.i = Math.min(n - 1, self.i + 1); self.render(); self.reveal(); }
         if (a === 'finish') self.finish(false);
+        if (a === 'check' && self.picks[q.id] != null) {
+          self.answers[q.id] = self.picks[q.id]; self.render();
+          var ex = self.root.querySelector('.q-explain'); if (ex) { ex.tabIndex = -1; ex.focus(); }
+        }
       });
     });
     if (this.timer) this.tick();

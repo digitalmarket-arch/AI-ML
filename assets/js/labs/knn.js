@@ -142,16 +142,17 @@
 
     var tasksHtml = TASKS.map(function (t) { return '<li data-task="' + t.id + '">' + t.text + '</li>'; }).join('');
     var clsBtns = CLASSES.map(function (c, i) {
-      return '<button type="button" data-cls="' + i + '" aria-pressed="' + (i === 0) + '" style="display:inline-flex;align-items:center;gap:5px;padding:6px 8px">' + classSwatch(i) + c.name + '</button>';
+      return '<button type="button" data-cls="' + i + '" aria-pressed="' + (i === 0) + '" style="display:inline-flex;align-items:center;gap:5px;padding:6px 8px">' +
+        '<span style="display:inline-flex;padding:2px;border-radius:4px;background:var(--surface)">' + classSwatch(i) + '</span>' + c.name + '</button>';
     }).join('');
 
     root.innerHTML =
       '<div class="lab">' +
-        '<p class="lab-note"><strong>What you are seeing:</strong> each mark is a past loan from a small bank. Left to right is the borrower’s monthly income; bottom to top is the EMIs (monthly loan instalments) they were already paying. ' +
+        '<p class="lab-note"><strong>What you are seeing:</strong> each mark is a past loan from a small bank. Circles were repaid; squares <em>defaulted</em> (the borrower stopped paying). These two outcomes are the <em>classes</em> (groups) the model predicts. Left to right is the borrower’s monthly income; bottom to top is the EMIs (monthly loan instalments) they were already paying. ' +
         'Both features are <em>scaled</em> (squeezed to run from 0 to 1), so a step across the map counts as much as a step up it. ' +
         'K-Nearest Neighbours (KNN) judges a new applicant by finding the K closest past loans and letting them vote. ' +
         'The background shows that vote for every spot: deeper colour means more of the K neighbours agree, and the thin line is the <em>decision boundary</em> (where the prediction flips). ' +
-        'Move over the map, or drag on a phone, to see any spot’s neighbours.</p>' +
+        'Move over the map, or drag on a phone, to place the <em>probe</em> (a pretend new applicant) and see who its neighbours are.</p>' +
         '<div class="lab-body">' +
           '<div class="stack-sm" id="' + P + 'left">' +
             '<div class="lab-canvas-wrap" id="' + P + 'wrap"><canvas id="' + P + 'plot" tabindex="0" role="img" aria-label="Map of past loans" aria-describedby="' + P + 'kbd" style="outline-offset:-3px;cursor:crosshair"></canvas></div>' +
@@ -168,7 +169,7 @@
           '<div class="lab-controls">' +
             '<div class="control"><label for="' + P + 'k">Neighbours who vote (K) <output id="' + P + 'kout" for="' + P + 'k">' + START_K + '</output></label>' +
               '<input type="range" id="' + P + 'k" min="1" max="' + K_MAX + '" step="2" value="' + START_K + '">' +
-              '<p class="small muted">Odd numbers only, so two classes can never tie.</p></div>' +
+              '<p class="small muted">Odd numbers only, so two classes can never tie (three classes still can).</p></div>' +
             '<div class="control"><span class="control-label" id="' + P + 'distlbl">Distance</span>' +
               '<div class="seg" role="group" aria-labelledby="' + P + 'distlbl">' +
                 '<button type="button" data-dist="euc" aria-pressed="true">Euclidean</button>' +
@@ -198,7 +199,7 @@
           '<div class="lab-canvas-wrap" id="' + P + 'cwrap" style="aspect-ratio:16/5;min-height:150px;max-height:220px"><canvas id="' + P + 'chart" role="img" aria-label="Accuracy for each K tried" style="touch-action:auto"></canvas></div>' +
           '<p class="kbd-hint" id="' + P + 'kbd">Keyboard: focus the map, move the probe with the arrow keys (Shift for bigger steps), press Enter to add a loan there (or remove the one under the probe) and Delete to remove the nearest loan.</p>' +
         '</div>' +
-        '<p class="small muted"><strong style="color:var(--ink)">Why it matters in real ML:</strong> KNN simply remembers past examples, so it lives or dies by scaling the features, choosing the distance and picking K with a fair test such as leave-one-out or cross-validation: too small a K memorises noise, too big a K blurs away real patterns.</p>' +
+        '<p class="small muted"><strong style="color:var(--ink)">Why it matters in real ML:</strong> KNN simply remembers past examples, so it lives or dies by scaling the features, choosing the distance and picking K with a fair test such as leave-one-out or cross-validation (testing on held-back slices of the data, one slice at a time): too small a K memorises noise, too big a K blurs away real patterns.</p>' +
       '</div>';
 
     function $(id) { return root.querySelector('#' + P + id); }
@@ -440,7 +441,9 @@
     // Decision boundary, traced by marching squares on a field that is >= 0 where class c wins.
     // Two classes, odd K = 2m - 1: class a wins exactly when its m-th nearest loan is closer than class b's
     // m-th nearest, so "distance to b's m-th minus distance to a's m-th" is a smooth field whose zero line
-    // is the true KNN boundary. With three classes we fall back to "votes for c minus the best other class".
+    // is the true KNN boundary. At K = 1 with three classes, class c wins where its nearest loan is closer than
+    // every other class's nearest, so "nearest other minus nearest c" is exact too. Otherwise (three classes,
+    // K > 1) we fall back to "votes for c minus the best other class".
     function computeContour() {
       var segs = [];
       G.segs = segs;
@@ -448,10 +451,22 @@
       if (pres.length < 2 || !G.Ke) return;
       var nx = G.nx, ny = G.ny, W = nx + 1, nodes = W * (ny + 1), f = new Float32Array(nodes), node;
       var exact = pres.length === 2 && G.Ke === S.K && S.K % 2 === 1;
+      var exact1 = !exact && G.Ke === 1;
       var trace = pres.length === 2 ? [pres[0]] : pres;
       trace.forEach(function (c) {
         var i, j;
-        if (exact) {
+        if (exact1) {
+          var cls1 = G.cls, dst1 = G.dst;
+          for (node = 0; node < nodes; node++) {
+            var o1 = node * CAP, L1 = G.len[node], dc = -1, dO = -1;
+            for (var q1 = 0; q1 < L1 && (dc < 0 || dO < 0); q1++) {
+              if (cls1[o1 + q1] === c) { if (dc < 0) dc = dst1[o1 + q1]; }
+              else if (dO < 0) dO = dst1[o1 + q1];
+            }
+            var far1 = L1 < n ? dst1[o1 + L1 - 1] : 10;
+            f[node] = (dO < 0 ? far1 : dO) - (dc < 0 ? far1 : dc);
+          }
+        } else if (exact) {
           var a = pres[0], b = pres[1], m = (S.K + 1) / 2, cls = G.cls, dst = G.dst;
           for (node = 0; node < nodes; node++) {
             var o = node * CAP, KM = G.len[node], ca = 0, cb = 0, da = -1, db = -1;
@@ -465,11 +480,21 @@
             f[node] = (db < 0 ? far : db) - (da < 0 ? far : da);
           }
         } else {
+          var KeF = G.Ke, clsF = G.cls, dstF = G.dst, tieScale = 4 / Math.max(nx, ny);
           for (node = 0; node < nodes; node++) {
             var ac = G.cnt[node * 3 + c], mo = 0;
             for (var q2 = 0; q2 < 3; q2++) if (q2 !== c && G.cnt[node * 3 + q2] > mo) mo = G.cnt[node * 3 + q2];
-            // +/- 0.5 makes exact ties follow the tie-break winner
-            f[node] = ac - mo + (G.pred[node] === c ? 0.5 : -0.5);
+            if (ac !== mo) { f[node] = ac - mo + (ac > mo ? 0.5 : -0.5); continue; }
+            // A tie, settled by whose loan is closest. A whole-number field would put the line halfway between
+            // grid spots (a staircase), so use the distance gap between c's closest voter and the closest
+            // voter of a tied rival: it changes smoothly and is 0 exactly where the tie-break flips.
+            var oF = node * CAP, dc2 = -1, dr2 = -1;
+            for (var q3 = 0; q3 < KeF && (dc2 < 0 || dr2 < 0); q3++) {
+              var cq3 = clsF[oF + q3];
+              if (cq3 === c) { if (dc2 < 0) dc2 = dstF[oF + q3]; }
+              else if (dr2 < 0 && G.cnt[node * 3 + cq3] === ac) dr2 = dstF[oF + q3];
+            }
+            f[node] = clamp((dr2 - dc2) / tieScale, -0.5, 0.5);
           }
         }
         for (j = 0; j < ny; j++) {
@@ -615,7 +640,7 @@
         b.fillStyle = rgbStr(T.muted);
         b.textAlign = 'center';
         b.textBaseline = 'middle';
-        b.fillText('No loans yet: tap anywhere to add some', Gm.pl + Gm.pw / 2, Gm.pt + Gm.ph / 2);
+        b.fillText('No loans yet: click or tap to add some', Gm.pl + Gm.pw / 2, Gm.pt + Gm.ph / 2);
       }
     }
     function roundRect(c2, x, y, w, h, r) {
@@ -685,10 +710,21 @@
       var pad = 7, gap = 10, icon = 11, w = pad * 2 - gap, h = 22;
       var widths = items.map(function (c) { return icon + 4 + g.measureText(String(nb.counts[c])).width; });
       widths.forEach(function (wd) { w += wd + gap; });
-      var x = pp.x + 13, y = pp.y - 13 - h;
-      if (x + w > Gm.pl + Gm.pw - 2) x = pp.x - 13 - w;
-      if (y < Gm.pt + 2) y = pp.y + 13;
-      x = clamp(x, Gm.pl + 2, Math.max(Gm.pl + 2, Gm.pl + Gm.pw - w - 2));
+      // try the four corners round the probe and keep the one that hides the fewest loans (first wins a draw)
+      var cands = [[pp.x + 13, pp.y - 13 - h], [pp.x - 13 - w, pp.y - 13 - h], [pp.x + 13, pp.y + 13], [pp.x - 13 - w, pp.y + 13]];
+      var x = 0, y = 0, bestScore = Infinity, r = pointRadius() + 1, pts = S.pts;
+      for (var ci = 0; ci < cands.length; ci++) {
+        var cx0 = clamp(cands[ci][0], Gm.pl + 2, Math.max(Gm.pl + 2, Gm.pl + Gm.pw - w - 2));
+        var cy0 = clamp(cands[ci][1], Gm.pt + 2, Math.max(Gm.pt + 2, Gm.pt + Gm.ph - h - 2));
+        var score = 0;
+        // never cover the probe itself
+        if (pp.x > cx0 - 9 && pp.x < cx0 + w + 9 && pp.y > cy0 - 9 && pp.y < cy0 + h + 9) score += 1000;
+        for (i = 0; i < pts.length; i++) {
+          var tq = toPx(Gm, pts[i].x, pts[i].y);
+          if (tq.x > cx0 - r && tq.x < cx0 + w + r && tq.y > cy0 - r && tq.y < cy0 + h + r) score++;
+        }
+        if (score < bestScore) { bestScore = score; x = cx0; y = cy0; }
+      }
       roundRect(g, x, y, w, h, 6);
       g.fillStyle = rgbStr(T.surface, 0.94); g.fill();
       g.lineWidth = 1; g.strokeStyle = rgbStr(T.ink, 0.35); g.stroke();
@@ -847,7 +883,7 @@
     function updateReadout() {
       var n = S.pts.length, s;
       if (!n || !probeNb) {
-        s = 'No past loans on the map. Pick a class on the right and tap the map to add some.';
+        s = 'No past loans on the map. Pick a class under “Class of new loans” and click or tap the map to add some.';
       } else {
         var nb = probeNb, x = S.probe.x, y = S.probe.y;
         var order = [0, 1, 2].filter(function (c) { return nb.counts[c] > 0; }).sort(function (a, b) { return nb.counts[b] - nb.counts[a] || a - b; });
@@ -855,8 +891,8 @@
           : 'its ' + nb.Ke + ' nearest past loans: ' + order.map(function (c) { return nb.counts[c] + ' ' + CLASSES[c].name; }).join(', ');
         s = 'Probe at income <span class="num">' + inr(round500(incomeOf(x))) + '</span>, EMIs <span class="num">' + inr(round500(emiOf(y))) + '</span> ' +
           '<span class="muted num">(scaled ' + x.toFixed(2) + ', ' + y.toFixed(2) + ')</span>: ' + who + '. ' +
-          'Prediction: <b>' + CLASSES[nb.best].name + '</b> (' + nb.counts[nb.best] + ' of ' + nb.Ke + ' votes, ' + pct(nb.counts[nb.best], nb.Ke).replace('.0%', '%') + ').' +
-          (nb.tie ? ' A tie, so the class of the closest neighbour wins.' : '') +
+          'Prediction: <b>' + CLASSES[nb.best].name + '</b> (' + nb.counts[nb.best] + ' of ' + nb.Ke + (nb.Ke === 1 ? ' vote, ' : ' votes, ') + pct(nb.counts[nb.best], nb.Ke).replace('.0%', '%') + ').' +
+          (nb.tie ? ' A tie, so of the tied classes, the one with the closest loan wins.' : '') +
           (S.K > n ? ' K is bigger than the number of loans, so all ' + n + ' vote.' : '') +
           (S.hover >= 0 ? ' <b>Click to remove this loan.</b>' : '');
       }

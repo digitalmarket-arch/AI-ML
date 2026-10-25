@@ -133,14 +133,18 @@
   }
 
   /* ---------- shell ---------- */
+  var pendingFlush = [];
+  function flushPending() { pendingFlush.slice().forEach(function (f) { try { f(); } catch (e) {} }); }
+  window.addEventListener('pagehide', flushPending);
   function setView(html, title) {
+    flushPending(); pendingFlush = [];
     currentCleanup.forEach(function (f) { try { f(); } catch (e) {} });
     currentCleanup = [];
     main.innerHTML = html;
     document.title = (title ? title + ' · ' : '') + (D.site.name || 'AI Marg');
     var h1 = main.querySelector('h1');
     if (h1) { h1.setAttribute('tabindex', '-1'); h1.focus({ preventScroll: true }); }
-    window.scrollTo(0, 0);
+    try { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); } catch (e) { window.scrollTo(0, 0); }
   }
   function crumbs(items) {
     return '<nav class="crumbs" aria-label="Breadcrumb">' + items.map(function (it, i) {
@@ -237,7 +241,7 @@
   function plannerCard() {
     var st = S(), hpw = st.prefs.hpw || 10, start = st.prefs.start || C.today();
     return '<div class="card stack" id="planner"><div class="stack-sm"><strong>Plan your journey</strong><span class="small muted">How many hours a week can you study?</span></div>' +
-      '<div class="control"><label for="hpw">Hours per week <output id="hpw-out" class="num">' + hpw + ' h</output></label><input type="range" id="hpw" min="3" max="40" step="1" value="' + hpw + '"></div>' +
+      '<div class="control"><label for="hpw">Hours per week <output id="hpw-out" class="num">' + esc(hpw) + ' h</output></label><input type="range" id="hpw" min="3" max="40" step="1" value="' + esc(hpw) + '"></div>' +
       '<div class="control"><label for="pstart">Start date</label><input type="date" id="pstart" value="' + esc(start) + '"></div>' +
       '<div id="plan-out" class="stack-sm"></div></div>';
   }
@@ -294,7 +298,7 @@
       (projs.length ? '<section class="stack"><h2>Projects for this level</h2><div class="grid">' + projs.map(projCard).join('') + '</div></section>' : '') +
       '</div><aside class="stack">' +
       (l.outcomes && l.outcomes.length ? '<div class="card stack-sm"><strong>After this level you can</strong><ul class="small">' + l.outcomes.map(function (o) { return '<li>' + inline(o) + '</li>'; }).join('') + '</ul></div>' : '') +
-      (tests.length ? '<div class="card stack-sm"><strong>Level test</strong><p class="small muted">' + tests.length + ' tough questions across the level. Pass with 70%.</p>' + (tb ? '<span class="small num">Best score: ' + tb.best + '%</span>' : '') + '<a class="btn btn-primary" href="#test-l' + lv + '">Take the level ' + lv + ' test</a></div>' : '') +
+      (tests.length ? '<div class="card stack-sm"><strong>Level test</strong><p class="small muted">' + tests.length + ' tough questions across the level. Pass with 70%.</p>' + (tb ? '<span class="small num">Best score: ' + esc(tb.best) + '%</span>' : '') + '<a class="btn btn-primary" href="#test-l' + lv + '">Take the level ' + lv + ' test</a></div>' : '') +
       '</aside></div></div>', 'Level ' + lv + ' ' + l.name);
   }
 
@@ -346,7 +350,7 @@
   function moduleSide(m) {
     var parts = moduleParts(m), done = S().modules[m.id] && S().modules[m.id].done;
     return '<div class="card stack-sm"><strong>Your progress here</strong><ul class="checklist small">' + parts.map(function (p) {
-      return '<li>' + (p.done ? '✓ ' : '○ ') + esc(p.k) + ' <span class="muted num">' + (p.pctLike ? p.n + '%' : p.n + '/' + p.of) + '</span></li>';
+      return '<li>' + (p.done ? '✓ ' : '○ ') + esc(p.k) + ' <span class="muted num">' + esc(p.pctLike ? p.n + '%' : p.n + '/' + p.of) + '</span></li>';
     }).join('') + '</ul><button class="btn ' + (done ? '' : 'btn-haldi') + '" data-action="mod-done" data-id="' + esc(m.id) + '">' + (done ? 'Marked complete ✓ (undo)' : 'Mark module complete') + '</button></div>' +
       (m.tip ? '<div class="callout small"><strong>Tip:</strong> ' + inline(m.tip) + '</div>' : '');
   }
@@ -394,7 +398,7 @@
     } else if (tab === 'quiz') {
       var qz = D.quizzes[m.id], qs = S().quiz[m.id];
       el.innerHTML = '<div class="stack"><div class="row-between"><div class="stack-sm"><h2>Quiz</h2><span class="small muted">' + qz.length + ' questions · answers explained as you go · pass mark 70%</span></div>' +
-        '<span id="quiz-best" class="chip num' + (qs && qs.best >= 70 ? ' chip-ok' : '') + '"' + (qs ? '' : ' hidden') + '>' + (qs ? 'Best: ' + qs.best + '% · ' + qs.attempts + ' attempt' + (qs.attempts > 1 ? 's' : '') : '') + '</span></div><div id="quizroot"></div></div>';
+        '<span id="quiz-best" class="chip num' + (qs && qs.best >= 70 ? ' chip-ok' : '') + '"' + (qs ? '' : ' hidden') + '>' + (qs ? 'Best: ' + esc(qs.best) + '% · ' + esc(qs.attempts) + ' attempt' + (qs.attempts > 1 ? 's' : '') : '') + '</span></div><div id="quizroot"></div></div>';
       var quiz = new C.Quiz(document.getElementById('quizroot'), { questions: qz, mode: 'learn', onFinish: function (r) { recordQuiz(m.id, r.score); } });
       currentCleanup.push(function () { quiz.destroy(); });
     } else if (tab === 'notes') {
@@ -402,7 +406,9 @@
       el.innerHTML = '<div class="stack"><h2>My notes</h2><p class="small muted">Write what you learned in your own words (Hindi, English or Hinglish). Notes stay on this device. Copy them into your GitHub learning log every week.</p>' +
         '<label for="note-' + esc(m.id) + '" class="visually-hidden">Notes for ' + esc(m.title) + '</label><textarea id="note-' + esc(m.id) + '" rows="12" placeholder="Example: Gradient descent = walking downhill in small steps. Learning rate = step size. Too big → overshoot.">' + esc(note) + '</textarea><span class="small muted" id="note-status"></span></div>';
       var ta = el.querySelector('textarea'), t = null;
-      ta.addEventListener('input', function () { clearTimeout(t); t = setTimeout(function () { S().notes[m.id] = ta.value; C.save(); document.getElementById('note-status').textContent = 'Saved'; }, 400); });
+      var flushNote = function () { if (!t) return; clearTimeout(t); t = null; S().notes[m.id] = ta.value; C.save(); var st = document.getElementById('note-status'); if (st) st.textContent = 'Saved'; };
+      ta.addEventListener('input', function () { clearTimeout(t); t = setTimeout(flushNote, 400); });
+      pendingFlush.push(flushNote); currentCleanup.push(flushNote);
     }
   }
   function listBlock(title, arr, ordered) {
@@ -470,7 +476,8 @@
     KeyError: 'That key is not in the dictionary or DataFrame. Check the exact name.',
     AttributeError: 'This object does not have that method or property. Check spelling, or what type the object is.',
     ValueError: 'The value has the right type but a wrong value, e.g. converting "abc" to a number.',
-    ModuleNotFoundError: 'That library is not available in the browser version of Python.'
+    ModuleNotFoundError: 'That library is not available in the browser version of Python.',
+    RuntimeError: 'Something stopped the program while it was running. Read the message above; for input(), type the value straight into your code instead.'
   };
   function mountExercise(e, root) {
     var saved = S().code[e.id], done = S().ex[e.id] && S().ex[e.id].done;
@@ -486,22 +493,34 @@
       '<button class="btn btn-ghost" data-x="hint">Hint</button><button class="btn btn-ghost" data-x="reset">Reset</button><button class="btn btn-ghost" data-x="sol">Show solution</button><span class="kbd-hint">Ctrl/⌘ + Enter = Check</span></div>' +
       '<div class="stack-sm" data-x="hints"></div><div class="console" data-x="out" aria-live="polite"><span class="info">Output appears here.</span></div><ul class="checklist" data-x="results"></ul></div>';
     var ta = root.querySelector('textarea'), out = root.querySelector('[data-x=out]'), res = root.querySelector('[data-x=results]');
-    var bStop = root.querySelector('[data-x=stop]'), t = null;
-    ta.addEventListener('input', function () { clearTimeout(t); t = setTimeout(function () { S().code[e.id] = ta.value; C.save(); }, 400); });
+    var bStop = root.querySelector('[data-x=stop]'), t = null, busy = false;
+    var flushCode = function () { if (!t) return; clearTimeout(t); t = null; if (e.id !== 'playground') { S().code[e.id] = ta.value; C.save(); } };
+    ta.addEventListener('input', function () { clearTimeout(t); t = setTimeout(flushCode, 400); });
+    pendingFlush.push(flushCode); currentCleanup.push(flushCode);
+    currentCleanup.push(function () { if (busy) R.stop(); });
+    function setBusy(b) { busy = b; root.querySelector('[data-x=check]').disabled = b; root.querySelector('[data-x=run]').disabled = b; bStop.hidden = !b; }
     ta.addEventListener('keydown', function (ev) {
       if (ev.key === 'Tab' && !ev.shiftKey) { ev.preventDefault(); var s = ta.selectionStart; ta.value = ta.value.slice(0, s) + '    ' + ta.value.slice(ta.selectionEnd); ta.selectionStart = ta.selectionEnd = s + 4; }
       if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); go(true); }
     });
     function line(cls, text) { var s = document.createElement('span'); s.className = cls; s.textContent = text; out.appendChild(s); }
     function go(withTests) {
+      if (busy) return;
+      flushCode();
       out.innerHTML = ''; res.innerHTML = '';
-      var started = Date.now(), slow = setTimeout(function () { bStop.hidden = false; }, 4000);
+      if (R.status === 'running') line('info', 'Waiting for a previous program to finish… press Stop if it is stuck.\n');
+      setBusy(true);
+      var started = Date.now();
       R.run(ta.value, {
         tests: withTests ? e.tests : '', packages: e.packages || [],
-        onStdout: function (txt, kind) { line(kind === 'stderr' ? 'err' : '', txt + '\n'); },
+        onStdout: function (txt, kind) {
+          out.querySelectorAll('.info').forEach(function (n) { n.remove(); });
+          if (out.childNodes.length > 2000) return;
+          line(kind === 'stderr' ? 'err' : '', txt);
+        },
         onStatus: function (txt) { if (!out.querySelector('.ok,.err,span:not(.info)')) { out.innerHTML = ''; line('info', txt + '\n'); } }
       }).then(function (r) {
-        clearTimeout(slow); bStop.hidden = true;
+        setBusy(false);
         out.querySelectorAll('.info').forEach(function (n) { n.remove(); });
         if (r.error) {
           line('err', (r.error.line ? 'Line ' + r.error.line + ': ' : '') + r.error.type + ': ' + r.error.message + '\n');
@@ -522,11 +541,11 @@
             }
           } else if (all.length) line('info', '\n' + ok + ' of ' + all.length + ' checks passed. Read the hints above.\n');
         }
-      }).catch(function (err) { clearTimeout(slow); bStop.hidden = true; out.innerHTML = ''; line('err', String(err.message || err) + '\n'); });
+      }).catch(function (err) { setBusy(false); out.innerHTML = ''; line('err', String(err.message || err) + '\n'); });
     }
     root.querySelector('[data-x=check]').addEventListener('click', function () { go(true); });
     root.querySelector('[data-x=run]').addEventListener('click', function () { go(false); });
-    bStop.addEventListener('click', function () { R.stop(); bStop.hidden = true; });
+    bStop.addEventListener('click', function () { R.stop(); setBusy(false); });
     root.querySelector('[data-x=hint]').addEventListener('click', function () {
       var hs = e.hints || [], box = root.querySelector('[data-x=hints]');
       if (hintN >= hs.length) { C.toast('No more hints. Try "Show solution".'); return; }
@@ -635,14 +654,14 @@
       D.levels.map(function (l) {
         var q = D.quizzes['test-l' + l.id] || [], s = S().quiz['test-l' + l.id];
         return '<div class="card stack-sm"><span class="eyebrow">Level ' + l.id + ' · ' + esc(l.name) + '</span><h3>' + esc(l.title) + '</h3><span class="small muted">' + q.length + ' questions · ' + Math.max(15, Math.round(q.length * 1.5)) + ' minutes</span>' +
-          (s ? '<span class="chip ' + (s.best >= 70 ? 'chip-ok' : '') + ' num">Best ' + s.best + '%</span>' : '') + '<a class="btn btn-primary" href="#test-l' + l.id + '">' + (s ? 'Retake' : 'Start') + ' test</a></div>';
+          (s ? '<span class="chip ' + (s.best >= 70 ? 'chip-ok' : '') + ' num">Best ' + esc(s.best) + '%</span>' : '') + '<a class="btn btn-primary" href="#test-l' + l.id + '">' + (s ? 'Retake' : 'Start') + ' test</a></div>';
       }).join('') + '</div>' +
       '<section class="stack"><h2>Module quizzes taken</h2>' + quizTable() + '</section></div>', 'Tests');
   }
   function quizTable() {
     var rows = D.modules.filter(function (m) { return S().quiz[m.id]; }).map(function (m) {
       var q = S().quiz[m.id];
-      return '<tr><td><a href="#m-' + esc(m.id) + '">' + esc(modNo(m) + ' ' + m.title) + '</a></td><td class="num">' + q.best + '%</td><td class="num">' + q.attempts + '</td><td>' + (q.best >= 70 ? '<span class="chip chip-ok">passed</span>' : '<span class="chip">retry</span>') + '</td></tr>';
+      return '<tr><td><a href="#m-' + esc(m.id) + '">' + esc(modNo(m) + ' ' + m.title) + '</a></td><td class="num">' + esc(q.best) + '%</td><td class="num">' + esc(q.attempts) + '</td><td>' + (q.best >= 70 ? '<span class="chip chip-ok">passed</span>' : '<span class="chip">retry</span>') + '</td></tr>';
     });
     return rows.length ? '<div class="table-wrap"><table class="simple"><thead><tr><th>Module</th><th>Best</th><th>Attempts</th><th></th></tr></thead><tbody>' + rows.join('') + '</tbody></table></div>' : '<div class="empty">No quizzes taken yet. Every module has one.</div>';
   }
@@ -861,9 +880,12 @@
   /* ---------- router ---------- */
   var NAV = { roadmap: 'roadmap', labs: 'labs', practice: 'practice', projects: 'projects', tests: 'tests', library: 'library', glossary: 'glossary', career: 'career', progress: 'progress' };
   function route() {
-    var h = decodeURIComponent((location.hash || '').replace(/^#/, '')) || 'home';
+    var raw = (location.hash || '').replace(/^#/, ''), h;
+    try { h = decodeURIComponent(raw); } catch (e) { h = raw; }
+    h = h || 'home';
     var navKey = h;
     var m;
+    try {
     if (h === 'home') viewHome();
     else if (h === 'start') viewStart();
     else if (h === 'roadmap') viewRoadmap();
@@ -885,6 +907,7 @@
     else if (h === 'career' || h === 'faq') { viewCareer(); navKey = 'career'; }
     else if (h === 'progress') viewProgress();
     else viewNotFound();
+    } catch (err) { if (window.console) console.error(err); viewNotFound(); }
     document.querySelectorAll('.nav a').forEach(function (a) { if (a.getAttribute('href') === '#' + navKey) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     var nav = document.querySelector('.nav'); if (nav) nav.classList.remove('open');
     var mb = document.querySelector('.menu-btn'); if (mb) mb.setAttribute('aria-expanded', 'false');
