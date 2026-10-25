@@ -733,7 +733,7 @@
       calcHead.innerHTML = 'Pooled pixel: row ' + (i + 1) + ', column ' + (j + 1) +
         ' <span class="muted" style="font-weight:400">(from feature-map rows ' + (2 * i + 1) + '–' + (2 * i + 2) + ', columns ' + (2 * j + 1) + '–' + (2 * j + 2) + ')</span>';
       calcBody.innerHTML = gridBox('Feature-map block', raw, 2, '3.6em') + op('→', gridBox('After ReLU', rel, 2, '3.6em'), 2) +
-        op('→', gridBox('Max', cellBox(fmt(best), tintFor(best, scale, 40) || 'var(--surface)', 'var(--ink)', 'font-weight:700;min-height:calc(4em + 2px);'), 1, '3.6em'), 2);
+        op('→', gridBox('Max', cellBox(fmt(best), tintFor(best, scale, 40) || 'var(--surface)', 'var(--ink)', 'font-weight:700;min-height:calc(4em + 2px);outline:2px solid var(--haldi);outline-offset:-2px;'), 1, '3.6em'), 2);
       calcFoot.innerHTML = 'ReLU turns the negatives into 0, then max-pool keeps only the biggest of the 4: <b class="mono" style="font-size:1rem">' + fmt(best) + '</b>' + valueSwatch(best, scale) +
         '. This one number stands for a ' + rf + ' × ' + rf + ' patch of the input (dashed yellow box), so deeper layers see bigger areas.';
     }
@@ -792,31 +792,34 @@
         Lo.inX = x1 + c1; Lo.inY = top1 + c1;
         var top2 = snap(top1 + 30 * c1 + 14 + titleH), x2 = snap((Wd - 42 * c2 - gap) / 2);
         Lo.fSlot = { x: x2, y: top2, w: 28 * c2 };
-        Lo.pSlot = { x: snap(x2 + 28 * c2 + gap), y: snap(top2 + 7 * c2), w: 14 * c2 };
+        Lo.pSlot = { x: snap(x2 + 28 * c2 + gap), y: top2, w: 14 * c2 };
         Lo.titleY = top1 - 8; Lo.titleY2 = top2 - 8;
-        Lo.H = Math.ceil(top2 + 28 * c2 + legendH);
+        // the second row is only as tall as its biggest picture (the pooled slot is 14 cells when switched off)
+        var rowCells = Math.max(R.n, PR ? PR.m : 14);
+        Lo.H = Math.ceil(top2 + rowCells * c2 + legendH);
         var ly = top1 + 30 * c1 + 4;
         Lo.layer = { x: 0, y: ly, w: Wd, h: Lo.H - ly };
       }
       return Lo;
     }
-    // where the feature map and pooled map sit inside their (fixed-size) slots
+    // where the feature map and pooled map sit inside their (fixed-size) slots:
+    // centred in the wide layout (on the arrows' line), top-aligned under their titles in the narrow one
     function fGeom() {
       var n = R.n, c = L.c2, off = (28 - n) / 2 * c;
-      return { x: snap(L.fSlot.x + off), y: snap(L.fSlot.y + off), c: c, n: n };
+      return { x: snap(L.fSlot.x + off), y: snap(L.fSlot.y + (L.mode === 'wide' ? off : 0)), c: c, n: n };
     }
     function pGeom() {
       if (!PR) return null;
       var m = PR.m, c = L.c2, off = (14 - m) / 2 * c;
-      return { x: snap(L.pSlot.x + off), y: snap(L.pSlot.y + off), c: c, n: m };
+      return { x: snap(L.pSlot.x + off), y: snap(L.pSlot.y + (L.mode === 'wide' ? off : 0)), c: c, n: m };
     }
 
-    function resize() {
-      if (!alive) return;
+    // work out the layout again when the width, pixel density or output sizes change
+    function ensureLayout() {
       // the canvas fills the wrapper's inside (the wrapper has a 1px border)
       var Wd = Math.max(200, Math.floor(canvas.getBoundingClientRect().width));
       dpr = Math.min(window.devicePixelRatio || 1, 3);
-      var key = Wd + 'x' + dpr;
+      var key = Wd + 'x' + dpr + '|' + R.n + '|' + (PR ? PR.m : '-');
       if (key !== layoutKey) {
         layoutKey = key;
         L = computeLayout(Wd);
@@ -832,6 +835,10 @@
         var narrow = left.getBoundingClientRect().width < 480;
         stats.style.gridTemplateColumns = narrow ? 'repeat(2, minmax(0, 1fr))' : 'repeat(4, minmax(0, 1fr))';
       }
+    }
+    function resize() {
+      if (!alive) return;
+      ensureLayout();
       draw();
     }
 
@@ -840,6 +847,7 @@
       raf = 0;
       if (!alive) return;
       if (anim) stepAnim(now);
+      ensureLayout();
       draw();
       if (anim) raf = requestAnimationFrame(frame);
     }
@@ -923,8 +931,7 @@
       /* titles */
       title(pad ? ['Input 28 × 28, plus a border of 0s', 'Input 28 × 28 + 0-border', 'Input + 0-border'] : ['Input 28 × 28', 'Input'], L.inX, L.titleY, L.inSlot.w - c1);
       var F = fGeom(), P = pGeom(), wide = L.mode === 'wide';
-      var fTitleY = wide ? L.titleY2 : F.y - 8;
-      var pTitleY = wide ? L.titleY2 : (P && P.n > 0 ? P.y : L.pSlot.y) - 8;
+      var fTitleY = L.titleY2, pTitleY = L.titleY2;
       title(['Feature map ' + R.n + ' × ' + R.n, R.n + ' × ' + R.n], wide ? L.fSlot.x : F.x, fTitleY, L.fSlot.w + L.gap - 6);
       var pX = wide || !(P && P.n > 0) ? L.pSlot.x : P.x;
       if (poolOn) title(['ReLU + max-pool ' + PR.m + ' × ' + PR.m, 'Pooled ' + PR.m + ' × ' + PR.m, PR.m + ' × ' + PR.m], pX, pTitleY, L.W - pX - 4);

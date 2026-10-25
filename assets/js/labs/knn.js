@@ -9,6 +9,8 @@
   /* ---------- constants ---------- */
   var K_MAX = 25;          // the slider runs 1, 3, 5 ... 25
   var K_COUNT = 13;        // how many odd K values that is
+  var NB = K_MAX + 1;      // neighbours remembered per map spot (one spare, for the exact boundary at K = 25)
+  var EXAMPLE_KS = [1, 5, 25];  // already plotted on the accuracy chart at the start
   var START_K = 5;
   var MAX_POINTS = 200;
   var DATA_SEED = 381;     // picked so leave-one-out accuracy climbs, peaks in the middle, then falls
@@ -25,9 +27,9 @@
   ];
   var TASKS = [
     { id: 't1', text: 'Slide K down to 1. Training accuracy jumps to 100%, but the map breaks into jagged islands around single loans. That is overfitting (memorising the data, noise included).' },
-    { id: 't2', text: 'Find the best K: try at least 4 values of K, then leave the slider on the one with the highest leave-one-out accuracy (the chart under the map keeps score).' },
+    { id: 't2', text: 'Find the best K: try at least 4 values of K, then leave the slider on the one with the highest leave-one-out accuracy (the accuracy chart keeps score).' },
     { id: 't3', text: 'Add a loan that looks mislabelled: a Defaulted point deep inside the Repaid area (or the other way round). See it get its own island at K = 1, then get out-voted at K = 5 or more.' },
-    { id: 't4', text: 'Try a third class: add at least 3 “Paid late” points close together in a quiet area and watch KNN paint a third region.' }
+    { id: 't4', text: 'Try a third class: add at least 3 “Paid late” loans close together in an empty corner. With a small K, KNN paints a third region for them.' }
   ];
 
   /* ---------- small helpers ---------- */
@@ -139,7 +141,7 @@
 
     var tasksHtml = TASKS.map(function (t) { return '<li data-task="' + t.id + '">' + t.text + '</li>'; }).join('');
     var clsBtns = CLASSES.map(function (c, i) {
-      return '<button type="button" data-cls="' + i + '" aria-pressed="' + (i === 0) + '" style="display:inline-flex;align-items:center;gap:6px">' + classSwatch(i) + c.name + '</button>';
+      return '<button type="button" data-cls="' + i + '" aria-pressed="' + (i === 0) + '" style="display:inline-flex;align-items:center;gap:5px;padding:6px 8px">' + classSwatch(i) + c.name + '</button>';
     }).join('');
 
     root.innerHTML =
@@ -162,13 +164,6 @@
               '<div class="stat"><div class="k">Past loans</div><div class="v" id="' + P + 'sn">—</div></div>' +
             '</div>' +
             '<p class="small muted"><strong style="color:var(--ink)">Training accuracy</strong> checks each loan with the loan itself allowed to vote. <strong style="color:var(--ink)">Leave-one-out accuracy</strong> hides one loan, predicts it from all the others, and repeats for every loan. It is the fairer test, because no loan gets to vote for itself.</p>' +
-            '<div class="row-between" style="margin-top:6px"><h4>Accuracy for each K you try</h4>' +
-              '<button type="button" class="btn btn-sm" id="' + P + 'fill" aria-pressed="false">Show every K</button></div>' +
-            '<div class="lab-legend">' +
-              legendItem(swatch('circle', 'var(--series-4)', 'var(--surface)', 1), 'Leave-one-out (fair test)') +
-              legendItem(swatch('ring', 'none', 'var(--muted)', 1.6), 'Training (loans vote for themselves)') +
-            '</div>' +
-            '<div class="lab-canvas-wrap" id="' + P + 'cwrap" style="aspect-ratio:16/5;min-height:150px;max-height:220px"><canvas id="' + P + 'chart" role="img" aria-label="Accuracy for each K tried"></canvas></div>' +
             '<p class="kbd-hint">Keyboard: focus the map, move the probe with the arrow keys (Shift for bigger steps), press Enter to add a loan there (or remove the one under the probe) and Delete to remove the nearest loan.</p>' +
           '</div>' +
           '<div class="lab-controls">' +
@@ -191,6 +186,16 @@
             '<div class="stack-sm"><h4>Your tasks</h4><ul class="lab-tasks" id="' + P + 'tasks">' + tasksHtml + '</ul></div>' +
           '</div>' +
         '</div>' +
+        '<div class="stack-sm">' +
+          '<div class="row-between"><h4>Accuracy for each K you try</h4>' +
+            '<button type="button" class="btn btn-sm" id="' + P + 'fill" aria-pressed="false">Show every K</button></div>' +
+          '<p class="small muted">K = 1, 5 and 25 are filled in to start. Every K you choose with the slider is added. Where does leave-one-out accuracy peak?</p>' +
+          '<div class="lab-legend">' +
+            legendItem(swatch('circle', 'var(--series-4)', 'var(--surface)', 1), 'Leave-one-out (fair test)') +
+            legendItem(swatch('ring', 'none', 'var(--muted)', 1.6), 'Training (loans vote for themselves)') +
+          '</div>' +
+          '<div class="lab-canvas-wrap" id="' + P + 'cwrap" style="aspect-ratio:16/5;min-height:150px;max-height:220px"><canvas id="' + P + 'chart" role="img" aria-label="Accuracy for each K tried"></canvas></div>' +
+        '</div>' +
         '<p class="small muted"><strong style="color:var(--ink)">Why it matters in real ML:</strong> KNN simply remembers past examples, so it lives or dies by scaling the features, choosing the distance and picking K with a fair test such as leave-one-out or cross-validation: too small a K memorises noise, too big a K blurs away real patterns.</p>' +
       '</div>';
 
@@ -208,14 +213,14 @@
     var S = {
       pts: makeData(), K: START_K, man: false, cls: 0,
       probe: { x: START_PROBE.x, y: START_PROBE.y }, hover: -1,
-      tried: {}, triedCount: 0, kTouched: false, revealed: false
+      tried: {}, userTried: {}, userTriedCount: 0, kTouched: false, revealed: false
     };
-    S.tried[START_K] = true; S.triedCount = 1;
+    EXAMPLE_KS.forEach(function (k) { S.tried[k] = true; });
     var done = {};
     // M = the model's view of the training data (rebuilt when loans or the distance change)
     var M = { n: 0, present: [], counts: [0, 0, 0], nb: new Uint8Array(0), train: [], loo: [], wrong: new Uint8Array(0), pred: new Uint8Array(0) };
-    // G = the background map: the K_MAX nearest classes for every grid node, then the vote for the current K
-    var G = { nx: 0, ny: 0, KM: 0, cls: null, cnt: null, pred: null, conf: null, predCount: [0, 0, 0], segs: [] };
+    // G = the background map: the NB nearest classes (and distances) for every grid node, then the vote for the current K
+    var G = { nx: 0, ny: 0, KM: 0, cls: null, dst: null, cnt: null, pred: null, conf: null, predCount: [0, 0, 0], segs: [] };
     var dirty = { nbrs: true, votes: true, colours: true, base: true, chart: true };
     var dims = { w: 1, h: 1, dpr: 1, cw: 1, ch: 1 };
     var rafId = 0, aspectRaf = 0, lastTheme = null, lastReadout = '';
@@ -345,16 +350,17 @@
       while ((nx + 1) * (ny + 1) > MAX_NODES) { nx = Math.round(nx * 0.92); ny = Math.round(ny * 0.92); }
       if (nx !== G.nx || ny !== G.ny) { G.nx = nx; G.ny = ny; dirty.nbrs = true; }
     }
-    // For every grid node, the classes of its K_MAX nearest loans, nearest first. Changing K later only re-counts votes.
+    // For every grid node, the classes (and distances) of its NB nearest loans, nearest first.
+    // Changing K later only re-counts votes.
     function computeGridNeighbours() {
-      var pts = S.pts, n = pts.length, KM = Math.min(K_MAX, n), nx = G.nx, ny = G.ny, W = nx + 1;
+      var pts = S.pts, n = pts.length, KM = Math.min(NB, n), nx = G.nx, ny = G.ny, W = nx + 1;
       var nodes = W * (ny + 1);
       G.KM = KM;
-      if (!G.cls || G.cls.length !== nodes * K_MAX) G.cls = new Uint8Array(nodes * K_MAX);
+      if (!G.cls || G.cls.length !== nodes * NB) { G.cls = new Uint8Array(nodes * NB); G.dst = new Float32Array(nodes * NB); }
       if (!KM) return;
       var px = new Float64Array(n), py = new Float64Array(n), pc = new Uint8Array(n), p;
       for (p = 0; p < n; p++) { px[p] = pts[p].x; py[p] = pts[p].y; pc[p] = pts[p].c; }
-      var bd = new Float64Array(KM), bc = new Uint8Array(KM), man = S.man, cls = G.cls;
+      var bd = new Float64Array(KM), bc = new Uint8Array(KM), man = S.man, cls = G.cls, dst = G.dst;
       for (var j = 0; j <= ny; j++) {
         var y = j / ny;
         for (var i = 0; i <= nx; i++) {
@@ -368,20 +374,20 @@
             while (q > 0 && bd[q - 1] > d) { bd[q] = bd[q - 1]; bc[q] = bc[q - 1]; q--; }
             bd[q] = d; bc[q] = pc[p];
           }
-          var o = (j * W + i) * K_MAX;
-          for (q = 0; q < KM; q++) cls[o + q] = bc[q];
+          var o = (j * W + i) * NB;
+          for (q = 0; q < KM; q++) { cls[o + q] = bc[q]; dst[o + q] = man ? bd[q] : Math.sqrt(bd[q]); }
         }
       }
     }
     function computeGridVotes() {
-      var nx = G.nx, ny = G.ny, nodes = (nx + 1) * (ny + 1), Ke = Math.min(S.K, G.KM);
+      var nx = G.nx, ny = G.ny, nodes = (nx + 1) * (ny + 1), Ke = Math.min(S.K, G.KM, S.pts.length);
       if (!G.pred || G.pred.length !== nodes) { G.pred = new Uint8Array(nodes); G.cnt = new Uint8Array(nodes * 3); G.conf = new Float32Array(nodes); }
       G.predCount = [0, 0, 0];
       G.Ke = Ke;
       if (!Ke) return;
       var C = Math.max(1, M.present.length), cls = G.cls;
       for (var node = 0; node < nodes; node++) {
-        var o = node * K_MAX, best = voteList(cls, o, Ke), share = cnt3[best] / Ke;
+        var o = node * NB, best = voteList(cls, o, Ke), share = cnt3[best] / Ke;
         G.pred[node] = best;
         G.cnt[node * 3] = cnt3[0]; G.cnt[node * 3 + 1] = cnt3[1]; G.cnt[node * 3 + 2] = cnt3[2];
         // confidence: 0 when the vote is as split as it can be, 1 when every neighbour agrees
@@ -389,21 +395,40 @@
         G.predCount[best]++;
       }
     }
-    // Decision boundary by marching squares on "votes for class c minus the best other class".
+    // Decision boundary, traced by marching squares on a field that is >= 0 where class c wins.
+    // Two classes, odd K = 2m - 1: class a wins exactly when its m-th nearest loan is closer than class b's
+    // m-th nearest, so "distance to b's m-th minus distance to a's m-th" is a smooth field whose zero line
+    // is the true KNN boundary. With three classes we fall back to "votes for c minus the best other class".
     function computeContour() {
       var segs = [];
       G.segs = segs;
-      var pres = M.present;
+      var pres = M.present, n = S.pts.length;
       if (pres.length < 2 || !G.Ke) return;
+      var nx = G.nx, ny = G.ny, W = nx + 1, nodes = W * (ny + 1), f = new Float32Array(nodes), node;
+      var exact = pres.length === 2 && G.Ke === S.K && S.K % 2 === 1;
       var trace = pres.length === 2 ? [pres[0]] : pres;
-      var nx = G.nx, ny = G.ny, W = nx + 1, nodes = W * (ny + 1), f = new Float32Array(nodes);
       trace.forEach(function (c) {
-        var node, i, j;
-        for (node = 0; node < nodes; node++) {
-          var a = G.cnt[node * 3 + c], mo = 0;
-          for (var q = 0; q < 3; q++) if (q !== c && G.cnt[node * 3 + q] > mo) mo = G.cnt[node * 3 + q];
-          // +/- 0.5 makes exact ties follow the tie-break winner
-          f[node] = a - mo + (G.pred[node] === c ? 0.5 : -0.5);
+        var i, j;
+        if (exact) {
+          var a = pres[0], b = pres[1], m = (S.K + 1) / 2, KM = G.KM, cls = G.cls, dst = G.dst;
+          for (node = 0; node < nodes; node++) {
+            var o = node * NB, ca = 0, cb = 0, da = -1, db = -1;
+            for (var q = 0; q < KM && (da < 0 || db < 0); q++) {
+              var cq = cls[o + q];
+              if (cq === a) { if (++ca === m) da = dst[o + q]; }
+              else if (cq === b) { if (++cb === m) db = dst[o + q]; }
+            }
+            // not in the remembered list: either it is further than the last one, or that class is too small to ever win
+            var far = KM < n ? dst[o + KM - 1] : 10;
+            f[node] = (db < 0 ? far : db) - (da < 0 ? far : da);
+          }
+        } else {
+          for (node = 0; node < nodes; node++) {
+            var ac = G.cnt[node * 3 + c], mo = 0;
+            for (var q2 = 0; q2 < 3; q2++) if (q2 !== c && G.cnt[node * 3 + q2] > mo) mo = G.cnt[node * 3 + q2];
+            // +/- 0.5 makes exact ties follow the tie-break winner
+            f[node] = ac - mo + (G.pred[node] === c ? 0.5 : -0.5);
+          }
         }
         for (j = 0; j < ny; j++) {
           for (i = 0; i < nx; i++) {
@@ -645,16 +670,16 @@
       c2.setTransform(dpr, 0, 0, dpr, 0, 0);
       c2.fillStyle = rgbStr(T.surface);
       c2.fillRect(0, 0, w, h);
-      var pl = 44, pr = 10, pt = 12, pb = 26, pw = Math.max(10, w - pl - pr), ph = Math.max(10, h - pt - pb);
+      var pl = 44, pr = 10, pt = 12, pb = 30, pw = Math.max(10, w - pl - pr), ph = Math.max(10, h - pt - pb);
       var slot = pw / K_COUNT, n = S.pts.length, ki, i;
       function X(k) { return pl + (k + 0.5) * slot; }
       var shown = [];
       for (ki = 0; ki < K_COUNT; ki++) if (S.revealed || S.tried[2 * ki + 1]) shown.push(ki);
       var ok = n >= 2;
-      var lo = 1;
-      if (ok) shown.forEach(function (k) { lo = Math.min(lo, M.loo[k] / n, M.train[k] / n); });
-      var span = 1 - lo + 0.03, step = span <= 0.2 ? 0.05 : span <= 0.45 ? 0.1 : 0.25;
-      lo = Math.max(0, Math.floor((lo - 0.03) / step) * step);
+      var minV = 1;
+      if (ok) shown.forEach(function (k) { minV = Math.min(minV, M.loo[k] / n, M.train[k] / n); });
+      var step = 1 - minV <= 0.3 ? 0.05 : 1 - minV <= 0.6 ? 0.1 : 0.25;
+      var lo = Math.max(0, Math.floor((minV - 0.01) / step) * step);
       if (1 - lo < step * 2) lo = Math.max(0, 1 - step * 2);
       function Y(v) { return pt + (1 - (v - lo) / (1 - lo)) * ph; }
       // current K
@@ -678,12 +703,12 @@
         var isCur = ki === cur;
         c2.font = font(T, 11, isCur ? '700' : '400');
         c2.fillStyle = rgbStr(isCur ? T.ink : T.muted);
-        c2.fillText(String(2 * ki + 1), X(ki), pt + ph + 6);
+        c2.fillText(String(2 * ki + 1), X(ki), pt + ph + 9);
       }
       c2.font = font(T, 11, '600');
       c2.textAlign = 'right';
       c2.fillStyle = rgbStr(T.muted);
-      c2.fillText('K =', pl - 6, pt + ph + 6);
+      c2.fillText('K =', pl - 6, pt + ph + 9);
       if (!ok) {
         c2.font = font(T, 13, '600');
         c2.textAlign = 'center'; c2.textBaseline = 'middle';
@@ -694,13 +719,13 @@
       c2.setLineDash([4, 4]);
       c2.lineWidth = 1.5; c2.strokeStyle = rgbStr(T.muted, 0.8);
       c2.beginPath();
-      shown.forEach(function (k, j) { var y = Y(M.train[k] / n); if (j) c2.lineTo(X(k), y); else c2.moveTo(X(k), y); });
+      shown.forEach(function (k, j) { var y = Y(M.train[k] / n); if (j && shown[j - 1] === k - 1) c2.lineTo(X(k), y); else c2.moveTo(X(k), y); });
       c2.stroke();
       c2.setLineDash([]);
       // leave-one-out: solid line, filled dots
       c2.lineWidth = 2; c2.strokeStyle = rgbStr(T.s4);
       c2.beginPath();
-      shown.forEach(function (k, j) { var y = Y(M.loo[k] / n); if (j) c2.lineTo(X(k), y); else c2.moveTo(X(k), y); });
+      shown.forEach(function (k, j) { var y = Y(M.loo[k] / n); if (j && shown[j - 1] === k - 1) c2.lineTo(X(k), y); else c2.moveTo(X(k), y); });
       c2.stroke();
       shown.forEach(function (k) {
         c2.beginPath(); c2.arc(X(k), Y(M.train[k] / n), 3.6, 0, Math.PI * 2);
@@ -727,7 +752,7 @@
         c2.fillStyle = rgbStr(T.ink);
         c2.textBaseline = 'bottom';
         c2.textAlign = firstBest === 0 ? 'left' : firstBest === K_COUNT - 1 ? 'right' : 'center';
-        var label = 'best ' + pct(M.loo[firstBest], n);
+        var label = (shown.length === K_COUNT ? 'best ' : 'best so far ') + pct(M.loo[firstBest], n);
         // keep the label clear of the training dot when they sit close together
         var ly = by - 10;
         if (Math.abs(Y(M.train[firstBest] / n) - by) < 22 && Y(M.train[firstBest] / n) < by) ly = by + 22, c2.textBaseline = 'bottom';
@@ -806,7 +831,7 @@
     function checkTasks(settled) {
       var n = S.pts.length, ki = (S.K - 1) / 2, two = M.present.length >= 2;
       if (S.kTouched && S.K === 1 && n >= 10 && two && M.train[0] === n) completeTask('t1');
-      if (settled && S.kTouched && (S.triedCount >= 4 || S.revealed) && n >= 10 && two) {
+      if (settled && S.kTouched && (S.userTriedCount >= 4 || S.revealed) && n >= 10 && two) {
         var best = Math.max.apply(null, M.loo);
         if (M.loo[ki] === best) completeTask('t2');
       }
@@ -822,7 +847,8 @@
       var changed = K !== S.K;
       S.K = K;
       S.kTouched = true;
-      if (!S.tried[K]) { S.tried[K] = true; S.triedCount++; }
+      S.tried[K] = true;
+      if (!S.userTried[K]) { S.userTried[K] = true; S.userTriedCount++; }
       if (changed) { computeAtK(); dirty.votes = true; dirty.base = true; dirty.chart = true; updateStats(); }
       checkTasks(settled);
       requestDraw();
