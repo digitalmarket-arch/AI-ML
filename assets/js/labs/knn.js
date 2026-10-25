@@ -359,16 +359,21 @@
       var dx = x - px, dy = y - py;
       return Math.fround(man ? (dx < 0 ? -dx : dx) + (dy < 0 ? -dy : dy) : Math.sqrt(dx * dx + dy * dy));
     }
+    // plain number arrays of the loans, so the hot loops below never touch the loan objects
+    var PX = new Float64Array(MAX_POINTS + 1), PY = new Float64Array(MAX_POINTS + 1), PC = new Uint8Array(MAX_POINTS + 1);
+    function syncPointArrays() {
+      for (var p = 0; p < S.pts.length; p++) { PX[p] = S.pts[p].x; PY[p] = S.pts[p].y; PC[p] = S.pts[p].c; }
+    }
     function fillNode(node, x, y) {
-      var pts = S.pts, n = pts.length, cap = Math.min(CAP, n), o = node * CAP, L = 0, man = S.man;
+      var n = S.pts.length, cap = Math.min(CAP, n), o = node * CAP, L = 0, man = S.man;
       var dst = G.dst, idx = G.idx, cls = G.cls;
       for (var p = 0; p < n; p++) {
-        var d = gridDist(man, x, y, pts[p].x, pts[p].y), q;
+        var d = gridDist(man, x, y, PX[p], PY[p]), q;
         if (L < cap) q = L++;
         else if (d < dst[o + cap - 1]) q = cap - 1;
         else continue;
         while (q > 0 && dst[o + q - 1] > d) { dst[o + q] = dst[o + q - 1]; idx[o + q] = idx[o + q - 1]; cls[o + q] = cls[o + q - 1]; q--; }
-        dst[o + q] = d; idx[o + q] = p; cls[o + q] = pts[p].c;
+        dst[o + q] = d; idx[o + q] = p; cls[o + q] = PC[p];
       }
       G.len[node] = L;
     }
@@ -378,6 +383,7 @@
         G.len = new Uint8Array(nodes); G.cls = new Uint8Array(nodes * CAP);
         G.idx = new Uint16Array(nodes * CAP); G.dst = new Float32Array(nodes * CAP);
       }
+      syncPointArrays();
       for (var j = 0; j <= ny; j++) for (var i = 0; i <= nx; i++) fillNode(node++, i / nx, j / ny);
       G.ready = true;
     }
@@ -400,6 +406,7 @@
     // Loan r was just spliced out: drop it from every list and shift later indices down by one.
     // The rest of each list is still the nearest loans in order; only a list that gets too short is recounted.
     function gridRemoved(r) {
+      syncPointArrays();
       var n = S.pts.length, need = Math.min(NB, n), nx = G.nx, ny = G.ny, dst = G.dst, idx = G.idx, cls = G.cls, len = G.len, node = 0;
       for (var j = 0; j <= ny; j++) {
         for (var i = 0; i <= nx; i++, node++) {
