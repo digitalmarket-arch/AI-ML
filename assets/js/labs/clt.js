@@ -662,7 +662,8 @@
       g.font = fontN; g.textAlign = 'left'; g.fillStyle = C.muted;
       var labelY = sT + fs + 3;
       if (!last) {
-        g.fillText('Your sample appears here: ' + n + ' random ' + (n === 1 ? p.one : p.noun) + ' picked from the population.', plotL + 4, labelY);
+        g.fillText(fit(['Your sample appears here: ' + n + ' random ' + (n === 1 ? p.one : p.noun) + ' picked from the population.',
+          'Your sample of ' + n + ' ' + (n === 1 ? p.one : p.noun) + ' appears here.', 'Your sample appears here.'], plotW - 8), plotL + 4, labelY);
       } else {
         var head = 'Sample #' + group(last.no) + ': ' + n + ' ' + (n === 1 ? p.one : p.noun);
         g.fillText(head, plotL + 4, labelY);
@@ -765,7 +766,7 @@
       // empty state
       if (r.count === 0 && !anim) {
         g.font = fontN; g.fillStyle = C.muted; g.textAlign = 'center';
-        g.fillText('No sample means yet. Press \u201CDraw\u201D or tap the top chart.', plotL + plotW / 2, mTop + mH / 2);
+        g.fillText(fit(['No sample means yet. Press \u201CDraw\u201D or tap the top chart.', 'No means yet. Press \u201CDraw\u201D.'], plotW - 8), plotL + plotW / 2, mTop + mH / 2 - 6);
       }
       g.strokeStyle = C.line; g.lineWidth = 1;
       g.beginPath(); g.moveTo(plotL, mBase + 0.5); g.lineTo(plotR, mBase + 0.5); g.stroke();
@@ -798,6 +799,10 @@
         }
       }
       return 0;
+    }
+    function fit(options, maxW) {
+      for (var i = 0; i < options.length; i++) if (g.measureText(options[i]).width <= maxW) return options[i];
+      return options[options.length - 1];
     }
     function halo(txt, x, y, fill, edge) {
       g.lineJoin = 'round'; g.lineWidth = 4; g.strokeStyle = edge;

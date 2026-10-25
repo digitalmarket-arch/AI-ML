@@ -129,7 +129,7 @@
     var l = S().prefs.lang;
     return '<div class="seg" role="group" aria-label="Video language preference">' +
       '<button type="button" data-action="lang" data-lang="hi" aria-pressed="' + (l === 'hi') + '">हिंदी / Hinglish first</button>' +
-      '<button type="button" data-action="lang" data-lang="en" aria-pressed="' + (l === 'en') + '">English first</button></div>';
+      '<button type="button" data-action="lang" data-lang="en" aria-pressed="' + (l === 'en') + '">Indian English first</button></div>';
   }
   function stations() {
     return '<div class="path">' + D.levels.map(function (l) {
@@ -154,25 +154,26 @@
   function viewHome() {
     var st = S(), last = st.last && modById[st.last] ? modById[st.last] : null;
     var nRes = D.resources.length, nHi = D.resources.filter(function (r) { return r.language === 'hindi' || r.language === 'hinglish'; }).length;
+    var nIn = D.resources.filter(function (r) { return r.language === 'indian-english'; }).length;
     var nQ = Object.keys(D.quizzes).reduce(function (s, k) { return s + D.quizzes[k].length; }, 0);
     var html = '<div class="wrap stack-lg">' +
       '<section class="hero"><div class="stack">' +
-      '<span class="eyebrow">Free AI & ML course · हिंदी, Hinglish & English</span>' +
+      '<span class="eyebrow">Free AI & ML course · हिंदी, Hinglish & Indian English</span>' +
       '<h1>From your first line of Python to building <em>AI agents</em>.</h1>' +
-      '<p class="lede">A guided path through the best free videos on YouTube, NPTEL and more, with interactive labs, Python you can run in the browser, tests and tough projects. No fees, no sign-up.</p>' +
+      '<p class="lede">A guided path through the best free videos from Indian teachers first, in Hindi, Hinglish and Indian English, with interactive labs, Python you can run in the browser, tests and tough projects. No fees, no sign-up.</p>' +
       '<div class="row"><a class="btn btn-primary" href="#start">Start here</a>' +
       (last ? '<a class="btn" href="#m-' + esc(last.id) + '">Continue: ' + esc(last.title) + '</a>' : '<a class="btn" href="#level-1">Open Level 1</a>') + '</div>' +
       '<div class="stack-sm"><span class="small muted">Show videos in</span>' + langSeg() + '</div>' +
       '</div>' + stations() + '</section>' +
       '<section class="stack"><div class="section-title"><h2>What you get</h2></div><div class="grid">' +
-      featureCard('Curated free lessons', nRes + ' free playlists, courses and books, ' + nHi + ' of them in Hindi or Hinglish. Each module tells you what to watch first.', '#library', 'Browse the library') +
+      featureCard('Indian teachers first', nRes + ' free playlists, courses and books. ' + nHi + ' are in Hindi or Hinglish and ' + nIn + ' in Indian English. Global English classics appear as extras.', '#library', 'Browse the library') +
       featureCard('Interactive labs', Object.keys(LABS).length + ' visual labs: drag points, move sliders and watch gradient descent, overfitting, K-Means and neural networks react.', '#labs', 'Open the labs') +
       featureCard('Python in your browser', D.exercises.length + ' auto-graded coding exercises. Write code, press Check, get instant feedback. Nothing to install.', '#practice', 'Start practising') +
       featureCard('Tests and tough projects', nQ + ' quiz questions, four level tests and ' + D.projects.length + ' portfolio projects built on Indian data and problems.', '#projects', 'See the projects') +
       '</div></section>' +
       '<section class="stack"><div class="section-title"><h2>How each module works</h2></div><ol class="stack-sm prose">' +
       '<li><strong>Read the overview.</strong> Plain-English explanation, key terms and a study plan.</li>' +
-      '<li><strong>Watch.</strong> The main pick in your language, plus alternatives if a teacher does not click for you.</li>' +
+      '<li><strong>Watch.</strong> The main pick from an Indian teacher in your language, plus alternatives if a teacher does not click for you.</li>' +
       '<li><strong>Play with the lab.</strong> Where a concept is visual, a lab lets you feel it before you code it.</li>' +
       '<li><strong>Practise.</strong> Solve small Python exercises right on the page.</li>' +
       '<li><strong>Test yourself.</strong> Score 70% or more on the quiz, then move on. Finish the level test and a project to complete the level.</li></ol></section>' +
@@ -330,14 +331,18 @@
     } else if (tab === 'watch') {
       var list = watchList(m), pref = S().prefs.lang;
       var isHi = function (r) { return r.language === 'hindi' || r.language === 'hinglish'; };
+      var group = function (r) { return isHi(r) ? 'hi' : r.language === 'indian-english' ? 'in' : 'en'; };
       var vids = list.filter(function (r) { return VIDEO_TYPES[r.type]; });
       var mainPick = vids[0];
-      var otherLangPick = vids.filter(function (r) { return mainPick && isHi(r) !== isHi(mainPick); })[0];
+      // second pick: the other Indian group first (Hindi <-> Indian English); global English only if no Indian option exists
+      var otherLangPick = mainPick ? (vids.filter(function (r) { return group(r) !== group(mainPick) && group(r) !== 'en'; })[0] ||
+        vids.filter(function (r) { return group(r) !== group(mainPick); })[0]) : null;
+      var GROUP_LABEL = { hi: 'Hindi / Hinglish', in: 'Indian English', en: 'English' };
       var rest = list.filter(function (r) { return r !== mainPick && r !== otherLangPick; });
       el.innerHTML = '<div class="stack-lg"><div class="row-between"><div class="small muted">' + list.length + ' resources for this module</div>' + langSeg() + '</div>' +
         (location.protocol === 'file:' ? '<div class="callout small">Opened as a file: YouTube may refuse to play embedded videos here. Use "Open on YouTube", or publish the site on GitHub Pages (see README).</div>' : '') +
-        (mainPick ? '<section class="stack"><h3>Main pick</h3>' + resCard(mainPick, { player: true, featured: true, note: noteFor(m, mainPick) }) + '</section>' : '<div class="empty">Resources for this module are being added.</div>') +
-        (otherLangPick ? '<section class="stack"><h3>Main pick in ' + (isHi(otherLangPick) ? 'Hindi / Hinglish' : 'English') + '</h3>' + resCard(otherLangPick, { player: true, note: noteFor(m, otherLangPick) }) + '</section>' : '') +
+        (mainPick ? '<section class="stack"><h3>Main pick · ' + GROUP_LABEL[group(mainPick)] + '</h3>' + resCard(mainPick, { player: true, featured: true, note: noteFor(m, mainPick) }) + '</section>' : '<div class="empty">Resources for this module are being added.</div>') +
+        (otherLangPick ? '<section class="stack"><h3>Main pick in ' + GROUP_LABEL[group(otherLangPick)] + '</h3>' + resCard(otherLangPick, { player: true, note: noteFor(m, otherLangPick) }) + '</section>' : '') +
         (rest.length ? '<section class="stack"><h3>More options</h3><div class="grid">' + rest.map(function (r) { return resCard(r, { note: noteFor(m, r) }); }).join('') + '</div></section>' : '') + '</div>';
     } else if (tab === 'lab') {
       var lab = labOf(m);
@@ -629,7 +634,8 @@
         if (libState.q) { var hay = [r.title, r.creator, r.platform, (r.topics || []).join(' '), r.why].join(' ').toLowerCase(); if (hay.indexOf(libState.q) < 0) return false; }
         return true;
       });
-      document.getElementById('lib-count').textContent = list.length + ' of ' + D.resources.length + ' resources';
+      list = list.slice().sort(function (a, b) { return C.langRank(a.language, S().prefs.lang) - C.langRank(b.language, S().prefs.lang); });
+      document.getElementById('lib-count').textContent = list.length + ' of ' + D.resources.length + ' resources · Hindi, Hinglish and Indian English teachers listed first';
       document.getElementById('lib-grid').innerHTML = list.slice(0, 300).map(function (r) { return resCard(r); }).join('') || '<div class="empty">Nothing matches. Clear a filter.</div>';
     }
     ['lib-q', 'lib-lang', 'lib-level', 'lib-type'].forEach(function (id) { document.getElementById(id).addEventListener(id === 'lib-q' ? 'input' : 'change', apply); });

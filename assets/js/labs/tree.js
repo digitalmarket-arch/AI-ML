@@ -106,6 +106,30 @@
     while (!n.leaf) n = x[n.f] <= n.thr ? n.left : n.right;
     return n;
   }
+  // How many trees vote "good" at the centre of every cell of a cols x rows grid (row 0 = hottest).
+  // A tree's leaves tile the map, so instead of walking every tree for every cell we fill in each
+  // "good" leaf's block of cells. Same answer as asking each tree cell by cell, but far less work.
+  function voteGrid(trees, cols, rows) {
+    var votes = new Uint8Array(cols * rows);
+    var r0 = DOM.lo[0], rw = DOM.hi[0] - DOM.lo[0], t1 = DOM.hi[1], tw = DOM.hi[1] - DOM.lo[1];
+    for (var k = 0; k < trees.length; k++) {
+      var nodes = trees[k].nodes;
+      for (var n = 0; n < nodes.length; n++) {
+        var L = nodes[n];
+        if (!L.leaf || !L.pred) continue;
+        // a cell belongs to the leaf when lo < centre <= hi on both axes (x <= threshold goes left)
+        var i0 = Math.max(0, Math.floor((L.lo[0] - r0) / rw * cols - 0.5) + 1);
+        var i1 = Math.min(cols - 1, Math.floor((L.hi[0] - r0) / rw * cols - 0.5));
+        var j0 = Math.max(0, Math.ceil((t1 - L.hi[1]) / tw * rows - 0.5));
+        var j1 = Math.min(rows - 1, Math.ceil((t1 - L.lo[1]) / tw * rows - 0.5) - 1);
+        for (var j = j0; j <= j1; j++) {
+          var o = j * cols;
+          for (var i = i0; i <= i1; i++) votes[o + i]++;
+        }
+      }
+    }
+    return votes;
+  }
   function forestVote(trees, x) {
     var v = 0, s = 0, N = trees.length;
     for (var k = 0; k < N; k++) { var l = leafOf(trees[k], x); v += l.pred; s += l.p1; }
@@ -167,7 +191,7 @@
     var probe = null;            // {kind:'pt', set, i} | {kind:'loc', x} | {kind:'node', id}
     var note = '';               // one-off message for the readout
     var done = {};
-    var raf = 0, dirtyHeat = true, diagramTree = null, diagramW = -1, lastColSig = '';
+    var raf = 0, dirtyHeat = true, diagramTree = null, diagramW = -1, treeBoxW = 0, lastColSig = '';
     var C = {};
     var W = 0, H = 0, P = { l: 50, r: 12, t: 12, b: 40, w: 0, h: 0 };
     var heatCanvas = document.createElement('canvas');
@@ -428,14 +452,11 @@
       heatCanvas.width = cols; heatCanvas.height = rows;
       var hc = heatCanvas.getContext('2d');
       var img = hc.createImageData(cols, rows), d = img.data;
-      var trees = cur.trees, N = trees.length, s = C.sRGB, x = [0, 0];
+      var N = cur.trees.length, s = C.sRGB;
+      var votes = voteGrid(cur.trees, cols, rows);
       for (var j = 0; j < rows; j++) {
-        x[1] = DOM.hi[1] - (j + 0.5) / rows * (DOM.hi[1] - DOM.lo[1]);
         for (var i = 0; i < cols; i++) {
-          x[0] = DOM.lo[0] + (i + 0.5) / cols * (DOM.hi[0] - DOM.lo[0]);
-          var v = 0;
-          for (var k = 0; k < N; k++) v += leafOf(trees[k], x).pred;
-          var p = v / N;
+          var p = votes[j * cols + i] / N;
           var a = p === 0.5 ? 0 : 0.07 + 0.35 * Math.pow(Math.abs(2 * p - 1), 0.8);
           var c = p >= 0.5 ? C.gRGB : C.pRGB;
           var o = (j * cols + i) * 4;
@@ -577,8 +598,8 @@
     function buildDiagram() {
       var tree = cur.tree;
       diagramTree = tree;
-      var boxW = treeBox.clientWidth || 600;
-      diagramW = boxW;
+      var boxW = treeBoxW || 600;
+      diagramW = treeBoxW;
       var natural = tree.leaves * LSP + PADX * 2;
       // shrink a little to fit when possible, but never below 85% so the text stays readable (wider trees scroll sideways)
       var sc = natural <= boxW ? 1 : Math.max(0.85, boxW / natural);
@@ -627,7 +648,7 @@
       treeSvg.setAttribute('aria-label', 'Tree diagram with ' + tree.leaves + ' leaves and depth ' + tree.depth + '. ' +
         (tree.root.leaf ? 'The tree has no questions yet.' : 'First question: is ' + (tree.root.f === 0 ? 'rain' : 'temperature') + ' at most ' + fmtFeat(tree.root.f, tree.root.thr) + '?'));
       // start with the top of the tree in view
-      treeBox.scrollLeft = Math.max(0, tree.root.dx * sc - treeBox.clientWidth / 2);
+      treeBox.scrollLeft = Math.max(0, tree.root.dx * sc - boxW / 2);
     }
     function updateDiagramHighlight(scrollTo) {
       var i;
@@ -646,7 +667,7 @@
         if (edgeEls[hn.id]) edgeEls[hn.id].setAttribute('style', edgeStyle(true));
       }
       if (target && scrollTo) {
-        var bw = treeBox.clientWidth, tx = target.dx * diagramScale;
+        var bw = treeBoxW || 600, tx = target.dx * diagramScale;
         if (tx - 50 < treeBox.scrollLeft || tx + 50 > treeBox.scrollLeft + bw) treeBox.scrollLeft = tx - bw / 2;
       }
     }
@@ -781,7 +802,7 @@
       recompute();
       if (dirtyHeat) renderHeat();
       draw();
-      if (diagramTree !== cur.tree || Math.abs((treeBox.clientWidth || 600) - diagramW) > 1) buildDiagram();
+      if (diagramTree !== cur.tree || Math.abs(treeBoxW - diagramW) > 1) buildDiagram();
       updateDiagramHighlight(scrollDiagram);
       scrollDiagram = false;
       drawChart();
@@ -903,6 +924,7 @@
       ro = new ResizeObserver(function (entries) {
         if (destroyed) return;
         for (var i = 0; i < entries.length; i++) {
+          if (entries[i].target === treeBox) { treeBoxW = entries[i].contentRect.width; continue; }
           if (entries[i].target !== wrap) continue;
           var r = canvas.getBoundingClientRect();
           if (Math.abs(r.width - W) > 0.5 || Math.abs(r.height - H) > 0.5) {
@@ -918,8 +940,9 @@
     } else {
       window.addEventListener('resize', onWinResize);
     }
-    function onWinResize() { resize(); invalidate(); }
+    function onWinResize() { treeBoxW = treeBox.clientWidth; resize(); invalidate(); }
 
+    treeBoxW = treeBox.clientWidth;
     syncForestControls();
     resize();
     readColors();

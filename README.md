@@ -1,10 +1,10 @@
 # AI Marg (मार्ग): a free AI & ML course site
 
-**AI Marg** takes a complete beginner from their first line of Python to building LLM apps and AI agents, using the best **free** videos on YouTube, NPTEL and other platforms. Hindi and Hinglish videos come first wherever good ones exist, followed by Indian English and the best global English teachers.
+**AI Marg** takes a complete beginner from their first line of Python to building LLM apps and AI agents, using the best **free** videos on YouTube, NPTEL and other platforms. **Indian teachers come first.** Every module leads with Hindi or Hinglish videos, then Indian English (for example Krish Naik, Codebasics and NPTEL/IIT professors). Global English classics such as StatQuest, 3Blue1Brown and Stanford appear only as extras, or where no good Indian option exists.
 
 The site is interactive:
 
-- **Curated video lessons** for every module, with a "main pick" in your language and alternatives.
+- **Curated video lessons** for every module. The "main pick" is from an Indian teacher, and a toggle switches between Hindi/Hinglish first and Indian English first.
 - **12 interactive labs.** Drag, click and move sliders to *see* gradient descent, overfitting, K-Means, decision trees, neural networks, convolution filters, tokenizers and LLM sampling.
 - **Python in the browser.** Auto-graded coding exercises run on the page using [Pyodide](https://pyodide.org). Nothing to install.
 - **Quizzes and level tests.** Each module has a 10-question quiz with explanations, and each level ends with a tougher 20-question test (pass mark 70%).

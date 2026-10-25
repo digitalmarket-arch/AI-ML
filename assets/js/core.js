@@ -93,10 +93,12 @@
   var LANG_LABEL = { hindi: 'Hindi', hinglish: 'Hinglish', 'indian-english': 'Indian English', english: 'English' };
   var LANG_CHIP = { hindi: 'chip-hi', hinglish: 'chip-hi', 'indian-english': 'chip-en-in', english: 'chip-en' };
   function langChip(l) { return '<span class="chip ' + (LANG_CHIP[l] || '') + '">' + esc(LANG_LABEL[l] || l) + '</span>'; }
+  // Indian teachers always come first. Global English content is shown, but ranked last.
   function langRank(l, pref) {
     var hiFirst = { hindi: 0, hinglish: 0, 'indian-english': 1, english: 2 };
-    var enFirst = { english: 0, 'indian-english': 0, hinglish: 1, hindi: 1 };
-    return (pref === 'en' ? enFirst : hiFirst)[l] != null ? (pref === 'en' ? enFirst : hiFirst)[l] : 3;
+    var inEnFirst = { 'indian-english': 0, hinglish: 1, hindi: 1, english: 2 };
+    var t = pref === 'en' ? inEnFirst : hiFirst;
+    return t[l] != null ? t[l] : 3;
   }
 
   /* ---------------- YouTube helpers + player ---------------- */
