@@ -44,6 +44,7 @@
   };
   // the same sentence in English, Hindi and Hinglish; none of these lines is in the training text
   var TRY_DEFAULT = ['The model learns to read the text.', 'मॉडल पाठ पढ़ना सीखता है।', 'model text padhna seekhta hai.'].join('\n');
+  var tryDefaultWords = null; // words already in the starting "Try new text" box (filled on first mount)
 
   var LANGS = [
     { id: 'en', tag: 'EN', name: 'English', color: '--series-1' },
@@ -71,11 +72,12 @@
   /* ---------- text helpers ---------- */
   var RE_CHUNK, RE_WORDCH, RE_MARK;
   try {
-    RE_CHUNK = new RegExp('\\s+|[\\p{L}\\p{M}\\p{N}]+|[^\\s\\p{L}\\p{M}\\p{N}]+', 'gu');
+    // zero-width (non-)joiners, used in some Devanagari spellings, stay inside their word
+    RE_CHUNK = new RegExp('\\s+|[\\p{L}\\p{M}\\p{N}\\u200C\\u200D]+|[^\\s\\p{L}\\p{M}\\p{N}\\u200C\\u200D]+', 'gu');
     RE_WORDCH = new RegExp('[\\p{L}\\p{N}]', 'u');
     RE_MARK = new RegExp('^\\p{M}$', 'u');
   } catch (e) { // very old browsers: Latin + Devanagari only
-    var LT = 'A-Za-z0-9\\u00C0-\\u024F\\u0900-\\u0963\\u0966-\\u097F';
+    var LT = 'A-Za-z0-9\\u00C0-\\u024F\\u0900-\\u0963\\u0966-\\u097F\\u200C\\u200D';
     RE_CHUNK = new RegExp('\\s+|[' + LT + ']+|[^\\s' + LT + ']+', 'g');
     RE_WORDCH = new RegExp('[' + LT + ']');
     RE_MARK = /^[ऀ-ःऺ-ॏ॑-ॗॢॣ]$/;
@@ -154,9 +156,11 @@
       // most frequent pair wins; a tie goes to the pair that shows up first in the text
       pc.forEach(function (cand) { if (!best || cand.c > best.c || (cand.c === best.c && cand.o < best.o)) best = cand; });
       if (!best || best.c < MIN_COUNT) break;
+      var tie = false;
+      pc.forEach(function (cand) { if (cand !== best && cand.c === best.c) tie = true; });
       var tok = best.a + best.b;
       for (w = 0; w < words.length; w++) words[w] = applyMerge(words[w], best.a, best.b, tok);
-      merges.push({ a: best.a, b: best.b, tok: tok, count: best.c, rank: merges.length + 1, deva: RE_DEVA.test(tok) });
+      merges.push({ a: best.a, b: best.b, tok: tok, count: best.c, rank: merges.length + 1, tie: tie, deva: RE_DEVA.test(tok), latin: !RE_DEVA.test(tok) && RE_LATIN.test(tok) });
     }
     return merges;
   }
@@ -268,6 +272,10 @@
   }
 
   function mount(root, ctx) {
+    if (!tryDefaultWords) {
+      tryDefaultWords = new Map();
+      TRY_DEFAULT.split('\n').forEach(function (line) { splitLine(nfc(line)).forEach(function (c) { if (c.word) tryDefaultWords.set(noSp(c.s), true); }); });
+    }
     var pre = 'tok' + (++uid) + '-';
     var alive = true;
     var doneSet = {};
@@ -289,9 +297,9 @@
     var lab = el('div', { class: 'lab' });
     lab.appendChild(el('p', { class: 'lab-note', html:
       '<b>What you are seeing:</b> the training text cut into <b>tokens</b> (the pieces a language model actually reads). ' +
-      'It starts as single characters (Unicode code points), and <b>▁</b> marks the space before a word. ' +
+      'It starts as single characters (Unicode <b>code points</b>: the numbered characters computers use for every script), and <b>▁</b> marks the space before a word. ' +
       'Each <b>merge</b> finds the two neighbouring tokens that sit together most often (outlined in yellow) and glues them into one new token, ' +
-      'so common words slowly become single tokens. This is <b>Byte-Pair Encoding (BPE)</b>, the idea behind GPT’s tokenizer. ' +
+      'which joins the <b>vocabulary</b> (the list of every token the tokenizer knows), so common words slowly become single tokens. This is <b>Byte-Pair Encoding (BPE)</b>, the idea behind GPT’s tokenizer. ' +
       'Grey boxes are still single characters; coloured boxes are learned pieces (the same piece always gets the same colour). ' +
       'Tap a token to see how it was built. A Hindi letter with a vowel sign, like कि, is two code points (क + ि), so it starts as two boxes.' }));
 
@@ -333,7 +341,7 @@
         el('p', { class: 'small muted', text: 'Also called fertility: how many pieces one word is cut into, on average (punctuation not counted). Fewer is cheaper and faster.' })
       ]),
       fertBody, fertText, ghostText,
-      el('p', { class: 'small muted', style: 'line-height:1.5;margin:0', text: 'Byte-level tokenizers (like GPT-2’s) widen the gap: they start from UTF-8 bytes, and each Devanagari letter is 3 bytes while an English letter is 1.' })
+      el('p', { class: 'small muted', style: 'line-height:1.5;margin:0', text: 'Byte-level tokenizers (like GPT-2’s) widen the gap: they start from UTF-8 bytes (the way computers store text), and each Devanagari letter takes 3 bytes while an English letter takes 1.' })
     ]);
     left.appendChild(fertBox);
 
@@ -380,7 +388,7 @@
     controls.appendChild(el('div', { class: 'control' }, [
       el('span', { class: 'control-label', id: pre + 'preset-l', text: 'Training text' }),
       seg,
-      el('p', { class: 'small muted', text: 'Real LLM training data is mostly English. “More Hindi” adds Hindi translations of five English lines.' }),
+      el('p', { class: 'small muted', text: 'Real LLM (large language model) training data is mostly English. “More Hindi” adds Hindi translations of five English lines.' }),
       el('label', { for: corpusId, class: 'small', style: 'font-weight:400;color:var(--muted)', text: 'The tokenizer learns only from this text. Edit it (up to 2,000 characters) and it retrains.' }),
       corpusTa
     ]));
@@ -429,11 +437,14 @@
         t.lang[l.id] = c;
         t.langSoft[l.id] = rgb(mix(parseColor(c) || inkC, sC, t.dark ? 0.26 : 0.14));
       });
-      var base = ['--series-1', '--series-2', '--series-3', '--series-4', '--ok'].map(function (n) { return parseColor(v(n, '')) || inkC; });
-      var hues = [];
-      for (var i = 0; i < base.length; i++) { hues.push(base[i]); hues.push(mix(base[i], base[(i + 1) % base.length], 0.5)); }
-      t.fill = hues.map(function (h) { return rgb(mix(h, sC, t.dark ? 0.34 : 0.2)); });
-      t.edge = hues.map(function (h) { return rgb(mix(h, sC, t.dark ? 0.78 : 0.62)); });
+      // No yellow or orange here: a yellow fill means "just merged" and a yellow outline means "next pair".
+      var b = ['--series-1', '--series-2', '--series-4', '--ok'].map(function (n) { return parseColor(v(n, '')) || inkC; });
+      var hues = [b[0], b[1], b[2], b[3], mix(b[0], b[1], 0.5), mix(b[0], b[2], 0.5)];
+      t.fill = []; t.edge = [];
+      (t.dark ? [[0.3, 0.7], [0.46, 0.85]] : [[0.15, 0.55], [0.3, 0.72]]).forEach(function (st) {
+        hues.forEach(function (h) { t.fill.push(rgb(mix(h, sC, st[0]))); t.edge.push(rgb(mix(h, sC, st[1]))); });
+      });
+      t.key = [t.surface, t.ink, t.muted, t.haldi].concat(t.fill).join('|');
       return t;
     }
     function chipColor(tok, unk) {
@@ -604,7 +615,9 @@
       else if (k < M) {
         var m = C.merges[k];
         h = '<b>Next merge #' + (k + 1) + ':</b> ' + chipHtml(m.a) + ' + ' + chipHtml(m.b) + ' → ' + chipHtml(m.tok) +
-          '. These two sit side by side ' + plural(m.count, 'time') + ' in the training text, more than any other pair, so they become one new token. Their places are outlined in yellow.';
+          '. These two sit side by side ' + plural(m.count, 'time') + ' in the training text, ' +
+          (m.tie ? 'and no pair sits together more often (when pairs tie, the one that comes first in the text wins)' : 'more than any other pair') +
+          ', so they become one new token. Their places are outlined in yellow.';
       } else if (M === 0) h = 'No pair of neighbouring tokens appears twice yet, so there is nothing to learn. Add more text.';
       else h = '<b>Training finished after ' + plural(M, 'merge') + ':</b> no pair of neighbouring tokens appears twice any more. ' +
         'Real tokenizers keep going for 30,000 to 200,000 tokens because they learn from billions of words.';
@@ -653,7 +666,6 @@
         fertBody.appendChild(el('div', { style: 'display:grid;grid-template-columns:5.4rem minmax(0,1fr) 2.8rem;gap:10px;align-items:center;font-size:.93rem' }, [name, track, val]));
         fertRows[l.id] = { fill: fill, ghost: ghost, val: val };
       });
-      if (!Object.keys(fertRows).length) fertBody.appendChild(el('p', { class: 'small muted', text: 'Add some English or Hindi lines to compare them.' }));
     }
     function renderFert() {
       var scale = 1;
@@ -675,9 +687,9 @@
         var ratio = hi.f / en.f;
         if (k === 0) s = 'Before any merges every word is cut into single characters, so English (' + en.f.toFixed(2) + ') and Hindi (' + hi.f.toFixed(2) + ') start close together. Watch what the merges do.';
         else {
-          var nd = 0;
-          for (var i = 0; i < k; i++) if (C.merges[i].deva) nd++;
-          var why = ' ' + (k - nd) + ' of the ' + plural(k, 'merge') + ' so far are English-letter pieces and only ' + nd + (nd === 1 ? ' is a Hindi piece.' : ' are Hindi pieces.');
+          var nd = 0, nl = 0;
+          for (var i = 0; i < k; i++) { if (C.merges[i].deva) nd++; else if (C.merges[i].latin) nl++; }
+          var why = ' ' + mergeMix(k, nl, nd);
           if (ratio >= 1.05) s = 'A Hindi word now needs <b>' + ratio.toFixed(1) + '×</b> as many tokens as an English word.' + why;
           else if (ratio <= 0.95) s = 'Right now a Hindi word needs fewer tokens than an English word (' + ratio.toFixed(1) + '×).' + why;
           else s = 'English and Hindi words need about the same number of tokens right now.' + why;
@@ -687,13 +699,21 @@
       setHtml(fertText, s);
       if (ghostF && ghostF.hi.w && hi.w) {
         ghostText.hidden = false;
-        setHtml(ghostText, '<b style="color:var(--ink)">Black marks:</b> the same sentences cut by the “Mostly English” tokenizer with ' + plural(ghostK, 'merge') +
+        setHtml(ghostText, '<b style="color:var(--ink)">Thin upright marks:</b> the same sentences cut by the “Mostly English” tokenizer with ' + plural(ghostK, 'merge') +
           (ghostK < k ? ' (all it could learn)' : '') + '. Hindi: ' + ghostF.hi.f.toFixed(2) + ' → <b style="color:var(--ink)">' + hi.f.toFixed(2) + '</b> tokens per word' +
           (en.w ? '; English: ' + ghostF.en.f.toFixed(2) + ' → <b style="color:var(--ink)">' + en.f.toFixed(2) + '</b>' : '') +
           '. The merges are now shared between two languages.');
       } else ghostText.hidden = true;
     }
 
+    // e.g. "18 of the 30 merges so far made English-letter pieces and only 12 made Hindi pieces."
+    function mergeMix(kk, nl, nd) {
+      var no = kk - nl - nd;
+      if (kk === 1) return 'The one merge so far made ' + (nd ? 'a Hindi piece.' : nl ? 'an English-letter piece.' : 'a piece of punctuation or symbols.');
+      var s = nl + ' of the ' + kk + ' merges so far made ' + (nl === 1 ? 'an English-letter piece' : 'English-letter pieces') + ' and ' +
+        (nd * 2 <= nl ? 'only ' : '') + nd + ' made ' + (nd === 1 ? 'a Hindi piece' : 'Hindi pieces');
+      return s + (no ? ' (' + no + ' made other pieces, such as punctuation).' : '.');
+    }
     function tagRow(r) { // after challenge 1, label every merge that made a whole word
       if (r.tagged || !C.wordSet.has(r.m.tok)) return;
       r.tagged = true;
@@ -774,17 +794,19 @@
     function renderTry() {
       var lines = nfc(tryTa.value).split(/\r?\n/).map(function (s) { return s.replace(/\s+$/, ''); })
         .filter(function (s) { return s.replace(/\s+/g, '').length > 0; });
-      var html = '', hit = null, stuck = null, unkTotal = 0;
+      // a word the learner typed counts before one that was already in the box
+      var html = '', hit = null, stuck = null, hitOwn = null, stuckOwn = null, unkTotal = 0;
       lines.slice(0, 6).forEach(function (line) {
         var ch = splitLine(line), lang = lineLang(line, ch), words = 0, wt = 0, unk = 0;
         var groups = [];
         ch.forEach(function (c, ci) {
           var toks = encodeSyms(cps(c.s), C.merges, k);
           if (c.word) { words++; wt += toks.length; }
-          var unseen = c.word && !C.wordSet.has(c.s);
-          if (unseen && cpLen(noSp(c.s)) >= 4 && toks.length >= 2) {
-            var piece = toks.some(function (t) { return cpLen(noSp(t)) >= 2; });
-            if (piece) { if (!hit) hit = noSp(c.s); } else if (!stuck) stuck = noSp(c.s);
+          var bare = noSp(c.s), unseen = c.word && !C.wordSet.has(c.s) && !C.wordSet.has(SP + bare) && !C.wordSet.has(bare);
+          if (unseen && cpLen(bare) >= 4 && toks.length >= 2) {
+            var piece = toks.some(function (t) { return cpLen(noSp(t)) >= 2; }), own = !tryDefaultWords.has(bare);
+            if (piece) { if (!hit) hit = bare; if (own && !hitOwn) hitOwn = bare; }
+            else { if (!stuck) stuck = bare; if (own && !stuckOwn) stuckOwn = bare; }
           }
           var chipsH = toks.map(function (t) { var u = cpLen(t) === 1 && !C.base.has(t); if (u) unk++; return chipHtml(t, u); }).join('');
           var part = '<span style="display:inline-flex;flex-wrap:wrap;gap:2px;padding-bottom:2px' +
@@ -804,10 +826,11 @@
       setHtml(tryOut, html);
       var note = 'Dotted line = word not in the training text.';
       if (unkTotal) note += ' Dashed red boxes are characters never seen in training: they become [UNK] (“unknown”). Byte-level tokenizers avoid this by falling back to raw bytes.';
-      if (tryEdited && hit) note = '<b>“' + esc(hit) + '” never appeared in the training text</b>, yet the tokenizer still handles it by reusing pieces it learned. ' + note;
-      else if (tryEdited && stuck) note = '“' + esc(stuck) + '” is new, but no learned piece fits it yet, so it falls apart into single characters. Do more merges, or try a word that shares parts with the training text. ' + note;
+      var good = hitOwn || (stuckOwn ? null : hit), bad = stuckOwn || stuck;
+      if (tryEdited && good) note = '<b>“' + esc(good) + '” never appeared in the training text</b>, yet the tokenizer still handles it by reusing pieces it learned. ' + note;
+      else if (tryEdited && bad) note = '“' + esc(bad) + '” is new, but no learned piece fits it yet, so it falls apart into single characters. Do more merges, or try a word that shares parts with the training text. ' + note;
       setHtml(tryNote, note);
-      if (tryEdited && hit) complete('t3');
+      if (tryEdited && hitOwn) complete('t3');
     }
     function onTryInput() { tryEdited = true; renderTry(); }
 
@@ -1114,7 +1137,9 @@
     /* ---------- theme, fonts, resize ---------- */
     function onTheme() {
       if (!alive) return;
-      theme = readTheme();
+      var nt = readTheme();
+      if (theme && nt.key === theme.key) return; // the site sets data-theme and fires 'themechange': rebuild once
+      theme = nt;
       buildRows();
       update();
     }
