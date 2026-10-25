@@ -186,6 +186,7 @@
       return '<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false" style="flex:none">' +
         '<circle cx="6" cy="6" r="4.2" style="' + (hollow ? 'fill:var(--surface);stroke:' + colour + ';stroke-width:1.8' : 'fill:' + colour) + '"/></svg>';
     }
+    var CHECK_ROW = 'display:grid;grid-template-columns:18px minmax(0,1fr);gap:10px;align-items:start';
     function legendItem(sw, text) {
       return '<div style="display:inline-flex;align-items:center;gap:6px">' + sw + text + '</div>';
     }
@@ -200,13 +201,13 @@
           '<div class="stack-sm">' +
             '<div class="lab-canvas-wrap" id="' + P + 'wrap"><canvas id="' + P + 'plot" role="img" tabindex="0" style="outline-offset:-3px" aria-describedby="' + P + 'kbd" aria-label="Scatter plot of training and test dots with the fitted curve"></canvas></div>' +
             '<div class="control">' +
-              '<label for="' + P + 'deg">Polynomial degree (how bendy the curve may be) <output id="' + P + 'degout" for="' + P + 'deg">1</output></label>' +
+              '<label for="' + P + 'deg">Polynomial degree <output id="' + P + 'degout" for="' + P + 'deg">1</output></label>' +
               '<input type="range" id="' + P + 'deg" min="0" max="' + MAX_DEG + '" step="1" value="1">' +
               '<p class="small muted" id="' + P + 'degdesc"></p>' +
             '</div>' +
             '<div class="lab-stats">' +
-              '<div class="stat"><div class="k">Train error</div><div class="v" id="' + P + 'train">—</div></div>' +
-              '<div class="stat"><div class="k">Test error</div><div class="v" id="' + P + 'test">—</div></div>' +
+              '<div class="stat"><div class="k">Train MSE</div><div class="v" id="' + P + 'train">—</div></div>' +
+              '<div class="stat"><div class="k">Test MSE</div><div class="v" id="' + P + 'test">—</div></div>' +
               '<div class="stat"><div class="k">Verdict</div><div class="v" id="' + P + 'verdict" style="font-family:var(--font-body);font-weight:700">—</div></div>' +
             '</div>' +
             '<p class="small" id="' + P + 'msg" role="status" aria-live="polite" style="min-height:4.8em"></p>' +
@@ -237,15 +238,15 @@
                 '<button type="button" data-rule="bend" aria-pressed="false">Bend</button>' +
                 '<button type="button" data-rule="line" aria-pressed="false">Line</button>' +
               '</div>' +
-              '<p class="small muted">The model never sees this rule, only the dots. Does the best degree change?</p></div>' +
+              '<p class="small muted">The model never sees this rule, only the dots. Switch rules and watch the lowest degree that gets “Good fit”: simpler rules need less bendy curves.</p></div>' +
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
               '<button type="button" class="btn btn-primary" id="' + P + 'new">New data</button>' +
               '<button type="button" class="btn" id="' + P + 'undo" disabled>Undo drags</button>' +
             '</div>' +
             '<div class="stack-sm small">' +
-              '<div class="row"><input type="checkbox" id="' + P + 'showtrue" checked><label for="' + P + 'showtrue">Show the hidden rule</label></div>' +
-              '<div class="row"><input type="checkbox" id="' + P + 'showtest" checked><label for="' + P + 'showtest">Show the test rings</label></div>' +
-              '<div class="row"><input type="checkbox" id="' + P + 'showgaps"><label for="' + P + 'showgaps">Show test errors (gaps from ring to curve)</label></div>' +
+              '<div style="' + CHECK_ROW + '"><input type="checkbox" id="' + P + 'showtrue" checked><label for="' + P + 'showtrue">Show the hidden rule</label></div>' +
+              '<div style="' + CHECK_ROW + '"><input type="checkbox" id="' + P + 'showtest" checked><label for="' + P + 'showtest">Show the test rings</label></div>' +
+              '<div style="' + CHECK_ROW + '"><input type="checkbox" id="' + P + 'showgaps"><label for="' + P + 'showgaps">Show each test ring’s error (its gap to the curve)</label></div>' +
             '</div>' +
             '<div class="stack-sm"><h4>Your tasks</h4><ul class="lab-tasks" id="' + P + 'tasks">' + tasksHtml + '</ul></div>' +
           '</div>' +
@@ -273,7 +274,7 @@
       fits: [], errs: [], bestDeg: 0, verdict: 'U',
       curveTo: null, curveFrom: null, tweenStart: 0,
       drag: null, hover: -1, sel: -1, focused: false,
-      userDeg: false, overfitRec: null, lowMove: 0, highMove: 0
+      userDeg: false, overfitN: {}, lowMove: 0, highMove: 0
     };
     var done = {};
     var dims = { w: 1, h: 1, ew: 1, eh: 1, sx: 1, sy: 1, esx: 1, esy: 1 };
@@ -347,8 +348,8 @@
 
     /* ---------- UI text ---------- */
     function degText(d) {
-      if (d === 0) return 'Degree 0: a flat line (the same guess, the average, for every x).';
-      if (d === 1) return 'Degree 1: a straight, sloping line.';
+      if (d === 0) return 'Degree 0: a flat line (the same guess, the average, for every x). Higher degree = bendier curve.';
+      if (d === 1) return 'Degree 1: a straight, sloping line. Higher degree = bendier curve.';
       if (d === 2) return 'Degree 2: a curve with 1 bend (like a U).';
       return 'Degree ' + d + ': a curve with up to ' + (d - 1) + ' bends.';
     }
@@ -377,7 +378,7 @@
       }
       elMsg.innerHTML = msg;
       var dragged = false;
-      for (var i = 0; i < S.n; i++) if (S.dy[i] !== 0) { dragged = true; break; }
+      for (var i = 0; i < N_MAX; i++) if (S.dy[i] !== 0) { dragged = true; break; }
       btnUndo.disabled = !dragged;
       Array.prototype.forEach.call(ruleBtns, function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-rule') === S.rule ? 'true' : 'false'); });
       canvas.setAttribute('aria-label', 'Scatter plot: a degree ' + d + ' curve fitted to ' + S.n + ' training dots, with ' + N_TEST + ' test rings. Training error ' + fmtErr(er[0]) + ', test error ' + fmtErr(er[1]) + ': ' + vName.toLowerCase() + '.');
@@ -389,11 +390,15 @@
       var d = S.deg, er = S.errs[d], v = S.verdict;
       if (S.userDeg && d === S.bestDeg) completeTask('t1');
       if (er[0] < 0.02 && er[1] > 1 && er[1] > 20 * er[0]) completeTask('t2');
-      if (d >= 10 && v === 'O') {
-        if (!S.overfitRec || S.n < S.overfitRec.n) S.overfitRec = { n: S.n, noise: S.noise };
-        else S.overfitRec.noise = Math.min(S.overfitRec.noise, S.noise);
+      // t3: remember the fewest training points that overfitted at degree >= 10, for each noise level.
+      // Done when, at degree >= 10, the fit is good with at least 10 more points and no less noise.
+      var nk = S.noise.toFixed(2);
+      if (d >= 10 && v === 'O' && (S.overfitN[nk] == null || S.n < S.overfitN[nk])) S.overfitN[nk] = S.n;
+      if (d >= 10 && v === 'G') {
+        for (var key in S.overfitN) {
+          if (Object.prototype.hasOwnProperty.call(S.overfitN, key) && +key <= S.noise + 1e-9 && S.n >= S.overfitN[key] + 10) { completeTask('t3'); break; }
+        }
       }
-      if (S.overfitRec && d >= 10 && v === 'G' && S.n >= S.overfitRec.n + 10 && S.noise >= S.overfitRec.noise - 1e-9) completeTask('t3');
       if (S.lowMove >= 0.3 && S.highMove >= 0.3) completeTask('t4');
     }
 
@@ -555,7 +560,7 @@
       g.stroke();
       g.restore();
 
-      var rr = G.small ? 3.6 : 4.4;
+      var rr = G.small ? 4 : 4.4;
       // test rings
       if (S.showTest) {
         g.lineWidth = 1.8;
@@ -609,9 +614,10 @@
         for (k = 0; k < 2; k++) { var v = Math.max(S.errs[d][k], CHART_LO); if (v < mn) mn = v; if (v > mx) mx = v; }
       }
       if (nv > 0) { mn = Math.min(mn, nv); mx = Math.max(mx, nv); }
-      var lo = Math.max(CHART_LO, Math.pow(10, Math.floor(Math.log10(mn))));
-      var hi = Math.min(CHART_HI, Math.pow(10, Math.ceil(Math.log10(mx))));
-      if (hi / lo < 100) { if (hi * 10 <= CHART_HI) hi *= 10; if (hi / lo < 100) lo = hi / 100; }
+      // whole decades that cover the data (at least one decade)
+      var lo = Math.max(CHART_LO, Math.pow(10, Math.floor(Math.log10(mn) + 1e-9)));
+      var hi = Math.min(CHART_HI, Math.pow(10, Math.ceil(Math.log10(mx) - 1e-9)));
+      if (hi <= lo * 1.0001) hi = lo * 10;
       var L0 = Math.log10(lo), L1 = Math.log10(hi);
       var colW = G.pw / (MAX_DEG + 1);
       function cx(dd) { return G.pl + (dd + 0.5) * colW; }
@@ -627,6 +633,18 @@
       ge.font = (G.small ? '10px ' : '11px ') + T.font;
       ge.textAlign = 'right'; ge.textBaseline = 'middle';
       var step = (L1 - L0) > 5 ? 2 : 1;
+      if (L1 - L0 <= 2.01) {
+        // narrow range: add faint lines (and labels) at 2× and 5× inside each decade
+        for (k = Math.round(L0); k < Math.round(L1); k++) {
+          [2, 5].forEach(function (m) {
+            var mv = m * Math.pow(10, k), my = Math.round(ly(mv)) + 0.5;
+            ge.strokeStyle = T.line; ge.globalAlpha = 0.45;
+            ge.beginPath(); ge.moveTo(G.pl, my); ge.lineTo(G.pl + G.pw, my); ge.stroke();
+            ge.globalAlpha = 0.85; ge.fillStyle = T.muted; ge.fillText(fmtTick(mv), G.pl - 5, my);
+            ge.globalAlpha = 1;
+          });
+        }
+      }
       for (k = Math.round(L0); k <= Math.round(L1); k++) {
         var gy = Math.round(ly(Math.pow(10, k))) + 0.5;
         ge.strokeStyle = T.line; ge.globalAlpha = 0.8;
@@ -682,9 +700,15 @@
       if (done.t1) {
         var bx = cx(S.bestDeg), by = ly(S.errs[S.bestDeg][1]);
         ge.font = '700 ' + (G.small ? '10px ' : '11px ') + T.font;
-        ge.fillStyle = T.ok; ge.textAlign = 'center'; ge.textBaseline = 'alphabetic';
-        var labelY = by + 18 > G.pt + G.ph ? by - 9 : by + 17;
-        ge.fillText('lowest', bx, labelY);
+        var lw = ge.measureText('lowest').width + 8, lh = G.small ? 14 : 15;
+        // above the lowest test point (the test line rises on both sides of it), unless too close to the top
+        var top = by - 9 - lh >= G.pt ? by - 9 - lh : by + 9;
+        var left = clamp(bx - lw / 2, G.pl, G.pl + G.pw - lw);
+        ge.globalAlpha = 0.92; ge.fillStyle = T.surface;
+        ge.fillRect(left, top, lw, lh);
+        ge.globalAlpha = 1;
+        ge.fillStyle = T.ok; ge.textAlign = 'center'; ge.textBaseline = 'middle';
+        ge.fillText('lowest', left + lw / 2, top + lh / 2 + 0.5);
       }
     }
 
@@ -739,7 +763,10 @@
       return a;
     }
     on(canvas, 'focus', function () {
-      S.focused = true;
+      var kb = true;
+      try { kb = canvas.matches(':focus-visible'); } catch (err) { /* old browser: assume keyboard */ }
+      S.focused = kb;
+      if (!kb) return;
       if (S.sel < 0 || S.sel >= S.n) { var a = sortedIdx(); S.sel = a[Math.floor(a.length / 2)]; }
       requestDraw();
     });
@@ -750,11 +777,13 @@
       e.preventDefault();
       if (S.sel < 0 || S.sel >= S.n) S.sel = sortedIdx()[0];
       if (k === 'ArrowLeft' || k === 'ArrowRight') {
+        S.focused = true;
         var a = sortedIdx(), pos = a.indexOf(S.sel);
         pos = clamp(pos + (k === 'ArrowRight' ? 1 : -1), 0, a.length - 1);
         S.sel = a[pos];
         requestDraw();
       } else {
+        S.focused = true;
         var stepY = e.shiftKey ? 0.5 : 0.1;
         moveDot(S.sel, trainY(S.sel) + (k === 'ArrowUp' ? stepY : -stepY));
       }
