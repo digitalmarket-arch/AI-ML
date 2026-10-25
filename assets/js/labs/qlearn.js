@@ -622,7 +622,7 @@
       var html = '';
       for (a = 0; a < 4; a++) {
         var q = Q[s * 4 + a], isBest = !eq && q === m;
-        html += '<tr><td>' + MOVE_ARROWS[a] + ' ' + MOVE_NAMES[a] + (isBest ? ' <strong>(' + (nBest > 1 ? 'tied best' : 'best') + ')</strong>' : '') + '</td><td>' + fmt(q, 2) + '</td><td>' + whatMove(M, s, a) + '</td></tr>';
+        html += '<tr><td><span style="white-space:nowrap">' + MOVE_ARROWS[a] + ' ' + MOVE_NAMES[a] + '</span>' + (isBest ? ' <strong>(' + (nBest > 1 ? 'tied best' : 'best') + ')</strong>' : '') + '</td><td>' + fmt(q, 2) + '</td><td>' + whatMove(M, s, a) + '</td></tr>';
       }
       elQBody.innerHTML = html;
       elQNote.textContent = eq ? 'All four Q-values are equal, so the rider has no preference here' + (m === 0 ? ' yet.' : '.') : 'The greedy move is the one with the highest Q-value. Rows are rounded to 2 decimal places.';

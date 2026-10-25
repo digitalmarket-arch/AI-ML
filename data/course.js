@@ -1171,7 +1171,8 @@ window.AIM.modules = [
     "note": "Practise choosing and drawing Seaborn charts in the browser, and finish its mini-project on a dataset you pick."
    }
   ],
-  "best": "campusx-nitish-singh-campusx-data-science-mentorship-pro"
+  "best": "campusx-nitish-singh-campusx-data-science-mentorship-pro",
+  "figs": true
  },
  {
   "id": "l2-ml-foundations",
@@ -3935,6 +3936,7 @@ window.AIM.modules = [
     "note": "Use this as your 'reproduce a paper' project: follow along on a rented cloud GPU with the build-nanogpt code, then write up how your results compare with the GPT-2 paper."
    }
   ],
-  "best": "raj-dandekar-3-ways-to-read-an-ml-research-paper"
+  "best": "raj-dandekar-3-ways-to-read-an-ml-research-paper",
+  "figs": true
  }
 ];
