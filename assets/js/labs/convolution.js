@@ -1209,7 +1209,7 @@
     canvas.addEventListener('blur', onBlur);
 
     /* ---------- theme + resize ---------- */
-    function onTheme() { calcKey = ''; requestDraw(); setTimeout(function () { if (alive) updateCalc(); }, 0); }
+    function onTheme() { calcKey = ''; requestDraw(); } // the frame redraws, then rebuilds the calculation with the new colours
     var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
     if (mq) { if (mq.addEventListener) mq.addEventListener('change', onTheme); else if (mq.addListener) mq.addListener(onTheme); }
     document.addEventListener('themechange', onTheme);
