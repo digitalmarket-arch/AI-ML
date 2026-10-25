@@ -350,9 +350,9 @@
 
     // right column: controls
     var controls = el('div', { class: 'lab-controls' });
-    var bOnce = el('button', { type: 'button', class: 'btn btn-primary', text: 'Merge once' });
-    var bTen = el('button', { type: 'button', class: 'btn', text: 'Merge 10' });
-    var bReset = el('button', { type: 'button', class: 'btn btn-ghost', text: 'Reset' });
+    var bOnce = el('button', { type: 'button', class: 'btn btn-primary', style: 'padding:9px 12px', text: 'Merge once' });
+    var bTen = el('button', { type: 'button', class: 'btn', style: 'padding:9px 12px', text: 'Merge 10' });
+    var bReset = el('button', { type: 'button', class: 'btn btn-ghost', style: 'padding:9px 12px', text: 'Reset' });
     var vocabId = pre + 'vocab';
     var vocabOut = el('output', { for: vocabId, class: 'num', text: '' });
     var vocabIn = el('input', { type: 'range', id: vocabId, min: '0', max: '0', step: '1', value: '0' });
@@ -811,7 +811,7 @@
     var wcache = new Map(), wfont = '';
     function metrics(width) {
       var s = width < 520;
-      return { pad: s ? 8 : 12, h: s ? 22 : 25, fs: s ? 13 : 14.5, px: s ? 3 : 4, gap: s ? 2 : 2, wgap: s ? 5 : 7, rgap: s ? 4 : 5, pgap: s ? 8 : 10, stripe: 3, tfs: s ? 9 : 10 };
+      return { pad: s ? 8 : 12, h: s ? 20 : 25, fs: s ? 12.5 : 14.5, px: s ? 2.5 : 4, gap: s ? 1.5 : 2, wgap: s ? 4.5 : 7, rgap: s ? 3 : 5, pgap: s ? 7 : 10, stripe: 3, tfs: s ? 8.5 : 10 };
     }
     function fontStr(px, wt) { return (wt || 500) + ' ' + px + 'px ' + theme.font; }
     function textW(s) { var v = wcache.get(s); if (v === undefined) { v = g.measureText(s).width; wcache.set(s, v); } return v; }
@@ -975,31 +975,37 @@
 
     /* ---------- pointer + keyboard ---------- */
     function local(e) { var r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
-    function chipAt(p) {
+    function chipAt(p, reach) { // the chip under the point, or (for a finger) the nearest one within reach px
+      var best = -1, bestD = Infinity, lim = H - (LM ? LM.pad : 0) + 1;
       for (var i = 0; i < chips.length; i++) {
         var c = chips[i];
-        if (p.x >= c.x - 1.5 && p.x <= c.x + c.w + 1.5 && p.y >= c.y - 2.5 && p.y <= c.y + c.h + 2.5) return c.y + c.h > H - (LM ? LM.pad : 0) + 1 ? -1 : i;
+        if (c.y + c.h > lim) break;
+        var dx = p.x < c.x ? c.x - p.x : p.x > c.x + c.w ? p.x - c.x - c.w : 0;
+        var dy = p.y < c.y ? c.y - p.y : p.y > c.y + c.h ? p.y - c.y - c.h : 0;
+        var d = dx * dx + dy * dy;
+        if (d < bestD) { bestD = d; best = i; if (!d) break; }
       }
-      return -1;
+      var r = Math.max(2.5, reach || 0);
+      return bestD <= r * r ? best : -1;
     }
     var down = null;
     function onDown(e) {
       if (e.pointerType === 'mouse' && e.button !== 0) return;
-      down = { x: e.clientX, y: e.clientY, id: e.pointerId };
+      down = { x: e.clientX, y: e.clientY, id: e.pointerId, touch: e.pointerType !== 'mouse' };
     }
     function onUp(e) {
       if (!down || down.id !== e.pointerId) return;
-      var dx = e.clientX - down.x, dy = e.clientY - down.y;
+      var dx = e.clientX - down.x, dy = e.clientY - down.y, touch = down.touch;
       down = null;
       if (dx * dx + dy * dy > 100) return; // a scroll or drag, not a tap
-      var i = chipAt(local(e));
+      var i = chipAt(local(e), touch ? 12 : 2.5);
       if (i < 0) { if (selTok !== null) select(null); return; }
       if (chips[i].tok === selTok) select(null); else select(chips[i].tok, i);
     }
     function onCancel() { down = null; }
     function onMove(e) {
       if (e.pointerType !== 'mouse') return;
-      var i = chipAt(local(e));
+      var i = chipAt(local(e), 2.5);
       if (i !== hover) { hover = i; canvas.style.cursor = i >= 0 ? 'pointer' : 'default'; requestDraw(); }
     }
     function onLeave() { if (hover !== -1) { hover = -1; canvas.style.cursor = 'default'; requestDraw(); } }
@@ -1060,12 +1066,14 @@
     corpusTa.addEventListener('input', onCorpusInput);
     tryTa.addEventListener('input', onTryInput);
 
-    // phones: put the merge buttons right under the picture so you can see the text change as you tap
+    // one-column layout (phones): merge buttons and the "next merge" line go above the picture, so the text
+    // you are changing sits right under your finger and the buttons never move while you tap
     var mqNarrow = window.matchMedia ? window.matchMedia('(max-width: 820px)') : null;
     function place() {
       var narrow = !!(mqNarrow && mqNarrow.matches);
-      if (narrow && trainBox.parentNode !== left) left.insertBefore(trainBox, info);
-      else if (!narrow && trainBox.parentNode !== controls) controls.insertBefore(trainBox, controls.firstChild);
+      if (narrow && trainBox.parentNode !== left) { left.insertBefore(trainBox, wrap); left.insertBefore(info, wrap); }
+      else if (!narrow && trainBox.parentNode !== controls) { controls.insertBefore(trainBox, controls.firstChild); left.insertBefore(info, legend.nextSibling); }
+      info.style.minHeight = narrow ? '5.3em' : '';
     }
     function onNarrow() { place(); relayout(); }
     if (mqNarrow) { if (mqNarrow.addEventListener) mqNarrow.addEventListener('change', onNarrow); else if (mqNarrow.addListener) mqNarrow.addListener(onNarrow); }
