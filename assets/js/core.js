@@ -46,11 +46,15 @@
     return normalize(data);
   }
   var state = load();
-  var warned = false;
+  var warned = false, saveHooks = [];
+  // other parts (cloud sync) can listen for saves
+  function onSave(fn) { saveHooks.push(fn); }
+  function runHooks() { saveHooks.forEach(function (fn) { try { fn(state); } catch (e) {} }); }
   function save() {
     memory = state;
-    try { window.localStorage.setItem(KEY, JSON.stringify(state)); return true; }
+    try { window.localStorage.setItem(KEY, JSON.stringify(state)); runHooks(); return true; }
     catch (e) {
+      runHooks();
       if (!warned) { warned = true; setTimeout(function () { toast('This browser is not letting AI Marg save your progress (private mode or storage full). Use My progress > Download file to keep a copy.'); }, 0); }
       return false;
     }
@@ -68,6 +72,58 @@
   }
   function resetAll() { state = blank(); save(); }
   function replaceState(obj) { state = normalize(obj); save(); }
+
+  // Combine progress from two devices without losing anything: ticks and solved work are kept from both,
+  // quiz bests take the higher score, playback positions take the newer one, differing notes are both kept.
+  // Device settings (theme, language) and code drafts stay as they are on this device.
+  function mergeState(localObj, remoteObj) {
+    var copy = function (o) { try { return JSON.parse(JSON.stringify(o || null)); } catch (e) { return null; } };
+    var a = normalize(copy(localObj)), b = normalize(copy(remoteObj));
+    var keys = function (o) { return Object.keys(o || {}); };
+    var earlier = function (x, y) { return !x ? y : !y ? x : (String(y) < String(x) ? y : x); };
+    keys(b.watched).forEach(function (k) { a.watched[k] = earlier(a.watched[k], b.watched[k]); });
+    keys(b.quiz).forEach(function (k) {
+      var x = a.quiz[k], y = b.quiz[k];
+      if (!x) { a.quiz[k] = y; return; }
+      var newer = String(y.at) > String(x.at) ? y : x;
+      a.quiz[k] = { best: Math.max(x.best, y.best), attempts: Math.max(x.attempts, y.attempts), last: newer.last, at: newer.at };
+    });
+    keys(b.ex).forEach(function (k) {
+      var x = a.ex[k] || {}, y = b.ex[k] || {};
+      if (x.done || y.done) a.ex[k] = { done: true, at: earlier(x.done && x.at, y.done && y.at) || x.at || y.at };
+      else if (!a.ex[k]) a.ex[k] = y;
+    });
+    keys(b.code).forEach(function (k) { if (typeof a.code[k] !== 'string' || !a.code[k]) a.code[k] = b.code[k]; });
+    keys(b.labs).forEach(function (k) {
+      var x = a.labs[k] = a.labs[k] && typeof a.labs[k] === 'object' ? a.labs[k] : {};
+      keys(b.labs[k]).forEach(function (t) { if (b.labs[k][t] && !x[t]) x[t] = b.labs[k][t]; });
+    });
+    keys(b.projects).forEach(function (k) {
+      var y = b.projects[k] || {}, x = a.projects[k];
+      if (!x) { a.projects[k] = y; return; }
+      x.steps = x.steps || {}; x.rubric = x.rubric || {}; x.links = x.links || {};
+      keys(y.steps).forEach(function (i) { if (y.steps[i]) x.steps[i] = true; });
+      keys(y.rubric).forEach(function (i) { if (!x.rubric[i]) x.rubric[i] = y.rubric[i]; });
+      keys(y.links).forEach(function (i) { if (!x.links[i]) x.links[i] = y.links[i]; });
+      if (y.done) x.done = true;
+    });
+    keys(b.modules).forEach(function (k) {
+      var x = a.modules[k], y = b.modules[k] || {};
+      if (!x) { a.modules[k] = y; return; }
+      if (y.done && !x.done) a.modules[k] = y;
+    });
+    keys(b.notes).forEach(function (k) {
+      var x = a.notes[k] || '', y = b.notes[k] || '';
+      if (!y || x === y || x.indexOf(y) >= 0) return;
+      if (!x || y.indexOf(x) >= 0) { a.notes[k] = y; return; }
+      a.notes[k] = x + '\n\n--- From your other device ---\n' + y;
+    });
+    keys(b.log).forEach(function (d) { a.log[d] = Math.max(a.log[d] || 0, b.log[d] || 0); });
+    keys(b.pos).forEach(function (k) { if (!a.pos[k] || (b.pos[k].t || 0) > (a.pos[k].t || 0)) a.pos[k] = b.pos[k]; });
+    ['hpw', 'start'].forEach(function (k) { if (a.prefs[k] == null && b.prefs[k] != null) a.prefs[k] = b.prefs[k]; });
+    if (!a.last && b.last) a.last = b.last;
+    return normalize(a);
+  }
 
   /* ---------------- HTML helpers ---------------- */
   function esc(s) {
@@ -382,7 +438,7 @@
   };
 
   window.AIM_CORE = {
-    get state() { return state; }, save: save, resetAll: resetAll, replaceState: replaceState, logActivity: logActivity, streak: streak, today: today,
+    get state() { return state; }, save: save, onSave: onSave, mergeState: mergeState, resetAll: resetAll, replaceState: replaceState, logActivity: logActivity, streak: streak, today: today,
     esc: esc, inline: inline, md: md, toast: toast, pct: pct,
     LANG_LABEL: LANG_LABEL, langChip: langChip, langRank: langRank,
     ytIds: ytIds, embedSrc: embedSrc, canEmbed: canEmbed, playerHTML: playerHTML, play: play, ensureYT: ensureYT,

@@ -30,7 +30,7 @@ window.AIM.pages = {
      "**4. Build the level's projects** from the [Projects](#projects) page. Projects turn knowledge into skill, and they become your portfolio (the work you show employers or clients).",
      "**5. Take the level test** on the [Tests](#tests) page: 20 questions from the whole level, an optional 30-minute timer, pass mark 70%. If you score less, revise the modules where you lost marks and retake it after a few days.",
      "**6. Move to the next level.**",
-     "Your progress, quiz scores and notes are saved only in this browser. Every week or two, open [My progress](#progress) and press **Download file**, so you do not lose them if you clear your browser or change device."
+     "Your progress, quiz scores and notes are saved in this browser. To keep them safe and use them on another device, press **Sign in** at the top right (when you see it) and sign in with Google. Without signing in, open [My progress](#progress) every week or two and press **Download file**, so you do not lose them if you clear your browser or change device."
     ]
    },
    {
@@ -179,7 +179,7 @@ window.AIM.pages = {
      "Create one repository (a project folder on GitHub), for example `ai-marg-journey`, with a `README.md` that says who you are and what you are learning.",
      "Add a `log.md` file. Each study day, add 4 lines: the date and hours; what I learned; what confused me; what I will do next.",
      "Make one folder per module (for example `1.2-python/`) and save your Colab notebooks there (in Colab: File → Save a copy in GitHub).",
-     "Each week, copy your notes from every module's **My notes** tab into the repository. Notes on this site stay only in this browser.",
+     "Each week, copy your notes from every module's **My notes** tab into the repository. Your notes here are saved in this browser (and in your account if you sign in), but a repository is where recruiters can see them.",
      "Write commit messages (the short note attached to each save in Git) that say what changed, for example `Add pandas groupby practice`.",
      "Never commit passwords or API keys. Keep them in a `.env` file and list `.env` in `.gitignore` (the file that tells Git what to ignore). Module 1.3 shows how.",
      "Once a week, read your log and redo one thing that confused you."
@@ -432,7 +432,7 @@ window.AIM.pages = {
   },
   {
    "q": "Is my progress saved?",
-   "a": "Yes, but only in this browser on this device. Clearing browser data, using a private window or changing device loses it.\n\nEvery week or two, go to [My progress](#progress) and press **Download file** or **Copy progress**. Use **Restore** to load it on another device. Copy your module notes to GitHub as well."
+   "a": "Yes. It is saved in this browser straight away. If you see **Sign in** at the top right, sign in with Google: your progress is then backed up to your account and synced to your other devices, so clearing the browser or changing phone loses nothing.\n\nWithout signing in, clearing browser data, using a private window or changing device loses it. In that case, every week or two go to [My progress](#progress) and press **Download file** or **Copy progress**, and use **Restore** on another device. Copy your module notes to GitHub as well."
   },
   {
    "q": "Can I skip modules or change the order?",

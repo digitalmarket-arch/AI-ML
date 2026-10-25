@@ -11,7 +11,7 @@ The site is interactive:
 - **Tough projects.** Each project has a client-style brief, Indian datasets, milestones, a rubric and stretch goals, ending with two grand capstones.
 - **81 original diagrams** in the module readings (about 3 per module), drawn for this course with Indian examples, each checked by a second reviewer who recomputed the numbers. They follow light and dark mode and load only when a module is opened.
 - **Publish and share projects:** upload a finished project to your own GitHub repository from the project page (with a README written for you), then share it on LinkedIn with a ready-made post.
-- **Progress tracking, notes, a study planner and a jargon glossary** in plain English. Everything is saved in your own browser; there are no accounts and no tracking.
+- **Progress tracking, notes, a study planner and a jargon glossary** in plain English. Everything is saved in your own browser, with optional Google sign-in to back up and sync progress across devices. No ads and no tracking.
 
 **What's inside:** 4 levels, 27 modules, 428 free resources (409 with verified links), 350 quiz questions, 81 auto-graded coding exercises, 12 labs, 18 projects and 180 glossary terms. All text on the site is in English; Hindi and Hinglish appear only in the videos.
 
@@ -38,6 +38,28 @@ GitHub Pages hosts this folder as a website at no cost.
 6. Wait 1–2 minutes and refresh the page. GitHub shows the address, usually `https://digitalmarket-arch.github.io/AI-ML/`.
 
 > **Why not just double-click `index.html`?** You can, and most of the site works. But YouTube often refuses to play embedded videos on pages opened as files (it needs a proper web address), and some browsers block the in-browser Python there. On GitHub Pages everything works.
+
+### Turn on sign-in (optional, free, about 10 minutes)
+
+Without this, the site works fully and each learner's progress stays in their own browser. With it, learners can press **Sign in** (top right), sign in with Google, and their progress is backed up and synced between their phone and laptop. It uses Firebase from Google on the free Spark plan (₹0; no card needed).
+
+1. Go to [console.firebase.google.com](https://console.firebase.google.com), sign in with your Google account and press **Create a project**. Name it, for example `ai-marg`. You can turn Google Analytics off.
+2. In the project, press the **web** icon (`</>`) to **add a web app**. Give it a nickname, leave "Firebase Hosting" unticked, and press **Register app**. Firebase shows a `firebaseConfig` with `apiKey`, `authDomain`, `projectId` and `appId`. Keep this page open.
+3. Open **Build → Authentication → Get started → Sign-in method**, choose **Google**, switch it on, pick a support email and **Save**.
+4. Still in Authentication, open **Settings → Authorized domains → Add domain** and add `digitalmarket-arch.github.io` (your GitHub Pages address without `https://`).
+5. Open **Build → Firestore Database → Create database**. Choose a location in India (for example **asia-south1, Mumbai**) and start in **production mode**.
+6. In Firestore, open the **Rules** tab, delete what is there, paste the whole of [`firestore.rules`](firestore.rules) from this repository, and press **Publish**. These rules let each learner read and write only their own progress.
+7. Open `assets/js/firebase-config.js` in this repository (on GitHub you can press the pencil icon to edit it) and replace `window.AIM_FIREBASE = null;` with your values, for example:
+
+   ```js
+   window.AIM_FIREBASE = { apiKey: "AIza…", authDomain: "ai-marg.firebaseapp.com", projectId: "ai-marg", appId: "1:…:web:…" };
+   ```
+
+   Commit the change. A minute later the **Sign in** button appears on the site.
+
+These config values are not secret (every Firebase web app shows them to the browser); the rules from step 6 are what keep each learner's data private. The free plan allows about 50,000 reads and 20,000 writes a day, which covers a few hundred daily learners because the site syncs a few seconds after changes, not on every click.
+
+**Privacy:** the cloud copy holds each learner's course progress and Google account ID; their name and email are visible to you in the Firebase console. Learners can delete their cloud copy themselves from the Account page. If you run this for real users in India, keep a short privacy notice in line with the Digital Personal Data Protection Act, 2023 (what you collect, why, and how to ask for deletion).
 
 ### Preview on your own computer
 

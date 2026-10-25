@@ -1016,12 +1016,14 @@
     var passed = Object.keys(st.quiz).filter(function (k) { return st.quiz[k].best >= 70; }).length;
     var projDone = Object.keys(st.projects).filter(function (k) { return st.projects[k] && st.projects[k].done; }).length;
     setView('<div class="wrap stack-lg">' + crumbs([['Home', 'home'], ['My progress']]) +
-      '<header class="row-between"><div class="stack-sm"><h1>My progress</h1><p class="muted">Saved only in this browser on this device. Export it to keep a backup or move devices.</p></div>' + ring(overallProgress()) + '</header>' +
+      '<header class="row-between"><div class="stack-sm"><h1>My progress</h1><p class="muted">' + (cloudOn() && K.status().user ? 'Saved in this browser and backed up to your account.' : cloudOn() ? 'Saved in this browser. Sign in to back it up and use it on other devices, or download a copy below.' : 'Saved only in this browser on this device. Export it to keep a backup or move devices.') + '</p></div>' + ring(overallProgress()) + '</header>' +
       (overallProgress() === 0 && !Object.keys(st.quiz).length ? '<div class="callout row-between"><span>Nothing here yet. Your first step takes about 30 minutes.</span><a class="btn btn-primary" href="#start">Start here</a></div>' : '') +
       '<div class="lab-stats">' + stat('Course complete', overallProgress() + '%') + stat('Day streak', C.streak()) + stat('Exercises solved', solved + '/' + D.exercises.length) + stat('Quizzes passed', passed) + stat('Lab tasks', labTasks) + stat('Projects done', projDone + '/' + D.projects.length) + stat('Videos & courses ticked', Object.keys(st.watched).filter(function (k) { return resById[k]; }).length) + '</div>' +
       (continueList(1).length ? '<section class="card stack-sm"><h2 class="h-sub">Continue watching</h2>' + continueHTML(5) + '</section>' : '') +
       '<section class="stack">' + D.levels.map(function (l) { return '<div class="stack-sm"><div class="row-between"><a href="#level-' + l.id + '"><strong>Level ' + l.id + ' · ' + esc(l.name) + '</strong></a><span class="num small">' + levelProgress(l.id) + '%</span></div>' + bar(levelProgress(l.id), 'Level ' + l.id + ' progress') + '</div>'; }).join('') + '</section>' +
-      '<div class="two-col"><section class="stack"><h2>Quizzes</h2>' + quizTable() + '</section><aside class="stack">' + plannerCard() +
+      '<div class="two-col"><section class="stack"><h2>Quizzes</h2>' + quizTable() + '</section><aside class="stack">' +
+      (cloudOn() ? (function () { var cs = K.status(); return '<div class="card stack-sm"><strong>Account</strong><span class="small muted">' + (cs.user ? 'Signed in as ' + esc(cs.user.name || cs.user.email) + '. Progress is backed up and synced.' : 'Sign in with Google to back up your progress and continue on any device.') + '</span><a class="btn btn-sm" href="#account">' + (cs.user ? 'Manage account' : 'Sign in') + '</a></div>'; })() : '') +
+      plannerCard() +
       '<div class="card stack-sm"><strong>Backup</strong><div class="row"><button class="btn btn-sm" data-action="export">Copy progress</button><button class="btn btn-sm" data-action="download">Download file</button></div>' +
       '<label class="small" for="import-box">Restore: paste a backup and press Restore</label><textarea id="import-box" rows="3" placeholder="{&quot;v&quot;:1, …}"></textarea><div class="row"><button class="btn btn-sm" data-action="import">Restore</button><button class="btn btn-sm btn-ghost" data-action="reset">Reset all progress</button></div></div>' +
       '</aside></div></div>', 'My progress');
@@ -1033,6 +1035,62 @@
     setView('<div class="wrap stack"><h1>Page not found</h1><p class="muted">That link does not match anything here. <a href="#home">Go home</a> or open the <a href="#roadmap">roadmap</a>.</p></div>', 'Not found');
   }
 
+  /* ---------- account: optional sign-in to back up and sync progress ---------- */
+  var K = window.AIM_CLOUD || null;
+  function cloudOn() { return !!(K && K.enabled()); }
+  function accountBody(st) {
+    if (!st.enabled) return '<div class="callout">Sign-in is not switched on for this copy of the site. Your progress is saved in this browser. To move it to another device, use <a href="#progress">My progress</a> and its Backup box.</div>';
+    var privacy = '<section class="stack-sm"><h2 class="h-sub">What is saved, and who can see it</h2><ul class="prose small">' +
+      '<li>Only your course progress: ticks, quiz scores, lab tasks, exercise answers and drafts, notes, project checklists and links, together with your Google account ID.</li>' +
+      '<li>Your name and email come from Google so you can see which account you used. No password is ever seen by this site.</li>' +
+      '<li>Each account can read and write only its own copy. Nothing is sold or used for ads.</li>' +
+      '<li>You can delete your cloud copy below at any time. Signing in is optional: without it, progress stays in this browser.</li></ul></section>';
+    if (!st.user) {
+      return '<section class="card stack"><div class="stack-sm"><h2 class="h-sub">Keep your progress safe in your account</h2>' +
+        '<ul class="prose"><li>Continue on your phone exactly where you stopped on your laptop.</li><li>Nothing is lost if you clear your browser or change devices.</li><li>What you have already done on this device is kept and added to your account.</li></ul></div>' +
+        '<div class="row"><button class="btn btn-primary" type="button" data-action="cloud-signin"' + (st.state === 'loading' ? ' disabled' : '') + '>' + (st.state === 'loading' ? 'Connecting…' : 'Sign in with Google') + '</button></div>' +
+        (st.error ? '<p class="small pub-bad" role="alert">' + esc(st.error) + '</p>' : '') + '</section>' + privacy;
+    }
+    var when = st.lastSync ? new Date(st.lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+    var line = st.state === 'syncing' ? 'Syncing…' : st.error ? esc(st.error) : when ? 'Synced at ' + esc(when) + '. Changes sync by themselves a few seconds after you make them.' : 'Ready.';
+    return '<section class="card stack"><div class="stack-sm"><span class="eyebrow">Signed in</span><strong>' + esc(st.user.name || st.user.email) + '</strong>' + (st.user.name && st.user.email ? '<span class="small muted">' + esc(st.user.email) + '</span>' : '') + '</div>' +
+      '<p class="small' + (st.error ? ' pub-bad' : ' muted') + '" role="status">' + line + '</p>' +
+      '<div class="row"><button class="btn btn-sm" type="button" data-action="cloud-sync">Sync now</button><button class="btn btn-sm" type="button" data-action="cloud-signout">Sign out</button></div>' +
+      '<details class="small"><summary>More options</summary><div class="stack-sm" style="margin-top:8px">' +
+      '<div><button class="btn btn-sm" type="button" data-action="cloud-signout-clear">Sign out and remove progress from this device</button><p class="muted">Use this on a shared or office computer. Your progress stays safe in your account.</p></div>' +
+      '<div><button class="btn btn-sm btn-ghost" type="button" data-action="cloud-delete">' + (cloudDeleteArmed ? 'Press again to delete for good' : 'Delete my cloud copy') + '</button><p class="muted">Removes your progress from the cloud and signs you out. This device keeps its own copy.</p></div>' +
+      '</div></details></section>' + privacy;
+  }
+  var cloudDeleteArmed = false;
+  function viewAccount() {
+    var st = K ? K.status() : { enabled: false };
+    setView('<div class="wrap stack-lg" style="max-width:760px">' + crumbs([['Home', 'home'], ['My progress', 'progress'], ['Account']]) +
+      '<header class="stack-sm"><h1>Your account</h1><p class="lede muted prose">Sign in with Google to back up your progress and use the course on more than one device.</p></header>' +
+      '<div id="acct-body" class="stack-lg">' + accountBody(st) + '</div></div>', 'Account');
+    if (K) {
+      var off = K.on(function (x) { var el = document.getElementById('acct-body'); if (el) el.innerHTML = accountBody(x); });
+      currentCleanup.push(off);
+    }
+  }
+  function updateAcctLink(st) {
+    var a = document.getElementById('acct-link'); if (!a) return;
+    if (!st || !st.enabled) { a.hidden = true; return; }
+    a.hidden = false;
+    if (st.user) {
+      var nm = st.user.name || st.user.email || '?';
+      var dot = st.state === 'syncing' ? 'is-syncing' : st.error ? 'is-error' : 'is-ok';
+      a.innerHTML = '<span class="acct-badge ' + dot + '" aria-hidden="true">' + esc(nm.trim().charAt(0).toUpperCase()) + '</span>';
+      a.setAttribute('aria-label', 'Account: ' + nm + (st.error ? ', sync problem' : st.state === 'syncing' ? ', syncing' : ', synced'));
+    } else { a.textContent = 'Sign in'; a.removeAttribute('aria-label'); }
+  }
+  if (K) { K.on(updateAcctLink); updateAcctLink(K.status()); }
+  // progress arrived from another device: show it, unless the learner is typing
+  window.addEventListener('aim:progress-replaced', function () {
+    var ae = document.activeElement;
+    if (ae && /^(TEXTAREA|INPUT)$/.test(ae.tagName) && ae.type !== 'checkbox' && ae.type !== 'radio') { C.toast('Progress from your other device has been added'); return; }
+    var y = window.scrollY; route(); window.scrollTo(0, y);
+  });
+
   /* ---------- global actions (event delegation) ---------- */
   var resetArmed = false;
   document.addEventListener('click', function (ev) {
@@ -1041,6 +1099,14 @@
     if (a === 'play') { var r = resById[id]; if (r) startPlayer(t.parentNode, r); }
     else if (a === 'play-inline') { var ri = resById[id], art = t.closest('.res-card'); if (ri && art) toggleInline(art, ri, t); }
     else if (a === 'goto-res') { gotoRes(id, t.getAttribute('data-play') === '1'); }
+    else if (a === 'cloud-signin' && K) { K.signIn(); }
+    else if (a === 'cloud-sync' && K) { K.syncNow().then(function (ok) { if (ok) C.toast('Synced'); }); }
+    else if (a === 'cloud-signout' && K) { K.signOut(false); }
+    else if (a === 'cloud-signout-clear' && K) { K.signOut(true); }
+    else if (a === 'cloud-delete' && K) {
+      if (!cloudDeleteArmed) { cloudDeleteArmed = true; t.textContent = 'Press again to delete for good'; setTimeout(function () { cloudDeleteArmed = false; }, 6000); }
+      else { cloudDeleteArmed = false; K.deleteCloudCopy().catch(function () { C.toast('Could not delete the cloud copy. Check your connection and try again.'); }); }
+    }
     else if (a === 'mod-done') { var cur = st.modules[id] && st.modules[id].done; st.modules[id] = { done: !cur, at: C.today() }; if (!cur) C.logActivity(); C.save(); C.toast(cur ? 'Module marked as not complete' : 'Module complete. Next one!'); refreshSide(); }
     else if (a === 'pdone') { var p = st.projects[id] = st.projects[id] || {}; p.done = !p.done; if (p.done) C.logActivity(); C.save(); C.toast(p.done ? 'Project complete. Add it to your portfolio!' : 'Project marked as in progress'); t.textContent = p.done ? 'Completed ✓ (undo)' : 'Mark project complete'; t.className = 'btn ' + (p.done ? '' : 'btn-haldi'); }
     else if (a === 'export') { var txt = JSON.stringify(st); try { navigator.clipboard.writeText(txt).then(function () { C.toast('Progress copied'); }, function () { fallbackCopy(txt); }); } catch (e) { fallbackCopy(txt); } }
@@ -1108,6 +1174,7 @@
     else if (h === 'search') viewSearch();
     else if (h === 'career' || h === 'faq') { viewCareer(); navKey = 'career'; }
     else if (h === 'progress') viewProgress();
+    else if (h === 'account') { viewAccount(); navKey = 'progress'; }
     else viewNotFound();
     } catch (err) { if (window.console) console.error(err); viewNotFound(); }
     document.querySelectorAll('.nav a').forEach(function (a) { if (a.getAttribute('href') === '#' + navKey) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
