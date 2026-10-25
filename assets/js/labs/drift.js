@@ -266,7 +266,7 @@
           '<div class="lab-legend" id="' + P + 'hleg"></div>' +
           '<p class="small" id="' + P + 'model"></p>' +
           '<details class="fold"><summary>See the PSI sum, bin by bin</summary><div>' +
-            '<div class="table-wrap" tabindex="0" role="region" aria-label="PSI sum, bin by bin"><table class="simple" style="font-variant-numeric:tabular-nums"><thead><tr><th scope="col">Amount</th><th scope="col">e: training share</th><th scope="col" id="' + P + 'tha">a: week share</th><th scope="col">(a − e) × ln(a ÷ e)</th></tr></thead><tbody id="' + P + 'tbody"></tbody></table></div>' +
+            '<div class="table-wrap" tabindex="0" role="region" aria-label="PSI sum, bin by bin"><table class="simple" style="font-variant-numeric:tabular-nums;font-size:.88rem"><thead><tr><th scope="col">Amount</th><th scope="col">e: training share</th><th scope="col" id="' + P + 'tha">a: week share</th><th scope="col">(a − e) × ln(a ÷ e)</th></tr></thead><tbody id="' + P + 'tbody"></tbody></table></div>' +
           '</div></details>' +
         '</div>' +
         '<div class="lab-controls">' +
@@ -494,7 +494,7 @@
         setStat('sacc', pct(r.acc, 1), r.acc < ACC_ALARM ? 'under 95%' : 'labels in');
         setStat('srec', pct(r.rec, 0), r.ev.tp + ' of ' + r.ev.frauds + ' frauds');
       } else {
-        var due = sel + D <= WEEKS ? 'labels due wk ' + (sel + D) : 'labels after wk 12';
+        var due = sel + D <= WEEKS ? 'due wk ' + (sel + D) : 'after wk 12';
         setStat('sacc', '?', due); setStat('srec', '?', due);
       }
       if (A.trueFirst) setStat('sdrift', 'week ' + A.trueFirst, 'first ring in the drift');
@@ -510,9 +510,11 @@
       elHLeg.innerHTML = '<span style="--c:var(--series-4)">' + esc(refName) + '</span><span style="--c:var(--series-1)">Week ' + sel + '</span><span style="--c:var(--ink)">Cutoffs: solid line by day, dashed at night</span>';
       elModel.innerHTML = modelText(r.m);
       elTha.textContent = 'a: week ' + sel + ' share';
-      var rows = '';
+      var rows = '', ref = M.ref, cur = data.weeks[sel];
+      // shares under 1% get 2 decimals; an empty bin shows the 0.0001 (0.01%) stand-in
+      var share = function (f, count) { return count === 0 ? '0 (0.01%)' : pct(f, f < 0.01 ? 2 : 1); };
       for (var i = 0; i < NB; i++) {
-        rows += '<tr><td style="white-space:nowrap">' + binName(i) + '</td><td>' + pct(r.ps.e[i], 1) + '</td><td>' + pct(r.ps.a[i], 1) + '</td><td>' + r.ps.terms[i].toFixed(4) + '</td></tr>';
+        rows += '<tr><td style="white-space:nowrap">' + binName(i) + '</td><td>' + share(r.ps.e[i], ref.bins[i]) + '</td><td>' + share(r.ps.a[i], cur.bins[i]) + '</td><td>' + r.ps.terms[i].toFixed(4) + '</td></tr>';
       }
       rows += '<tr><td colspan="3"><strong>PSI (total)</strong></td><td><strong>' + r.psi.toFixed(4) + '</strong></td></tr>';
       elTbody.innerHTML = rows;
