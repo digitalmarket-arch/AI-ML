@@ -291,15 +291,17 @@
     }
 
     /* ---------- messages ---------- */
-    var msgSeq = 0;
+    var msgSeq = 0, msgSoft = false;
     function say(key, html, tone) {
       if (key && key === msgKey) return;
-      msgKey = key || ''; msgSeq++;
+      msgKey = key || ''; msgSeq++; msgSoft = false;
       elMsg.innerHTML = html;
       elMsg.className = 'callout small' + (tone === 'warn' || tone === 'good' ? '' : ' callout-indigo');
       elMsg.style.borderLeftColor = tone === 'warn' ? 'var(--bad)' : tone === 'good' ? 'var(--ok)' : '';
       elMsg.style.background = tone === 'warn' ? 'var(--bad-soft, var(--surface-2))' : tone === 'good' ? 'var(--ok-soft, var(--surface-2))' : '';
     }
+    // a passing note that the next Step's own narration may replace
+    function note(html) { say('', html); msgSoft = true; }
     function L1(v) { return fmtNum(v, Math.abs(v) >= 1000 ? 0 : 1); }
 
     /* ---------- geometry ---------- */
@@ -377,9 +379,9 @@
       S.loss = lossAt(pts, w, b); S.startLoss = S.loss; S.stepsSinceData = 0;
       resetRunFlags();
       syncButtons();
-      if (why === 'map') say('', 'New starting line picked on the loss map (loss ' + L1(S.loss) + '). Press <b>Step</b> or <b>Run</b> to walk downhill from here.');
-      else if (why === 'reset') say('', 'New random start: loss ' + L1(S.loss) + ' (the best possible is ' + L1(F.L) + '). Press <b>Run</b> to watch it roll downhill.');
-      else say('', 'The line starts in a bad spot: loss ' + L1(S.loss) + ', while the best possible is ' + L1(F.L) + '. Press <b>Step</b> to take one step downhill, or <b>Run</b> to keep going.');
+      if (why === 'map') note('New starting line picked on the loss map (loss ' + L1(S.loss) + '). Press <b>Step</b> or <b>Run</b> to walk downhill from here.');
+      else if (why === 'reset') note('New random start: loss ' + L1(S.loss) + ' (the best possible is ' + L1(F.L) + '). Press <b>Run</b> to watch it roll downhill.');
+      else note('The line starts in a bad spot: loss ' + L1(S.loss) + ', while the best possible is ' + L1(F.L) + '. Press <b>Step</b> to take one step downhill, or <b>Run</b> to keep going.');
       updateStats();
       requestDraw();
     }
@@ -498,7 +500,7 @@
       }
       if (wasDiverging && S.upStreak === 0 && S.loss < prevL) {
         S.diverging = false;
-        say('calm', 'Phew: the loss is falling again (' + L1(S.loss) + ').');
+        note('Phew: the loss is falling again (' + L1(S.loss) + ').');
       }
       // 3. stochastic zig-zag
       if (S.mode === 'sgd' && S.sgdSteps >= 20 && S.sgdUp >= 3 && !done.t3) {
@@ -915,7 +917,7 @@
       S.lr = lrFromSlider(+elLr.value);
       elLrOut.textContent = fmtLr(S.lr);
       elLr.setAttribute('aria-valuetext', fmtLr(S.lr));
-      S.bounceShown = false; S.slowShown = false;
+      S.bounceShown = false; S.slowShown = false; S.bounce = 0; S.lastDelta = null;
       requestDraw();
     });
     Array.prototype.forEach.call(modeBtns, function (btn) {
@@ -923,8 +925,8 @@
         var m = btn.getAttribute('data-mode');
         if (m === S.mode) return;
         S.mode = m; S.sgdSteps = 0; S.sgdUp = 0; S.upStreak = 0; S.converged = false; S.lastDelta = null; S.bounce = 0;
-        if (m === 'sgd') { pickNext(); say('', '<b>Stochastic mode:</b> each step now uses only the circled flat, picked at random. Press <b>Run</b> and watch the path wobble.'); }
-        else say('', '<b>Batch mode:</b> each step uses all ' + pts.length + ' flats, so it heads straight downhill.');
+        if (m === 'sgd') { pickNext(); note('<b>Stochastic mode:</b> each step now uses only the circled flat, picked at random. Press <b>Run</b> and watch the path wobble.'); }
+        else note('<b>Batch mode:</b> each step uses all ' + pts.length + ' flats, so it heads straight downhill.');
         syncButtons(); updateStats(); requestDraw();
       });
     });
@@ -933,9 +935,9 @@
       var before = S.loss, seq = msgSeq;
       doStep();
       // narrate plain steps, but never talk over a more important message from this step
-      if (msgSeq === seq && !S.diverging && !S.blown && !S.converged && (S.steps === 1 || msgKey.indexOf('step:') === 0)) {
+      if (msgSeq === seq && msgSoft && !S.diverging && !S.blown && !S.converged) {
         var rose = S.loss > before;
-        say('step:' + S.steps, (S.steps === 1 ? 'One step: w and b each moved a little against the slope, landing where the arrow pointed. ' : 'Step ' + fmtIN(S.steps, 0) + ': ') +
+        note((S.steps === 1 ? 'One step: w and b each moved a little against the slope, landing where the arrow pointed. ' : 'Step ' + fmtIN(S.steps, 0) + ': ') +
           'Loss went ' + (rose ? '<b>up</b>' : 'down') + ' from ' + L1(before) + ' to ' + L1(S.loss) + (rose && S.mode === 'sgd' ? ': that one flat pulled the line its own way.' : ' (best possible ' + L1(F.L) + ').'));
       }
       updateStats(); requestDraw();
