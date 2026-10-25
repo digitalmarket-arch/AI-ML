@@ -322,21 +322,21 @@
 
     // fertility panel
     var fertBody = el('div', { class: 'stack-sm' });
-    var fertText = el('p', { class: 'small', style: 'line-height:1.55' });
-    var ghostText = el('p', { class: 'small muted', style: 'line-height:1.55', hidden: true });
+    var fertText = el('p', { class: 'small', style: 'line-height:1.55;margin:0' });
+    var ghostText = el('p', { class: 'small muted', style: 'line-height:1.55;margin:0', hidden: true });
     var fertBox = el('section', { style: 'border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;background:var(--surface);display:flex;flex-direction:column;gap:10px', 'aria-labelledby': pre + 'fert-h' }, [
       el('div', {}, [
         el('h4', { id: pre + 'fert-h', text: 'Tokens per word' }),
         el('p', { class: 'small muted', text: 'Also called fertility: how many pieces one word is cut into, on average (punctuation not counted). Fewer is cheaper and faster.' })
       ]),
       fertBody, fertText, ghostText,
-      el('p', { class: 'small muted', style: 'line-height:1.5', text: 'Byte-level tokenizers (like GPT-2’s) widen the gap: they start from UTF-8 bytes, and each Devanagari letter is 3 bytes while an English letter is 1.' })
+      el('p', { class: 'small muted', style: 'line-height:1.5;margin:0', text: 'Byte-level tokenizers (like GPT-2’s) widen the gap: they start from UTF-8 bytes, and each Devanagari letter is 3 bytes while an English letter is 1.' })
     ]);
     left.appendChild(fertBox);
 
     // merge list
     var mergeCount = el('span', { class: 'small muted num' });
-    var mlist = el('ol', { style: 'list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:4px;max-height:236px;overflow:auto;overscroll-behavior:contain', 'aria-label': 'Merge rules in the order they were learned' });
+    var mlist = el('ol', { style: 'list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:4px;max-height:236px;overflow:auto;overscroll-behavior:contain', 'aria-label': 'Merge rules in the order they were learned' });
     var emptyNote = el('li', { class: 'small muted', style: 'margin:0;padding:4px 2px;grid-column:1/-1', text: 'No merges yet: every token is a single character. Press “Merge once”.' });
     var nextLi = el('li', { class: 'small', style: 'margin:0;padding:4px 8px;border:1px dashed var(--haldi);border-radius:var(--radius-sm);color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:4px' });
     var rows = [];
@@ -519,7 +519,7 @@
       vocabIn.disabled = M === 0;
       vocabOut.textContent = String(C.vocabAt[k]);
       vocabHint.textContent = C.lines.length
-        ? C.baseSize + ' starting characters + ' + plural(k, 'merge') + '. Training stops after ' + plural(M, 'merge') + ', when no pair appears twice any more.'
+        ? C.baseSize + ' starting characters + ' + plural(k, 'merge') + ' (training stops at ' + M + ')'
         : 'Type some training text first.';
       bOnce.disabled = k >= M;
       bTen.disabled = k >= M;
@@ -694,7 +694,7 @@
     function tagRow(r) { // after challenge 1, label every merge that made a whole word
       if (r.tagged || !C.wordSet.has(r.m.tok)) return;
       r.tagged = true;
-      r.b.insertBefore(el('span', { class: 'chip chip-ok', style: 'font-size:.7rem;padding:0 6px', text: 'word' }), r.b.lastChild);
+      r.b.children[1].appendChild(el('span', { class: 'chip chip-ok', style: 'font-size:.7rem;padding:0 6px', text: 'word' }));
       r.b.setAttribute('aria-label', r.b.getAttribute('aria-label') + ', a whole word');
     }
     function buildRows() {
@@ -705,11 +705,11 @@
       mlist.appendChild(emptyNote);
       C.merges.forEach(function (m) {
         var b = el('button', { type: 'button', class: 'btn btn-sm', 'data-rank': String(m.rank), 'aria-pressed': 'false',
-          'aria-label': 'Merge ' + m.rank + ': ' + spoken(m.a) + ' plus ' + spoken(m.b) + ' makes ' + spoken(m.tok) + ', seen ' + m.count + ' times',
-          style: 'width:100%;justify-content:flex-start;gap:5px;font-weight:500;padding:4px 8px;text-align:left;flex-wrap:wrap' });
-        b.innerHTML = '<span class="mono small" style="color:var(--muted);min-width:2.1em">' + m.rank + '</span>' + chipHtml(m.a) + '<span aria-hidden="true" style="color:var(--muted)">+</span>' +
-          chipHtml(m.b) + '<span aria-hidden="true" style="color:var(--muted)">→</span>' + chipHtml(m.tok) +
-          '<span class="mono small" style="margin-left:auto;color:var(--muted)">×' + m.count + '</span>';
+          'aria-label': 'Rule ' + m.rank + ': ' + spoken(m.a) + ' plus ' + spoken(m.b) + ' makes ' + spoken(m.tok) + ', seen ' + m.count + ' times',
+          style: 'width:100%;height:100%;display:grid;grid-template-columns:2.1em minmax(0,1fr) auto;justify-content:stretch;align-items:center;gap:6px;font-weight:500;padding:4px 8px;text-align:left' });
+        b.innerHTML = '<span class="mono small" style="color:var(--muted)">' + m.rank + '</span><span class="tk-pieces" style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;min-width:0">' +
+          chipHtml(m.a) + '<span aria-hidden="true" style="color:var(--muted)">+</span>' + chipHtml(m.b) + '<span aria-hidden="true" style="color:var(--muted)">→</span>' + chipHtml(m.tok) +
+          '</span><span class="mono small" style="color:var(--muted)">×' + m.count + '</span>';
         var li = el('li', { style: 'margin:0' }, [b]);
         li.hidden = true;
         mlist.appendChild(li);
@@ -859,10 +859,12 @@
       var r = wrap.getBoundingClientRect();
       var width = r.width - wrap.clientLeft * 2;
       if (!(width > 0)) return false;
-      var h0 = 160, hk = 160;
-      if (C.lines.length) { h0 = layout(C.sym0, width, false); hk = layout(segs, width, true); }
+      // the picture is exactly as tall as the text: the merge buttons sit beside it (wide screens) or above it
+      // (phones), so the shrinking text never moves a button under the learner's finger
+      var hk = 160;
+      if (C.lines.length) hk = layout(segs, width, true);
       else { chips = []; paraBoxes = []; pairs = []; LM = metrics(width); }
-      var hNeed = Math.min(MAX_H, Math.max(160, h0, hk));
+      var hNeed = Math.min(MAX_H, Math.max(160, hk));
       if (hNeed !== curH) { curH = hNeed; wrap.style.height = (hNeed + wrap.clientTop * 2) + 'px'; }
       dpr = Math.min(window.devicePixelRatio || 1, 3);
       W = width; H = hNeed;

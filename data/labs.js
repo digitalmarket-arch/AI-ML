@@ -265,5 +265,29 @@ window.AIM.labs = [
     "text": "Do at least 30 merges, then switch the training text to “More Hindi”. Do the same Hindi sentences now need fewer tokens per word?"
    }
   ]
+ },
+ {
+  "id": "sampling",
+  "module": "l4-llm-internals",
+  "title": "Next-token sampling: temperature, top-k, top-p",
+  "summary": "Watch a tiny language model score every possible next word, then see how temperature, top-k and top-p change which word the dice pick.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Greedy: set temperature to 0, press “Generate 15 tokens”, then “Reset prompt” and generate again. You get exactly the same text both times (and it may get stuck repeating itself)."
+   },
+   {
+    "id": "t2",
+    "text": "Chaos: set temperature to 2 (top-k 50 and top-p 1.00 make it even wilder) and generate 15 tokens. When at least 3 never-seen words (wavy underline) sneak in, you are reading nonsense."
+   },
+   {
+    "id": "t3",
+    "text": "Set top-k to 1, keep temperature at 1 or more, and generate 15 tokens. It is exactly the greedy text, because only the top word is left to pick."
+   },
+   {
+    "id": "t4",
+    "text": "With top-k at 4 or more and temperature above 0, find a top-p value that leaves exactly 3 words possible for the next token."
+   }
+  ]
  }
 ];

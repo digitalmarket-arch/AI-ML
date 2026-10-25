@@ -584,7 +584,8 @@
         }).join('') + '</tr>';
       }).join('') + '</tbody></table></div><p class="small muted" id="rub-score"></p></section>' +
       listBlock('Stretch goals', p.stretch) + listBlock('Pitfalls to avoid', p.pitfalls) +
-      '</div><aside class="stack"><div class="card stack-sm"><strong>Deliverables</strong><ul class="small">' + (p.deliverables || []).map(function (d) { return '<li>' + inline(d) + '</li>'; }).join('') + '</ul></div>' +
+      '</div><aside class="stack">' + (p.freeStack ? '<div class="callout small"><strong>Free tools (₹0):</strong> ' + inline(p.freeStack) + '</div>' : '') +
+      '<div class="card stack-sm"><strong>Deliverables</strong><ul class="small">' + (p.deliverables || []).map(function (d) { return '<li>' + inline(d) + '</li>'; }).join('') + '</ul></div>' +
       (p.skills && p.skills.length ? '<div class="card stack-sm"><strong>Skills you will use</strong><div class="row">' + p.skills.map(function (s) { return '<span class="chip">' + esc(s) + '</span>'; }).join('') + '</div></div>' : '') +
       '<div class="card stack-sm"><strong>Your links</strong><label class="small" for="pl-repo">GitHub repo</label><input type="text" id="pl-repo" data-action="plink" data-k="repo" data-id="' + esc(id) + '" value="' + esc(st.links.repo || '') + '" placeholder="https://github.com/you/project">' +
       '<label class="small" for="pl-demo">Live demo</label><input type="text" id="pl-demo" data-action="plink" data-k="demo" data-id="' + esc(id) + '" value="' + esc(st.links.demo || '') + '" placeholder="https://huggingface.co/spaces/...">' +

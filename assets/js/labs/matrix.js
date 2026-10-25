@@ -51,6 +51,8 @@
   function fN(v) { return Math.abs(v * 10 - Math.round(v * 10)) < 1e-6 ? num(v, 1) : num(v, 2); }
   // wrap negative numbers in brackets inside a formula
   function fP(v) { var s = fN(v); return s.charAt(0) === '\u2212' ? '(' + s + ')' : s; }
+  // determinant: two decimals; four when it is tiny but not zero, so it never reads 0.00 by mistake
+  function fD(v) { var a = Math.abs(v); return a < 1e-6 ? '0.00' : a < 0.005 ? num(v, 4) : num(v, 2); }
 
   // unit eigenvector for eigenvalue l, or null when every direction works (m = l·I)
   function evec(m, l) {
@@ -116,13 +118,13 @@
     var lab = el('div', { class: 'lab' });
 
     lab.appendChild(el('p', { class: 'lab-note', html:
-      '<b>What you are seeing:</b> a 2×2 matrix is a machine that moves every point of the plane. ' +
+      '<b>What you are seeing:</b> a 2×2 <b>matrix</b> (a box of 4 numbers) is a machine that moves every point of the plane. ' +
       'The faint grey squares are the original grid; the blue lines show where that grid lands. ' +
       'The green arrow <b>î</b> ("i-hat", one step right) lands on the first column <span class="mono">(a, c)</span> and the red arrow ' +
       '<b>ĵ</b> ("j-hat", one step up) lands on the second column <span class="mono">(b, d)</span>. ' +
-      'The yellow square of area 1 becomes a parallelogram whose signed area is the <b>determinant</b> (how much the matrix scales areas). ' +
-      'Dashed lines are <b>eigenvectors</b> (directions that only stretch and never turn). ' +
-      'Drag the arrow tips, use the sliders, or tap anywhere to move the test vector <b>x</b>.' }));
+      'The dashed square of area 1 lands on the yellow parallelogram; its area, with a minus sign when space gets flipped, is the <b>determinant</b> (how much the matrix scales areas). ' +
+      'Dashed teal lines are <b>eigenvectors</b> (directions that stay on their own line: arrows there only get stretched, squashed or flipped, never turned), and the stretch factor on each line is its <b>eigenvalue</b>, written λ ("lambda"). ' +
+      'Drag the arrow tips, use the sliders, or tap anywhere to move the test <b>vector</b> <b>x</b> (an arrow from (0, 0)).' }));
 
     var body = el('div', { class: 'lab-body' });
 
@@ -215,16 +217,21 @@
       input.addEventListener('change', checkTasks);
       return el('div', { class: 'control' }, [el('label', { for: id }, [el('span', { html: text }), out]), input]);
     }
-    controls.appendChild(el('div', { class: 'small', style: 'font-weight:700;color:var(--ok);margin-bottom:-8px', text: 'Where î lands (column 1)' }));
-    controls.appendChild(slider('a', '<span class="mono">a</span> — across (x)'));
-    controls.appendChild(slider('c', '<span class="mono">c</span> — up (y)'));
-    controls.appendChild(el('div', { class: 'small', style: 'font-weight:700;color:var(--sindoor);margin-bottom:-8px', text: 'Where ĵ lands (column 2)' }));
-    controls.appendChild(slider('b', '<span class="mono">b</span> — across (x)'));
-    controls.appendChild(slider('d', '<span class="mono">d</span> — up (y)'));
+    // the four sliders share one box, so on phones it can sit right under the picture
+    var sliderBox = el('div', { style: 'display:flex;flex-direction:column;gap:14px' }, [
+      el('div', { class: 'small', style: 'font-weight:700;color:var(--ok);margin-bottom:-8px', text: 'Where î lands (column 1)' }),
+      slider('a', '<span class="mono">a</span> — across (x)'),
+      slider('c', '<span class="mono">c</span> — up (y)'),
+      el('div', { class: 'small', style: 'font-weight:700;color:var(--sindoor);margin-bottom:-8px', text: 'Where ĵ lands (column 2)' }),
+      slider('b', '<span class="mono">b</span> — across (x)'),
+      slider('d', '<span class="mono">d</span> — up (y)')
+    ]);
+    controls.appendChild(sliderBox);
 
     var playBtn = el('button', { type: 'button', class: 'btn btn-primary btn-sm' }, [el('span', { 'aria-hidden': 'true', text: '▶' }), 'Play from identity']);
     var resetBtn = el('button', { type: 'button', class: 'btn btn-sm', text: 'Reset' });
-    controls.appendChild(el('div', { class: 'row' }, [playBtn, resetBtn]));
+    var btnRow = el('div', { class: 'row' }, [playBtn, resetBtn]);
+    controls.appendChild(btnRow);
 
     // tasks
     var taskItems = {};
@@ -271,23 +278,29 @@
         parts.push('det = 0: the whole plane is squashed onto one line. Many points land on the same spot, so this cannot be undone (the matrix has no inverse).');
       } else {
         var ad = Math.abs(D), s;
-        if (Math.abs(ad - 1) < 0.005) s = 'areas keep exactly the same size';
-        else if (ad > 1) s = 'every area becomes ' + f2(ad) + '× bigger';
-        else s = 'every area shrinks to ' + f2(ad) + '× its size';
-        parts.push('det = ' + f2(D) + ': ' + s + (D < 0 ? ', and space is flipped over like a mirror image (î and ĵ swapped sides).' : '.'));
+        if (Math.abs(ad - 1) < 1e-6) s = 'areas keep exactly the same size';
+        else if (fD(ad) === '1.00') s = 'areas stay almost the same size';
+        else if (ad > 1) s = 'every area becomes ' + fD(ad) + '× bigger';
+        else s = 'every area shrinks to ' + fD(ad) + '× its size';
+        parts.push('det = ' + fD(D) + ': ' + s + (D < 0 ? ', and space is flipped over like a mirror image (î and ĵ swapped sides).' : '.'));
       }
       var E = eigen(m);
       if (E.kind === 'complex') {
         parts.push('No real eigenvectors (this matrix rotates every direction).');
       } else if (E.kind === 'all') {
-        parts.push('Every direction is an eigenvector: arrows only get scaled by ' + f2(E.l1) + ', never turned.');
+        parts.push(E.l1 < 0
+          ? 'Every direction is an eigenvector with λ = ' + f2(E.l1) + ': every arrow is scaled by ' + f2(-E.l1) + ' and flipped to point the opposite way (a half turn).'
+          : 'Every direction is an eigenvector: every arrow is only scaled by λ = ' + f2(E.l1) + ', never turned.');
       } else if (E.kind === 'repeated') {
-        parts.push('Only one eigenvector line (dashed), with λ = ' + f2(E.l1) + ': arrows on it keep their direction while everything else slides.');
+        var fate = Math.abs(E.l1) < 1e-6 ? 'arrows on it are crushed to (0, 0)'
+          : E.l1 < 0 ? 'arrows on it are scaled by ' + f2(-E.l1) + ' and flipped to point backwards'
+          : 'arrows on it keep their direction and are scaled by ' + f2(E.l1);
+        parts.push('Only one eigenvector line (dashed), with λ = ' + f2(E.l1) + ' counted twice: ' + fate + ', while every other arrow gets turned.');
       } else {
         var extra = '';
         if (Math.abs(E.l1) < 1e-6 || Math.abs(E.l2) < 1e-6) extra += ' Scaling by 0 crushes that whole dashed line to (0, 0).';
         if (E.l1 < -1e-6 || E.l2 < -1e-6) extra += ' A negative λ flips arrows on that line to point backwards.';
-        parts.push('Arrows on the dashed lines never turn; they only get scaled, by λ = ' + f2(E.l1) + ' on one and λ = ' + f2(E.l2) + ' on the other.' + extra);
+        parts.push('Arrows on the dashed lines stay on their own line; they only get scaled, by λ = ' + f2(E.l1) + ' on one and λ = ' + f2(E.l2) + ' on the other.' + extra);
       }
       if (source === 'preset' && lastPreset) {
         var tip = '';
@@ -307,13 +320,13 @@
       });
       var D = det(m), neg = D < -1e-6, zero = Math.abs(D) < 1e-6;
       detFormula.innerHTML = 'det = ad − bc<br>= ' + fP(m.a) + '×' + fP(m.d) + ' − ' + fP(m.b) + '×' + fP(m.c) +
-        ' <span style="white-space:nowrap">= <b style="color:' + (neg ? 'var(--bad)' : 'var(--ink)') + '">' + f2(zero ? 0 : D) + '</b></span>';
-      statDetV.textContent = f2(zero ? 0 : D);
+        ' <span style="white-space:nowrap">= <b style="color:' + (neg ? 'var(--bad)' : 'var(--ink)') + '">' + fD(D) + '</b></span>';
+      statDetV.textContent = fD(D);
       statDetV.style.color = neg ? 'var(--bad)' : '';
       statAreaV.textContent = isZero(m) ? 'a point' : zero ? 'a line' : neg ? 'flipped' : 'not flipped';
       statAreaV.style.color = neg ? 'var(--bad)' : '';
       var E = eigen(m);
-      statEigV.textContent = E.kind === 'complex' ? 'none (real)' :
+      statEigV.textContent = E.kind === 'complex' ? 'no real ones' :
         E.kind === 'all' ? f2(E.l1) + ' (all)' :
         E.kind === 'repeated' ? f2(E.l1) + ' (twice)' : f2(E.l1) + ', ' + f2(E.l2);
       var s = insightText();
@@ -321,10 +334,11 @@
       var mx = m.a * tv.x + m.b * tv.y, my = m.c * tv.x + m.d * tv.y;
       tvLine.innerHTML = 'Test vector <b>x</b> = (' + fN(tv.x) + ', ' + fN(tv.y) + ') lands at <b>Mx</b> = ' +
         fN(tv.x) + '·<b style="color:var(--ok)">î</b> ' + (tv.y < -1e-9 ? '− ' + fN(-tv.y) : '+ ' + fN(tv.y)) +
-        '·<b style="color:var(--sindoor)">ĵ</b> = (' + f2(mx) + ', ' + f2(my) + ')';
+        '·<b style="color:var(--sindoor)">ĵ</b> = (' + f2(mx) + ', ' + f2(my) + ')' +
+        (Math.abs(mx) > L.ox / L.u + 1e-9 || Math.abs(my) > L.oy / L.u + 1e-9 ? ', off the edge of the picture.' : '');
       presetBtns.forEach(function (b, i) { b.setAttribute('aria-pressed', same(m, PRESETS[i].m) ? 'true' : 'false'); });
       canvas.setAttribute('aria-label', 'Grid transformed by the matrix with rows (' + fN(m.a) + ', ' + fN(m.b) + ') and (' + fN(m.c) + ', ' + fN(m.d) +
-        '). Determinant ' + f2(zero ? 0 : D) + '. Test vector (' + fN(tv.x) + ', ' + fN(tv.y) + ') lands at (' + f2(mx) + ', ' + f2(my) + ').');
+        '). Determinant ' + fD(D) + '. Test vector (' + fN(tv.x) + ', ' + fN(tv.y) + ') lands at (' + f2(mx) + ', ' + f2(my) + ').');
       updateTaskCount();
     }
 
@@ -408,6 +422,7 @@
       var bw = Math.round(cw * dpr), bh = Math.round(ch * dpr);
       if (canvas.width !== bw) canvas.width = bw;
       if (canvas.height !== bh) canvas.height = bh;
+      syncUI();
       if (raf) { cancelAnimationFrame(raf); raf = 0; }
       frame(performance.now());
     }
@@ -439,7 +454,6 @@
         g.lineJoin = 'round'; g.lineWidth = 4; g.strokeStyle = bg; g.strokeText(text, x, y);
         g.fillStyle = color; g.fillText(text, x, y);
       }
-      function keepIn(p, mx, my) { return [clamp(p[0], mx, W - mx), clamp(p[1], my, H - my)]; }
 
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
       g.setLineDash([]);
@@ -462,14 +476,26 @@
       for (i = -ny; i <= ny; i++) { if (i && Y(i) > 8 && Y(i) < H - 8) g.fillText(num(i, 0), ox - 4, Y(i)); }
       g.globalAlpha = 1;
 
-      // 2. transformed grid: images of the lines x = k and y = k
-      var N = 12;
-      g.strokeStyle = indigo; g.lineWidth = 1; g.globalAlpha = 0.38; g.beginPath();
-      for (k = -N; k <= N; k++) {
-        if (!k) continue;
-        p = T(k, -N); q = T(k, N); g.moveTo(p[0], p[1]); g.lineTo(q[0], q[1]);
-        p = T(-N, k); q = T(N, k); g.moveTo(p[0], p[1]); g.lineTo(q[0], q[1]);
+      // 2. transformed grid: images of the lines x = k and y = k.
+      //    A shrinking matrix needs more lines to fill the picture (the whole plane still lands on the whole plane),
+      //    so N comes from the corners of the picture mapped back through the inverse matrix.
+      var Dm = det(M), N = 80;
+      if (Math.abs(Dm) > 1e-9) {
+        var hx = W / 2 / u + 1, hy = H / 2 / u + 1, need = 0;
+        [[hx, hy], [hx, -hy]].forEach(function (cn) {
+          need = Math.max(need, Math.abs((M.d * cn[0] - M.b * cn[1]) / Dm), Math.abs((M.a * cn[1] - M.c * cn[0]) / Dm));
+        });
+        N = Math.min(80, Math.max(12, Math.ceil(need) + 1));
       }
+      // pixel gap between neighbouring lines of each family; fade a family when its lines crowd together
+      var lenI = Math.sqrt(M.a * M.a + M.c * M.c), lenJ = Math.sqrt(M.b * M.b + M.d * M.d);
+      function famAlpha(len) { return 0.38 * clamp((len > 1e-9 ? Math.abs(Dm) / len * u : 0) / 10, 0.15, 1); }
+      g.strokeStyle = indigo; g.lineWidth = 1;
+      g.globalAlpha = famAlpha(lenJ); g.beginPath();
+      for (k = -N; k <= N; k++) { if (!k) continue; p = T(k, -N); q = T(k, N); g.moveTo(p[0], p[1]); g.lineTo(q[0], q[1]); }
+      g.stroke();
+      g.globalAlpha = famAlpha(lenI); g.beginPath();
+      for (k = -N; k <= N; k++) { if (!k) continue; p = T(-N, k); q = T(N, k); g.moveTo(p[0], p[1]); g.lineTo(q[0], q[1]); }
       g.stroke();
       g.globalAlpha = 0.9; g.lineWidth = 1.75; g.beginPath();
       p = T(-N, 0); q = T(N, 0); g.moveTo(p[0], p[1]); g.lineTo(q[0], q[1]);
@@ -498,14 +524,11 @@
           g.setLineDash([]); g.globalAlpha = 1;
           // label near the canvas edge, preferring the right-hand / upper end
           if (sx < -1e-6 || (Math.abs(sx) <= 1e-6 && sy > 0)) { sx = -sx; sy = -sy; }
-          var cand = [[sx, sy], [-sx, -sy]];
-          for (var c = 0; c < 2; c++) {
-            var dx = cand[c][0], dy = cand[c][1];
-            var tt = Math.min(Math.abs(dx) > 1e-6 ? (W / 2 - 46) / Math.abs(dx) : 1e9, Math.abs(dy) > 1e-6 ? (H / 2 - 14) / Math.abs(dy) : 1e9);
-            var lp = [ox + dx * tt, oy + dy * tt];
-            var clash = eigLabels.some(function (e2) { return Math.abs(e2[0] - lp[0]) < 80 && Math.abs(e2[1] - lp[1]) < 22; });
-            if (!clash || c === 1) { eigLabels.push([lp[0], lp[1], 'λ = ' + f2(ev.l)]); break; }
-          }
+          var spots = [[sx, sy], [-sx, -sy]].map(function (dd) {
+            var tt = Math.min(Math.abs(dd[0]) > 1e-6 ? (W / 2 - 46) / Math.abs(dd[0]) : 1e9, Math.abs(dd[1]) > 1e-6 ? (H / 2 - 14) / Math.abs(dd[1]) : 1e9);
+            return [ox + dd[0] * tt, oy + dd[1] * tt];
+          });
+          eigLabels.push({ text: 'λ = ' + f2(ev.l), spots: spots });
         });
       }
 
@@ -532,36 +555,46 @@
       arrow(ox, oy, ti[0], ti[1], ok, 3.25, 13);
       arrow(ox, oy, tj[0], tj[1], sind, 3.25, 13);
 
-      // 7. labels on top
+      // 7. labels on top; each takes the first candidate spot that does not cover a label already placed
       var big = (W < 500 ? 14 : 16), small = (W < 500 ? 11 : 12.5);
-      var ctr = T(0.5, 0.5);
-      var areaTxt = 'area = ' + f2(Math.abs(D) < 1e-6 ? 0 : D) + (flipped ? ' (flipped)' : '');
-      if (Math.abs(D) * u * u < 1500) {
-        // thin or flat parallelogram: lift the label off the line
-        var ddx = pij[0] - o[0], ddy = pij[1] - o[1], dl = Math.sqrt(ddx * ddx + ddy * ddy);
-        if (dl > 1) {
-          var nx2 = -ddy / dl, ny2 = ddx / dl;
-          if (ny2 > 0) { nx2 = -nx2; ny2 = -ny2; }
-          ctr = [ctr[0] + nx2 * 18, ctr[1] + ny2 * 18];
-        } else { ctr = [ctr[0] + 40, ctr[1] - 18]; }
+      var placed = [];
+      function put(text, cands, color, weight, size) {
+        var f = weight + ' ' + size + 'px ' + font;
+        g.font = f;
+        var hw = g.measureText(text).width / 2 + 3, hh = size / 2 + 3, first = null, pick = null;
+        for (var n = 0; n < cands.length && !pick; n++) {
+          var cx = clamp(cands[n][0], hw + 2, W - hw - 2), cy = clamp(cands[n][1], hh + 2, H - hh - 2);
+          var b = [cx - hw, cy - hh, cx + hw, cy + hh];
+          var c = { x: cx, y: cy, b: b };
+          if (!first) first = c;
+          if (!placed.some(function (pb) { return b[0] < pb[2] && pb[0] < b[2] && b[1] < pb[3] && pb[1] < b[3]; })) pick = c;
+        }
+        pick = pick || first;
+        placed.push(pick.b);
+        label(text, pick.x, pick.y, color, f);
       }
-      var ap = keepIn(ctr, 60, 12);
-      label(areaTxt, ap[0], ap[1], flipped ? bad : ink, '600 ' + small + 'px ' + font);
-      eigLabels.forEach(function (e2) { label(e2[2], e2[0], e2[1], teal, '700 ' + small + 'px ' + font); });
-      function tipLabel(tip, txt, color) {
-        var dx = tip[0] - ox, dy = tip[1] - oy, len = Math.sqrt(dx * dx + dy * dy);
-        var lx, ly;
-        if (len < 4) { lx = tip[0] + 14; ly = tip[1] - 14; } else { lx = tip[0] + dx / len * 18; ly = tip[1] + dy / len * 18; }
-        var lp = keepIn([lx, ly], 10, 10);
-        label(txt, lp[0], lp[1], color, '700 ' + big + 'px ' + font);
+      // spots around a point: straight on along a direction, then to either side, then further out
+      function around(pt, ux, uy, r) {
+        return [[pt[0] + ux * r, pt[1] + uy * r], [pt[0] - uy * r, pt[1] + ux * r], [pt[0] + uy * r, pt[1] - ux * r],
+          [pt[0] + ux * r * 2, pt[1] + uy * r * 2], [pt[0] - ux * r, pt[1] - uy * r], [pt[0] - uy * r * 2, pt[1] + ux * r * 2]];
       }
-      tipLabel(ti, 'î', ok);
-      tipLabel(tj, 'ĵ', sind);
-      var xl = keepIn([inp[0] + 11, inp[1] - 11], 10, 10);
-      label('x', xl[0], xl[1], muted, '700 ' + small + 'px ' + font);
-      var odx = out[0] - ox, ody = out[1] - oy, olen = Math.sqrt(odx * odx + ody * ody) || 1;
-      var ol = keepIn([out[0] + odx / olen * 16, out[1] + ody / olen * 16], 14, 10);
-      label('Mx', ol[0], ol[1], ink, '700 ' + small + 'px ' + font);
+      function dirFrom(pt) {
+        var dx = pt[0] - ox, dy = pt[1] - oy, len = Math.sqrt(dx * dx + dy * dy);
+        return len < 4 ? [R, -R] : [dx / len, dy / len];
+      }
+      var di = dirFrom(ti), dj = dirFrom(tj), dO = dirFrom(out);
+      put('î', around(ti, di[0], di[1], 18), ok, '700', big);
+      put('ĵ', around(tj, dj[0], dj[1], 18), sind, '700', big);
+      // area label: inside a roomy parallelogram, else lifted off its long diagonal
+      var ctr = T(0.5, 0.5), ddx = pij[0] - o[0], ddy = pij[1] - o[1], dl = Math.sqrt(ddx * ddx + ddy * ddy);
+      var nx2 = dl > 1 ? -ddy / dl : R, ny2 = dl > 1 ? ddx / dl : -R;
+      if (ny2 > 0) { nx2 = -nx2; ny2 = -ny2; }
+      var areaC = [18, -18, 34, -34, 50, -50].map(function (r) { return [ctr[0] + nx2 * r, ctr[1] + ny2 * r]; });
+      if (Math.abs(D) * u * u >= 1500) areaC.unshift(ctr);
+      put('area = ' + fD(D) + (flipped ? ' (flipped)' : ''), areaC, flipped ? bad : ink, '600', small);
+      put('Mx', around(out, dO[0], dO[1], 16), ink, '700', small);
+      put('x', [[inp[0] + 11, inp[1] - 11], [inp[0] - 11, inp[1] - 11], [inp[0] + 11, inp[1] + 11], [inp[0] - 11, inp[1] + 11]], muted, '700', small);
+      eigLabels.forEach(function (e2) { put(e2.text, e2.spots, teal, '700', small); });
     }
 
     /* ---------- pointer + keyboard ---------- */
@@ -579,31 +612,41 @@
       });
       return best;
     }
-    function xLimits() { return { x: L.ox / L.u - 0.2, y: L.oy / L.u - 0.2 }; }
+    function xLimits() { return { x: Math.floor((L.ox / L.u - 0.2) * 10 + 1e-6) / 10, y: Math.floor((L.oy / L.u - 0.2) * 10 + 1e-6) / 10 }; }
     function moveTo(p) {
       var w = toWorld(p);
       if (drag === 'x') {
         var lim = xLimits();
         tv = { x: clamp(snap(w.x), -lim.x, lim.x), y: clamp(snap(w.y), -lim.y, lim.y) };
       } else {
-        var vx = clamp(snap(w.x), -LIM, LIM), vy = clamp(snap(w.y), -LIM, LIM);
+        var vx = clamp(snap(w.x + grab.x), -LIM, LIM), vy = clamp(snap(w.y + grab.y), -LIM, LIM);
+        var old = drag === 'i' ? [m.a, m.c] : [m.b, m.d];
+        if (Math.abs(vx - old[0]) < 1e-9 && Math.abs(vy - old[1]) < 1e-9) return; // tip did not move
         if (drag === 'i') { m.a = vx; m.c = vy; } else { m.b = vx; m.d = vy; }
         source = 'user'; lastPreset = null;
         view = copy(m);
       }
       syncUI(); requestDraw();
     }
+    var grab = { x: 0, y: 0 }; // tip minus pointer, in grid units, while dragging a tip
     function onDown(e) {
       if (e.pointerType === 'mouse' && e.button !== 0) return;
+      if (e.isPrimary === false || drag) return; // one finger at a time
       var p = local(e);
       if (anim) { anim = null; view = copy(m); }
       drag = hitTest(p, e.pointerType !== 'mouse') || 'x';
       try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
       canvas.style.cursor = drag === 'x' ? 'crosshair' : 'grabbing';
-      moveTo(p);
+      if (drag === 'x') moveTo(p);
+      else {
+        var w = toWorld(p);
+        grab = drag === 'i' ? { x: m.a - w.x, y: m.c - w.y } : { x: m.b - w.x, y: m.d - w.y };
+        requestDraw();
+      }
       e.preventDefault();
     }
     function onMove(e) {
+      if (e.isPrimary === false) return;
       var p = local(e);
       if (drag) { moveTo(p); return; }
       if (e.pointerType === 'mouse') {
@@ -612,7 +655,7 @@
       }
     }
     function onUp(e) {
-      if (!drag) return;
+      if (!drag || e.isPrimary === false) return;
       var was = drag;
       drag = null;
       try { canvas.releasePointerCapture(e.pointerId); } catch (err) { /* ignore */ }
@@ -658,6 +701,20 @@
       mo = new MutationObserver(onTheme);
       mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class', 'style'] });
     }
+    // style.css stacks .lab-body into one column at 820px; then the sliders move right under the picture,
+    // so on a phone you can watch the grid move while you slide (and they move back on wider screens)
+    var mqNarrow = window.matchMedia ? window.matchMedia('(max-width: 820px)') : null;
+    function placeSliders() {
+      if (!alive) return;
+      var narrow = !!(mqNarrow && mqNarrow.matches), fe = document.activeElement, had = !!(fe && sliderBox.contains(fe));
+      if (narrow && sliderBox.parentNode !== left) { left.insertBefore(sliderBox, stats); sliderBox.style.margin = '6px 0 4px'; }
+      else if (!narrow && sliderBox.parentNode !== controls) { controls.insertBefore(sliderBox, btnRow); sliderBox.style.margin = ''; }
+      else return;
+      if (had) { try { fe.focus({ preventScroll: true }); } catch (err) { /* ignore */ } }
+    }
+    if (mqNarrow) { if (mqNarrow.addEventListener) mqNarrow.addEventListener('change', placeSliders); else if (mqNarrow.addListener) mqNarrow.addListener(placeSliders); }
+    placeSliders();
+
     var ro = null;
     if (window.ResizeObserver) { ro = new ResizeObserver(function () { resize(); }); ro.observe(wrap); }
     else window.addEventListener('resize', resize);
@@ -679,6 +736,7 @@
         canvas.removeEventListener('focus', onFocus);
         canvas.removeEventListener('blur', onBlur);
         if (mq) { if (mq.removeEventListener) mq.removeEventListener('change', onTheme); else if (mq.removeListener) mq.removeListener(onTheme); }
+        if (mqNarrow) { if (mqNarrow.removeEventListener) mqNarrow.removeEventListener('change', placeSliders); else if (mqNarrow.removeListener) mqNarrow.removeListener(placeSliders); }
         document.removeEventListener('themechange', onTheme);
         if (mo) mo.disconnect();
         if (ro) ro.disconnect(); else window.removeEventListener('resize', resize);
