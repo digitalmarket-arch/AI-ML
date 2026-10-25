@@ -585,7 +585,7 @@
         html = 'Finished after ' + stepsTxt + ': ' + pctInt(q.on) + ' of the dots are on the ' + nm + ' pattern, spread over ' + pctInt(q.cov) + ' of the shape. Starting from pure noise, the exact score led them back.';
         if (completeTask('t2')) html += ' <b>Task done:</b> you generated new data that looks like the real data.';
       } else if (q.cov < 0.3) {
-        html = 'Finished in ' + stepsTxt + ', and the dots piled up in one place. From pure noise the sampler’s best guess for every dot is the same: the average of all the data, here ' + PATS[chain.pat].centre + '. Only ' + pctInt(q.cov) + ' of the shape is covered.';
+        html = 'Finished in ' + stepsTxt + ', and the dots bunched up in one small area. From pure noise the sampler’s best guess for every dot is the same: the average of all the data, here ' + PATS[chain.pat].centre + '. Only ' + pctInt(q.cov) + ' of the shape is covered.';
       } else {
         html = 'Finished in ' + stepsTxt + ': only ' + pctInt(q.on) + ' of the dots landed on the pattern. Each big jump has to guess the clean point from a very noisy one, so many dots end up between the lines or in a blurry smear.';
       }
@@ -746,11 +746,9 @@
       g.font = font(11, '600'); g.textBaseline = 'middle'; g.textAlign = 'left';
       var lw = g.measureText('gone').width;
       tags.forEach(function (tg) { tg.lx = clamp(tg.mx - lw / 2, c.px + 2, c.px + c.pw - lw - 2); tg.ly = Math.max(c.py + 9, tg.my - 16); });
-      if (tags.length === 2 && Math.abs(tags[0].lx - tags[1].lx) < lw + 8 && Math.abs(tags[0].ly - tags[1].ly) < 17) {
-        // two marks close together: stack the labels so they never overlap (the higher diamond's label goes on top)
-        var up = tags[0].my <= tags[1].my ? tags[0] : tags[1], dn = up === tags[0] ? tags[1] : tags[0];
-        up.ly = Math.min(up.ly, dn.ly) - 17;
-        if (up.ly < c.py + 9) { up.ly = c.py + 9; dn.ly = up.ly + 17; }
+      if (tags.length === 2 && Math.abs(tags[0].lx - tags[1].lx) < lw + 8 && Math.abs(tags[0].my - tags[1].my) < 40) {
+        // two marks close together: both labels say the same word, so draw one, above the higher diamond
+        tags = [tags[0].my <= tags[1].my ? tags[0] : tags[1]];
       }
       tags.forEach(function (tg) {
         g.fillStyle = TH.surface; g.globalAlpha = 0.9; g.fillRect(tg.lx - 3, tg.ly - 8, lw + 6, 16); g.globalAlpha = 1;

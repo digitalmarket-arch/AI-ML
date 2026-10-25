@@ -3675,7 +3675,8 @@ window.AIM.modules = [
    }
   ],
   "best": "iit-madras-mathematical-foundations-of-generative-ai-iit",
-  "figs": true
+  "figs": true,
+  "lab": "diffusion"
  },
  {
   "id": "l4-rl",

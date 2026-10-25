@@ -409,5 +409,29 @@ window.AIM.labs = [
     "text": "Plan a QLoRA fine-tune on a free Colab T4: choose a 7B model, “Fine-tune with LoRA”, the T4 and 4-bit, and see it fit."
    }
   ]
+ },
+ {
+  "id": "diffusion",
+  "module": "l4-gen-vision",
+  "title": "Diffusion: noise in, picture out",
+  "summary": "Add noise to a tiny picture with two noise schedules, then run a diffusion sampler backwards with the exact score to turn pure noise into a pattern of dots.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Part 1: slide t up and, for each schedule, press its “gone” button at the first t where you can no longer make out the picture. Which schedule keeps the picture longer?"
+   },
+   {
+    "id": "t2",
+    "text": "Part 2: press Run and bring the noise back to the pattern: at least 90% of the dots inside the shaded band, spread over at least 90% of the shape."
+   },
+   {
+    "id": "t3",
+    "text": "Part 2: after a run with many steps (200 or more), cut the sampling steps to 10 or fewer and run again with the same pattern and schedule. See the result get worse: fewer dots on the pattern, or less of the shape covered."
+   },
+   {
+    "id": "t4",
+    "text": "Part 2: tick “Show score arrows” and sample from pure noise down to t = 100 or lower with the arrows showing. Watch where they point early on, and near the end."
+   }
+  ]
  }
 ];

@@ -184,8 +184,8 @@
     top.innerHTML =
       '<p class="lab-note"><strong>What you are seeing:</strong> a delivery rider (the <em>agent</em>, the one that learns) finding its way around a small city by trial and error. ' +
         'Each square is a <em>state</em> (a place the rider can be) and each move up, right, down or left is an <em>action</em>. ' +
-        'Every move costs −0.1 (time and petrol), driving into a traffic jam costs −1, a pothole costs −5 and ends the trip, and reaching the customer pays +10 and ends the trip. ' +
-        'One whole trip is called an <em>episode</em>. The rider keeps a <em>Q-table</em>: for every square s and move a, the Q-value Q(s, a) is its current guess of all the reward still to come if it makes that move and then keeps choosing well. ' +
+        'Every move costs −0.1 (time and petrol). A move into a traffic jam costs −1 instead, a move into a pothole costs −5 and ends the trip, and reaching the customer pays +10 and ends the trip. Bumping into a building or the edge of the city leaves the rider where it is (still −0.1). ' +
+        'One whole trip is called an <em>episode</em>. The rider keeps a <em>Q-table</em>: for every square s and move a, the Q-value Q(s, a) is its current guess of all the reward still to come if it makes that move and then keeps choosing well (rewards further away count a little less: see γ, the discount). ' +
         'The colours and arrows on the map show this table.</p>' +
       '<p class="small muted">After every move the rider nudges one Q-value with the Q-learning rule (shown under the map, with real numbers). ' +
         'With chance ε it makes a random move instead of its best-looking one, so it keeps <em>exploring</em> (trying new streets) instead of only <em>exploiting</em> (repeating what already looks best).</p>' +
@@ -314,7 +314,7 @@
       alpha: DEF.alpha, gamma: DEF.gamma, eps: DEF.eps, decay: false,
       per: DEF.per, speed: DEF.speed, view: 'arrow', showRoute: true, showBest: false, tapMode: 'look',
       episodes: 0, hist: [], ep: null, last: null,
-      explored: false, g0eps: 0, g0wasGood: false, g0Note: false, armed: {}, t3Note: false,
+      explored: false, alphaZero: false, g0eps: 0, g0wasGood: false, g0Note: false, armed: {}, t3Note: false, t1Block: false, t1Note: false,
       running: false, sel: 0, hover: -1, focused: false
     };
     S.sel = S.map.start;
@@ -412,6 +412,7 @@
       if (!S.ep.active) startEpisode();
       var M = S.map, ep = S.ep, Q = S.Q, s = ep.s, a, explore = false;
       if (S.eps > 0) S.explored = true;
+      if (S.alpha === 0) S.alphaZero = true;   // nothing at all is learned while α = 0
       if (rng() < S.eps) { explore = true; a = Math.floor(rng() * 4); }
       else a = argmaxRandom(Q, s);
       var o = stepEnv(M, s, a);
@@ -503,31 +504,44 @@
     function checkTasks(kind) {
       var rt = route(), learning = kind !== 'edit';
       if (S.gamma === 0 && rt.end === 'goal') S.g0wasGood = true;
+      if (rt.end !== 'goal') S.t1Block = false;
       if (!learning) return;
-      if (!done.t1 && S.episodes >= 1 && S.gamma > 0 && rt.end === 'goal') {
+      if (!done.t1 && S.t1Block && rt.end === 'goal' && !S.t1Note) {
+        S.t1Note = true;
+        say('The route reaches the customer only because the map was changed while it already did. For the task, let the rider learn a route itself: press Reset map (or move the start further away) and keep training.');
+      }
+      if (!done.t1 && !S.t1Block && S.episodes >= 1 && S.gamma > 0 && rt.end === 'goal') {
         if (complete('t1')) say('Delivered! After ' + plural(S.episodes, 'episode', 'episodes') + ' the greedy route ' + routeWords(rt) + '. Look at the map: blue spreads back from the customer, because each Q-value learns from the best Q-value of the square after it.', 'good');
       }
       if (!done.t2 && S.gamma === 0 && S.g0eps >= TASK_MIN_EPISODES) {
         if (S.g0wasGood && rt.end !== 'goal') {
-          if (complete('t2')) say('With γ = 0 the rider only counts the very next reward. Only squares right next to the customer still look good; everywhere else every move looks about the same (−0.1), so its route ' + routeWords(rt) + '. Set γ back to 0.9 and train again to bring the far-away reward back into view.', 'good');
+          if (complete('t2')) say('With γ = 0 the rider only counts the very next reward. Squares right next to the customer still look good, but almost everywhere else every move now looks about the same (about −0.1), so its route ' + routeWords(rt) + '. Set γ back to 0.9 and train again to bring the far-away reward back into view.', 'good');
         } else if (!S.g0wasGood && !S.g0Note) {
           S.g0Note = true;
-          say('The greedy route was not reaching the customer even before you set γ to 0, so there is nothing for γ = 0 to break yet. Set γ back to 0.9, train until the route reaches the customer, then set γ to 0 and train again.');
+          say('The greedy route was not reaching the customer when γ became 0 (or when you last changed the map), so there is nothing for γ = 0 to break yet. Set γ back to 0.9, train until the route reaches the customer, then set γ to 0 and train again.');
         } else if (kind === 'train' && rt.end === 'goal') {
           say('The route still reaches the customer: old Q-values learned with a higher γ take a while to fade. Keep training with γ = 0.');
         }
       }
       if (!done.t3 && !S.explored && S.episodes >= TASK_MIN_EPISODES) {
         var op = optimal(), lane = isDefaultMap();
-        if (op.end === 'goal' && (rt.end !== 'goal' || rt.G < op.G - 1e-6)) {
+        if (S.alphaZero) {
+          if (!S.t3Note) {
+            S.t3Note = true;
+            say('With α = 0 the rider never changes a single Q-value, so it learns nothing at all, whether it explores or not. Set α back to 0.8, keep ε at 0, press Reset Q and train again.');
+          }
+        } else if (op.end === 'goal' && (rt.end !== 'goal' || rt.G < op.G - 1e-6)) {
           var why = lane && rt.end !== 'goal'
             ? 'Leaving its lane means driving through the jam (−1), which came to look worse than circling inside the lane, so it stopped trying and never found the customer (+10) on the other side. Its route ' + routeWords(rt) + '.'
-            : 'It only repeats moves that already look best, so it never finds out what the streets it has not tried are worth. Its route ' + routeWords(rt) + (rt.end === 'goal' ? ', but the best possible route earns ' + fmtS(op.R, 1) : '') + '.';
+            : 'It only repeats moves that already look best, so it never finds out what the streets it has not tried are worth. Its route ' + routeWords(rt) + (rt.end === 'goal' ? ', but the best possible route takes ' + plural(op.moves, 'move', 'moves') + ' (reward ' + fmtS(op.R, 1) + ')' : '') + '.';
           if (complete('t3')) say('With ε = 0 the rider never tries a random move. ' + why + ' That is why agents need exploration.', 'good');
         } else if (op.end === 'goal' && !S.t3Note) {
           S.t3Note = true;
           if (lane && S.gamma > 0.9) say('This time the rider found the best route even without exploring: with γ = ' + fmt(S.gamma, 2) + ', circling in its lane for ever looks worse than one jam, so it pushed through. Set γ to 0.9, press Reset Q and try ε = 0 again.');
           else say('This time the rider found the best route even without exploring. Press Reset map, set γ to 0.9 and α to 0.8, press Reset Q and try ε = 0 again.');
+        } else if (op.end !== 'goal' && !S.t3Note) {
+          S.t3Note = true;
+          say('With γ = ' + fmt(S.gamma, 2) + ' even the best possible plan never heads for the customer, so not reaching it says nothing about exploring. Set γ to 0.9, keep ε at 0, press Reset Q and train again.');
         }
       }
       var jams = armedJams();
@@ -555,6 +569,10 @@
       }
       S.mapVer++; S.qVer++;
       S.ep = idleEp();
+      // After an edit the route may reach the customer (or stop reaching it) without any learning,
+      // so the γ = 0 count starts again and t1 waits until the route has failed at least once.
+      S.g0eps = 0; S.g0wasGood = false; S.g0Note = false;
+      S.t1Block = route().end === 'goal';
       for (var k in S.armed) if (Object.prototype.hasOwnProperty.call(S.armed, k) && M.types[+k] !== JAM) delete S.armed[k];
       if (msg) say(msg);
       chartDirty = true;
@@ -702,6 +720,15 @@
       return rgba(q > 0 ? T.rgb.indigo : T.rgb.sindoor, a.toFixed(3));
     }
     function centre(s, cs) { return { x: (colOf(s) + 0.5) * cs, y: (rowOf(s) + 0.5) * cs }; }
+    // Ink text with a thin halo in the surface colour, so it stays readable on any tint or route band.
+    function haloText(g, T, txt, x, y) {
+      g.save();
+      g.lineJoin = 'round'; g.lineWidth = 3; g.strokeStyle = rgba(T.rgb.surface, 0.85);
+      g.strokeText(txt, x, y);
+      g.restore();
+      g.fillStyle = T.ink;
+      g.fillText(txt, x, y);
+    }
 
     function drawBuilding(g, T, x, y, cs) {
       var m = Math.max(2, cs * 0.06);
@@ -830,7 +857,7 @@
       }
       if (S.showBest) {
         var op = optimal();
-        if (op.path.length > 1) {
+        if (op.end === 'goal' && op.path.length > 1) {
           g.save();
           g.strokeStyle = T.ok; g.lineWidth = 2.5; g.setLineDash([6, 5]); g.lineCap = 'round'; g.lineJoin = 'round';
           polyRoute(g, op.path, cs); g.stroke();
@@ -845,8 +872,8 @@
         if (isWall(M, s)) continue;
         if (s === M.goal) {
           drawHouse(g, T, c.x, c.y - cs * 0.08, cs * 0.5);
-          g.fillStyle = T.ink; g.font = font(T, fs, '700');
-          g.fillText('+10', c.x, y + cs - fs * 0.75);
+          g.font = font(T, fs, '700');
+          haloText(g, T, '+10', c.x, y + cs - fs * 0.75);
           continue;
         }
         if (isTerminal(M, s)) {
@@ -864,19 +891,19 @@
           g.strokeRect(x + 3, y + 3, cs - 6, cs - 6);
           g.restore();
           drawCar(g, T, x + cs * 0.1, y + cs * 0.1, cs * 0.3);
-          g.fillStyle = T.ink; g.font = font(T, fs, '700'); g.textAlign = 'right';
-          g.fillText('−1', x + cs - Math.max(6, cs * 0.1), y + Math.max(cs * 0.17, 4.5 + fs * 0.6));
+          g.font = font(T, fs, '700'); g.textAlign = 'right';
+          haloText(g, T, '−1', x + cs - Math.max(6, cs * 0.1), y + Math.max(cs * 0.17, 4.5 + fs * 0.6));
           g.textAlign = 'center';
         }
         if (s === M.start) {
-          g.fillStyle = T.ink; g.font = font(T, Math.max(9, fs - 1), '700'); g.textAlign = 'left';
-          g.fillText('Start', x + 4, y + fs * 0.75);
+          g.font = font(T, Math.max(9, fs - 1), '700'); g.textAlign = 'left';
+          haloText(g, T, 'Start', x + 4, y + fs * 0.75);
           g.textAlign = 'center';
         }
         if (S.view === 'arrow') {
           if (!allEqual(Q, s)) {
             drawArrow(g, c.x, c.y - (showNums ? cs * 0.04 : 0), argmaxFirst(Q, s), cs * 0.4, T.ink);
-            if (showNums) { g.fillStyle = T.ink; g.font = font(T, fs - 1, '600'); g.fillText(fmt(maxQ(Q, s), 1), c.x, y + cs - fs * 0.72); }
+            if (showNums) { g.font = font(T, fs - 1, '600'); haloText(g, T, fmt(maxQ(Q, s), 1), c.x, y + cs - fs * 0.72); }
           } else {
             g.fillStyle = T.muted; g.beginPath(); g.arc(c.x, c.y, 2, 0, Math.PI * 2); g.fill();
           }
@@ -920,8 +947,8 @@
         g.restore();
         if (press.kind === 'goal') drawHouse(g, T, tc.x, tc.y - cs * 0.08, cs * 0.5, 0.7);
         else {
-          g.fillStyle = T.ink; g.font = font(T, fs, '700');
-          g.fillText('Start', tc.x, tc.y);
+          g.font = font(T, fs, '700');
+          haloText(g, T, 'Start', tc.x, tc.y);
         }
       }
     }
@@ -1143,7 +1170,7 @@
       anim = null;
       S.Q = new Float64Array(NS * 4); S.qVer++;
       S.episodes = 0; S.hist = []; S.last = null; S.ep = idleEp();
-      S.explored = false; S.g0eps = 0; S.g0wasGood = false; S.g0Note = false; S.armed = {}; S.t3Note = false;
+      S.explored = false; S.alphaZero = false; S.g0eps = 0; S.g0wasGood = false; S.g0Note = false; S.armed = {}; S.t3Note = false;
       chartDirty = true;
       say('Q-table wiped: every Q-value is back to 0, so the rider has forgotten everything it learned.' + (S.eps === 0 ? ' ε is 0, so from now on it will never explore.' : ''));
       afterLearning('edit');

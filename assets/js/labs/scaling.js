@@ -62,7 +62,14 @@
     return (v < 0 && parseFloat(s) !== 0 ? '−' : '') + groupIN(ip) + fp;
   }
   function signed(v, d) { var s = Math.abs(v).toFixed(d); return parseFloat(s) === 0 ? s : (v < 0 ? '−' : '+') + s; }
-  function sharePct(s) { return s > 0.9999 ? '> 99.99%' : s < 0.0001 ? '< 0.01%' : (100 * s).toFixed(1) + '%'; }
+  // a share of a squared distance as a percentage: exact 0 and 100 stay exact, and 99.96% never rounds up to "100.0%"
+  function sharePct(s) {
+    if (s >= 1) return '100%';
+    if (s <= 0) return '0%';
+    if (s > 0.9999) return '> 99.99%';
+    if (s < 0.0001) return '< 0.01%';
+    return (100 * s).toFixed(s > 0.999 || s < 0.001 ? 2 : 1) + '%';
+  }
   function pct(c, n) { return n ? Math.round(100 * c / n) + '%' : '—'; }
   // population mean and SD (divide by n), the same as scikit-learn's StandardScaler (ddof = 0)
   function meanSd(arr) {
@@ -231,6 +238,9 @@
       '<div class="lab-body">' +
         '<div class="stack-sm">' +
           '<div class="lab-canvas-wrap" id="' + P + 'wrap"><canvas id="' + P + 'cv" tabindex="0" role="img" aria-label="Chart" style="outline-offset:-3px;touch-action:manipulation"></canvas></div>' +
+          // on small phones the "wrong claims" of label encoding do not fit in the picture, so they are shown here instead
+          '<div class="small" id="' + P + 'claims" hidden><p style="font-weight:700">' + CLAIMS_HEAD + '</p><ul style="list-style:none;padding:0;margin:0">' +
+            CLAIMS.map(function (c) { return '<li><span aria-hidden="true">✗ </span>' + c + '</li>'; }).join('') + '</ul></div>' +
           '<div class="lab-legend" id="' + P + 'legend"></div>' +
           '<div class="stack-sm" id="' + P + 'info">' +
           '<p class="small" id="' + P + 'readout" style="min-height:3.2em"></p>' +
