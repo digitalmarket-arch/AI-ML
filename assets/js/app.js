@@ -256,11 +256,11 @@
       '<div class="two-col"><div class="stack-lg"><div class="prose stack-sm">' + (l.intro ? '<p>' + inline(l.intro) + '</p>' : '') +
       (l.howToStudy ? '<div class="callout">' + inline(l.howToStudy) + '</div>' : '') + '</div>' +
       '<section class="stack"><h2>Modules</h2>' + moduleList(lv) + '</section>' +
+      (l.weeklyPlan && l.weeklyPlan.length ? '<section class="stack"><h2>Suggested schedule</h2><p class="small muted">At about 10 hours a week. Go slower or faster as you like; finishing matters more than speed.</p><div class="table-wrap"><table class="simple"><thead><tr><th>Weeks</th><th>What to do</th></tr></thead><tbody>' + l.weeklyPlan.map(function (w) { return '<tr><td class="num" style="white-space:nowrap">' + esc(w.weeks) + '</td><td>' + inline(w.focus) + '</td></tr>'; }).join('') + '</tbody></table></div></section>' : '') +
       (projs.length ? '<section class="stack"><h2>Projects for this level</h2><div class="grid">' + projs.map(projCard).join('') + '</div></section>' : '') +
       '</div><aside class="stack">' +
       (l.outcomes && l.outcomes.length ? '<div class="card stack-sm"><strong>After this level you can</strong><ul class="small">' + l.outcomes.map(function (o) { return '<li>' + inline(o) + '</li>'; }).join('') + '</ul></div>' : '') +
       (tests.length ? '<div class="card stack-sm"><strong>Level test</strong><p class="small muted">' + tests.length + ' tough questions across the level. Pass with 70%.</p>' + (tb ? '<span class="small num">Best score: ' + tb.best + '%</span>' : '') + '<a class="btn btn-primary" href="#test-l' + lv + '">Take the level ' + lv + ' test</a></div>' : '') +
-      (l.weeklyPlan && l.weeklyPlan.length ? '<div class="card stack-sm"><strong>Suggested schedule</strong><div class="table-wrap"><table class="simple"><tbody>' + l.weeklyPlan.map(function (w) { return '<tr><td class="num" style="white-space:nowrap">Weeks ' + esc(w.weeks) + '</td><td>' + inline(w.focus) + '</td></tr>'; }).join('') + '</tbody></table></div></div>' : '') +
       '</aside></div></div>', 'Level ' + lv + ' ' + l.name);
   }
 

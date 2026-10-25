@@ -51,6 +51,30 @@ window.AIM.labs = [
   ]
  },
  {
+  "id": "overfit",
+  "module": "l2-ml-foundations",
+  "title": "Underfitting vs overfitting",
+  "summary": "Fit curves of different bendiness to noisy dots and watch training error and test error split apart when a model memorises instead of learning.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Find the sweet spot: move the degree to the one with the lowest test error (the lowest hollow dot on the error chart)."
+   },
+   {
+    "id": "t2",
+    "text": "Overfit on purpose: raise the degree until training error is almost 0 (below 0.02) while test error shoots above 1. Tip: fewer training points make this easier."
+   },
+   {
+    "id": "t3",
+    "text": "Cure overfitting with more data: at degree 10 or more, first see “Overfitting”, then add training points until the verdict says “Good fit”."
+   },
+   {
+    "id": "t4",
+    "text": "Feel the wobble: drag a filled dot up or down with a low degree (4 or less), then with a high degree (10 or more). Which curve jumps more?"
+   }
+  ]
+ },
+ {
   "id": "tree",
   "module": "l2-trees-ensembles",
   "title": "Decision tree & forest",
