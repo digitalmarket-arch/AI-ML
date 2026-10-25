@@ -47,7 +47,7 @@ Without this, the site works fully and each learner's progress stays in their ow
 2. In the project, press the **web** icon (`</>`) to **add a web app**. Give it a nickname, leave "Firebase Hosting" unticked, and press **Register app**. Firebase shows a `firebaseConfig` with `apiKey`, `authDomain`, `projectId` and `appId`. Keep this page open.
 3. Open **Build → Authentication → Get started → Sign-in method**, choose **Google**, switch it on, pick a support email and **Save**.
 4. Still in Authentication, open **Settings → Authorized domains → Add domain** and add `digitalmarket-arch.github.io` (your GitHub Pages address without `https://`).
-5. Open **Build → Firestore Database → Create database**. Choose a location in India (for example **asia-south1, Mumbai**) and start in **production mode**.
+5. Open **Build → Firestore Database → Create database**. If asked, pick the **Standard** edition and keep the database ID as `(default)` (the site looks for that name). Choose a location in India (for example **asia-south1, Mumbai**) and start in **production mode**.
 6. In Firestore, open the **Rules** tab, delete what is there, paste the whole of [`firestore.rules`](firestore.rules) from this repository, and press **Publish**. These rules let each learner read and write only their own progress.
 7. Open `assets/js/firebase-config.js` in this repository (on GitHub you can press the pencil icon to edit it) and replace `window.AIM_FIREBASE = null;` with your values, for example:
 
@@ -57,9 +57,9 @@ Without this, the site works fully and each learner's progress stays in their ow
 
    Commit the change. A minute later the **Sign in** button appears on the site.
 
-These config values are not secret (every Firebase web app shows them to the browser); the rules from step 6 are what keep each learner's data private. The free plan allows about 50,000 reads and 20,000 writes a day, which covers a few hundred daily learners because the site syncs a few seconds after changes, not on every click.
+These config values are not secret (every Firebase web app shows them to the browser); the rules from step 6 are what keep each learner's data private. The free plan allows about 50,000 reads and 20,000 writes a day. That covers a few hundred daily learners because the site syncs a few seconds after a change (at most twice a minute), sends a playing video's position only every few minutes or when the learner switches away from the tab, and skips the write when nothing has changed.
 
-**Privacy:** the cloud copy holds each learner's course progress and Google account ID; their name and email are visible to you in the Firebase console. Learners can delete their cloud copy themselves from the Account page. If you run this for real users in India, keep a short privacy notice in line with the Digital Personal Data Protection Act, 2023 (what you collect, why, and how to ask for deletion).
+**Privacy:** the cloud copy holds each learner's course progress and Google account ID; their name and email are visible to you in the Firebase console. Learners can delete their cloud copy themselves from the Account page; that removes their progress but not their sign-in record, so if someone asks you to delete everything, also delete them under **Authentication → Users**. If you run this for real users in India, keep a short privacy notice in line with the Digital Personal Data Protection Act, 2023 (what you collect, why, and how to ask for deletion).
 
 ### Preview on your own computer
 

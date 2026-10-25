@@ -23,6 +23,12 @@
   };
   // Part 2
   var CITIES = ['Mumbai', 'Delhi', 'Pune', 'Chennai'];
+  var CLAIMS_HEAD = 'What these numbers wrongly claim:';
+  var CLAIMS = [
+    'Chennai is 3 times as far from Mumbai as Delhi is.',
+    'Delhi sits exactly halfway between Mumbai and Pune.',
+    'Chennai (3) counts as “more” than Mumbai (0).'
+  ];
   // Part 3: 40 loans from 2019 (training) and 20 from 2025 (test). Default risk depends on age and on income
   // compared with that year's normal pay. The seed gives no distance ties at any slider setting, so the
   // scores match scikit-learn's KNeighborsClassifier exactly.
@@ -238,10 +244,10 @@
       '<div class="lab-body">' +
         '<div class="stack-sm">' +
           '<div class="lab-canvas-wrap" id="' + P + 'wrap"><canvas id="' + P + 'cv" tabindex="0" role="img" aria-label="Chart" style="outline-offset:-3px;touch-action:manipulation"></canvas></div>' +
+          '<div class="lab-legend" id="' + P + 'legend"></div>' +
           // on small phones the "wrong claims" of label encoding do not fit in the picture, so they are shown here instead
           '<div class="small" id="' + P + 'claims" hidden><p style="font-weight:700">' + CLAIMS_HEAD + '</p><ul style="list-style:none;padding:0;margin:0">' +
-            CLAIMS.map(function (c) { return '<li><span aria-hidden="true">✗ </span>' + c + '</li>'; }).join('') + '</ul></div>' +
-          '<div class="lab-legend" id="' + P + 'legend"></div>' +
+            CLAIMS.map(function (c) { return '<li style="display:grid;grid-template-columns:1.3em minmax(0,1fr)"><span aria-hidden="true">✗</span><span>' + c + '</span></li>'; }).join('') + '</ul></div>' +
           '<div class="stack-sm" id="' + P + 'info">' +
           '<p class="small" id="' + P + 'readout" style="min-height:3.2em"></p>' +
           '<div class="lab-stats" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))" data-part="1">' + stat('s1scale', 'Scaling') + stat('s1share', 'Income’s share') + stat('s1new', 'New vs unscaled') + stat('s1ages', 'Neighbours’ ages') + '</div>' +
@@ -346,14 +352,14 @@
         '<p class="small muted" id="' + P + 'codenote"></p>' +
         '<pre tabindex="0" aria-label="Python code for this way of scaling" style="width:0;min-width:100%"><code id="' + P + 'code"></code></pre>' +
       '</div>' +
-      '<p class="small muted"><strong style="color:var(--ink)">Why it matters in real ML:</strong> models that measure distance or learn by gradient descent (KNN, K-Means, SVMs, neural networks) need scaled features, while tree models such as random forests mostly do not care. Unordered categories such as cities need one-hot encoding for most models. And every preparation step (scaling, encoding, filling gaps) must learn from the training rows only; a scikit-learn <code>Pipeline</code> does that for you, so your test score stays an honest preview.</p>';
+      '<p class="small muted"><strong style="color:var(--ink)">Why it matters in real ML:</strong> models that measure distance (KNN, K-Means clustering) or learn by gradient descent (many small downhill steps, as in logistic regression and neural networks) need scaled features, while tree models (which split on one feature at a time), such as random forests, mostly do not care. Unordered categories such as cities need one-hot encoding for most models. And every preparation step (scaling, encoding, filling gaps) must learn from the training rows only; a scikit-learn <code>Pipeline</code> does that for you, so your test score stays an honest preview.</p>';
     root.appendChild(labEl);
 
     function $(id) { return labEl.querySelector('#' + P + id); }
     var wrap = $('wrap'), canvas = $('cv'), g = canvas.getContext('2d');
     var elNote = $('note'), elLegend = $('legend'), elReadout = $('readout'), elLive = $('live'), elKbd = $('kbd');
     var elScDesc = $('scdesc'), elQuery = $('query'), elT1 = $('t1'), elFormula = $('formula'), elQfb = $('qfb');
-    var elEncDesc = $('encdesc'), elCa = $('ca'), elCb = $('cb'), elP2hint = $('p2hint'), elTenc = $('tenc'), elTdist = $('tdist');
+    var elClaims = $('claims'), elEncDesc = $('encdesc'), elCa = $('ca'), elCb = $('cb'), elP2hint = $('p2hint'), elTenc = $('tenc'), elTdist = $('tdist');
     var elFitDesc = $('fitdesc'), elRise = $('rise'), elRiseOut = $('riseout'), elSel = $('sel'), elVerdict = $('verdict'), elWhy = $('why'), elT3 = $('t3'), elCode = $('code'), elCodeNote = $('codenote');
     var partEls = labEl.querySelectorAll('[data-part]'), partBtns = labEl.querySelectorAll('[data-part-btn]');
     var scaleBtns = labEl.querySelectorAll('[data-scale]'), encBtns = labEl.querySelectorAll('[data-enc]'), fitBtns = labEl.querySelectorAll('[data-fit]'), ansBtns = labEl.querySelectorAll('[data-ans]');
@@ -449,9 +455,13 @@
       return options[options.length - 1];
     }
 
+    var lastT = null;
     function draw() {
       if (destroyed || dims.w < 2) return;
       var T = readTheme();
+      lastT = T;
+      var showClaims = S.part === 2 && S.enc === 'label' && !labelPos().claims;
+      if (elClaims.hidden === showClaims) elClaims.hidden = !showClaims;
       g.setTransform(dims.dpr, 0, 0, dims.dpr, 0, 0);
       g.fillStyle = T.surface; g.fillRect(0, 0, dims.w, dims.h);
       g.textAlign = 'left'; g.textBaseline = 'alphabetic'; g.setLineDash([]);
@@ -488,7 +498,7 @@
       }
       g.fillStyle = T.ink; g.font = font(T, G.small ? 12 : 13, 600);
       g.textAlign = 'center'; g.textBaseline = 'bottom';
-      g.fillText('Yearly income', G.pl + G.pw / 2, dims.h - 3);
+      g.fillText('Yearly income (L = lakh)', G.pl + G.pw / 2, dims.h - 3);
       g.save(); g.translate(G.small ? 12 : 16, G.pt + G.ph / 2); g.rotate(-Math.PI / 2); g.textBaseline = 'middle';
       g.fillText('Age (years)', 0, 0); g.restore();
 
@@ -598,7 +608,7 @@
       var s = 'Query: <b>' + q.name + '</b>, ' + q.age + ', earning <span class="num">' + inr(q.inc) + '</span> a year. ' +
         'Nearest ' + K + ' with ' + (none ? 'no scaling' : SCALES[S.scale].label.toLowerCase() + ' scaling') + ': aged ' + aLo + ' to ' + aHi +
         ', earning <span class="num">' + inr(Math.min.apply(null, nbIncs)) + '</span> to <span class="num">' + inr(Math.max.apply(null, nbIncs)) + '</span>. ';
-      if (none) s += 'Age hardly counts: income gaps are lakhs of rupees, age gaps are at most ' + (FIT1.ageMax - FIT1.ageMin) + ' years.';
+      if (none) s += 'Age hardly counts: income gaps run to thousands or lakhs of rupees, while age gaps are at most ' + (FIT1.ageMax - FIT1.ageMin) + ' years.';
       else s += (K - kept === 0 ? 'The same 5 as with no scaling.' : (K - kept) + ' of these 5 were not among the nearest with no scaling (dashed rings). Now age counts too.');
       setHtml(elReadout, s);
 
@@ -621,7 +631,7 @@
       }
       canvas.setAttribute('aria-label', 'Scatter chart of ' + P1_N + ' loan applicants: yearly income from left to right, age from bottom to top. Query applicant: ' + q.name + ', ' + q.age + ', ' + inr(q.inc) + '. ' +
         'With ' + SCALES[S.scale].label.toLowerCase() + ' scaling the 5 nearest are ' + NB.map(function (nb) { var p = A[nb.j]; return p.name + ' (' + p.age + ', ' + inr(p.inc) + ')'; }).join(', ') +
-        '. Income makes up ' + sharePct(share) + ' of the distance on average.');
+        '. Income makes up ' + sharePct(share) + ' of the squared distance, on average.');
       return { kept: kept, share: share, aLo: aLo, aHi: aHi };
     }
 
@@ -630,7 +640,7 @@
       pressed(scaleBtns, 'data-scale', mode);
       var info = updateP1();
       if (user && mode !== 'none' && info.kept < K) completeTask('t1');
-      if (user) announce(SCALES[mode].label + '. ' + (mode === 'none' ? 'Income makes up ' + sharePct(info.share) + ' of the distance.' : (K - info.kept) + ' of the 5 nearest neighbours changed. Income makes up ' + sharePct(info.share) + ' of the distance.') + ' Neighbours aged ' + info.aLo + ' to ' + info.aHi + '.');
+      if (user) announce(SCALES[mode].label + '. ' + (mode === 'none' ? 'Income makes up ' + sharePct(info.share) + ' of the squared distance.' : (K - info.kept) + ' of the 5 nearest neighbours changed. Income makes up ' + sharePct(info.share) + ' of the squared distance.') + ' Neighbours aged ' + info.aLo + ' to ' + info.aHi + '.');
       requestDraw();
     }
     function setQuery(i, user, later) {
@@ -646,7 +656,7 @@
       pressed(ansBtns, 'data-ans', a);
       var msg;
       if (a === 'inc') {
-        msg = '<b>Right.</b> Income gaps are in lakhs of rupees, while age gaps are at most ' + (FIT1.ageMax - FIT1.ageMin) + ' years, so with no scaling income makes up more than 99.99% of every squared distance. Scaling puts both features on a similar range.';
+        msg = '<b>Right.</b> Income gaps run to thousands or lakhs of rupees, while age gaps are at most ' + (FIT1.ageMax - FIT1.ageMin) + ' years, so with no scaling income makes up more than 99.99% of every squared distance. Scaling puts both features on a similar range.';
         completeTask('t2');
       } else if (a === 'age') msg = '<b>Not quite.</b> Pick No scaling and look at the “Income’s share” column. Who are the query’s neighbours: people of the same age, or people with the same income?';
       else msg = '<b>Not quite.</b> Pick No scaling and look at the “Income’s share” column. Is it anywhere near 50%?';
@@ -658,17 +668,24 @@
     function encDist(a, b) { return S.enc === 'label' ? Math.abs(a - b) : (a === b ? 0 : Math.SQRT2); }
     function distStr(d) { return S.enc === 'label' ? String(d) : (d === 0 ? '0' : '1.41'); }
     function labelPos() {
+      var T = lastT || readTheme();
       var small = dims.w < 480, m = Math.max(44, dims.w * 0.12), x0 = m, x1 = dims.w - m;
+      var fs = small ? 12 : 15, lh = small ? 18 : 26, cx = Math.max(14, x0 - 26);
       // room for the title, the arc and the city names above the line; the "claims" go below it
       var top = 34 + (small ? 62 : 92) + 40, below = small ? 122 : 178;
-      var y = Math.round(Math.max(top, Math.min(dims.h - below, (34 + dims.h) / 2 - (small ? 0 : 20))));
-      return { y: y, xs: CITIES.map(function (c, i) { return x0 + i * (x1 - x0) / 3; }), x0: x0, x1: x1, small: small };
+      // draw the claims only when every line fits; otherwise (small phones) they are shown as text under the picture
+      var claims = dims.h - below >= top, k;
+      if (claims) {
+        g.font = font(T, fs, 700);
+        claims = g.measureText(CLAIMS_HEAD).width <= dims.w - cx - 8;
+        g.font = font(T, fs, 400);
+        for (k = 0; k < CLAIMS.length && claims; k++) claims = g.measureText(CLAIMS[k]).width <= dims.w - cx - 26;
+      }
+      var y = claims
+        ? Math.round(Math.max(top, Math.min(dims.h - below, (34 + dims.h) / 2 - (small ? 0 : 20))))
+        : Math.round(clamp((top + dims.h - 34) / 2, Math.min(top, dims.h - 34), dims.h - 34));
+      return { y: y, xs: CITIES.map(function (c, i) { return x0 + i * (x1 - x0) / 3; }), x0: x0, x1: x1, small: small, claims: claims, fs: fs, lh: lh, cx: cx };
     }
-    var CLAIMS = [
-      'Chennai is 3 times as far from Mumbai as Delhi is.',
-      'Delhi sits exactly halfway between Mumbai and Pune.',
-      'Chennai (3) counts as “more” than Mumbai (0).'
-    ];
     function drawLabel(T) {
       var LP = labelPos(), small = LP.small, i;
       g.textAlign = 'left'; g.textBaseline = 'top';
@@ -700,16 +717,17 @@
         g.font = font(T, small ? 13 : 15, sel ? 700 : 600); g.textAlign = 'center'; g.textBaseline = 'bottom';
         haloText(T, CITIES[i], LP.xs[i], LP.y - 15);
       }
-      // what the numbers wrongly claim
-      var fs = small ? 12 : 15, lh = small ? 18 : 26, x = Math.max(14, LP.x0 - 26), y = LP.y + (small ? 44 : 58);
+      // what the numbers wrongly claim (only when it all fits; see labelPos)
+      if (!LP.claims) return;
+      var x = LP.cx, y = LP.y + (small ? 44 : 58);
       g.textAlign = 'left'; g.textBaseline = 'top';
-      g.font = font(T, fs, 700); g.fillStyle = T.ink;
-      g.fillText(niceTitleFit(T, ['What these numbers wrongly claim:', 'Wrong claims:'], dims.w - x - 8, fs, 700), x, y);
-      g.font = font(T, fs, 400);
+      g.font = font(T, LP.fs, 700); g.fillStyle = T.ink;
+      g.fillText(CLAIMS_HEAD, x, y);
+      g.font = font(T, LP.fs, 400);
       CLAIMS.forEach(function (c, k) {
-        var yy = y + lh * (k + 1);
+        var yy = y + LP.lh * (k + 1);
         g.fillStyle = T.ink; g.fillText('✗', x, yy);
-        g.fillText(niceTitleFit(T, [c, c.replace(' exactly', '').replace(' as far', ' as far')], dims.w - x - 30, fs, 400), x + 18, yy);
+        g.fillText(c, x + 18, yy);
       });
     }
 
@@ -989,20 +1007,23 @@
       setText($('s3acc'), pct(M.correct, P3.nte));
       elFitDesc.innerHTML = S.fitAll
         ? '<strong style="color:var(--ink)">Leak:</strong> the scaler learns from all ' + Lk.nFit + ' rows, the 20 test rows from 2025 included. That is like using 2025’s incomes while building a model in 2019.'
-        : '<strong style="color:var(--ink)">Correct:</strong> the scaler learns from the ' + H.nFit + ' training rows only, then the same mean and SD are used on the test rows, just like a scikit-learn <code>Pipeline</code> does.';
+        : '<strong style="color:var(--ink)">Correct:</strong> the scaler learns from the ' + H.nFit + ' training rows only, then the same mean and SD are used on the test rows, just like a scikit-learn <code>Pipeline</code> (a chain of preparation steps and a model, fitted together on the training rows) does.';
       var pts = (gap >= 0 ? gap : -gap) * (100 / P3.nte);
+      var flips = [];      // test rows whose prediction changes when the scaler leaks
+      TEST.forEach(function (ti, k) { if (H.pred[k] !== Lk.pred[k]) flips.push(k); });
       if (!S.fitAll) {
         elVerdict.innerHTML = '<b>Honest Pipeline score: ' + pct(H.correct, P3.nte) + '</b> (' + H.correct + ' of ' + P3.nte + ' right). The scaler learned only from 2019, exactly as a model launched in 2019 would.' +
-          (gap > 0 ? ' Now switch to “All rows (leak)”.' : gap === 0 ? ' Here the leak would give the same score; raise the salary rise to see it matter.' : '');
+          (gap > 0 ? ' Now switch to “All rows (leak)”.' : gap === 0 ? ' Here the leak would give the same score' + (S.rise < RISE_MAX ? '; raise the salary rise to see it matter.' : '.') : ' Here the leak would even lower the score; try another salary rise.');
       } else if (gap > 0) {
         elVerdict.innerHTML = '<b>Leaky score: ' + pct(Lk.correct, P3.nte) + '</b> (' + Lk.correct + ' of ' + P3.nte + ' right). The honest Pipeline score is ' + pct(H.correct, P3.nte) + ', so the leak makes the model look ' + pts + ' points better than it really is.';
       } else if (gap === 0) {
-        elVerdict.innerHTML = '<b>Leaky score: ' + pct(Lk.correct, P3.nte) + '</b>, the same as the honest score at this salary rise. ' + (S.rise <= 3 ? 'The 2025 rows are not very different yet, so they barely move the mean and SD. Raise the salary rise.' : 'The leak moved the numbers but no prediction changed. Try another salary rise.');
+        elVerdict.innerHTML = '<b>Leaky score: ' + pct(Lk.correct, P3.nte) + '</b>, the same as the honest score at this salary rise. ' +
+          (flips.length ? 'The leak changed ' + flips.length + ' predictions, but as many became wrong as became right.' :
+            S.rise === 0 ? 'With no salary rise the 2025 rows look like the 2019 rows, so they barely move the mean and SD.' : 'The leak moved the mean and SD, but not far enough to change any prediction.') +
+          (S.rise < RISE_MAX ? ' Raise the salary rise.' : '');
       } else {
         elVerdict.innerHTML = '<b>Leaky score: ' + pct(Lk.correct, P3.nte) + '</b>, lower than the honest ' + pct(H.correct, P3.nte) + ': a leak can push the score either way, so you cannot even tell which way it is wrong.';
       }
-      var flips = [];
-      TEST.forEach(function (ti, k) { if (H.pred[k] !== Lk.pred[k]) flips.push(k); });
       var why;
       if (S.rise === 0) {
         why = '<p>With no salary rise, the 2025 rows look just like the 2019 rows, so adding them to the scaler hardly changes its mean (' + inr(H.si.m) + ' versus ' + inr(Lk.si.m) + ') or SD (' + inr(H.si.s) + ' versus ' + inr(Lk.si.s) + '). The leak still breaks the rule; it just has little to hide here.</p>';
@@ -1075,7 +1096,7 @@
     var NOTES = {
       1: '<strong>What you are seeing:</strong> 30 loan applicants. Left to right is yearly income (₹2 to 30 lakh); bottom to top is age (21 to 60). The star is the <em>query</em> applicant and the numbered dots are the 5 applicants nearest to them by <em>Euclidean distance</em> (straight-line distance), the way K-Nearest Neighbours (KNN) picks them. The shaded patch holds everyone at least as close as the 5th neighbour. <em>Scaling</em> means putting every feature (input column) on a similar range: switch it on and watch who counts as “similar”.',
       2: '<strong>What you are seeing:</strong> a city column (Mumbai, Delhi, Pune, Chennai) turned into numbers, which models need. <em>Label encoding</em> gives each city one number; <em>one-hot encoding</em> gives each city its own yes/no column. Pick two cities to see the distance a model would measure between them.',
-      3: '<strong>What you are seeing:</strong> 40 loans from 2019 (small shapes, the <em>training</em> rows the model learns from) and 20 from 2025 (big shapes, the <em>test</em> rows used to check it), after standard scaling. By 2025 salaries had risen, so the test rows sit further right. A 5-nearest-neighbour model learns from 2019 and predicts whether each 2025 borrower repaid. <em>Data leakage</em> means letting information from the test rows sneak into training. Choose where the scaler learns its mean and SD.'
+      3: '<strong>What you are seeing:</strong> 40 loans from 2019 (small shapes, the <em>training</em> rows the model learns from) and 20 from 2025 (big shapes, the <em>test</em> rows used to check it), after standard scaling. The slider sets how much salaries rose by 2025: the bigger the rise, the further right the test rows sit. A 5-nearest-neighbour model learns from 2019 and predicts whether each 2025 borrower repaid or defaulted (failed to pay back). <em>Data leakage</em> means letting information from the test rows sneak into training. Choose where the scaler learns its mean and SD.'
     };
     var KBD = {
       1: 'Keyboard: focus the chart and use ← → to move the query to the next lower or higher income, ↑ ↓ for the next older or younger applicant.',

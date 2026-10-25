@@ -31,8 +31,8 @@
   var GOAL_ORDER = ['train', 'gst', 'cricket', 'weather'];
   var GOALS = {
     train: { label: 'Book a train: Pune to Mumbai', short: 'Train booking', text: 'Book the cheapest train from Pune to Mumbai tomorrow under ₹500 and tell me the total for 3 people.' },
-    gst: { label: 'Maths: 18% GST on a bill', short: 'GST maths', text: 'What will 18% GST on a ₹2,350 bill be?' },
-    cricket: { label: 'Maths: cricket run rate', short: 'Run rate maths', text: 'India need 87 runs from the last 54 balls. What run rate (runs per over) do they need?' },
+    gst: { label: 'Maths: 18% GST on a bill', short: 'GST maths', text: 'What will 18% GST on a ₹2,350 bill be?', note: 'GST (Goods and Services Tax) is the tax added to most bills in India.' },
+    cricket: { label: 'Maths: cricket run rate', short: 'Run rate maths', text: 'India need 87 runs from the last 54 balls. What run rate (runs per over) do they need?', note: 'In cricket, an over is 6 balls bowled one after another.' },
     weather: { label: 'Weather: umbrella or not?', short: 'Umbrella check', text: 'Should I carry an umbrella in Mumbai tomorrow?' }
   };
   // what search_trains returns (sorted by departure time, as a real search would be)
@@ -553,7 +553,7 @@
     }
     function startTrace() {
       elTrace.innerHTML = '';
-      if (run.example) addLi('<p class="small muted" style="margin:0">This example run used the starting settings. Press Run again to watch it happen live, or change the settings first.</p>');
+      if (run.example) addLi('<p class="small muted" style="margin:0">This example run used the starting settings. Press Run again to watch it happen live, or press Reset and then Next step to go one step at a time. You can change the settings first.</p>');
       addLi(block('--muted', 'You asked', para('“' + GOALS[run.cfg.goal].text + '”')));
     }
     function actionHtml(r, s) {
@@ -784,7 +784,9 @@
       }
     }
     function updateGoalText() {
-      elGoalText.innerHTML = '<span class="small" style="font-weight:700">You ask: </span>“' + esc(GOALS[cfg.goal].text) + '”';
+      var g = GOALS[cfg.goal];
+      elGoalText.innerHTML = '<span class="small" style="font-weight:700">You ask: </span>“' + esc(g.text) + '”' +
+        (g.note ? '<span class="small muted" style="display:block;margin-top:4px">' + esc(g.note) + '</span>' : '');
     }
     function updateSys() {
       var sp = systemPrompt(cfg.tools);
@@ -930,7 +932,7 @@
         var b = L.tools[t], y = b.y + b.h / 2, x2 = b.x, onT = c.tools[t];
         var act = st.tool === t ? st.edge : '';
         var col = act === 'out' ? '--indigo' : act === 'back' ? '--series-4' : (act === 'err' || act === 'blocked') ? '--bad' : act === 'held' ? '--haldi' : '--muted';
-        var gate = t === 'book_ticket' && c.guard;
+        var gate = t === 'book_ticket' && c.guard && onT;   // no gate in front of a tool that is switched off
         var gap = x2 - x1, gw = nr ? 18 : Math.min(118, gap - 16), gx = (x1 + x2) / 2;
         var showGateBox = gate && !nr && gw >= 84;
         if (act) {

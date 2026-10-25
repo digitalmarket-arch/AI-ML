@@ -508,7 +508,7 @@
       if (!learning) return;
       if (!done.t1 && S.t1Block && rt.end === 'goal' && !S.t1Note) {
         S.t1Note = true;
-        say('The route reaches the customer only because the map was changed while it already did. For the task, let the rider learn a route itself: press Reset map (or move the start further away) and keep training.');
+        say('The route already reached the customer straight after your map change, so it does not count as the rider learning it. For the task, press Reset map (or move the start further away) and keep training until the rider finds the way itself.');
       }
       if (!done.t1 && !S.t1Block && S.episodes >= 1 && S.gamma > 0 && rt.end === 'goal') {
         if (complete('t1')) say('Delivered! After ' + plural(S.episodes, 'episode', 'episodes') + ' the greedy route ' + routeWords(rt) + '. Look at the map: blue spreads back from the customer, because each Q-value learns from the best Q-value of the square after it.', 'good');

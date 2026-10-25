@@ -80,7 +80,10 @@
     var copy = function (o) { try { return JSON.parse(JSON.stringify(o || null)); } catch (e) { return null; } };
     var a = normalize(copy(localObj)), b = normalize(copy(remoteObj));
     var keys = function (o) { return Object.keys(o || {}); };
+    var isObj = function (o) { return !!o && typeof o === 'object' && !Array.isArray(o); };
     var earlier = function (x, y) { return !x ? y : !y ? x : (String(y) < String(x) ? y : x); };
+    // entries that must be objects: skip junk from a damaged copy instead of letting it break pages
+    ['ex', 'labs', 'projects', 'modules'].forEach(function (k) { keys(b[k]).forEach(function (i) { if (!isObj(b[k][i])) delete b[k][i]; }); });
     keys(b.watched).forEach(function (k) { a.watched[k] = earlier(a.watched[k], b.watched[k]); });
     keys(b.quiz).forEach(function (k) {
       var x = a.quiz[k], y = b.quiz[k];
@@ -99,8 +102,8 @@
       keys(b.labs[k]).forEach(function (t) { if (b.labs[k][t] && !x[t]) x[t] = b.labs[k][t]; });
     });
     keys(b.projects).forEach(function (k) {
-      var y = b.projects[k] || {}, x = a.projects[k];
-      if (!x) { a.projects[k] = y; return; }
+      var y = b.projects[k], x = a.projects[k];
+      if (!isObj(x)) { a.projects[k] = y; return; }
       x.steps = x.steps || {}; x.rubric = x.rubric || {}; x.links = x.links || {};
       keys(y.steps).forEach(function (i) { if (y.steps[i]) x.steps[i] = true; });
       keys(y.rubric).forEach(function (i) { if (!x.rubric[i]) x.rubric[i] = y.rubric[i]; });
@@ -122,6 +125,13 @@
     keys(b.pos).forEach(function (k) { if (!a.pos[k] || (b.pos[k].t || 0) > (a.pos[k].t || 0)) a.pos[k] = b.pos[k]; });
     ['hpw', 'start'].forEach(function (k) { if (a.prefs[k] == null && b.prefs[k] != null) a.prefs[k] = b.prefs[k]; });
     if (!a.last && b.last) a.last = b.last;
+    // parts not listed above (for example flashcard scores): keep them from both devices, this device first
+    var known = blank();
+    keys(b).forEach(function (k) {
+      if (Object.prototype.hasOwnProperty.call(known, k)) return;
+      if (a[k] === undefined) a[k] = b[k];
+      else if (isObj(a[k]) && isObj(b[k])) keys(b[k]).forEach(function (i) { if (a[k][i] === undefined) a[k][i] = b[k][i]; });
+    });
     return normalize(a);
   }
 

@@ -3,11 +3,15 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /progress/{uid} {
-      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      // get (not list): nobody can list the collection, not even their own documents in it
+      allow get, delete: if request.auth != null && request.auth.uid == uid;
       allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasAll(['state', 'v', 'updatedAt'])
         && request.resource.data.keys().hasOnly(['state', 'v', 'updatedAt'])
         && request.resource.data.state is string
-        && request.resource.data.state.size() < 950000;
+        && request.resource.data.state.size() < 950000
+        && request.resource.data.v is int
+        && request.resource.data.updatedAt is timestamp;
     }
     // everything else is closed
     match /{document=**} {

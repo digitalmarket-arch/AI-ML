@@ -316,7 +316,7 @@
     top.innerHTML =
       '<p class="lab-note"><strong>What you are seeing:</strong> two small tables from an online shop. <code>customers</code> lists 7 people and their cities; <code>orders</code> lists 9 orders, each with the <code>customer_id</code> of the person who placed it. ' +
         'A <em>JOIN</em> glues each order to its customer wherever <code>customer_id</code> is the same (the lines). Yellow rows have no partner: Meera and Sana never ordered, and order 107 points at customer 9, who is not in the table. ' +
-        'Pick a join type, add a WHERE filter, GROUP BY or ORDER BY, and watch the SQL and the result change. <em>NULL</em> means “no value here”: not 0, and not empty text.</p>' +
+        'Pick a join type, add a WHERE filter, GROUP BY or ORDER BY, and watch the SQL (the language you use to ask a database questions) and the result change. <em>NULL</em> means “no value here”: not 0, and not empty text.</p>' +
       '<div class="lab-body">' +
         '<div class="stack">' +
           '<div class="stack-sm">' +
@@ -495,6 +495,7 @@
     }
     function groupText() {
       if (!Q.grouped) return 'No GROUP BY: the result has one row for each joined row that passed WHERE.';
+      if (!Q.nWhere) return '<b>GROUP BY customers.city</b> has nothing to group: WHERE removed every row, so the result is empty.';
       var s = '<b>GROUP BY customers.city</b> squashes ' + plural(Q.nWhere, 'row') + ' into <b>' + plural(Q.rows.length, 'group') + '</b>, one per city.';
       if (Q.rows.some(function (r) { return r.v.city === null; })) s += ' A row with no customer has a NULL city, and all NULL cities share one NULL group.';
       var diff = null;
@@ -502,11 +503,11 @@
       if (S.aggs.n_rows && S.aggs.n_orders && diff) {
         s += ' Look where <code>n_rows</code> and <code>n_orders</code> differ: COUNT(*) counts every row, but COUNT(orders.order_id) skips NULLs (' + esc(diff.v.city) + ': ' + plural(diff.v.n_rows, 'row') + ', ' + plural(diff.v.n_orders, 'order') + ').';
       } else if (S.aggs.n_rows && !S.aggs.n_orders && diff) {
-        s += ' Careful: COUNT(*) counts the NULL rows too, so ' + esc(diff.v.city) + ' shows ' + fmtIN(diff.v.n_rows) + ' but has only ' + plural(diff.v.n_orders, 'order') + '.';
+        s += ' Careful: COUNT(*) counts the NULL rows too, so ' + esc(diff.v.city) + ' shows ' + fmtIN(diff.v.n_rows) + ' but has ' + (diff.v.n_orders ? 'only ' + plural(diff.v.n_orders, 'order') : 'no orders') + '.';
       }
       if (S.aggs.total_rs) {
         var nul = Q.rows.filter(function (r) { return r.v.total_rs === null && r.v.city !== null; });
-        if (nul.length) s += ' SUM over only NULLs gives NULL, not 0 (' + esc(nul[0].v.city) + '). Reports often write COALESCE(SUM(orders.amount_rs), 0) to show 0 instead.';
+        if (nul.length) s += ' SUM over only NULLs gives NULL, not 0 (' + esc(nul[0].v.city) + '). Reports often write COALESCE(SUM(orders.amount_rs), 0) to show 0 instead (COALESCE gives back the first value in its list that is not NULL).';
       }
       if (!S.aggs.n_rows && !S.aggs.n_orders && !S.aggs.total_rs) s += ' With nothing ticked to work out, it simply lists each city once.';
       return s;
@@ -516,8 +517,22 @@
       if (!o) return 'No ORDER BY: SQL promises no particular order, so never rely on it. Here rows simply follow the tables.';
       var s = '<b>ORDER BY ' + esc(o.sql) + '</b> runs last and sorts the result.';
       var first = o.keys[0].f, hasNull = Q.rows.some(function (r) { return isNull(r.v[first]); });
-      if (hasNull) s += ' NULL counts as the smallest value here (as in SQLite, the database built into Python), so NULLs come first in A to Z order and last with DESC. PostgreSQL does the opposite.';
+      if (hasNull) s += ' NULL counts as the smallest value here (as in SQLite, the database built into Python), so NULLs come first in A to Z order and last with DESC. PostgreSQL, another popular database, does the opposite.';
       return s;
+    }
+    function doneText(id) {
+      switch (id) {
+        case 't1': return '<b>Task done:</b> ' + listAnd(custNames(NO_ORDERS)) + ' never ordered. The join filled their <code>orders</code> columns with NULL, and IS NULL finds exactly those rows.';
+        case 't2': {
+          var o = ORDERS[NO_CUSTOMER[0]];
+          return '<b>Task done:</b> order ' + o.order_id + ' points at customer ' + o.customer_id + ', who is not in <code>customers</code>.';
+        }
+        case 't3': return '<b>Task done:</b> every city shows its true number of orders, Jaipur included (0). The outer join kept Sana, and COUNT(orders.order_id) skips her NULL order.';
+        default: {
+          var cities = Q.rows.filter(function (r) { return r.v.city !== null && r.v.n_rows !== r.v.n_orders; }).map(function (r) { return esc(r.v.city); });
+          return '<b>Task done:</b> the two counts differ in ' + listAnd(cities) + ', because COUNT(*) also counts the rows whose order is NULL.';
+        }
+      }
     }
     function say(html) { elMsg.innerHTML = html; }
 
@@ -889,6 +904,7 @@
       if (destroyed) return;
       hoverRes = null; focusRes = null;
       if (pinned && (pinned.type === 'res' || /^g/.test(pinned.key))) pinned = null;
+      if (hoverDiag && /^g/.test(hoverDiag)) hoverDiag = null; // made-up NULL rows change with the query
       changed = {};
       (what || []).forEach(function (c) { changed[c] = 1; });
       var orderBefore = S.order;
@@ -902,7 +918,7 @@
       else if (changed.order) parts.push(orderText());
       if (orderBefore !== 'none' && S.order === 'none' && !changed.order) parts.push('ORDER BY was cleared because its column is no longer in the result.');
       var fired = checkTasks();
-      if (fired.length) parts.unshift('<b>Task done!</b>');
+      if (fired.length) parts.unshift(fired.map(doneText).join(' '));
       say(parts.join(' '));
     }
 
@@ -962,8 +978,11 @@
       if (e.pointerType !== 'mouse') return;
       if (hoverRes !== null) { hoverRes = null; spotChanged(); }
     });
+    // a tap or click also focuses the row; only keyboard focus traces it, so a second tap really lets go
+    function keyboardFocus(el) { try { return el.matches(':focus-visible'); } catch (err) { return true; } }
     on(elResWrap, 'focusin', function (e) {
       var i = resIdxFrom(e);
+      if (i !== null && !keyboardFocus(e.target)) i = null;
       if (i !== focusRes) { focusRes = i; spotChanged(); }
     });
     on(elResWrap, 'focusout', function () {

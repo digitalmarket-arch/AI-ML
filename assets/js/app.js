@@ -1041,14 +1041,14 @@
   function accountBody(st) {
     if (!st.enabled) return '<div class="callout">Sign-in is not switched on for this copy of the site. Your progress is saved in this browser. To move it to another device, use <a href="#progress">My progress</a> and its Backup box.</div>';
     var privacy = '<section class="stack-sm"><h2 class="h-sub">What is saved, and who can see it</h2><ul class="prose small">' +
-      '<li>Only your course progress: ticks, quiz scores, lab tasks, exercise answers and drafts, notes, project checklists and links, together with your Google account ID.</li>' +
+      '<li>Only your course progress: ticks, quiz scores, lab tasks, exercise answers and drafts, notes, project checklists and links, flashcard scores, where you stopped each video, and your study plan and display settings, together with your Google account ID.</li>' +
       '<li>Your name and email come from Google so you can see which account you used. No password is ever seen by this site.</li>' +
       '<li>Each account can read and write only its own copy. Nothing is sold or used for ads.</li>' +
       '<li>You can delete your cloud copy below at any time. Signing in is optional: without it, progress stays in this browser.</li></ul></section>';
     if (!st.user) {
       return '<section class="card stack"><div class="stack-sm"><h2 class="h-sub">Keep your progress safe in your account</h2>' +
         '<ul class="prose"><li>Continue on your phone exactly where you stopped on your laptop.</li><li>Nothing is lost if you clear your browser or change devices.</li><li>What you have already done on this device is kept and added to your account.</li></ul></div>' +
-        '<div class="row"><button class="btn btn-primary" type="button" data-action="cloud-signin"' + (st.state === 'loading' ? ' disabled' : '') + '>' + (st.state === 'loading' ? 'Connecting…' : 'Sign in with Google') + '</button></div>' +
+        '<div class="row"><button class="btn btn-primary' + (st.state === 'loading' ? ' is-disabled" aria-disabled="true"' : '"') + ' type="button" data-action="cloud-signin">' + (st.state === 'loading' ? 'Connecting…' : 'Sign in with Google') + '</button></div>' +
         (st.error ? '<p class="small pub-bad" role="alert">' + esc(st.error) + '</p>' : '') + '</section>' + privacy;
     }
     var when = st.lastSync ? new Date(st.lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
@@ -1058,7 +1058,7 @@
       '<div class="row"><button class="btn btn-sm" type="button" data-action="cloud-sync">Sync now</button><button class="btn btn-sm" type="button" data-action="cloud-signout">Sign out</button></div>' +
       '<details class="small"><summary>More options</summary><div class="stack-sm" style="margin-top:8px">' +
       '<div><button class="btn btn-sm" type="button" data-action="cloud-signout-clear">Sign out and remove progress from this device</button><p class="muted">Use this on a shared or office computer. Your progress stays safe in your account.</p></div>' +
-      '<div><button class="btn btn-sm btn-ghost" type="button" data-action="cloud-delete">' + (cloudDeleteArmed ? 'Press again to delete for good' : 'Delete my cloud copy') + '</button><p class="muted">Removes your progress from the cloud and signs you out. This device keeps its own copy.</p></div>' +
+      '<div><button class="btn btn-sm btn-ghost" type="button" data-action="cloud-delete">' + (cloudDeleteArmed ? 'Press again to delete for good' : 'Delete my cloud copy') + '</button><p class="muted">Removes your progress from the cloud and signs you out. This device keeps its own copy. If you are signed in on another device, sign out there first, or it will back up its copy again.</p></div>' +
       '</div></details></section>' + privacy;
   }
   var cloudDeleteArmed = false;
@@ -1068,8 +1068,17 @@
       '<header class="stack-sm"><h1>Your account</h1><p class="lede muted prose">Sign in with Google to back up your progress and use the course on more than one device.</p></header>' +
       '<div id="acct-body" class="stack-lg">' + accountBody(st) + '</div></div>', 'Account');
     if (K) {
-      var off = K.on(function (x) { var el = document.getElementById('acct-body'); if (el) el.innerHTML = accountBody(x); });
+      // redraw on each status change, keeping keyboard focus and an open "More options"
+      var off = K.on(function (x) {
+        var el = document.getElementById('acct-body'); if (!el) return;
+        var ae = document.activeElement, act = ae && el.contains(ae) ? (ae.getAttribute('data-action') ? '[data-action="' + ae.getAttribute('data-action') + '"]' : ae.tagName === 'SUMMARY' ? 'summary' : null) : null;
+        var det = el.querySelector('details'), open = !!(det && det.open);
+        el.innerHTML = accountBody(x);
+        det = el.querySelector('details'); if (det && open) det.open = true;
+        var nb = act && el.querySelector(act); if (nb) nb.focus();
+      });
       currentCleanup.push(off);
+      if (!st.user) K.prepare();
     }
   }
   function updateAcctLink(st) {
@@ -1084,10 +1093,13 @@
     } else { a.textContent = 'Sign in'; a.removeAttribute('aria-label'); }
   }
   if (K) { K.on(updateAcctLink); updateAcctLink(K.status()); }
-  // progress arrived from another device: show it, unless the learner is typing
-  window.addEventListener('aim:progress-replaced', function () {
-    var ae = document.activeElement;
-    if (ae && /^(TEXTAREA|INPUT)$/.test(ae.tagName) && ae.type !== 'checkbox' && ae.type !== 'radio') { C.toast('Progress from your other device has been added'); return; }
+  // progress arrived from another device: redraw overview pages; leave pages with work in progress
+  // (a quiz or test, a lab, code, a playing video, notes) as they are, and update only their progress panel
+  window.addEventListener('aim:progress-replaced', function (ev) {
+    var ae = document.activeElement, h = (location.hash || '').replace(/^#/, '') || 'home', cleared = !!(ev.detail && ev.detail.cleared);
+    if (h === 'account') return; // it redraws itself from the sign-in status
+    var typing = ae && /^(TEXTAREA|INPUT|SELECT)$/.test(ae.tagName) && ae.type !== 'checkbox' && ae.type !== 'radio';
+    if (!cleared && (typing || !/^(home|start|roadmap|level-\d|labs|practice|projects|tests|progress|career|faq)$/.test(h))) { refreshSide(); C.toast('Progress from your other device has been added'); return; }
     var y = window.scrollY; route(); window.scrollTo(0, y);
   });
 
@@ -1099,12 +1111,15 @@
     if (a === 'play') { var r = resById[id]; if (r) startPlayer(t.parentNode, r); }
     else if (a === 'play-inline') { var ri = resById[id], art = t.closest('.res-card'); if (ri && art) toggleInline(art, ri, t); }
     else if (a === 'goto-res') { gotoRes(id, t.getAttribute('data-play') === '1'); }
-    else if (a === 'cloud-signin' && K) { K.signIn(); }
+    else if (a === 'cloud-signin' && K) { if (t.getAttribute('aria-disabled') !== 'true') K.signIn(); }
     else if (a === 'cloud-sync' && K) { K.syncNow().then(function (ok) { if (ok) C.toast('Synced'); }); }
     else if (a === 'cloud-signout' && K) { K.signOut(false); }
     else if (a === 'cloud-signout-clear' && K) { K.signOut(true); }
     else if (a === 'cloud-delete' && K) {
-      if (!cloudDeleteArmed) { cloudDeleteArmed = true; t.textContent = 'Press again to delete for good'; setTimeout(function () { cloudDeleteArmed = false; }, 6000); }
+      if (!cloudDeleteArmed) {
+        cloudDeleteArmed = true; t.textContent = 'Press again to delete for good';
+        setTimeout(function () { cloudDeleteArmed = false; var b = document.querySelector('[data-action="cloud-delete"]'); if (b) b.textContent = 'Delete my cloud copy'; }, 6000);
+      }
       else { cloudDeleteArmed = false; K.deleteCloudCopy().catch(function () { C.toast('Could not delete the cloud copy. Check your connection and try again.'); }); }
     }
     else if (a === 'mod-done') { var cur = st.modules[id] && st.modules[id].done; st.modules[id] = { done: !cur, at: C.today() }; if (!cur) C.logActivity(); C.save(); C.toast(cur ? 'Module marked as not complete' : 'Module complete. Next one!'); refreshSide(); }
@@ -1112,7 +1127,10 @@
     else if (a === 'export') { var txt = JSON.stringify(st); try { navigator.clipboard.writeText(txt).then(function () { C.toast('Progress copied'); }, function () { fallbackCopy(txt); }); } catch (e) { fallbackCopy(txt); } }
     else if (a === 'download') { var blob = new Blob([JSON.stringify(st, null, 1)], { type: 'application/json' }), aEl = document.createElement('a'); aEl.href = URL.createObjectURL(blob); aEl.download = 'ai-marg-progress-' + C.today() + '.json'; document.body.appendChild(aEl); aEl.click(); aEl.remove(); }
     else if (a === 'import') { try { var obj = JSON.parse(document.getElementById('import-box').value); if (!obj || typeof obj !== 'object' || obj.v !== 1) throw new Error('not a backup'); C.replaceState(obj); applyTheme(); C.toast('Progress restored'); route(); } catch (e) { C.toast('That text is not a valid AI Marg backup.'); } }
-    else if (a === 'reset') { if (!resetArmed) { resetArmed = true; t.textContent = 'Click again to erase everything'; setTimeout(function () { resetArmed = false; t.textContent = 'Reset all progress'; }, 4000); return; } C.resetAll(); resetArmed = false; applyTheme(); C.toast('Progress reset'); route(); }
+    else if (a === 'reset') {
+      // while signed in, the account copy would quietly bring the progress back: say so, and point to a real fresh start
+      if (cloudOn() && K.status().user && !resetArmed) { C.toast('You are signed in, so your account copy would bring this progress back. To start over everywhere, delete your cloud copy on the Account page first, then reset.'); }
+      if (!resetArmed) { resetArmed = true; t.textContent = cloudOn() && K.status().user ? 'Click again to reset this device only' : 'Click again to erase everything'; setTimeout(function () { resetArmed = false; t.textContent = 'Reset all progress'; }, 6000); return; } C.resetAll(); resetArmed = false; applyTheme(); C.toast('Progress reset'); route(); }
     else if (a === 'theme') { cycleTheme(); }
   });
   function fallbackCopy(txt) { var box = document.getElementById('import-box'); if (box) { box.value = txt; box.select(); } C.toast('Select the text in the box and copy it'); }
