@@ -391,7 +391,7 @@
               '<input type="range" id="' + P + 'l2" min="0" max="' + (L2S.length - 1) + '" step="1" value="0">' +
               '<p class="small muted">A small penalty for big weights (also called weight decay). It keeps the boundary smooth, but too much stops the network learning.</p></div>' +
             '<div class="row small"><input type="checkbox" id="' + P + 'showtest" checked><label for="' + P + 'showtest">Show test points</label></div>' +
-            '<div class="stack-sm"><h4>Your tasks</h4><ul class="lab-tasks" id="' + P + 'tasks">' + tasksHtml + '</ul></div>' +
+            '<div class="stack-sm"><h2 class="lab-h">Your tasks</h2><ul class="lab-tasks" id="' + P + 'tasks">' + tasksHtml + '</ul></div>' +
           '</div>' +
         '</div>' +
         '<p class="small muted"><strong style="color:var(--ink)">Why it matters in real ML:</strong> every deep-learning model, from the one that reads handwritten cheque amounts at a bank to the one that understands spoken Hindi, is trained with exactly this loop (forward pass, loss, backpropagation, small weight updates), and choosing the depth, activation and learning rate is everyday work for ML engineers.</p>' +

@@ -208,7 +208,7 @@
               '<div class="stat" style="display:flex;flex-direction:column;justify-content:space-between;gap:2px"><div class="k">Best possible</div><div class="v" id="' + P + 'best">—</div></div>' +
               '<div class="stat" style="display:flex;flex-direction:column;justify-content:space-between;gap:2px"><div class="k">Typical gap</div><div class="v" id="' + P + 'rmse">—</div></div>' +
             '</div>' +
-            '<p class="kbd-hint">Tip: tap the left chart to add a flat, or drag a dot to move it. Tap the loss map to start from that spot. “Typical gap” is √loss (called RMSE): roughly how many lakh a typical guess is off by.</p>' +
+            '<p class="small muted">Tip: tap the left chart to add a flat, or drag a dot to move it. Tap the loss map to start from that spot. “Typical gap” is √loss (called RMSE): roughly how many lakh a typical guess is off by.</p>' +
           '</div>' +
           '<div class="lab-controls">' +
             '<div class="control"><label for="' + P + 'lr">Learning rate (step size) <output id="' + P + 'lrout" for="' + P + 'lr">' + fmtLr(LR_DEFAULT) + '</output></label>' +

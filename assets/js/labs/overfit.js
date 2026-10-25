@@ -218,7 +218,7 @@
               legendItem(swatchDot('var(--series-1)', false), 'Training dots') +
               legendItem(swatchDot('var(--series-2)', true), 'Test rings') +
             '</div>' +
-            '<p class="kbd-hint" id="' + P + 'kbd">Drag a filled dot up or down to see how much the curve reacts. Keyboard: Tab to the plot, ← → picks a dot, ↑ ↓ moves it.</p>' +
+            '<p class="small muted">Drag a filled dot up or down to see how much the curve reacts.</p><p class="kbd-hint" id="' + P + 'kbd">Keyboard: Tab to the plot, ← → picks a dot, ↑ ↓ moves it.</p>' +
             '<p class="small muted" style="margin-top:6px"><strong style="color:var(--ink)">Error chart.</strong> Training and test error (MSE) for every degree from 0 to 15, on a log scale: from 0.01 to 0.1 to 1 to 10, each step up means 10 times more error, so tiny and huge errors fit on one chart. The dashed line is the noise level: on new data, no curve can do much better than that. Tap a degree to try it.</p>' +
             '<div class="lab-canvas-wrap" id="' + P + 'ewrap" style="aspect-ratio:2/1;max-height:260px"><canvas id="' + P + 'err" role="img" aria-label="Error chart" style="touch-action:pan-y"></canvas></div>' +
             '<div class="lab-legend">' +

@@ -322,7 +322,7 @@
             '</div>' +
             '<p class="small muted"><strong style="color:var(--ink)">Elbow chart.</strong> Inertia (how spread out the groups are: add up each customer’s squared distance to its own centre) for every K, best of 6 tries. Look for the “elbow”: the K after which adding groups stops helping much. Tap a K to try it.</p>' +
             '<div class="lab-canvas-wrap" id="' + P + 'ewrap" style="aspect-ratio:5/2;max-height:230px"><canvas id="' + P + 'elbow" role="img" aria-label="Elbow chart"></canvas></div>' +
-            '<p class="kbd-hint">Tip: tap an empty spot to add a new customer. Drag a numbered centre to move it by hand. Distances are measured after scaling both axes to 0–1, so ₹ and visits count equally.</p>' +
+            '<p class="small muted">Tip: tap an empty spot to add a new customer. Drag a numbered centre to move it by hand. Distances are measured after scaling both axes to 0–1, so ₹ and visits count equally.</p>' +
           '</div>' +
           '<div class="lab-controls">' +
             '<div class="control"><label for="' + P + 'data">Customer data</label>' +
