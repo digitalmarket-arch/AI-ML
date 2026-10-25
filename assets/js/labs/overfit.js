@@ -276,7 +276,7 @@
       userDeg: false, overfitRec: null, lowMove: 0, highMove: 0
     };
     var done = {};
-    var dims = { w: 1, h: 1, ew: 1, eh: 1, dpr: 1 };
+    var dims = { w: 1, h: 1, ew: 1, eh: 1, sx: 1, sy: 1, esx: 1, esy: 1 };
     var rafId = 0;
 
     function markLi(id) {
@@ -445,14 +445,18 @@
       return { pl: pl, pt: pt, pw: Math.max(10, dims.ew - pl - pr), ph: Math.max(10, dims.eh - pt - pb), small: small };
     }
 
+    // Backing store = CSS size × devicePixelRatio. The canvas fills its wrapper's padding box
+    // (wrapper rect minus its 1px border), so measure the canvas box itself.
     function resize() {
       var dpr = Math.min(window.devicePixelRatio || 1, 3);
-      var r = wrap.getBoundingClientRect(), er = ewrap.getBoundingClientRect();
-      dims.dpr = dpr;
-      dims.w = Math.max(1, Math.round(r.width)); dims.h = Math.max(1, Math.round(r.height));
-      dims.ew = Math.max(1, Math.round(er.width)); dims.eh = Math.max(1, Math.round(er.height));
-      canvas.width = Math.round(dims.w * dpr); canvas.height = Math.round(dims.h * dpr);
-      ecanvas.width = Math.round(dims.ew * dpr); ecanvas.height = Math.round(dims.eh * dpr);
+      var r = canvas.getBoundingClientRect(), er = ecanvas.getBoundingClientRect();
+      if (!r.width) { r = wrap.getBoundingClientRect(); er = ewrap.getBoundingClientRect(); }
+      dims.w = Math.max(1, r.width); dims.h = Math.max(1, r.height);
+      dims.ew = Math.max(1, er.width); dims.eh = Math.max(1, er.height);
+      canvas.width = Math.max(1, Math.round(dims.w * dpr)); canvas.height = Math.max(1, Math.round(dims.h * dpr));
+      ecanvas.width = Math.max(1, Math.round(dims.ew * dpr)); ecanvas.height = Math.max(1, Math.round(dims.eh * dpr));
+      dims.sx = canvas.width / dims.w; dims.sy = canvas.height / dims.h;
+      dims.esx = ecanvas.width / dims.ew; dims.esy = ecanvas.height / dims.eh;
       requestDraw();
     }
 
@@ -470,8 +474,8 @@
     }
 
     function drawMain(T, now) {
-      var dpr = dims.dpr, w = dims.w, h = dims.h, G = geomMain(), i;
-      g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var w = dims.w, h = dims.h, G = geomMain(), i;
+      g.setTransform(dims.sx, 0, 0, dims.sy, 0, 0);
       g.clearRect(0, 0, w, h);
       g.fillStyle = T.surface;
       g.fillRect(0, 0, w, h);
@@ -592,8 +596,8 @@
     }
 
     function drawErr(T) {
-      var dpr = dims.dpr, w = dims.ew, h = dims.eh, G = geomErr(), d, k;
-      ge.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var w = dims.ew, h = dims.eh, G = geomErr(), d, k;
+      ge.setTransform(dims.esx, 0, 0, dims.esy, 0, 0);
       ge.clearRect(0, 0, w, h);
       ge.fillStyle = T.surface;
       ge.fillRect(0, 0, w, h);
