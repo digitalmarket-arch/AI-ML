@@ -338,7 +338,7 @@
     var mergeCount = el('span', { class: 'small muted num' });
     var mlist = el('ol', { style: 'list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:4px;max-height:236px;overflow:auto;overscroll-behavior:contain', 'aria-label': 'Merge rules in the order they were learned' });
     var emptyNote = el('li', { class: 'small muted', style: 'margin:0;padding:4px 2px;grid-column:1/-1', text: 'No merges yet: every token is a single character. Press “Merge once”.' });
-    var nextLi = el('li', { class: 'small', style: 'margin:0;padding:4px 8px;border:1px dashed var(--haldi);border-radius:var(--radius-sm);color:var(--muted);display:flex;flex-wrap:wrap;align-items:center;gap:4px' });
+    var nextLi = el('li', { class: 'small', style: 'margin:0;padding:4px 8px;border:1px dashed var(--haldi);border-radius:var(--radius-sm);color:var(--muted);grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:6px' });
     var rows = [];
     var mergeBox = el('section', { style: 'border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;background:var(--surface);display:flex;flex-direction:column;gap:8px', 'aria-labelledby': pre + 'ml-h' }, [
       el('div', { class: 'row-between' }, [el('h4', { id: pre + 'ml-h', text: 'Merge rules learned' }), mergeCount]),
@@ -731,9 +731,13 @@
       emptyNote.hidden = k > 0 || M === 0;
       if (k < M) {
         var m = C.merges[k];
-        nextLi.innerHTML = '<span style="font-weight:700;color:var(--ink)">next #' + (k + 1) + '</span> ' + chipHtml(m.a) + ' + ' + chipHtml(m.b) + ' → ' + chipHtml(m.tok) +
-          '<span class="mono" style="margin-left:auto">×' + m.count + '</span>';
-      } else nextLi.textContent = M ? 'Done: no pair appears twice any more.' : 'Nothing to merge yet: no pair appears twice.';
+        nextLi.style.display = 'grid';
+        nextLi.innerHTML = '<span style="font-weight:700;color:var(--ink)">next #' + (k + 1) + '</span><span style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;min-width:0">' +
+          chipHtml(m.a) + '<span aria-hidden="true">+</span>' + chipHtml(m.b) + '<span aria-hidden="true">→</span>' + chipHtml(m.tok) + '</span><span class="mono">×' + m.count + '</span>';
+      } else {
+        nextLi.style.display = 'block';
+        nextLi.textContent = M ? 'Done: no pair appears twice any more.' : 'Nothing to merge yet: no pair appears twice.';
+      }
       mergeCount.textContent = k + ' of ' + M;
       if (k > shownK) mlist.scrollTop = mlist.scrollHeight;
       shownK = k;
