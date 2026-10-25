@@ -9,6 +9,8 @@ The site is interactive:
 - **Python in the browser.** Auto-graded coding exercises run on the page using [Pyodide](https://pyodide.org). Nothing to install.
 - **Quizzes and level tests.** Each module has a 10-question quiz with explanations, and each level ends with a tougher 20-question test (pass mark 70%).
 - **Tough projects.** Each project has a client-style brief, Indian datasets, milestones, a rubric and stretch goals, ending with two grand capstones.
+- **81 original diagrams** in the module readings (about 3 per module), drawn for this course with Indian examples, each checked by a second reviewer who recomputed the numbers. They follow light and dark mode and load only when a module is opened.
+- **Publish and share projects:** upload a finished project to your own GitHub repository from the project page (with a README written for you), then share it on LinkedIn with a ready-made post.
 - **Progress tracking, notes, a study planner and a jargon glossary** in plain English. Everything is saved in your own browser; there are no accounts and no tracking.
 
 **What's inside:** 4 levels, 27 modules, 428 free resources (409 with verified links), 350 quiz questions, 81 auto-graded coding exercises, 12 labs, 18 projects and 180 glossary terms. All text on the site is in English; Hindi and Hinglish appear only in the videos.
