@@ -68,6 +68,26 @@ for (const l of D.labs || []) {
 }
 for (const m of D.modules || []) if (m.lab && !(D.labs || []).some(l => l.id === m.lab)) errors.push(`module ${m.id}: lab ${m.lab} is missing from data/labs.js`);
 for (const g of D.glossary || []) if (g.moduleId && !mods.has(g.moduleId)) warnings.push(`glossary ${g.term}: unknown module ${g.moduleId}`);
+// reading diagrams: assets/figures/<module>.js registers window.AIFigures[module] = [{ id, after, title, caption, alt, svg }]
+const FIG_AFTER = ['overview', 'outcomes', 'studySteps', 'keyTerms', 'indiaExample', 'commonMistakes', 'selfCheck', 'topics'];
+for (const m of D.modules || []) {
+  const f = path.join(ROOT, 'assets/figures', m.id + '.js');
+  if (!m.figs) continue;
+  if (!fs.existsSync(f)) { errors.push(`module ${m.id}: figs is on but ${f} is missing`); continue; }
+  const sb = { window: {} }; vm.createContext(sb);
+  try { vm.runInContext(fs.readFileSync(f, 'utf8'), sb); } catch (e) { errors.push(`figures ${m.id}: file does not load: ${e.message}`); continue; }
+  const figs = (sb.window.AIFigures || {})[m.id];
+  if (!Array.isArray(figs) || !figs.length) { errors.push(`figures ${m.id}: nothing registered for this module`); continue; }
+  dup(figs.map(x => x.id), 'figure');
+  for (const x of figs) {
+    for (const k of ['id', 'title', 'caption', 'alt', 'svg']) if (!x[k]) errors.push(`figure ${m.id}/${x.id}: missing ${k}`);
+    if (x.after && !FIG_AFTER.includes(x.after)) errors.push(`figure ${m.id}/${x.id}: after must be one of ${FIG_AFTER.join(', ')}`);
+    const svg = String(x.svg || '');
+    if (!/^\s*<svg[\s>]/i.test(svg) || !/viewBox=/.test(svg)) errors.push(`figure ${m.id}/${x.id}: svg must start with <svg and have a viewBox`);
+    if (/<script|<foreignObject|\son[a-z]+\s*=|javascript:|(?:xlink:)?href\s*=\s*["']?(?!#)/i.test(svg)) errors.push(`figure ${m.id}/${x.id}: svg contains scripts, event handlers or outside links`);
+    if (/[ऀ-ॿ]/.test(JSON.stringify(x))) errors.push(`figure ${m.id}/${x.id}: text must be English (no Devanagari)`);
+  }
+}
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 for (const m of html.matchAll(/<script src="([^"]+)"/g)) if (!/^https?:/.test(m[1]) && !fs.existsSync(path.join(ROOT, m[1]))) errors.push(`index.html loads missing file ${m[1]}`);
 

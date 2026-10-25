@@ -20,6 +20,40 @@
     });
     return labLoads[id];
   }
+  // diagrams for a module's reading live in assets/figures/<module>.js and load only when the Overview is opened
+  var figLoads = {};
+  function ensureFigures(mid) {
+    if (window.AIFigures && window.AIFigures[mid]) return Promise.resolve(window.AIFigures[mid]);
+    if (figLoads[mid]) return figLoads[mid];
+    figLoads[mid] = new Promise(function (resolve) {
+      var sc = document.createElement('script');
+      sc.src = 'assets/figures/' + mid + '.js';
+      sc.onload = function () { resolve((window.AIFigures && window.AIFigures[mid]) || []); };
+      sc.onerror = function () { delete figLoads[mid]; resolve([]); };
+      document.head.appendChild(sc);
+    });
+    return figLoads[mid];
+  }
+  var SAFE_SVG = function (svg) { return typeof svg === 'string' && /^\s*<svg[\s>]/i.test(svg) && !/<script|<foreignObject|\son[a-z]+\s*=|javascript:|(?:xlink:)?href\s*=\s*["']?(?!#)/i.test(svg); };
+  function placeFigures(m, el) {
+    ensureFigures(m.id).then(function (figs) {
+      if (!el.isConnected || !figs || !figs.length) return;
+      figs.forEach(function (f, i) {
+        if (!SAFE_SVG(f.svg)) return;
+        var fig = document.createElement('figure');
+        fig.className = 'fig';
+        fig.innerHTML = '<div class="fig-art">' + f.svg + '</div><figcaption><strong>' + esc(f.title || '') + '</strong>' + (f.caption ? ' ' + inline(f.caption) : '') + '</figcaption>';
+        var svg = fig.querySelector('svg');
+        if (svg) {
+          svg.removeAttribute('width'); svg.removeAttribute('height');
+          svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', f.alt || f.title || 'Diagram'); svg.setAttribute('focusable', 'false');
+        }
+        var anchor = el.querySelector('[data-sec="' + (f.after || 'overview') + '"]') || el.querySelector('[data-sec="overview"]');
+        if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(fig, anchor.nextSibling);
+        else el.firstChild.appendChild(fig);
+      });
+    });
+  }
   var S = function () { return C.state; };
   var main = document.getElementById('main');
   var currentCleanup = [];
@@ -480,16 +514,17 @@
         if (mm && modById[mm[1]]) return '<a href="#m-' + esc(mm[1]) + '">' + esc(modNo(modById[mm[1]]) + ' ' + modById[mm[1]].title) + '</a>' + (mm[2] ? ' <span class="muted">' + inline(mm[2].replace(/^[:,\-–—\s]+/, '')) + '</span>' : '');
         return inline(p);
       });
-      el.innerHTML = '<div class="stack-lg">' + (pre.length ? '<div class="callout callout-indigo small"><strong>Before this:</strong> ' + pre.join('; ') + '</div>' : '') + '<div class="prose stack">' + (m.overview ? '<p>' + inline(m.overview) + '</p>' : '<p>' + esc((m.topics || []).join(', ')) + '</p>') +
+      el.innerHTML = '<div class="stack-lg">' + (pre.length ? '<div class="callout callout-indigo small"><strong>Before this:</strong> ' + pre.join('; ') + '</div>' : '') + '<div class="prose stack" data-sec="overview">' + (m.overview ? '<p>' + inline(m.overview) + '</p>' : '<p>' + esc((m.topics || []).join(', ')) + '</p>') +
         (m.whyItMatters ? '<div class="callout callout-indigo"><strong>Why it matters:</strong> ' + inline(m.whyItMatters) + '</div>' : '') + '</div>' +
-        listBlock('You will be able to', m.outcomes) +
-        listBlock('Study plan', m.studySteps, true) +
-        (m.keyTerms && m.keyTerms.length ? '<section class="stack-sm"><h2 class="h-sub">Key terms</h2><dl>' + m.keyTerms.map(function (k) { return '<div class="gloss-term"><dt>' + esc(k.term) + '</dt><dd>' + inline(k.meaning) + '</dd></div>'; }).join('') + '</dl></section>' : '') +
-        (m.indiaExample ? '<section class="stack-sm"><h2 class="h-sub">In India</h2><p class="prose">' + inline(m.indiaExample) + '</p></section>' : '') +
-        listBlock('Common mistakes', m.commonMistakes) +
-        listBlock('Check yourself (open tasks)', m.selfCheck) +
-        listBlock('Topics covered', m.topics) +
+        listBlock('You will be able to', m.outcomes, false, 'outcomes') +
+        listBlock('Study plan', m.studySteps, true, 'studySteps') +
+        (m.keyTerms && m.keyTerms.length ? '<section class="stack-sm" data-sec="keyTerms"><h2 class="h-sub">Key terms</h2><dl>' + m.keyTerms.map(function (k) { return '<div class="gloss-term"><dt>' + esc(k.term) + '</dt><dd>' + inline(k.meaning) + '</dd></div>'; }).join('') + '</dl></section>' : '') +
+        (m.indiaExample ? '<section class="stack-sm" data-sec="indiaExample"><h2 class="h-sub">In India</h2><p class="prose">' + inline(m.indiaExample) + '</p></section>' : '') +
+        listBlock('Common mistakes', m.commonMistakes, false, 'commonMistakes') +
+        listBlock('Check yourself (open tasks)', m.selfCheck, false, 'selfCheck') +
+        listBlock('Topics covered', m.topics, false, 'topics') +
         '</div>';
+      if (m.figs) placeFigures(m, el);
     } else if (tab === 'watch') {
       // one best pick, then every other option in one list: recommended ones first, global English last
       var mp = mainPicks(m), list = mp.list, best = mp.main, shown = 6;
@@ -531,10 +566,10 @@
       pendingFlush.push(flushNote); currentCleanup.push(flushNote);
     }
   }
-  function listBlock(title, arr, ordered) {
+  function listBlock(title, arr, ordered, key) {
     if (!arr || !arr.length) return '';
     var tag = ordered ? 'ol' : 'ul';
-    return '<section class="stack-sm"><h2 class="h-sub">' + esc(title) + '</h2><' + tag + ' class="prose">' + arr.map(function (x) { return '<li>' + inline(x) + '</li>'; }).join('') + '</' + tag + '></section>';
+    return '<section class="stack-sm"' + (key ? ' data-sec="' + key + '"' : '') + '><h2 class="h-sub">' + esc(title) + '</h2><' + tag + ' class="prose">' + arr.map(function (x) { return '<li>' + inline(x) + '</li>'; }).join('') + '</' + tag + '></section>';
   }
   function recordQuiz(key, score) {
     var q = S().quiz[key] || { best: 0, attempts: 0 };

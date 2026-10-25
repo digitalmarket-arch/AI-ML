@@ -435,3 +435,21 @@ details.fold > div { padding: 0 14px 14px; }
 .continue-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
 .continue-list li { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .chip-rec { background: transparent; color: var(--ink); border: 1px solid var(--ok); }
+
+/* diagrams in module readings (inline SVG drawn with the site's colour tokens, so they follow light and dark) */
+.fig { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.fig-art { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
+.fig-art svg { display: block; width: 100%; height: auto; max-width: 480px; margin: 0 auto; overflow: visible; }
+:where(.fig-art svg text) { font-family: var(--font-body); fill: var(--ink); }
+:where(.fig-art svg) .mono { font-family: var(--font-mono); }
+.fig figcaption { font-size: .92rem; line-height: 1.5; color: var(--muted); max-width: 70ch; }
+.fig figcaption strong { color: var(--ink); }
+.f-ink { fill: var(--ink); } .f-muted { fill: var(--muted); } .f-line { fill: var(--line); } .f-none { fill: none; }
+.f-surface { fill: var(--surface); } .f-surface2 { fill: var(--surface-2); } .f-bg { fill: var(--bg); }
+.f-indigo { fill: var(--indigo); } .f-indigo-soft { fill: var(--indigo-soft); }
+.f-haldi { fill: var(--haldi); } .f-haldi-soft { fill: var(--haldi-soft); }
+.f-sindoor { fill: var(--sindoor); } .f-ok { fill: var(--ok); } .f-ok-soft { fill: var(--ok-soft); } .f-bad { fill: var(--bad); } .f-bad-soft { fill: var(--bad-soft); }
+.f-s1 { fill: var(--series-1); } .f-s2 { fill: var(--series-2); } .f-s3 { fill: var(--series-3); } .f-s4 { fill: var(--series-4); }
+.s-ink { stroke: var(--ink); } .s-muted { stroke: var(--muted); } .s-line { stroke: var(--line); } .s-indigo { stroke: var(--indigo); }
+.s-haldi { stroke: var(--haldi); } .s-sindoor { stroke: var(--sindoor); } .s-ok { stroke: var(--ok); } .s-bad { stroke: var(--bad); }
+.s-s1 { stroke: var(--series-1); } .s-s2 { stroke: var(--series-2); } .s-s3 { stroke: var(--series-3); } .s-s4 { stroke: var(--series-4); }
