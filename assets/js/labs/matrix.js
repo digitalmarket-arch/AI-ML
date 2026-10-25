@@ -118,13 +118,13 @@
     var lab = el('div', { class: 'lab' });
 
     lab.appendChild(el('p', { class: 'lab-note', html:
-      '<b>What you are seeing:</b> a 2×2 <b>matrix</b> (a box of 4 numbers) is a machine that moves every point of the plane. ' +
-      'The faint grey squares are the original grid; the blue lines show where that grid lands. ' +
-      'The green arrow <b>î</b> ("i-hat", one step right) lands on the first column <span class="mono">(a, c)</span> and the red arrow ' +
-      '<b>ĵ</b> ("j-hat", one step up) lands on the second column <span class="mono">(b, d)</span>. ' +
-      'The dashed square of area 1 lands on the yellow parallelogram; its area, with a minus sign when space gets flipped, is the <b>determinant</b> (how much the matrix scales areas). ' +
-      'Dashed teal lines are <b>eigenvectors</b> (directions that stay on their own line: arrows there only get stretched, squashed or flipped, never turned), and the stretch factor on each line is its <b>eigenvalue</b>, written λ ("lambda"). ' +
-      'Drag the arrow tips, use the sliders, or tap anywhere to move the test <b>vector</b> <b>x</b> (an arrow from (0, 0)).' }));
+      '<b>What you are seeing:</b> a 2×2 <b>matrix</b> (a box of 4 numbers) moves every point of the plane. ' +
+      'Faint grey squares are the original grid; blue lines show where it lands. ' +
+      'The green arrow <b>î</b> ("i-hat", one step right) lands on column 1 <span class="mono">(a, c)</span>; the red arrow ' +
+      '<b>ĵ</b> ("j-hat", one step up) lands on column 2 <span class="mono">(b, d)</span>. ' +
+      'The dashed square of area 1 lands on the yellow parallelogram, whose area (with a minus sign if space flips) is the <b>determinant</b>: how much the matrix scales areas. ' +
+      'Dashed teal lines are <b>eigenvectors</b> (directions that stay on their own line: only stretched, squashed or flipped, never turned); the stretch on each is its <b>eigenvalue</b> λ ("lambda"). ' +
+      'Drag the arrow tips, use the sliders, or tap to move the test <b>vector</b> <b>x</b> (an arrow from (0, 0)).' }));
 
     var body = el('div', { class: 'lab-body' });
 
@@ -593,7 +593,11 @@
       var nx2 = dl > 1 ? -ddy / dl : R, ny2 = dl > 1 ? ddx / dl : -R;
       if (ny2 > 0) { nx2 = -nx2; ny2 = -ny2; }
       var areaC = [18, -18, 34, -34, 50, -50].map(function (r) { return [ctr[0] + nx2 * r, ctr[1] + ny2 * r]; });
-      if (Math.abs(D) * u * u >= 1500) areaC.unshift(ctr);
+      if (Math.abs(D) * u * u >= 1500 && dl > 1) {
+        // roomy: the centre first, then slide along the long diagonal, which keeps the label inside the shape
+        var ex = ddx / dl, ey = ddy / dl;
+        areaC = [ctr, [ctr[0] - ex * 16, ctr[1] - ey * 16], [ctr[0] + ex * 16, ctr[1] + ey * 16], [ctr[0] - ex * 30, ctr[1] - ey * 30]].concat(areaC);
+      }
       put('area = ' + fD(D) + (flipped ? ' (flipped)' : ''), areaC, flipped ? bad : ink, '600', small);
       put('Mx', around(out, dO[0], dO[1], 16), ink, '700', small);
       put('x', [[inp[0] + 11, inp[1] - 11], [inp[0] - 11, inp[1] - 11], [inp[0] + 11, inp[1] + 11], [inp[0] - 11, inp[1] + 11]], muted, '700', small);
