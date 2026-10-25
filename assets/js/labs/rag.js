@@ -189,7 +189,7 @@
   var METHOD_NAME = { bm25: 'BM25', tfidf: 'TF-IDF cosine' };
   var METHOD_TEXT = {
     bm25: 'BM25 (“Best Matching 25”, the classic search-engine score): for each word of your question found in a chunk, it adds that word’s rarity (a word in few chunks counts more). A word repeated in the chunk helps, but less and less each time, and long chunks are marked down a little so they do not win just by being long.',
-    tfidf: 'TF-IDF cosine: each chunk and your question become lists of word weights (TF-IDF = how often a word appears in the chunk, times how rare it is across chunks). The score is the cosine similarity of the two lists: 0 means no shared words, 1 means the same words in the same mix.'
+    tfidf: 'TF-IDF cosine: each chunk and your question become lists of word weights (TF-IDF = how often a word appears in the chunk, times how rare it is across chunks). The score is the cosine similarity of the two lists (how closely they point the same way, like the angle between two arrows): 0 means no shared words, 1 means the same words in the same mix.'
   };
   var TASKS = [
     { id: 't1', text: 'Fit a whole answer into one chunk. The GSTIN answer starts out cut in two. Change the chunk size or the overlap until the whole answer sits inside one retrieved chunk.' },
@@ -207,10 +207,26 @@
     if (s.length > 3) s = s.slice(0, -3).replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + s.slice(-3);
     return (neg ? '−' : '') + s;
   }
-  function fmtScore(v, method) { return method === 'bm25' ? v.toFixed(2) : v.toFixed(3); }
+  function scoreDp(method) { return method === 'bm25' ? 2 : 3; }
+  function fmtScore(v, method) { var U = Math.pow(10, scoreDp(method)); return (Math.round(v * U) / U).toFixed(scoreDp(method)); }
+  // rounds the parts of a sum so the shown parts add up exactly to the shown total (largest-remainder rounding)
+  function roundParts(vals, total, method) {
+    var dp = scoreDp(method), U = Math.pow(10, dp), target = Math.round(total * U), i;
+    var fl = vals.map(function (v) { return Math.floor(v * U + 1e-9); }), sum = 0;
+    for (i = 0; i < fl.length; i++) sum += fl[i];
+    var idx = vals.map(function (v, j) { return j; }).sort(function (a, b) { return (vals[b] * U - fl[b]) - (vals[a] * U - fl[a]); });
+    for (i = 0; sum < target && i < idx.length; i++) { fl[idx[i]]++; sum++; }
+    for (i = idx.length - 1; sum > target && i >= 0; i--) if (fl[idx[i]] > 0) { fl[idx[i]]--; sum--; }
+    return fl.map(function (x) { return (x / U).toFixed(dp); });
+  }
   function ordinal(n) { var s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
   function listAnd(a) { return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
   function normQ(q) { return String(q).toLowerCase().replace(/\s+/g, ' ').trim(); }
+  // true when two questions search for exactly the same words (so retrieval cannot differ)
+  function sameWords(a, b) {
+    function key(q) { var u = {}; queryTerms(q).forEach(function (t) { u[t] = 1; }); return Object.keys(u).sort().join(' '); }
+    return key(a) === key(b);
+  }
   function presetById(id) { for (var i = 0; i < PRESETS.length; i++) if (PRESETS[i].id === id) return PRESETS[i]; return null; }
   // the question's search terms with the word the learner typed (so "goods" shows as "goods", not "good")
   function termForms(q) {
@@ -324,7 +340,7 @@
           '<h2 class="lab-h">Ask the guide</h2>' +
           '<div class="control"><label for="' + P + 'preset">Preset question</label>' +
             '<select id="' + P + 'preset" style="width:100%">' + presetOpts + '</select></div>' +
-          '<div class="control"><label for="' + P + 'q">Question sent to the retriever (edit it or type your own)</label>' +
+          '<div class="control"><label for="' + P + 'q">Question sent to the retriever, the search step (edit it or type your own)</label>' +
             '<textarea id="' + P + 'q" rows="3" maxlength="300" spellcheck="false" style="min-height:0"></textarea>' +
             '<p class="small muted" id="' + P + 'kw"></p></div>' +
           '<div id="' + P + 'check" style="background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:var(--radius-sm);padding:10px 12px;font-size:.92rem"></div>' +
@@ -372,7 +388,7 @@
       size: DEF.size, overlap: DEF.overlap, k: DEF.k, method: DEF.method, limit: DEF.limit,
       target: DEF.preset, text: presetById(DEF.preset).q,
       insp: -1, inspPicked: false, hover: -1,
-      chunkTouched: false, lastChange: '', notWhole: {}, vagueWrong: {}, expanded: {}
+      lastChange: '', cut: {}, vagueWrong: {}, expanded: {}
     };
     var R = null;            // the latest retrieval result
     var prevEval = null;     // the evaluation before the latest change (for task 2)
@@ -514,12 +530,19 @@
       return html;
     }
     function sectionOf(c) { return doc.words[c.start].sec; }
+    // "Section 4: title", or "Sections 9–11, starting in “title”" when a chunk runs across section breaks
+    function sectionText(c) {
+      var s0 = sectionOf(c), s1 = doc.words[c.end - 1].sec;
+      return s0 === s1 ? 'Section ' + (s0 + 1) + ': ' + esc(SECTIONS[s0].title)
+        : 'Sections ' + (s0 + 1) + '–' + (s1 + 1) + ', starting in “' + esc(SECTIONS[s0].title) + '”';
+    }
     function whyScore(ci) {
       var cb = R.contrib[ci], parts = [];
       for (var t in cb) parts.push([t, cb[t]]);
       parts.sort(function (a, b) { return b[1] - a[1]; });
       if (!parts.length) return 'No word of your question is in this chunk, so its score is 0.';
-      return 'Score ' + fmtScore(R.scores[ci], S.method) + ' = ' + parts.map(function (p) { return '“' + esc(R.forms[p[0]] || p[0]) + '” ' + fmtScore(p[1], S.method); }).join(' + ');
+      var shown = roundParts(parts.map(function (p) { return p[1]; }), R.scores[ci], S.method);
+      return 'Score ' + fmtScore(R.scores[ci], S.method) + ' = ' + parts.map(function (p, j) { return '“' + esc(R.forms[p[0]] || p[0]) + '” ' + shown[j]; }).join(' + ');
     }
     function chunkLabel(ci) { return 'chunk ' + (ci + 1); }
     function rankText(ci) {
@@ -534,7 +557,7 @@
       var A = R.A, p = presetById(S.target);
       if (!A) return { status: 'none', intro: '', main: '<strong>No answer to check.</strong> This is your own question, so the lab does not know where its answer is. Pick a preset question to see the answer check.', short: 'No check' };
       var reworded = normQ(S.text) !== normQ(p.q), intro = '';
-      if (p.vague) intro = (reworded ? 'You have reworded the vague question. It means: ' : 'This vague question really means: ') + '<em>' + esc(p.means) + '</em>';
+      if (p.vague) intro = (!reworded ? 'This vague question really means: ' : sameWords(S.text, p.q) ? 'Your rewording still searches for the same words, so the results cannot change. The question really means: ' : 'You have reworded the vague question. It means: ') + '<em>' + esc(p.means) + '</em>';
       else if (reworded) intro = 'You have reworded the preset. The check still looks for its answer.';
       var html, short;
       function where(ci) { return chunkLabel(ci) + ' (' + rankText(ci) + ')'; }
@@ -597,7 +620,7 @@
         }
         return '<li class="card" style="padding:12px 14px">' +
           '<div class="row-between"><strong>#' + (j + 1) + ' · Chunk ' + (ci + 1) + ' of ' + n + '</strong><span class="mono small">score ' + fmtScore(R.scores[ci], S.method) + '</span></div>' +
-          '<p class="small muted" style="margin-top:2px">Section ' + (sectionOf(c) + 1) + ': ' + esc(SECTIONS[sectionOf(c)].title) + ' · words ' + fmtInt(c.start + 1) + '–' + fmtInt(c.end) + '</p>' +
+          '<p class="small muted" style="margin-top:2px">' + sectionText(c) + ' · words ' + fmtInt(c.start + 1) + '–' + fmtInt(c.end) + '</p>' +
           '<p class="small muted" style="margin-top:2px">' + whyScore(ci) + '</p>' +
           (tag ? '<div class="row" style="margin-top:6px">' + tag + '</div>' : '') +
           '<p style="margin-top:8px;font-size:.95rem">' + chunkHTML(c, isLong && !open) + '</p>' +
@@ -628,12 +651,15 @@
       if (!c) { elInsp.innerHTML = ''; return; }
       var note = '';
       if (!S.inspPicked) {
-        if (R.A && S.insp === R.A.main) note = ' This is the chunk that holds the answer.';
+        if (R.A && S.insp === R.A.main) {
+          var ow = overlapOf(c, R.A.span);
+          note = ow === R.A.len ? ' This chunk holds the whole answer.' : ' This chunk holds ' + ow + ' of the ' + R.A.len + ' answer words; the rest is in a neighbouring chunk.';
+        }
         else if (R.got.length && S.insp === R.got[0]) note = ' This is the top-ranked chunk.';
       }
       elInsp.innerHTML =
         '<p class="small"><strong>Chunk ' + (S.insp + 1) + ' of ' + R.chunks.length + '</strong> · ' + rankText(S.insp) + (R.rank[S.insp] ? ' · score ' + fmtScore(R.scores[S.insp], S.method) : '') + '.' + esc(note) + '</p>' +
-        '<p class="small muted" style="margin-top:2px">Section ' + (sectionOf(c) + 1) + ': ' + esc(SECTIONS[sectionOf(c)].title) + ' · words ' + fmtInt(c.start + 1) + '–' + fmtInt(c.end) + '</p>' +
+        '<p class="small muted" style="margin-top:2px">' + sectionText(c) + ' · words ' + fmtInt(c.start + 1) + '–' + fmtInt(c.end) + '</p>' +
         '<p style="margin-top:6px;font-size:.92rem">' + chunkHTML(c, c.end - c.start > LONG) + '</p>' +
         (c.end - c.start > LONG ? '<p class="small muted" style="margin-top:4px">Showing ' + EXCERPT + ' of its ' + (c.end - c.start) + ' words.</p>' : '');
     }
@@ -662,19 +688,22 @@
 
     /* ---------- task checks (after every change) ---------- */
     function checkTasks() {
-      var A = R.A, p = presetById(S.target);
+      var A = R.A, p = presetById(S.target), chunkChange = S.lastChange === 'size' || S.lastChange === 'overlap';
       if (A) {
-        if (A.status !== 'whole') S.notWhole[S.target] = true;
-        if (A.status === 'whole' && S.chunkTouched && S.notWhole[S.target]) completeTask('t1');
+        // t1: the answer was cut by chunk boundaries (no chunk held all of it), and a chunk size / overlap change put it whole into a retrieved chunk
+        if (!A.whole.length) S.cut[S.target] = true;
+        if (A.status === 'whole' && S.cut[S.target] && chunkChange) completeTask('t1');
         if (S.lastChange === 'k' && prevEval && prevEval.key === R.key && S.k > prevEval.k && !prevEval.complete && A.complete) completeTask('t2');
         if (p && p.vague) {
-          var asked = normQ(S.text) === normQ(p.q);
-          if (asked && (A.top1 < 0 || A.top1Words === 0)) S.vagueWrong[p.id] = true;
-          if (!asked && S.vagueWrong[p.id] && A.top1Right) completeTask('t3');
+          // a rewording only counts if it searches for different words, and only the rewording itself can tick the task
+          var same = sameWords(S.text, p.q);
+          if (same && (A.top1 < 0 || A.top1Words === 0)) S.vagueWrong[p.id] = true;
+          if (!same && S.lastChange === 'question' && S.vagueWrong[p.id] && A.top1Right) completeTask('t3');
         }
       }
-      if (R.over && (S.lastChange === 'k' || S.lastChange === 'size' || S.lastChange === 'overlap')) completeTask('t4');
-      prevEval = { key: R.key, k: S.k, complete: !!(A && A.complete) };
+      // t4: a bigger k, chunk size or overlap pushed the prompt's token count up and over the limit
+      if (R.over && (S.lastChange === 'k' || chunkChange) && prevEval && R.tokens > prevEval.tokens) completeTask('t4');
+      prevEval = { key: R.key, k: S.k, complete: !!(A && A.complete), tokens: R.tokens };
     }
     function update(change, announceMs) {
       S.lastChange = change || '';
@@ -884,7 +913,7 @@
       var v = clamp(Math.round(+elSize.value / SIZE_STEP) * SIZE_STEP, SIZE_MIN, SIZE_MAX);
       if (v === S.size && !settled) return;
       var changed = v !== S.size;
-      S.size = v; S.chunkTouched = S.chunkTouched || changed;
+      S.size = v;
       if (changed) { S.inspPicked = false; S.hover = -1; }
       setOverlapMax();
       update(changed ? 'size' : S.lastChange, settled ? 500 : null);
@@ -893,7 +922,7 @@
       var v = clamp(Math.round(+elOv.value / OVERLAP_STEP) * OVERLAP_STEP, 0, Math.floor(S.size / 2));
       if (v === S.overlap && !settled) return;
       var changed = v !== S.overlap;
-      S.overlap = v; S.chunkTouched = S.chunkTouched || changed;
+      S.overlap = v;
       if (changed) { S.inspPicked = false; S.hover = -1; }
       update(changed ? 'overlap' : S.lastChange, settled ? 500 : null);
     }
