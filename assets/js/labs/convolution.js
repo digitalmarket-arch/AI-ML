@@ -306,7 +306,7 @@
 
     var calc = el('div', { class: 'card-flat', style: 'padding:12px 14px;display:flex;flex-direction:column;gap:8px' });
     var calcHead = el('div', { style: 'font-weight:600;font-size:.95rem;line-height:1.35' });
-    var calcBody = el('div', { style: 'display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 10px' });
+    var calcBody = el('div', { style: 'display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px 10px' });
     var calcFoot = el('div', { class: 'small', style: 'line-height:1.45' });
     calc.appendChild(calcHead); calc.appendChild(calcBody); calc.appendChild(calcFoot);
     left.appendChild(calc);
@@ -664,8 +664,13 @@
         '<div style="display:grid;grid-template-columns:repeat(' + cols + ',' + (colW || '3.3em') + ');gap:2px;font-family:var(--font-mono);font-size:.78rem;font-variant-numeric:tabular-nums">' +
         cells + '</div></div>';
     }
-    function op(s, grid) {
-      return '<div style="display:flex;align-items:flex-end;gap:10px;min-width:0"><span aria-hidden="true" style="font-size:1.2rem;color:var(--muted);padding-bottom:.9em">' + s + '</span>' + grid + '</div>';
+    // an operator (×, =, →) kept on the same line as the grid after it, centred on the grid's rows
+    function op(s, grid, rows) {
+      return '<div style="display:flex;align-items:flex-start;gap:10px;min-width:0">' +
+        '<div aria-hidden="true" style="display:flex;flex-direction:column;gap:3px">' +
+        '<span style="font-size:.76rem;font-weight:600;visibility:hidden">x</span>' +
+        '<div style="display:flex;align-items:center;font-size:.78rem;height:calc(' + rows + ' * 2em + ' + (rows - 1) * 2 + 'px)">' +
+        '<span style="font-size:1.2rem;line-height:1;color:var(--muted)">' + s + '</span></div></div>' + grid + '</div>';
     }
     function valueSwatch(v, scale) {
       var c = T ? colorOf(v, scale) : null;
@@ -704,7 +709,7 @@
       var v = R.out[i * R.n + j];
       calcHead.innerHTML = 'Feature-map pixel: row ' + (i + 1) + ', column ' + (j + 1) +
         ' <span class="muted" style="font-weight:400">(its 3 × 3 patch is outlined in yellow on the input)</span>';
-      calcBody.innerHTML = gridBox('Input patch', patch, 3) + op('×', gridBox('Kernel', kern, 3)) + op('=', gridBox('Products', prod, 3));
+      calcBody.innerHTML = gridBox('Input patch', patch, 3) + op('×', gridBox('Kernel', kern, 3), 3) + op('=', gridBox('Products', prod, 3), 3);
       calcFoot.innerHTML = 'Add up the 9 products: <b class="mono" style="font-size:1rem">' + fmt(v) + '</b>' + valueSwatch(v, R.maxAbs) +
         '. That one sum is the highlighted pixel of the feature map.' +
         (padded ? ' <span class="muted">Dashed cells are the border of 0s added by “same” padding.</span>' : '') +
@@ -727,10 +732,10 @@
       var rf = stride + 3; // input area one pooled pixel "sees": (2 − 1) × stride + 3
       calcHead.innerHTML = 'Pooled pixel: row ' + (i + 1) + ', column ' + (j + 1) +
         ' <span class="muted" style="font-weight:400">(from feature-map rows ' + (2 * i + 1) + '–' + (2 * i + 2) + ', columns ' + (2 * j + 1) + '–' + (2 * j + 2) + ')</span>';
-      calcBody.innerHTML = gridBox('Feature-map block', raw, 2, '3.6em') + op('→', gridBox('After ReLU', rel, 2, '3.6em')) +
-        op('→', gridBox('Max', cellBox(fmt(best), tintFor(best, scale, 40) || 'var(--surface)', 'var(--ink)', 'font-weight:700;'), 1, '3.6em'));
+      calcBody.innerHTML = gridBox('Feature-map block', raw, 2, '3.6em') + op('→', gridBox('After ReLU', rel, 2, '3.6em'), 2) +
+        op('→', gridBox('Max', cellBox(fmt(best), tintFor(best, scale, 40) || 'var(--surface)', 'var(--ink)', 'font-weight:700;min-height:calc(4em + 2px);'), 1, '3.6em'), 2);
       calcFoot.innerHTML = 'ReLU turns the negatives into 0, then max-pool keeps only the biggest of the 4: <b class="mono" style="font-size:1rem">' + fmt(best) + '</b>' + valueSwatch(best, scale) +
-        '. This one number sums up a ' + rf + ' × ' + rf + ' patch of the input (dashed yellow box), so deeper layers see bigger areas.';
+        '. This one number stands for a ' + rf + ' × ' + rf + ' patch of the input (dashed yellow box), so deeper layers see bigger areas.';
     }
 
     /* ---------- drawing ---------- */
@@ -787,7 +792,7 @@
         Lo.inX = x1 + c1; Lo.inY = top1 + c1;
         var top2 = snap(top1 + 30 * c1 + 14 + titleH), x2 = snap((Wd - 42 * c2 - gap) / 2);
         Lo.fSlot = { x: x2, y: top2, w: 28 * c2 };
-        Lo.pSlot = { x: snap(x2 + 28 * c2 + gap), y: top2, w: 14 * c2 };
+        Lo.pSlot = { x: snap(x2 + 28 * c2 + gap), y: snap(top2 + 7 * c2), w: 14 * c2 };
         Lo.titleY = top1 - 8; Lo.titleY2 = top2 - 8;
         Lo.H = Math.ceil(top2 + 28 * c2 + legendH);
         var ly = top1 + 30 * c1 + 4;
@@ -917,9 +922,13 @@
 
       /* titles */
       title(pad ? ['Input 28 × 28, plus a border of 0s', 'Input 28 × 28 + 0-border', 'Input + 0-border'] : ['Input 28 × 28', 'Input'], L.inX, L.titleY, L.inSlot.w - c1);
-      title(['Feature map ' + R.n + ' × ' + R.n, R.n + ' × ' + R.n], L.fSlot.x, L.titleY2, L.fSlot.w + L.gap - 6);
-      if (poolOn) title(['ReLU + max-pool ' + PR.m + ' × ' + PR.m, 'Pooled ' + PR.m + ' × ' + PR.m, PR.m + ' × ' + PR.m], L.pSlot.x, L.titleY2, L.W - L.pSlot.x - 4);
-      else title(['ReLU + max-pool', 'Pooling'], L.pSlot.x, L.titleY2, L.W - L.pSlot.x - 4);
+      var F = fGeom(), P = pGeom(), wide = L.mode === 'wide';
+      var fTitleY = wide ? L.titleY2 : F.y - 8;
+      var pTitleY = wide ? L.titleY2 : (P && P.n > 0 ? P.y : L.pSlot.y) - 8;
+      title(['Feature map ' + R.n + ' × ' + R.n, R.n + ' × ' + R.n], wide ? L.fSlot.x : F.x, fTitleY, L.fSlot.w + L.gap - 6);
+      var pX = wide || !(P && P.n > 0) ? L.pSlot.x : P.x;
+      if (poolOn) title(['ReLU + max-pool ' + PR.m + ' × ' + PR.m, 'Pooled ' + PR.m + ' × ' + PR.m, PR.m + ' × ' + PR.m], pX, pTitleY, L.W - pX - 4);
+      else title(['ReLU + max-pool', 'Pooling'], pX, pTitleY, L.W - pX - 4);
 
       /* input, with the padding border when "same" */
       if (pad) {
@@ -934,7 +943,7 @@
       frameRect(L.inX - 0.5, L.inY - 0.5, inSize + 1, inSize + 1, rgb(T.line), 1);
 
       /* feature map */
-      var F = fGeom(), fSize = F.n * F.c;
+      var fSize = F.n * F.c;
       var revealed = anim ? anim.count : R.n * R.n;
       paintImage(fCv, R.n, function (k) { return k < revealed ? colorOf(R.out[k], R.maxAbs) : T.surface; });
       g.drawImage(fCv, F.x, F.y, fSize, fSize);
@@ -942,7 +951,6 @@
       frameRect(F.x - 0.5, F.y - 0.5, fSize + 1, fSize + 1, rgb(T.line), 1);
 
       /* pooled map, or a placeholder when it is switched off */
-      var P = pGeom();
       if (P && P.n > 0) {
         var pSize = P.n * P.c;
         paintImage(pCv, P.n, function (k) {
@@ -993,11 +1001,12 @@
       }
 
       /* colour legend under the feature map */
-      drawLegend();
+      drawLegend(F);
     }
-    function drawLegend() {
-      var y = L.fSlot.y + 28 * L.c2 + 17;
-      var x0 = L.fSlot.x, avail = L.fSlot.w;
+    function drawLegend(F) {
+      var wide = L.mode === 'wide';
+      var y = wide ? L.fSlot.y + 28 * L.c2 + 17 : F.y + F.n * F.c + 17;
+      var x0 = wide ? L.fSlot.x : F.x, avail = Math.max(F.n * F.c, 150);
       g.font = '12px ' + T.font;
       g.textBaseline = 'middle';
       if (!(R.maxAbs > 0)) {
