@@ -32,10 +32,10 @@
   var ANIM_MS = 450;
 
   var TASKS = [
-    { id: 't1', part: 1, text: 'Part 1: switch from No scaling to Min-max or Standard scaling and watch the 5 nearest neighbours change.' },
-    { id: 't2', part: 1, text: 'Part 1: find out which feature decides the distance when nothing is scaled, then answer the quick check under the table.' },
-    { id: 't3', part: 2, text: 'Part 2: spot the fake order. With label encoding, measure Mumbai to Chennai (3 steps apart, as if they were the most different cities), then measure the same pair with one-hot.' },
-    { id: 't4', part: 3, text: 'Part 3: let the scaler learn from all rows (the leak) and see the 2025 test score look better than the honest Pipeline score.' }
+    { id: 't1', short: 'see the neighbours change', text: 'Part 1: switch from No scaling to Min-max or Standard scaling and watch the 5 nearest neighbours change.' },
+    { id: 't2', short: 'find the feature that decides the distance', text: 'Part 1: find out which feature decides the distance when nothing is scaled, then answer the quick check under the table.' },
+    { id: 't3', short: 'spot the fake order', text: 'Part 2: spot the fake order. With label encoding, measure Mumbai to Chennai (3 steps apart, as if they were the most different cities), then measure the same pair with one-hot.' },
+    { id: 't4', short: 'see the leak flatter the score', text: 'Part 3: let the scaler learn from all rows (the leak) and see the 2025 test score look better than the honest Pipeline score.' }
   ];
 
   /* ---------- small helpers ---------- */
@@ -204,7 +204,7 @@
     var S = {
       part: 1,
       scale: 'none', query: P1_QUERY, hover: -1,
-      enc: 'label', pa: 0, pb: 1, yaw: 0.62, pitch: 0.42,
+      enc: 'label', pa: 0, pb: 1, yaw: 1.32, pitch: 0.28,
       fitAll: false, rise: RISE_START, sel: P3_START_ROW,
       quiz: '', seenLabelMC: false, seenOneHotMC: false
     };
@@ -329,7 +329,7 @@
       '<div class="stack-sm" data-part="3" hidden>' +
         '<p class="callout small" id="' + P + 'verdict"></p>' +
         '<h2 class="lab-h">Why did the score change?</h2>' +
-        '<p class="small" id="' + P + 'why"></p>' +
+        '<div class="stack-sm small" id="' + P + 'why"></div>' +
         '<h2 class="lab-h">The 20 test rows from 2025</h2>' +
         '<p class="small muted">Scaled income = (income − mean) ÷ SD, with each scaler’s own mean and SD. The SD is the population SD (divide by n, ddof=0), which is what scikit-learn’s <code>StandardScaler</code> uses; pandas’ <code>.std()</code> divides by n − 1 instead. Rows in bold change their prediction when the scaler leaks.</p>' +
         '<div class="table-wrap" style="position:relative;width:0;min-width:100%;max-height:24em;overflow:auto" tabindex="0" role="region" aria-label="The 20 test rows from 2025"><table class="simple num" style="white-space:nowrap" id="' + P + 't3"></table></div>' +
@@ -371,7 +371,7 @@
       if (done[id]) return;
       done[id] = true;
       markLi(id);
-      pendingTaskMsg = ' Task done: ' + TASKS.filter(function (t) { return t.id === id; })[0].text.split(':')[0] + ' task.';
+      pendingTaskMsg = ' Task done: ' + TASKS.filter(function (t) { return t.id === id; })[0].short + '.';
       if (ctx && ctx.onTaskDone) ctx.onTaskDone(id);
     }
     var announceTimer = 0;
@@ -525,10 +525,22 @@
       starPath(qx, qy, r + 6);
       g.fillStyle = T.haldi; g.fill(); g.strokeStyle = T.ink; g.lineWidth = 1.5; g.stroke();
       // rank numbers
-      g.font = font(T, G.small ? 11 : 12, 700); g.textAlign = 'left'; g.textBaseline = 'middle';
+      // rank numbers: try four spots round each dot and take the first that does not cover another number or the star
+      g.font = font(T, G.small ? 11 : 12, 700); g.textAlign = 'center'; g.textBaseline = 'middle';
+      var placed = [{ x: qx, y: qy, r: r + 7 }], spots = [[10, -10], [-10, -10], [10, 10], [-10, 10], [0, -15], [0, 15]];
       NB.forEach(function (nb, rank) {
-        var px = X1(G, A[nb.j].inc), py = Y1(G, A[nb.j].age), dx = px >= G.pl + G.pw - 22 ? -18 : 8;
-        haloText(T, String(rank + 1), px + dx, py - 9);
+        var px = X1(G, A[nb.j].inc), py = Y1(G, A[nb.j].age), best = spots[0], k, m;
+        for (k = 0; k < spots.length; k++) {
+          var lx = px + spots[k][0], ly = py + spots[k][1], free = lx > G.pl + 4 && lx < G.pl + G.pw - 4 && ly > G.pt + 4;
+          for (m = 0; m < placed.length && free; m++) if (Math.abs(placed[m].x - lx) < (placed[m].r || 9) && Math.abs(placed[m].y - ly) < (placed[m].r || 10)) free = false;
+          for (m = 0; m < NB.length && free; m++) {
+            var ox = X1(G, A[NB[m].j].inc), oy = Y1(G, A[NB[m].j].age);
+            if (m !== rank && Math.abs(ox - lx) < r + 5 && Math.abs(oy - ly) < r + 5) free = false;
+          }
+          if (free) { best = spots[k]; break; }
+        }
+        placed.push({ x: px + best[0], y: py + best[1] });
+        haloText(T, String(rank + 1), px + best[0], py + best[1]);
       });
       g.restore();
     }
@@ -630,7 +642,7 @@
       } else if (a === 'age') msg = '<b>Not quite.</b> Pick No scaling and look at the “Income’s share” column. Who are the query’s neighbours: people of the same age, or people with the same income?';
       else msg = '<b>Not quite.</b> Pick No scaling and look at the “Income’s share” column. Is it anywhere near 50%?';
       elQfb.innerHTML = msg;
-      if (a === 'inc' && pendingTaskMsg) announce(pendingTaskMsg.trim());
+      if (a === 'inc' && pendingTaskMsg) announce('Right answer.');
     }
 
     /* ================= PART 2: label encoding versus one-hot ================= */
@@ -697,16 +709,23 @@
     var EDGES = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]];
     function tetraPts() {
       var cy = Math.cos(S.yaw), sy = Math.sin(S.yaw), cp = Math.cos(S.pitch), sp = Math.sin(S.pitch);
-      var cx0 = dims.w / 2, cy0 = dims.h * 0.56, R = Math.min(dims.w * 0.36, dims.h * 0.38);
-      return TET.map(function (v) {
+      // one fixed size for every angle (so turning never makes it pulse), with room for the city labels
+      var small = dims.w < 480, cx0 = dims.w / 2, cy0 = 36 + (dims.h - 36) / 2;
+      var R = Math.max(30, small ? Math.min((dims.w - 100) / 2.4, (dims.h - 90) / 2) : Math.min((dims.w - 220) / 2.4, (dims.h - 120) / 2.2));
+      var raw = TET.map(function (v) {
         var x = v[0] * cy + v[2] * sy, z = -v[0] * sy + v[2] * cy, y = v[1];
         var y2 = y * cp - z * sp, z2 = y * sp + z * cp;
         var f = 3.2 / (3.2 - z2);
-        return { x: cx0 + R * x * f, y: cy0 - R * y2 * f, z: z2, f: f };
+        return { x: x * f, y: -y2 * f, z: z2, f: f };
       });
+      // keep the picture centred in the free space, whichever way it is turned
+      var x0 = Math.min.apply(null, raw.map(function (p) { return p.x; })), x1 = Math.max.apply(null, raw.map(function (p) { return p.x; }));
+      var y0 = Math.min.apply(null, raw.map(function (p) { return p.y; })), y1 = Math.max.apply(null, raw.map(function (p) { return p.y; }));
+      return raw.map(function (p) { return { x: cx0 + R * (p.x - (x0 + x1) / 2), y: cy0 + R * (p.y - (y0 + y1) / 2), z: p.z, f: p.f }; });
     }
     function drawOneHot(T) {
-      var small = dims.w < 480, pts = tetraPts(), cx0 = dims.w / 2, cy0 = dims.h * 0.56;
+      var small = dims.w < 480, pts = tetraPts();
+      var cx0 = (pts[0].x + pts[1].x + pts[2].x + pts[3].x) / 4, cy0 = (pts[0].y + pts[1].y + pts[2].y + pts[3].y) / 4;
       g.textAlign = 'left'; g.textBaseline = 'top'; g.fillStyle = T.ink;
       var title = niceTitleFit(T, ['One-hot: each city is a corner, and every edge is √2 ≈ 1.41', 'One-hot: every edge is √2 ≈ 1.41', 'One-hot'], dims.w - 28, small ? 13 : 15, 700);
       g.font = font(T, small ? 13 : 15, 700); g.fillText(title, 14, 12);
@@ -719,6 +738,7 @@
       });
       order.forEach(function (e) {
         var isSel = e[0] === sel[0] && e[1] === sel[1];
+        if (small && !isSel) return;     // on a phone only the chosen edge is labelled; the title gives the rest
         var mx = (pts[e[0]].x + pts[e[1]].x) / 2, my = (pts[e[0]].y + pts[e[1]].y) / 2;
         pill(T, isSel ? '√2 ≈ 1.41' : '1.41', mx, my, small ? 11 : 12, isSel, isSel ? T.haldi : T.line);
       });
@@ -896,6 +916,12 @@
         shape(L[j].y ? 'square' : 'circle', X3(G, disp.zx[j]), Y3(G, disp.zy[j]), r);
         g.fillStyle = rgba(c, 0.5); g.fill(); g.strokeStyle = rgba(c, 1); g.lineWidth = 1.2; g.stroke();
       });
+      // with the leak: dashed rings show where each 2025 row sits when the scaler learns from 2019 only
+      if (S.fitAll && !anim) {
+        g.setLineDash([3, 3]); g.strokeStyle = T.muted; g.lineWidth = 1.4;
+        TEST.forEach(function (ti) { shape('circle', X3(G, R3.honest.zx[ti]), Y3(G, R3.honest.zy[ti]), r + 2.5); g.stroke(); });
+        g.setLineDash([]);
+      }
       // 2025 test rows
       TEST.forEach(function (ti, k) {
         var px = X3(G, disp.zx[ti]), py = Y3(G, disp.zy[ti]), R = r + 2.5;
@@ -970,12 +996,12 @@
       TEST.forEach(function (ti, k) { if (H.pred[k] !== Lk.pred[k]) flips.push(k); });
       var why;
       if (S.rise === 0) {
-        why = 'With no salary rise, the 2025 rows look just like the 2019 rows, so adding them to the scaler hardly changes its mean (' + inr(H.si.m) + ' versus ' + inr(Lk.si.m) + ') or SD (' + inr(H.si.s) + ' versus ' + inr(Lk.si.s) + '). The leak still breaks the rule, it just has little to hide here.';
+        why = '<p>With no salary rise, the 2025 rows look just like the 2019 rows, so adding them to the scaler hardly changes its mean (' + inr(H.si.m) + ' versus ' + inr(Lk.si.m) + ') or SD (' + inr(H.si.s) + ' versus ' + inr(Lk.si.s) + '). The leak still breaks the rule; it just has little to hide here.</p>';
       } else {
-        why = 'With the leak, the scaler also sees the 2025 rows. Their incomes are higher, so the mean income it learns rises from ' + inr(H.si.m) + ' to ' + inr(Lk.si.m) + ' and the SD from ' + inr(H.si.s) + ' to ' + inr(Lk.si.s) + '. ' +
+        why = '<p>With the leak, the scaler also sees the 2025 rows. Their incomes are higher, so the mean income it learns rises from ' + inr(H.si.m) + ' to ' + inr(Lk.si.m) + ' and the SD from ' + inr(H.si.s) + ' to ' + inr(Lk.si.s) + '. ' +
           'That is why the 2025 rows look more ordinary: their average scaled income drops from ' + signed(H.avgZ, 2) + ' to ' + signed(Lk.avgZ, 2) + '. A bigger SD also shrinks every income gap, so age gets more say in who counts as a neighbour. ' +
-          (flips.length ? 'That changes ' + flips.length + (flips.length === 1 ? ' prediction' : ' predictions') + ' (row' + (flips.length === 1 ? ' ' : 's ') + flips.map(function (k) { return k + 1; }).join(', ') + '). ' : 'This time no prediction changes. ') +
-          'But in 2019 nobody could have known what 2025 incomes would look like, so a real model never gets this help. A scaler leak is unpredictable: with other data it can move the score less, not at all, or even down. Either way the leaky number is not a fair preview, and leaks from steps that use the answers (such as picking features with all the rows) can be far bigger.';
+          (flips.length ? 'That changes ' + flips.length + (flips.length === 1 ? ' prediction' : ' predictions') + ' (row' + (flips.length === 1 ? ' ' : 's ') + flips.map(function (k) { return k + 1; }).join(', ') + ').' : 'This time no prediction changes.') +
+          '</p><p>But in 2019 nobody could have known what 2025 incomes would look like, so a real model never gets this help. A scaler leak is unpredictable: with other data it can move the score less, not at all, or even down. Either way the leaky number is not a fair preview, and leaks from steps that use the answers (such as picking features with all the rows) can be far bigger.</p>';
       }
       setHtml(elWhy, why);
       // table of the test rows
@@ -1017,6 +1043,7 @@
       S.fitAll = all;
       pressed(fitBtns, 'data-fit', all ? 'all' : 'train');
       updateP3(false); checkP3(user); startAnim();
+      setHtml(elLegend, legendHtml());
       if (user) announce(p3Summary());
     }
     function setRise(idx, user) {
@@ -1052,7 +1079,7 @@
           legendItem(swatch('star', 'var(--haldi)', 'var(--ink)', 1.2), 'Query applicant'),
           legendItem(swatch('circle', 'var(--series-1)', 'var(--surface)', 1.2), '5 nearest (numbered)'),
           legendItem(swatch('circle', 'var(--surface)', 'var(--muted)', 1.5), 'Other applicants'),
-          legendItem(swatch('patch', 'rgba(127,127,200,.18)', 'var(--indigo)', 1.2, '3 2'), 'At least as close as the 5th')
+          legendItem(swatch('patch', 'var(--indigo-soft)', 'var(--indigo)', 1.2, '3 2'), 'At least as close as the 5th')
         ];
         if (S.scale !== 'none') items.push(legendItem(swatch('ring', 'none', 'var(--series-2)', 1.6, '2.5 2'), 'Nearest with no scaling'));
         return items.join('');
@@ -1065,7 +1092,8 @@
         legendItem(swatch('square', 'var(--series-2)', 'var(--ink)', 1.2), 'Defaulted') +
         '<i style="font-style:normal">Small: 2019 training row</i><i style="font-style:normal">Big: 2025 test row</i>' +
         legendItem(swatch('ring', 'none', 'var(--ink)', 1.4), 'Ring: model got it wrong') +
-        legendItem(swatch('ring', 'none', 'var(--haldi)', 2.4), 'Row you are looking at');
+        legendItem(swatch('ring', 'none', 'var(--haldi)', 2.4), 'Row you are looking at') +
+        (S.fitAll ? legendItem(swatch('ring', 'none', 'var(--muted)', 1.4, '2.5 2'), 'Dashed: the 2025 row with the 2019-only scaler') : '');
     }
     function setPart(p, user) {
       S.part = p;

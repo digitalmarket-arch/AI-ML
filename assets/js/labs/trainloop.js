@@ -204,6 +204,10 @@
     var cs = getComputedStyle(document.documentElement), T = {};
     THEME_NAMES.forEach(function (n) { T[n.replace('-', '')] = cs.getPropertyValue('--' + n).trim() || '#888'; });
     T.font = cs.getPropertyValue('--font-body').trim() || 'system-ui, sans-serif';
+    // tints need more strength on a dark surface to read the same
+    var m = /^#([0-9a-f]{6})$/i.exec(T.surface), lum = 1;
+    if (m) { var n = parseInt(m[1], 16); lum = (0.2126 * (n >> 16) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255; }
+    T.dark = lum < 0.4;
     return T;
   }
 
@@ -1099,13 +1103,13 @@
       var stale = res && !res.running && res.cfg !== cfgKey();
       if (res && !res.running && res.lrUnstable) {
         var ux0 = X(res.lrUnstable);
-        g.fillStyle = T.bad; g.globalAlpha = 0.08; g.fillRect(ux0, G.pt, G.pl + G.pw - ux0, G.ph); g.globalAlpha = 1;
+        g.fillStyle = T.bad; g.globalAlpha = T.dark ? 0.13 : 0.08; g.fillRect(ux0, G.pt, G.pl + G.pw - ux0, G.ph); g.globalAlpha = 1;
         g.fillStyle = T.ink; g.font = font(T, 11, '700'); g.textAlign = 'right'; g.textBaseline = 'top';
         g.fillText('unstable', G.pl + G.pw - 4, G.pt + 4);
       }
       if (res && res.ok) {
         var zx0 = X(res.lo), zx1 = X(res.hi);
-        g.fillStyle = stale ? T.muted : T.ok; g.globalAlpha = 0.16; g.fillRect(zx0, G.pt, zx1 - zx0, G.ph); g.globalAlpha = 1;
+        g.fillStyle = stale ? T.muted : T.ok; g.globalAlpha = T.dark ? 0.3 : 0.16; g.fillRect(zx0, G.pt, zx1 - zx0, G.ph); g.globalAlpha = 1;
         g.strokeStyle = stale ? T.muted : T.ok; g.lineWidth = 1.5;
         g.beginPath(); g.moveTo(zx0 + 0.5, G.pt); g.lineTo(zx0 + 0.5, G.pt + G.ph); g.moveTo(zx1 - 0.5, G.pt); g.lineTo(zx1 - 0.5, G.pt + G.ph); g.stroke();
         g.fillStyle = T.ink; g.font = font(T, 11, '700'); g.textAlign = 'center'; g.textBaseline = 'top';
