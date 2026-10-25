@@ -391,7 +391,7 @@
     var tryOut = el('div', { class: 'stack-sm', style: 'gap:10px' });
     var tryNote = el('p', { class: 'small', 'aria-live': 'polite', style: 'line-height:1.5' });
     controls.appendChild(el('div', { class: 'control' }, [
-      el('label', { for: tryId }, [el('span', { text: 'Try new text' }), el('span', { class: 'val', text: 'not used for training' })]),
+      el('label', { for: tryId }, [el('span', { text: 'Try new text' }), el('span', { class: 'small muted', style: 'font-weight:400', text: 'not used for training' })]),
       tryTa, tryOut, tryNote
     ]));
 
@@ -777,7 +777,8 @@
       var html = '', hit = null, stuck = null, unkTotal = 0;
       lines.slice(0, 6).forEach(function (line) {
         var ch = splitLine(line), lang = lineLang(line, ch), words = 0, wt = 0, unk = 0;
-        var parts = ch.map(function (c) {
+        var groups = [];
+        ch.forEach(function (c, ci) {
           var toks = encodeSyms(cps(c.s), C.merges, k);
           if (c.word) { words++; wt += toks.length; }
           var unseen = c.word && !C.wordSet.has(c.s);
@@ -786,9 +787,12 @@
             if (piece) { if (!hit) hit = noSp(c.s); } else if (!stuck) stuck = noSp(c.s);
           }
           var chipsH = toks.map(function (t) { var u = cpLen(t) === 1 && !C.base.has(t); if (u) unk++; return chipHtml(t, u); }).join('');
-          return '<span style="display:inline-flex;flex-wrap:wrap;gap:2px;margin:0 5px 0 0;padding-bottom:2px' +
+          var part = '<span style="display:inline-flex;flex-wrap:wrap;gap:2px;padding-bottom:2px' +
             (unseen ? ';border-bottom:2px dotted ' + theme.haldi : '') + '"' + (unseen ? ' title="Not in the training text"' : '') + '>' + chipsH + '</span>';
+          // punctuation stuck to a word (no space before it) stays with that word when the line wraps
+          if (ci > 0 && c.s.charAt(0) !== SP && groups.length) groups[groups.length - 1] += part; else groups.push(part);
         });
+        var parts = groups.map(function (gp) { return '<span style="display:inline-flex;flex-wrap:wrap;gap:2px;margin-right:5px">' + gp + '</span>'; });
         unkTotal += unk;
         var sum = (LANG[lang] ? LANG[lang].name : 'Other') + ' · ' + plural(words, 'word') + ' → ' + plural(wt, 'token') +
           (words ? ' · <b style="color:var(--ink)">' + (wt / words).toFixed(2) + '</b> per word' : '') + (unk ? ' · ' + unk + ' unknown' : '');
