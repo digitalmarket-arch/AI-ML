@@ -36,13 +36,19 @@
       var num = function (v) { v = Number(v); return isFinite(v) && v > 0 ? v : 0; };
       d.pos[x] = { i: Math.floor(num(p.i)), n: Math.floor(num(p.n)), s: Math.floor(num(p.s)), t: num(p.t) };
     });
-    // lesson cards ticked as read: read[moduleId][cardKey] = the date it was ticked
-    Object.keys(d.read).forEach(function (m) {
-      var r = d.read[m];
-      if (!r || typeof r !== 'object' || Array.isArray(r)) { delete d.read[m]; return; }
-      Object.keys(r).forEach(function (k) { if (!r[k] || typeof r[k] === 'object') delete r[k]; else r[k] = String(r[k]).slice(0, 10); });
-      if (!Object.keys(r).length) delete d.read[m];
+    // lesson cards: read['moduleId/cardKey'] = when the card was ticked (ISO time), or '-' + when it was
+    // un-ticked, so the newer action wins when two devices disagree. Older copies held read[moduleId][cardKey].
+    var rd = {};
+    Object.keys(d.read).forEach(function (k) {
+      var v = d.read[k];
+      if (v && typeof v === 'object' && !Array.isArray(v)) Object.keys(v).forEach(function (c) { if (v[c] && typeof v[c] !== 'object') rd[k + '/' + c] = String(v[c]).slice(0, 31); });
+      else if (v && typeof v !== 'object' && k.indexOf('/') > 0) rd[k] = String(v).slice(0, 31);
     });
+    d.read = rd;
+    // keys that would reach Object.prototype when copied (a damaged or hand-edited copy) are dropped
+    var bad = function (o) { if (o && typeof o === 'object') ['__proto__', 'constructor', 'prototype'].forEach(function (x) { if (Object.prototype.hasOwnProperty.call(o, x)) delete o[x]; }); };
+    Object.keys(b).forEach(function (k) { bad(d[k]); });
+    ['labs', 'projects', 'ex', 'modules'].forEach(function (k) { Object.keys(d[k]).forEach(function (x) { bad(d[k][x]); }); });
     d.v = 1;
     return d;
   }
@@ -105,12 +111,14 @@
     });
     keys(b.code).forEach(function (k) { if (typeof a.code[k] !== 'string' || !a.code[k]) a.code[k] = b.code[k]; });
     keys(b.labs).forEach(function (k) {
-      var x = a.labs[k] = a.labs[k] && typeof a.labs[k] === 'object' ? a.labs[k] : {};
+      var x = a.labs[k] = Object.prototype.hasOwnProperty.call(a.labs, k) && isObj(a.labs[k]) ? a.labs[k] : {};
       keys(b.labs[k]).forEach(function (t) { if (b.labs[k][t] && !x[t]) x[t] = b.labs[k][t]; });
     });
-    keys(b.read).forEach(function (m) {
-      var x = a.read[m] = isObj(a.read[m]) ? a.read[m] : {};
-      keys(b.read[m]).forEach(function (k) { x[k] = earlier(x[k], b.read[m][k]); });
+    // lesson cards: the newer tick or un-tick wins; on a tie a tick wins
+    var when = function (v) { return String(v || '').replace(/^-/, ''); };
+    keys(b.read).forEach(function (k) {
+      var x = a.read[k], y = b.read[k];
+      if (!Object.prototype.hasOwnProperty.call(a.read, k) || when(y) > when(x) || (when(y) === when(x) && String(x).charAt(0) === '-')) a.read[k] = y;
     });
     keys(b.projects).forEach(function (k) {
       var y = b.projects[k], x = a.projects[k];

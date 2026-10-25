@@ -86,14 +86,31 @@
   function readCards(m) {
     return READ_SECS.filter(function (x) { var v = m[x[0]]; return x[0] === 'overview' || (Array.isArray(v) ? v.length > 0 : !!v); }).map(function (x) { return { key: x[0], title: x[1] }; });
   }
-  function readDone(m) { var r = S().read[m.id] || {}; return readCards(m).filter(function (c) { return r[c.key]; }).length; }
+  // read['moduleId/cardKey'] holds when a card was ticked, or '-' + when it was un-ticked (see core.js normalize)
+  function readOn(mid, key) { var v = S().read[mid + '/' + key]; return !!v && String(v).charAt(0) !== '-'; }
+  function readDone(m) { return readCards(m).filter(function (c) { return readOn(m.id, c.key); }).length; }
+  var READ_PART = 'Read the lesson cards';
+  // learners who finished every other part of a module before lesson cards existed keep their 100%:
+  // their cards are ticked once (re-checked after a restore brings in an older copy)
+  function migrateRead() {
+    var st = S(); if (st.prefs.readMig) return;
+    var stamp = new Date().toISOString();
+    D.modules.forEach(function (m) {
+      var others = moduleParts(m).filter(function (p) { return p.k !== READ_PART; });
+      if (!others.length || !others.every(function (p) { return p.done; })) return;
+      if (readCards(m).some(function (c) { return st.read[m.id + '/' + c.key]; })) return;
+      readCards(m).forEach(function (c) { st.read[m.id + '/' + c.key] = stamp; });
+    });
+    st.prefs.readMig = 1; C.save();
+  }
   function listHTML(arr, ordered) {
     var tag = ordered ? 'ol' : 'ul';
     return '<' + tag + '>' + (arr || []).map(function (x) { return '<li>' + inline(x) + '</li>'; }).join('') + '</' + tag + '>';
   }
   function readBtnHTML(m, key, done) {
-    return '<button type="button" class="btn btn-sm read-btn' + (done ? ' is-on' : ' btn-primary') + '" data-action="read-card" data-id="' + esc(m.id) + '" data-key="' + esc(key) + '" aria-pressed="' + done + '">' + (done ? '<span aria-hidden="true">✓ </span>' : '') + 'Got it</button>' +
-      '<span class="small muted">' + (done ? 'Read. Press again if you want to come back to it.' : 'Press when you have understood this card.') + '</span>';
+    var title = (READ_SECS.filter(function (x) { return x[0] === key; })[0] || [key, key])[1];
+    return '<button type="button" class="btn btn-sm read-btn' + (done ? ' is-on' : ' btn-primary') + '" data-action="read-card" data-id="' + esc(m.id) + '" data-key="' + esc(key) + '" aria-pressed="' + done + '" aria-label="Got it: ' + esc(title) + '" aria-describedby="read-hint-' + esc(key) + '">' + (done ? '<span aria-hidden="true">✓ </span>' : '') + 'Got it</button>' +
+      '<span class="small muted" id="read-hint-' + esc(key) + '">' + (done ? 'Read. Press again if you want to come back to it.' : 'Press when you have understood this card.') + '</span>';
   }
   function readCardHTML(m, c, i, n, body, done) {
     return '<section class="card read-card stack-sm' + (done ? ' is-read' : '') + '" data-sec="' + esc(c.key) + '" id="read-' + esc(c.key) + '" aria-labelledby="read-h-' + esc(c.key) + '">' +
@@ -102,8 +119,8 @@
       '<div class="read-foot">' + readBtnHTML(m, c.key, done) + '</div></section>';
   }
   function readProgressInner(m) {
-    var cards = readCards(m), r = S().read[m.id] || {}, n = cards.length, d = readDone(m);
-    var next = cards.filter(function (c) { return !r[c.key]; })[0];
+    var cards = readCards(m), n = cards.length, d = readDone(m);
+    var next = cards.filter(function (c) { return !readOn(m.id, c.key); })[0];
     return '<div class="row-between"><strong>Lesson cards read: <span class="num">' + d + ' of ' + n + '</span></strong>' +
       (next && d ? '<button type="button" class="btn btn-sm" data-action="read-next" data-id="' + esc(m.id) + '">Next unread card ↓</button>' : '') + '</div>' +
       bar(n ? Math.round(d / n * 100) : 0, 'Lesson cards read') +
@@ -112,8 +129,8 @@
   // after "Got it": scroll to the next unread card (wrapping to the top), or to the summary when all are read
   function readGoNext(mid, afterKey) {
     var m = modById[mid]; if (!m) return;
-    var cards = readCards(m), r = S().read[mid] || {}, i0 = afterKey ? cards.map(function (c) { return c.key; }).indexOf(afterKey) + 1 : 0;
-    var next = cards.slice(i0).concat(cards.slice(0, i0)).filter(function (c) { return !r[c.key]; })[0];
+    var cards = readCards(m), i0 = afterKey ? cards.map(function (c) { return c.key; }).indexOf(afterKey) + 1 : 0;
+    var next = cards.slice(i0).concat(cards.slice(0, i0)).filter(function (c) { return !readOn(mid, c.key); })[0];
     var box = document.getElementById(next ? 'read-' + next.key : 'read-progress'), focusEl = next ? document.getElementById('read-h-' + next.key) : box;
     if (!box || !focusEl) return;
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -122,23 +139,29 @@
   }
   // redraw the ticks and the summary in place (after a tick here, or progress arriving from another device)
   function readRefresh(m, live) {
-    if (!m || !document.getElementById('read-progress')) return;
-    var r = S().read[m.id] || {};
+    var box = document.getElementById('read-progress'); if (!m || !box) return;
+    var refocus = function (el) { if (el) { try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); } } };
     readCards(m).forEach(function (c) {
-      var card = document.getElementById('read-' + c.key), on = !!r[c.key]; if (!card) return;
+      var card = document.getElementById('read-' + c.key), on = readOn(m.id, c.key); if (!card) return;
       var f = card.querySelector('.read-foot'), btn = f && f.querySelector('.read-btn');
       if (card.classList.contains('is-read') === on && btn && btn.getAttribute('aria-pressed') === String(on)) return;
       var hadFocus = f && f.contains(document.activeElement);
       card.classList.toggle('is-read', on);
-      if (f) { f.innerHTML = readBtnHTML(m, c.key, on); if (hadFocus) { var nb = f.querySelector('.read-btn'); if (nb) nb.focus(); } }
+      if (f) { f.innerHTML = readBtnHTML(m, c.key, on); if (hadFocus) refocus(f.querySelector('.read-btn')); }
     });
-    document.getElementById('read-progress').innerHTML = readProgressInner(m);
+    // redraw the summary only when it changed, and keep keyboard focus on the same control
+    var html = readProgressInner(m);
+    if (box._html !== html) {
+      var ae = document.activeElement, inBox = box.contains(ae) && ae !== box, act = inBox && ae.getAttribute('data-action'), href = inBox && ae.getAttribute('href');
+      box.innerHTML = html; box._html = html;
+      if (inBox) refocus((act && box.querySelector('[data-action="' + act + '"]')) || (href && box.querySelector('a[href="' + href + '"]')) || box);
+    }
     var lv = document.getElementById('read-live'); if (lv && live) lv.textContent = live;
   }
   function moduleParts(m) {
     var st = S(), parts = [];
     var rc = readCards(m);
-    if (rc.length) { var rd = readDone(m); parts.push({ k: 'Read the lesson cards', done: rd === rc.length, n: rd, of: rc.length }); }
+    if (rc.length) { var rd = readDone(m); parts.push({ k: READ_PART, done: rd === rc.length, n: rd, of: rc.length }); }
     // the watch step counts as done when the best pick, or any recommended alternative video or course, is finished
     var mp = mainPicks(m);
     if (mp.main) {
@@ -544,6 +567,7 @@
       });
     });
     function switchTab(t, focus) {
+      try { window.scrollTo({ top: window.scrollY, behavior: 'instant' }); } catch (e) {}
       moduleTab[id] = t;
       try { history.replaceState(null, '', '#m-' + id + '~' + t); } catch (e) {}
       currentCleanup.forEach(function (f) { try { f(); } catch (e) {} }); currentCleanup = [];
@@ -575,7 +599,7 @@
         if (mm && modById[mm[1]]) return '<a href="#m-' + esc(mm[1]) + '">' + esc(modNo(modById[mm[1]]) + ' ' + modById[mm[1]].title) + '</a>' + (mm[2] ? ' <span class="muted">' + inline(mm[2].replace(/^[:,\-–—\s]+/, '')) + '</span>' : '');
         return inline(p);
       });
-      var cards = readCards(m), rmap = S().read[m.id] || {};
+      var cards = readCards(m);
       var body = {
         overview: '<p>' + (m.overview ? inline(m.overview) : esc((m.topics || []).join(', '))) + '</p>' + (m.whyItMatters ? '<div class="callout callout-indigo"><strong>Why it matters:</strong> ' + inline(m.whyItMatters) + '</div>' : ''),
         outcomes: listHTML(m.outcomes), studySteps: listHTML(m.studySteps, true),
@@ -585,7 +609,7 @@
       };
       el.innerHTML = '<div class="stack-lg">' + (pre.length ? '<div class="callout callout-indigo small"><strong>Before this:</strong> ' + pre.join('; ') + '</div>' : '') +
         '<div><div class="card read-progress stack-sm" id="read-progress" tabindex="-1">' + readProgressInner(m) + '</div><p class="visually-hidden" aria-live="polite" id="read-live"></p></div>' +
-        '<div class="stack read-cards">' + cards.map(function (c, i) { return readCardHTML(m, c, i, cards.length, body[c.key], !!rmap[c.key]); }).join('') + '</div>' +
+        '<div class="stack read-cards">' + cards.map(function (c, i) { return readCardHTML(m, c, i, cards.length, body[c.key], readOn(m.id, c.key)); }).join('') + '</div>' +
         listBlock('Topics covered', m.topics, false, 'topics') +
         '</div>';
       if (m.figs) placeFigures(m, el);
@@ -1153,7 +1177,7 @@
       var dot = st.state === 'syncing' ? 'is-syncing' : st.error ? 'is-error' : 'is-ok';
       a.innerHTML = '<span class="acct-badge ' + dot + '" aria-hidden="true">' + esc(nm.trim().charAt(0).toUpperCase()) + '</span>';
       a.setAttribute('aria-label', 'Account: ' + nm + (st.error ? ', sync problem' : st.state === 'syncing' ? ', syncing' : ', synced'));
-    } else { a.textContent = 'Sign in'; a.removeAttribute('aria-label'); }
+    } else { a.innerHTML = '<svg class="acct-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="acct-text">Sign in</span>'; a.removeAttribute('aria-label'); }
   }
   if (K) { K.on(updateAcctLink); updateAcctLink(K.status()); }
   // progress arrived from another device: redraw overview pages; leave pages with work in progress
@@ -1167,7 +1191,7 @@
   });
 
   /* ---------- global actions (event delegation) ---------- */
-  var resetArmed = false;
+  var resetArmed = false, readLastPress = 0;
   document.addEventListener('click', function (ev) {
     var t = ev.target.closest('[data-action]'); if (!t) return;
     var a = t.getAttribute('data-action'), id = t.getAttribute('data-id'), st = S();
@@ -1186,11 +1210,14 @@
       else { cloudDeleteArmed = false; K.deleteCloudCopy().catch(function () { C.toast('Could not delete the cloud copy. Check your connection and try again.'); }); }
     }
     else if (a === 'read-card') {
+      // a double click must not also press the next card's button, which the scroll brings under the pointer
+      if (ev.detail > 1 || Date.now() - readLastPress < 600) return;
+      readLastPress = Date.now();
       var rkey = t.getAttribute('data-key'), rmod = modById[id];
       if (rmod && rkey) {
-        var rm = st.read[id] && typeof st.read[id] === 'object' ? st.read[id] : (st.read[id] = {}), ron = !rm[rkey];
-        if (ron) { rm[rkey] = C.today(); C.logActivity(); } else delete rm[rkey];
-        if (!Object.keys(rm).length) delete st.read[id];
+        var ron = !readOn(id, rkey), rstamp = new Date().toISOString();
+        st.read[id + '/' + rkey] = ron ? rstamp : '-' + rstamp;
+        if (ron) C.logActivity();
         C.save(); refreshSide();
         var rn = readCards(rmod).length, rd2 = readDone(rmod);
         readRefresh(rmod, (ron ? 'Marked as read. ' : 'Marked as not read. ') + rd2 + ' of ' + rn + ' cards read.' + (ron && rd2 === rn ? ' You have read the whole lesson.' : ''));
@@ -1242,6 +1269,7 @@
   /* ---------- router ---------- */
   var NAV = { roadmap: 'roadmap', labs: 'labs', practice: 'practice', projects: 'projects', tests: 'tests', library: 'library', glossary: 'glossary', career: 'career', progress: 'progress' };
   function route() {
+    migrateRead();
     var raw = (location.hash || '').replace(/^#/, ''), h;
     try { h = decodeURIComponent(raw); } catch (e) { h = raw; }
     h = h || 'home';
