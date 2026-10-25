@@ -343,10 +343,20 @@
       var isHi = function (r) { return r.language === 'hindi' || r.language === 'hinglish'; };
       var group = function (r) { return isHi(r) ? 'hi' : r.language === 'indian-english' ? 'in' : 'en'; };
       var vids = list.filter(function (r) { return VIDEO_TYPES[r.type]; });
-      var mainPick = vids[0];
-      // second pick: the other Indian group first (Hindi <-> Indian English); global English only if no Indian option exists
-      var otherLangPick = mainPick ? (vids.filter(function (r) { return group(r) !== group(mainPick) && group(r) !== 'en'; })[0] ||
-        vids.filter(function (r) { return group(r) !== group(mainPick); })[0]) : null;
+      var isVideo = function (r) { return r.type === 'playlist' || r.type === 'video'; };
+      // main pick: an actual video series from the preferred Indian group, then the other Indian group; text courses only as a fallback
+      var order = S().prefs.lang === 'en' ? ['in', 'hi', 'en'] : ['hi', 'in', 'en'];
+      var pickFrom = function (pred, exclude) {
+        for (var gi = 0; gi < order.length; gi++) {
+          var hit = vids.filter(function (r) { return group(r) === order[gi] && pred(r) && r !== exclude && (!exclude || group(r) !== group(exclude)); })[0];
+          if (hit) return hit;
+        }
+        return null;
+      };
+      var mainPick = pickFrom(isVideo) || vids[0];
+      // second pick: a video from a different Indian group (Hindi <-> Indian English); global English only if no Indian option exists
+      var otherLangPick = mainPick ? (pickFrom(function (r) { return isVideo(r) && group(r) !== 'en'; }, mainPick) ||
+        pickFrom(function (r) { return group(r) !== 'en'; }, mainPick) || pickFrom(isVideo, mainPick)) : null;
       var GROUP_LABEL = { hi: 'Hindi / Hinglish', in: 'Indian English', en: 'English' };
       var rest = list.filter(function (r) { return r !== mainPick && r !== otherLangPick; });
       el.innerHTML = '<div class="stack-lg"><div class="row-between"><div class="small muted">' + list.length + ' resources for this module</div>' + langSeg() + '</div>' +

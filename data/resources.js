@@ -4,7 +4,7 @@ window.AIM = window.AIM || {};
 window.AIM.resources = [
  {
   "id": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
-  "title": "100 Days of Machine Learning: Days 15-22 (data gathering and EDA) and Days 34-44 (dates, missing values, outliers)",
+  "title": "100 Days of Machine Learning",
   "creator": "CampusX (Nitish Singh)",
   "platform": "YouTube",
   "type": "playlist",
@@ -2416,7 +2416,7 @@ window.AIM.resources = [
  },
  {
   "id": "daniel-kunin-jingru-guo-tyler-dae-devlin-daniel-xiang-br",
-  "title": "Seeing Theory: A Visual Introduction to Probability and Statistics",
+  "title": "Seeing Theory - interactive probability and statistics",
   "creator": "Daniel Kunin, Jingru Guo, Tyler Dae Devlin, Daniel Xiang (Brown University)",
   "platform": "Website",
   "type": "tool",
@@ -3188,7 +3188,7 @@ window.AIM.resources = [
  },
  {
   "id": "nicolas-p-rougier-100-numpy-exercises-with-hints-and-sol",
-  "title": "100 NumPy exercises (with hints and solutions)",
+  "title": "100 NumPy exercises",
   "creator": "Nicolas P. Rougier",
   "platform": "GitHub",
   "type": "practice",
@@ -3248,36 +3248,6 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "",
   "videoId": "2uvysYbKdjM"
- },
- {
-  "id": "freecodecamp-freecodecamp-data-analysis-with-python-cert",
-  "title": "Data Analysis with Python certification (freeCodeCamp)",
-  "creator": "freeCodeCamp",
-  "platform": "freeCodeCamp",
-  "type": "course",
-  "url": "https://www.freecodecamp.org/learn/data-analysis-with-python/",
-  "firstVideoUrl": "",
-  "language": "english",
-  "level": "beginner",
-  "modules": [
-   "l1-numpy-pandas",
-   "l1-eda-viz-sql"
-  ],
-  "topics": [
-   "NumPy",
-   "Pandas",
-   "Matplotlib",
-   "Seaborn",
-   "data analysis projects"
-  ],
-  "approxHours": 300,
-  "cost": "Free, including free certification",
-  "why": "Free certificate earned by building five real data-analysis projects - good portfolio material.",
-  "caveats": "Lessons are partly video with quiz questions; the projects are where the learning happens. Curriculum layout may change as freeCodeCamp restructures.",
-  "year": 0,
-  "status": "partial",
-  "listId": "",
-  "videoId": ""
  },
  {
   "id": "kaggle-rachael-tatman-maintained-by-alexis-cook-kaggle-l",
@@ -3340,7 +3310,7 @@ window.AIM.resources = [
  },
  {
   "id": "jake-vanderplas-python-data-science-handbook-free-online",
-  "title": "Python Data Science Handbook (free online edition)",
+  "title": "Python Data Science Handbook (free online book)",
   "creator": "Jake VanderPlas",
   "platform": "Website",
   "type": "book",
@@ -3465,6 +3435,36 @@ window.AIM.resources = [
   "caveats": "Community re-upload with no dataset card or licence; data is several years old. Columns include restaurant phone numbers and raw review text - do not republish them. About 150 MB as Parquet.",
   "year": 2026,
   "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "freecodecamp-freecodecamp-data-analysis-with-python-cert",
+  "title": "freeCodeCamp Data Analysis with Python Certification",
+  "creator": "freeCodeCamp",
+  "platform": "freeCodeCamp",
+  "type": "course",
+  "url": "https://www.freecodecamp.org/learn/data-analysis-with-python/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-numpy-pandas",
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "NumPy",
+   "Pandas",
+   "Matplotlib",
+   "Seaborn",
+   "data analysis projects"
+  ],
+  "approxHours": 300,
+  "cost": "Free, including free certification",
+  "why": "Free certificate earned by building five real data-analysis projects - good portfolio material.",
+  "caveats": "Lessons are partly video with quiz questions; the projects are where the learning happens. Curriculum layout may change as freeCodeCamp restructures.",
+  "year": 0,
+  "status": "partial",
   "listId": "",
   "videoId": ""
  },
@@ -3608,6 +3608,34 @@ window.AIM.resources = [
   "videoId": "us1XyayQ6fU"
  },
  {
+  "id": "kaggle-alexis-cook-kaggle-learn-advanced-sql-incl-window",
+  "title": "Advanced SQL (Kaggle Learn)",
+  "creator": "Kaggle (Alexis Cook)",
+  "platform": "Kaggle",
+  "type": "course",
+  "url": "https://www.kaggle.com/learn/advanced-sql",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "JOINs and UNIONs",
+   "analytic (window) functions",
+   "nested and repeated data",
+   "writing efficient queries"
+  ],
+  "approxHours": 4,
+  "cost": "Free (free Kaggle account); free certificate of completion",
+  "why": "Hands-on practice with window functions, the SQL topic beginners usually lack, and with writing efficient queries.",
+  "caveats": "BigQuery dialect. Take Intro to SQL first.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "harvard-university-carter-zenke-david-j-malan-cs50-s-int",
   "title": "CS50's Introduction to Databases with SQL",
   "creator": "Harvard University (Carter Zenke, David J. Malan)",
@@ -3668,6 +3696,37 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "kaggle-alexis-cook-kaggle-learn-data-visualization-seabo",
+  "title": "Data Visualization (Kaggle Learn)",
+  "creator": "Kaggle (Alexis Cook)",
+  "platform": "Kaggle",
+  "type": "course",
+  "url": "https://www.kaggle.com/learn/data-visualization",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "Seaborn basics",
+   "line charts",
+   "bar charts and heatmaps",
+   "scatter plots",
+   "distributions",
+   "choosing plot types and custom styles",
+   "final project"
+  ],
+  "approxHours": 4,
+  "cost": "Free (free Kaggle account); free certificate of completion",
+  "why": "Interactive, auto-checked practice in the browser that teaches which chart to use when, ending with a mini-project on your own dataset.",
+  "caveats": "Text plus exercises, no video. Seaborn only (no Plotly).",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "claus-o-wilke-fundamentals-of-data-visualization-free-on",
   "title": "Fundamentals of Data Visualization (free online book)",
   "creator": "Claus O. Wilke",
@@ -3722,65 +3781,6 @@ window.AIM.resources = [
   "why": "A ready-to-load Parquet table of IPL deliveries with derived columns such as match phase - lets beginners start modelling without parsing raw files.",
   "caveats": "Community dataset built from Kaggle IPL data (updated Aug 2026); compare a few rows with Cricsheet before trusting stats.",
   "year": 2026,
-  "status": "verified",
-  "listId": "",
-  "videoId": ""
- },
- {
-  "id": "kaggle-alexis-cook-kaggle-learn-advanced-sql-incl-window",
-  "title": "Kaggle Learn: Advanced SQL (incl. window/analytic functions)",
-  "creator": "Kaggle (Alexis Cook)",
-  "platform": "Kaggle",
-  "type": "course",
-  "url": "https://www.kaggle.com/learn/advanced-sql",
-  "firstVideoUrl": "",
-  "language": "english",
-  "level": "intermediate",
-  "modules": [
-   "l1-eda-viz-sql"
-  ],
-  "topics": [
-   "JOINs and UNIONs",
-   "analytic (window) functions",
-   "nested and repeated data",
-   "writing efficient queries"
-  ],
-  "approxHours": 4,
-  "cost": "Free (free Kaggle account); free certificate of completion",
-  "why": "Hands-on practice with window functions, the SQL topic beginners usually lack, and with writing efficient queries.",
-  "caveats": "BigQuery dialect. Take Intro to SQL first.",
-  "year": 0,
-  "status": "verified",
-  "listId": "",
-  "videoId": ""
- },
- {
-  "id": "kaggle-alexis-cook-kaggle-learn-data-visualization-seabo",
-  "title": "Kaggle Learn: Data Visualization (Seaborn)",
-  "creator": "Kaggle (Alexis Cook)",
-  "platform": "Kaggle",
-  "type": "course",
-  "url": "https://www.kaggle.com/learn/data-visualization",
-  "firstVideoUrl": "",
-  "language": "english",
-  "level": "beginner",
-  "modules": [
-   "l1-eda-viz-sql"
-  ],
-  "topics": [
-   "Seaborn basics",
-   "line charts",
-   "bar charts and heatmaps",
-   "scatter plots",
-   "distributions",
-   "choosing plot types and custom styles",
-   "final project"
-  ],
-  "approxHours": 4,
-  "cost": "Free (free Kaggle account); free certificate of completion",
-  "why": "Interactive, auto-checked practice in the browser that teaches which chart to use when, ending with a mini-project on your own dataset.",
-  "caveats": "Text plus exercises, no video. Seaborn only (no Plotly).",
-  "year": 0,
   "status": "verified",
   "listId": "",
   "videoId": ""
@@ -5742,45 +5742,8 @@ window.AIM.resources = [
   "videoId": "YFNKnUhm_-s"
  },
  {
-  "id": "codebasics-dhaval-patel-deep-learning-with-tensorflow-2-",
-  "title": "Deep Learning with TensorFlow 2.0 and Keras",
-  "creator": "codebasics (Dhaval Patel)",
-  "platform": "YouTube",
-  "type": "playlist",
-  "url": "https://www.youtube.com/playlist?list=PLeo1K3hjS3uu7CxAacxVndI4bE_o3BDtO",
-  "firstVideoUrl": "",
-  "language": "indian-english",
-  "level": "beginner",
-  "modules": [
-   "l3-nn-basics",
-   "l3-cv",
-   "l3-pytorch"
-  ],
-  "topics": [
-   "neurons",
-   "activation functions",
-   "loss functions",
-   "gradient descent",
-   "neural network from scratch in Python",
-   "Keras",
-   "dropout",
-   "GPU training",
-   "CNN",
-   "data augmentation",
-   "transfer learning"
-  ],
-  "approxHours": 0,
-  "cost": "Free on YouTube",
-  "why": "Short videos in very simple Indian English that go from theory to working Keras code, with exercises. A gentle first hands-on deep learning course.",
-  "caveats": "This is TensorFlow/Keras, not PyTorch. Recorded around 2020-2022, so a few TF APIs have changed.",
-  "year": 0,
-  "status": "verified",
-  "listId": "PLeo1K3hjS3uu7CxAacxVndI4bE_o3BDtO",
-  "videoId": ""
- },
- {
   "id": "prof-mitesh-m-khapra-iit-madras-cs7015-deep-learning-wor",
-  "title": "NPTEL CS7015 Deep Learning (IIT Madras)",
+  "title": "Deep Learning (CS7015)",
   "creator": "Prof. Mitesh M. Khapra, IIT Madras (NPTEL)",
   "platform": "YouTube (NPTEL)",
   "type": "playlist",
@@ -5816,6 +5779,43 @@ window.AIM.resources = [
   "year": 2018,
   "status": "verified",
   "listId": "PLyqSpQzTE6M9gCgajvQbc68Hk_JKGBAYT",
+  "videoId": ""
+ },
+ {
+  "id": "codebasics-dhaval-patel-deep-learning-with-tensorflow-2-",
+  "title": "Deep Learning with TensorFlow 2.0 and Keras",
+  "creator": "codebasics (Dhaval Patel)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLeo1K3hjS3uu7CxAacxVndI4bE_o3BDtO",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l3-nn-basics",
+   "l3-cv",
+   "l3-pytorch"
+  ],
+  "topics": [
+   "neurons",
+   "activation functions",
+   "loss functions",
+   "gradient descent",
+   "neural network from scratch in Python",
+   "Keras",
+   "dropout",
+   "GPU training",
+   "CNN",
+   "data augmentation",
+   "transfer learning"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "Short videos in very simple Indian English that go from theory to working Keras code, with exercises. A gentle first hands-on deep learning course.",
+  "caveats": "This is TensorFlow/Keras, not PyTorch. Recorded around 2020-2022, so a few TF APIs have changed.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLeo1K3hjS3uu7CxAacxVndI4bE_o3BDtO",
   "videoId": ""
  },
  {
@@ -6074,7 +6074,7 @@ window.AIM.resources = [
  },
  {
   "id": "alexander-amini-and-ava-amini-mit-mit-6-s191-introductio",
-  "title": "MIT 6.S191: Introduction to Deep Learning",
+  "title": "MIT 6.S191 Introduction to Deep Learning",
   "creator": "Alexander Amini and Ava Amini, MIT",
   "platform": "Website + YouTube",
   "type": "course",
@@ -6876,7 +6876,7 @@ window.AIM.resources = [
  },
  {
   "id": "hugging-face-hindi-translation-by-pandyaved98-hugging-fa",
-  "title": "Hugging Face Course, Hindi translation (chapters 0, 1, 3 and the chapter 2 intro)",
+  "title": "Hugging Face Course - Hindi translation (work in progress)",
   "creator": "Hugging Face (Hindi translation by @pandyaved98)",
   "platform": "Hugging Face",
   "type": "course",
@@ -7388,7 +7388,7 @@ window.AIM.resources = [
  },
  {
   "id": "anoop-kunchukuttan-indic-nlp-library-python-text-process",
-  "title": "Indic NLP Library (Python text processing for Indian languages)",
+  "title": "Indic NLP Library",
   "creator": "Anoop Kunchukuttan",
   "platform": "GitHub",
   "type": "tool",
@@ -7991,7 +7991,7 @@ window.AIM.resources = [
  },
  {
   "id": "jay-alammar-the-illustrated-transformer-plus-the-illustr",
-  "title": "The Illustrated Transformer (plus The Illustrated BERT)",
+  "title": "The Illustrated Transformer",
   "creator": "Jay Alammar",
   "platform": "Website",
   "type": "article",
@@ -8021,7 +8021,7 @@ window.AIM.resources = [
  },
  {
   "id": "maxime-labonne-the-llm-course-llm-scientist-llm-engineer",
-  "title": "The LLM Course (LLM Scientist + LLM Engineer roadmaps with notebooks)",
+  "title": "The LLM Course (Maxime Labonne) - roadmaps and notebooks",
   "creator": "Maxime Labonne",
   "platform": "GitHub",
   "type": "course",
@@ -8116,7 +8116,7 @@ window.AIM.resources = [
  },
  {
   "id": "hugging-face-a-smol-course-instruction-tuning-evaluation",
-  "title": "a smol course (instruction tuning, evaluation, DPO preference alignment, VLMs)",
+  "title": "a smol course - fine-tuning small language models",
   "creator": "Hugging Face",
   "platform": "GitHub",
   "type": "course",
@@ -8596,7 +8596,7 @@ window.AIM.resources = [
  },
  {
   "id": "chip-huyen-stanford-university-stanford-cs329s-machine-l",
-  "title": "Stanford CS329S: Machine Learning Systems Design (lecture notes and slides)",
+  "title": "Stanford CS 329S: Machine Learning Systems Design",
   "creator": "Chip Huyen, Stanford University",
   "platform": "Website (course site)",
   "type": "course",
@@ -9444,7 +9444,7 @@ window.AIM.resources = [
  },
  {
   "id": "microsoft-generative-ai-for-beginners-21-lessons-version",
-  "title": "Generative AI for Beginners (21 lessons, Version 3)",
+  "title": "Generative AI for Beginners - 21 lessons (English)",
   "creator": "Microsoft",
   "platform": "GitHub",
   "type": "course",
@@ -10407,7 +10407,7 @@ window.AIM.resources = [
  },
  {
   "id": "microsoft-ai-agents-for-beginners-18-lessons",
-  "title": "AI Agents for Beginners (18 lessons)",
+  "title": "AI Agents for Beginners (English)",
   "creator": "Microsoft",
   "platform": "GitHub",
   "type": "course",
@@ -10658,7 +10658,7 @@ window.AIM.resources = [
  },
  {
   "id": "langchain-academy-introduction-to-langgraph-python",
-  "title": "Introduction to LangGraph (LangChain Academy)",
+  "title": "Introduction to LangGraph (Python)",
   "creator": "LangChain",
   "platform": "LangChain Academy",
   "type": "course",
@@ -11317,7 +11317,7 @@ window.AIM.resources = [
  },
  {
   "id": "jeremy-howard-fast-ai-practical-deep-learning-part-2-fro",
-  "title": "Practical Deep Learning Part 2: From Deep Learning Foundations to Stable Diffusion",
+  "title": "Practical Deep Learning Part 2: Deep Learning Foundations to Stable Diffusion",
   "creator": "Jeremy Howard (fast.ai)",
   "platform": "Website",
   "type": "course",
@@ -11884,35 +11884,6 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
-  "id": "openai-joshua-achiam-openai-spinning-up-in-deep-rl",
-  "title": "OpenAI Spinning Up in Deep RL",
-  "creator": "OpenAI (Joshua Achiam)",
-  "platform": "Website",
-  "type": "article",
-  "url": "https://spinningup.openai.com/en/latest/user/introduction.html",
-  "firstVideoUrl": "",
-  "language": "english",
-  "level": "advanced",
-  "modules": [
-   "l4-rl"
-  ],
-  "topics": [
-   "RL key concepts",
-   "policy gradients",
-   "PPO",
-   "DDPG / SAC",
-   "how to become an RL researcher"
-  ],
-  "approxHours": 10,
-  "cost": "Free",
-  "why": "A short, well-written introduction to deep RL and policy-gradient algorithms, with clean reference code and a well-regarded essay on doing RL research.",
-  "caveats": "No longer maintained (released 2018). The code depends on old Gym, MuJoCo and TensorFlow/PyTorch versions that are hard to install now, so read it for the concepts.",
-  "year": 2018,
-  "status": "verified",
-  "listId": "",
-  "videoId": ""
- },
- {
   "id": "arxiv-insights-policy-gradients-and-ppo-explained-arxiv-",
   "title": "Policy gradients and PPO explained (Arxiv Insights)",
   "creator": "Arxiv Insights",
@@ -12027,6 +11998,35 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "openai-joshua-achiam-openai-spinning-up-in-deep-rl",
+  "title": "Spinning Up in Deep RL",
+  "creator": "OpenAI (Joshua Achiam)",
+  "platform": "Website",
+  "type": "article",
+  "url": "https://spinningup.openai.com/en/latest/user/introduction.html",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "RL key concepts",
+   "policy gradients",
+   "PPO",
+   "DDPG / SAC",
+   "how to become an RL researcher"
+  ],
+  "approxHours": 10,
+  "cost": "Free",
+  "why": "A short, well-written introduction to deep RL and policy-gradient algorithms, with clean reference code and a well-regarded essay on doing RL research.",
+  "caveats": "No longer maintained (released 2018). The code depends on old Gym, MuJoCo and TensorFlow/PyTorch versions that are hard to install now, so read it for the concepts.",
+  "year": 2018,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "stanford-online-stanford-cs224r-deep-reinforcement-learn",
   "title": "Stanford CS224R: Deep Reinforcement Learning",
   "creator": "Stanford Online",
@@ -12087,7 +12087,7 @@ window.AIM.resources = [
  },
  {
   "id": "krish-naik-hindi-krish-naik-hindi-channel-career-roadmap",
-  "title": "Krish Naik Hindi channel: career, roadmap and interview videos",
+  "title": "Krish Naik Hindi (career, roadmap and interview videos)",
   "creator": "Krish Naik Hindi",
   "platform": "YouTube",
   "type": "channel",
@@ -12227,7 +12227,7 @@ window.AIM.resources = [
  },
  {
   "id": "hugging-face-hugging-face-papers-daily-and-trending-ai-p",
-  "title": "Hugging Face Papers (daily and trending AI papers)",
+  "title": "Hugging Face Daily Papers",
   "creator": "Hugging Face",
   "platform": "Hugging Face",
   "type": "tool",
