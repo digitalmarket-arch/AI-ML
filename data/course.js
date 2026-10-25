@@ -1230,6 +1230,10 @@ window.AIM.modules = [
     "note": "For this module watch the early videos on the ML development life cycle and on framing an ML problem, any bias-variance/overfitting video you find near the regularisation lessons, and Day 29 'sklearn pipelines' (folder day29-sklearn-pipelines in CampusX's GitHub repo) to see fit, transform and predict chained correctly."
    },
    {
+    "id": "campusx-end-to-end-toy-project",
+    "note": "Watch this single CampusX video right after the life-cycle videos to see one complete scikit-learn project (load data, split, fit, predict, check accuracy) from start to finish in Hinglish."
+   },
+   {
     "id": "codebasics-hindi-dhaval-patel-machine-learning-in-hindi",
     "note": "Watch 'Hindi Machine Learning Tutorial 7 - Training and Testing Data' (confirmed title) to learn train_test_split in Hindi, and do its small exercise."
    },
@@ -1621,6 +1625,10 @@ window.AIM.modules = [
    {
     "id": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
     "note": "Watch the classification metrics video (code folder day59-classification-metrics: look for accuracy, confusion matrix, precision, recall and F1) and revisit the regression metrics video (day49-regression-metrics) for MAE, RMSE and R-squared."
+   },
+   {
+    "id": "campusx-hyperparameter-tuning-random-forest-gridsearchcv-randomizedsearchcv",
+    "note": "Watch this CampusX video to learn GridSearchCV and RandomizedSearchCV in Hinglish on a random forest; the same ideas apply to any model."
    },
    {
     "id": "krish-naik-krish-naik-hindi-channel-machine-learning-pla",
@@ -2429,6 +2437,10 @@ window.AIM.modules = [
     "note": "Start with the YOLO11 custom object detection tutorial to train a detector on your own images, and check docs.ultralytics.com for the current YOLO26 commands."
    },
    {
+    "id": "digitalsreeni-unet-image-segmentation-part1",
+    "note": "Watch Part 1 ('What is U-net?') for the architecture, then the following parts of the same numbered series (up to Part 6, 'Running the code and understanding results') to build a U-Net segmentation model."
+   },
+   {
     "id": "polo-club-of-data-science-georgia-tech-cnn-explainer-int",
     "note": "Open it alongside the CampusX CNN videos and click through each convolution, ReLU and pooling step on a real image."
    },
@@ -2543,6 +2555,10 @@ window.AIM.modules = [
    {
     "id": "krish-naik-nlp-live-series-classical-nlp-to-rnn-lstm-enc",
     "note": "This is the Indian-English live-class version of the whole module: Day 5 ('Training Word2Vec From Scratch And AvgWord2vec') finishes the classical part, and Day 6 ('Recurrent Neural Network Indepth Intuition And NLP Application') starts the RNN, LSTM, GRU and encoder-decoder sessions."
+   },
+   {
+    "id": "codebasics-nlp-tutorial-playlist-python",
+    "note": "Code along in Python, in Indian English, with the videos on tokenisation, stemming and lemmatisation, bag of words, TF-IDF and word vectors once the Hindi theory videos make sense."
    },
    {
     "id": "prof-mitesh-m-khapra-iit-madras-cs7015-deep-learning-wor",
@@ -2809,6 +2825,10 @@ window.AIM.modules = [
    {
     "id": "krish-naik-complete-dockers-in-one-shot",
     "note": "After the Hindi Docker basics, watch this Indian-English one-shot for the data-science angle: Dockerising an ML app so it runs the same everywhere."
+   },
+   {
+    "id": "krish-naik-evidently-ai-monitoring-tutorial",
+    "note": "This is a 30-minute Indian-English introduction to checking a deployed model for data drift and quality problems with the open-source Evidently library; go deeper afterwards with Evidently's free ML observability course (evidently-ai-open-source-ml-observability-course)."
    },
    {
     "id": "gradio-hugging-face-gradio-guide-sharing-your-app-free-h",
@@ -3575,6 +3595,10 @@ window.AIM.modules = [
    {
     "id": "prof-balaraman-ravindran-iit-madras-nptel-nptel-reinforc",
     "note": "Your main course. Start with the multi-armed bandit lectures (epsilon-greedy, UCB), then MDPs and Bellman equations, Q-learning and finally policy gradients; find them by title, since lecture numbers were not confirmed. DQN and PPO are covered only thinly."
+   },
+   {
+    "id": "iit-madras-special-topics-in-ml-reinforcement-learning-ravindran",
+    "note": "An alternative recording by the same professor, organised by week (for example 'W2_L2: Markov decision process (MDP)'). Use it instead of the NPTEL playlist if that one's pace or audio does not suit you, not as well as it."
    },
    {
     "id": "iit-kanpur-ee675-introduction-to-reinforcement-learning-",

@@ -4020,6 +4020,33 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "campusx-end-to-end-toy-project",
+  "title": "End to End Toy Project",
+  "creator": "CampusX (Nitish Singh)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=dr7z7a_8lQw",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=dr7z7a_8lQw",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l2-ml-foundations"
+  ],
+  "topics": [
+   "the ML project lifecycle",
+   "scikit-learn workflow: fit/predict/transform",
+   "features, labels, train/validation/test split"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "A single focused CampusX video that builds a small classification project end to end, the clearest Hinglish demonstration of the whole fit/predict workflow before the detailed lessons.",
+  "caveats": "Part of the 2021-22 era 100 Days series (year and length not confirmed); uses a toy dataset, so it shows the workflow rather than good practice on leakage.",
+  "year": 2021,
+  "status": "verified",
+  "listId": "",
+  "videoId": "dr7z7a_8lQw"
+ },
+ {
   "id": "microsoft-cloud-advocates-ml-for-beginners-hindi-transla",
   "title": "ML for Beginners (Hindi translation) - Microsoft 12-week, 26-lesson classic ML curriculum",
   "creator": "Microsoft Cloud Advocates",
@@ -5091,6 +5118,32 @@ window.AIM.resources = [
   "status": "partial",
   "listId": "",
   "videoId": ""
+ },
+ {
+  "id": "campusx-hyperparameter-tuning-random-forest-gridsearchcv-randomizedsearchcv",
+  "title": "Hyperparameter Tuning Random Forest using GridSearchCV and RandomizedSearchCV",
+  "creator": "CampusX (Nitish Singh)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=4Im0CT43QxY",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=4Im0CT43QxY",
+  "language": "hinglish",
+  "level": "intermediate",
+  "modules": [
+   "l2-metrics-tuning"
+  ],
+  "topics": [
+   "hyperparameter tuning: grid, random, Optuna",
+   "cross-validation (k-fold, stratified)"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "Fills the Hindi gap for hyperparameter tuning: CampusX shows GridSearchCV and RandomizedSearchCV step by step in code on a random forest.",
+  "caveats": "Uses a random forest, which is taught in a later module, so treat the model as a black box here. Does not cover Optuna. Recorded around 2021-22 (not confirmed).",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "4Im0CT43QxY"
  },
  {
   "id": "andreas-mueller-columbia-university-applied-machine-lear",
@@ -6561,6 +6614,33 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "digitalsreeni-unet-image-segmentation-part1",
+  "title": "Image Segmentation using U-Net (Part 1: What is U-net? and following parts)",
+  "creator": "DigitalSreeni (Dr. Sreenivas Bhattiprolu)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=68HR_eyzk00",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=68HR_eyzk00",
+  "language": "indian-english",
+  "level": "intermediate",
+  "modules": [
+   "l3-cv"
+  ],
+  "topics": [
+   "image segmentation (U-Net)",
+   "encoder-decoder architecture",
+   "training a segmentation model in Keras"
+  ],
+  "approxHours": 0,
+  "cost": "free",
+  "why": "A slow, clear Indian-English explanation of U-Net followed by a numbered multi-part code-along (Parts 1 to 6), which fills the segmentation gap that the Hindi resources leave.",
+  "caveats": "Keras/TensorFlow, recorded several years ago, with microscopy-style example images. The search snippet did not name the channel; DigitalSreeni is inferred from the numbered-title style shared with his 'Tutorial 118/119 U-Net' and '228 - ... U-net' videos and the bnsreenu/python_for_microscopists GitHub repo (README by Dr. Sreenivas Bhattiprolu). Year and total length not confirmed.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "68HR_eyzk00"
+ },
+ {
   "id": "prof-vineeth-n-balasubramanian-iit-hyderabad-nptel-nptel",
   "title": "NPTEL Deep Learning for Computer Vision (IIT Hyderabad)",
   "creator": "Prof. Vineeth N Balasubramanian, IIT Hyderabad (NPTEL)",
@@ -7152,6 +7232,33 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "PLZoTAELRMXVNNrHSKv36Lr3_156yCo6Nn",
   "videoId": "w3coRFpyddQ"
+ },
+ {
+  "id": "codebasics-nlp-tutorial-playlist-python",
+  "title": "NLP Tutorial Playlist (Python)",
+  "creator": "Codebasics",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLeo1K3hjS3uuvuAXhYjV2lMEShq2UYSwX",
+  "firstVideoUrl": "https://www.youtube.com/playlist?list=PLeo1K3hjS3uuvuAXhYjV2lMEShq2UYSwX",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l3-nlp"
+  ],
+  "topics": [
+   "text preprocessing, tokenisation",
+   "bag of words, TF-IDF",
+   "word embeddings: Word2Vec, GloVe"
+  ],
+  "approxHours": 8,
+  "cost": "Free",
+  "why": "Codebasics is one of the clearest Indian-English teachers for beginners. This playlist is a practical, code-along route through the classical NLP pipeline in Python and a good partner to the Hindi theory videos.",
+  "caveats": "The link comes from the EbookFoundation free-courses-hi.md list, where it appears under NLP as 'NLP Tutorial Playlist Python' by Code Basics. The episode list, length (hours is an estimate) and year were not checked in this session, and the topic list is based on the playlist title and Codebasics' usual coverage. The videos are in English even though the playlist appears in a Hindi list. Needs basic Python.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLeo1K3hjS3uuvuAXhYjV2lMEShq2UYSwX",
+  "videoId": ""
  },
  {
   "id": "nptel-iit-kharagpur-prof-pawan-goyal-nptel-natural-langu",
@@ -8178,6 +8285,31 @@ window.AIM.resources = [
   "videoId": "8vmKtS8W7IQ"
  },
  {
+  "id": "krish-naik-evidently-ai-monitoring-tutorial",
+  "title": "Evidently AI Tutorial-Open Source ML Models Monitoring and Observability",
+  "creator": "Krish Naik",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=cgc3dSEAel0",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=cgc3dSEAel0",
+  "language": "indian-english",
+  "level": "intermediate",
+  "modules": [
+   "l3-mlops"
+  ],
+  "topics": [
+   "monitoring and data drift"
+  ],
+  "approxHours": 0.5,
+  "cost": "Free",
+  "why": "A 30-minute Indian-English introduction to monitoring deployed models for data drift and data or model quality with Evidently, the most widely used open-source monitoring library. The module had no standalone monitoring resource before.",
+  "caveats": "Recorded in August 2023, and Evidently has changed a lot since (newer releases added a monitoring UI and LLM evaluation), so follow the current Evidently docs when the code differs. The content beyond the title and length was not checked.",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": "cgc3dSEAel0"
+ },
+ {
   "id": "krish-naik-fast-api-tutorials-playlist",
   "title": "Fast API Tutorials (playlist)",
   "creator": "Krish Naik",
@@ -8564,6 +8696,33 @@ window.AIM.resources = [
   "cost": "Lessons readable online and code open-source on GitHub; optional cohort",
   "why": "A highly regarded course on combining ML with software engineering: design, build, deploy and iterate on a production ML app with testing and CI/CD. Overview video: https://youtu.be/AWgkt8H8yVo.",
   "caveats": "Mostly written lessons and code, not a video series. The 2023 version is built around Ray and Anyscale, which can involve paid cloud compute. The README says a laptop can act as the cluster, but it will be slower. The README itself does not state that the course is free. You need solid Python (3.10 recommended).",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "evidently-ai-open-source-ml-observability-course",
+  "title": "Open-source ML observability course (data drift, data quality, monitoring dashboards)",
+  "creator": "Evidently AI",
+  "platform": "YouTube + GitHub",
+  "type": "course",
+  "url": "https://github.com/evidentlyai/ml_observability_course",
+  "firstVideoUrl": "https://www.youtube.com/playlist?list=PL9omX6impEuOpTezeRF-M04BW3VfnPBRF",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l3-mlops"
+  ],
+  "topics": [
+   "monitoring and data drift",
+   "ML pipeline validation and testing",
+   "deploying a monitoring dashboard"
+  ],
+  "approxHours": 10,
+  "cost": "Free",
+  "why": "A free 40-lesson course with videos, notes and code on ML monitoring. Its six modules cover monitoring metrics (model quality, data quality, data drift), monitoring NLP/LLM and embedding data, designing monitoring, pipeline testing, and deploying a monitoring dashboard. It is the deepest free resource on this module's monitoring topic.",
+  "caveats": "Global English, from the makers of the Evidently tool. The cohort and certificate were for 2024; the videos, notes and code remain free and self-paced. Some code uses older Evidently versions. The theory can be followed without coding. Hours is an estimate.",
   "year": 2023,
   "status": "verified",
   "listId": "",
@@ -11501,6 +11660,33 @@ window.AIM.resources = [
   "year": 0,
   "status": "partial",
   "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "iit-madras-special-topics-in-ml-reinforcement-learning-ravindran",
+  "title": "Special topics in ML (Reinforcement Learning), IIT Madras",
+  "creator": "Prof. Balaraman Ravindran, IIT Madras",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLZ2ps__7DhBbDiVplM2I9q2XNso1Qfj62",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "advanced",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "agents, environments, rewards, MDPs",
+   "value functions, Q-learning",
+   "policy gradients, PPO"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "A week-by-week IIT Madras RL course by Prof. Ravindran, India's best-known RL teacher, with lectures named like 'W2_L2: Markov decision process (MDP)'. The naming suggests a newer recording than his classic NPTEL RL playlist.",
+  "caveats": "The year, length and full syllabus were not checked. The playlist is on the same IIT Madras channel as other IIT Madras online courses, but which programme it belongs to is not confirmed. It overlaps heavily with the NPTEL RL playlist, so pick one of the two. The first-video URL was not found; a confirmed lecture is W2_L2: https://www.youtube.com/watch?v=faNdiZFKtxQ.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLZ2ps__7DhBbDiVplM2I9q2XNso1Qfj62",
   "videoId": ""
  },
  {
