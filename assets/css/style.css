@@ -423,3 +423,14 @@ details.fold > div { padding: 0 14px 14px; }
 .az { display: flex; flex-wrap: wrap; gap: 4px; }
 .az a { min-width: 30px; text-align: center; padding: 4px 6px; border-radius: var(--radius-sm); text-decoration: none; font-weight: 600; }
 .az a:hover { background: var(--surface-2); }
+
+/* in-site player and watch tracking */
+.player-loading { position: absolute; inset: 0; display: grid; place-items: center; color: #e8e9f6; font-weight: 600; font-size: .95rem; }
+.player > div:not(.player-loading), .player > iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.res-card > .player[data-inline] { margin-bottom: 4px; }
+.chip-pos { background: var(--haldi-soft); color: var(--ink); border-color: transparent; }
+.next-up { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface-2); }
+#checklist-all summary { cursor: pointer; font-weight: 600; }
+#checklist-all .checklist { margin-top: 10px; }
+.continue-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.continue-list li { display: flex; flex-direction: column; gap: 2px; min-width: 0; }

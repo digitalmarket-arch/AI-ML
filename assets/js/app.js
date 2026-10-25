@@ -128,18 +128,129 @@
     var status = r.status === 'unverified' ? '<span class="chip chip-bad" title="We could not confirm this exact link. Use the search link if it fails.">link unconfirmed</span>' : '';
     var searchUrl = 'https://www.youtube.com/results?search_query=' + encodeURIComponent((r.title || '') + ' ' + (r.creator || ''));
     var isYT = /youtube\.com|youtu\.be/.test(r.url || '');
-    return '<article class="res-card' + (opts.featured ? ' featured' : '') + '">' + player +
-      '<div class="res-meta">' + C.langChip(r.language) + '<span class="chip chip-level">' + esc(r.type) + '</span>' +
+    var embeddable = C.canEmbed(r);
+    return '<article class="res-card' + (opts.featured ? ' featured' : '') + '" data-res="' + esc(r.id) + '">' + player +
+      '<div class="res-meta">' + C.langChip(r.language) + '<span class="chip chip-level">' + esc(r.type) + '</span>' + (embeddable ? posChip(r) : '') +
       (r.approxHours ? '<span class="chip num">~' + esc(r.approxHours) + ' h</span>' : '') +
       '<span class="chip">' + esc(r.platform || '') + '</span>' + status + '</div>' +
       '<h3 class="res-title"><a href="' + esc(r.url) + '" target="_blank" rel="noopener">' + esc(r.title) + '</a></h3>' +
       '<div class="small muted">' + esc(r.creator || '') + (r.year ? ' · ' + esc(r.year) : '') + (r.cost ? ' · ' + esc(r.cost) : '') + '</div>' +
       note + (r.why ? '<p class="res-why">' + inline(r.why) + '</p>' : '') +
       (r.caveats ? '<details class="res-caveat"><summary>Heads-up</summary><p>' + inline(r.caveats) + '</p></details>' : '') +
-      '<div class="res-actions"><label class="watched-toggle"><input type="checkbox" data-action="watched" data-id="' + esc(r.id) + '"' + (watched ? ' checked' : '') + '> I finished this</label>' +
+      '<div class="res-actions">' + (embeddable && !player ? '<button type="button" class="btn btn-sm btn-primary" data-action="play-inline" data-id="' + esc(r.id) + '" aria-expanded="false">▶ Play here</button>' : '') +
+      '<label class="watched-toggle"><input type="checkbox" data-action="watched" data-id="' + esc(r.id) + '"' + (watched ? ' checked' : '') + '> I finished this</label>' +
       '<a class="btn btn-sm" href="' + esc(r.url) + '" target="_blank" rel="noopener">Open ' + (isYT ? 'on YouTube' : 'site') + ' ↗</a>' +
       (isYT && r.status !== 'verified' ? '<a class="btn btn-sm btn-ghost" href="' + esc(searchUrl) + '" target="_blank" rel="noopener">Search YouTube</a>' : '') +
       '</div></article>';
+  }
+
+  /* ---------- in-site player and watch tracking ---------- */
+  function fmtTime(sec) {
+    sec = Math.max(0, Math.floor(sec || 0));
+    var h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), x = sec % 60;
+    return (h ? h + ':' + (m < 10 ? '0' : '') : '') + m + ':' + (x < 10 ? '0' : '') + x;
+  }
+  function posText(r) {
+    var p = S().pos[r.id];
+    if (!p || S().watched[r.id]) return '';
+    if (r.listId && p.n) return 'Video ' + Math.min(p.i + 1, p.n) + ' of ' + p.n;
+    return p.s > 5 ? 'Stopped at ' + fmtTime(p.s) : '';
+  }
+  function posChip(r) { var t = posText(r); return '<span class="chip chip-pos num" data-pos="' + esc(r.id) + '"' + (t ? '' : ' hidden') + '>' + esc(t) + '</span>'; }
+  function eachWithAttr(sel, attr, id, fn) { Array.prototype.forEach.call(document.querySelectorAll(sel), function (el) { if (el.getAttribute(attr) === id) fn(el); }); }
+  function updatePos(r) { var t = posText(r); eachWithAttr('[data-pos]', 'data-pos', r.id, function (el) { el.textContent = t; el.hidden = !t; }); }
+  function syncWatched(id, on) {
+    eachWithAttr('input[data-action="watched"]', 'data-id', id, function (el) { el.checked = on; });
+    var r = resById[id]; if (r) updatePos(r);
+    refreshSide(); refreshChecklist();
+  }
+  function startPlayer(box, r) {
+    var h = C.play(box, r, {
+      getPos: function () { return S().pos[r.id] || null; },
+      onPos: function (p) {
+        S().pos[r.id] = { i: Math.max(0, p.i || 0), n: Math.max(0, p.n || 0), s: Math.max(0, Math.floor(p.s || 0)), t: Date.now() };
+        C.save(); updatePos(r);
+      },
+      onComplete: function () {
+        var st = S(); if (st.watched[r.id]) return;
+        st.watched[r.id] = C.today(); C.logActivity(); C.save(); syncWatched(r.id, true);
+        C.toast(r.listId ? 'Playlist finished: ticked as done' : 'Video finished: ticked as done');
+      }
+    });
+    box._aimPlayer = h;
+    currentCleanup.push(function () { if (h) h.destroy(); });
+  }
+  function toggleInline(art, r, btn) {
+    var box = art.querySelector('.player[data-inline]');
+    if (box) {
+      if (box._aimPlayer) box._aimPlayer.destroy();
+      box.remove(); btn.textContent = '▶ Play here'; btn.setAttribute('aria-expanded', 'false');
+      return;
+    }
+    box = document.createElement('div'); box.className = 'player'; box.setAttribute('data-inline', '');
+    art.insertBefore(box, art.firstChild);
+    startPlayer(box, r);
+    btn.textContent = 'Close player'; btn.setAttribute('aria-expanded', 'true');
+    try { box.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) { box.scrollIntoView(false); }
+  }
+  function gotoRes(id, andPlay) {
+    var art = null; eachWithAttr('.res-card', 'data-res', id, function (el) { if (!art) art = el; });
+    if (!art) return;
+    var wrap = art.parentElement; if (wrap && wrap.hidden) wrap.hidden = false;
+    try { art.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { art.scrollIntoView(); }
+    if (!andPlay) return;
+    var facade = art.querySelector('.player-facade');
+    var btn = art.querySelector('[data-action="play-inline"]');
+    if (facade) facade.click(); else if (btn && btn.getAttribute('aria-expanded') !== 'true') btn.click();
+  }
+  // every resource of a module in study order: the main picks first, then the rest
+  function checklistOrder(m) {
+    var mp = mainPicks(m), first = [mp.main, mp.second].filter(Boolean);
+    return first.concat(mp.list.filter(function (r) { return first.indexOf(r) < 0; }));
+  }
+  function resTicks(m) {
+    var list = D.resources.filter(function (r) { return (r.modules || []).indexOf(m.id) >= 0; }), st = S();
+    return { n: list.filter(function (r) { return st.watched[r.id]; }).length, of: list.length };
+  }
+  function checklistHTML(m) {
+    var st = S(), order = checklistOrder(m), t = resTicks(m), mp = mainPicks(m);
+    var next = order.filter(function (r) { return !st.watched[r.id]; })[0];
+    var p = t.of ? Math.round(t.n / t.of * 100) : 0;
+    var nextHTML = next ? '<div class="next-up"><span class="eyebrow">Next up</span><strong>' + esc(next.title) + '</strong>' +
+      '<span class="small muted">' + esc(next.creator || '') + ' · ' + esc(next.type) + (posText(next) ? ' · ' + esc(posText(next)) : '') + '</span>' +
+      '<div class="row">' + (C.canEmbed(next) ? '<button class="btn btn-sm btn-primary" type="button" data-action="goto-res" data-id="' + esc(next.id) + '" data-play="1">▶ ' + (posText(next) ? 'Resume' : 'Play') + '</button>' :
+        '<a class="btn btn-sm" href="' + esc(next.url) + '" target="_blank" rel="noopener">Open ↗</a>') +
+      '<button class="btn btn-sm" type="button" data-action="goto-res" data-id="' + esc(next.id) + '">Show details</button></div></div>' :
+      '<div class="callout small">Every resource in this module is ticked. Well done!</div>';
+    return '<div class="row-between"><h2 class="h-sub">Your checklist</h2><span class="small muted num">' + t.n + ' of ' + t.of + ' finished</span></div>' +
+      bar(p, 'Resources finished in this module') + nextHTML +
+      '<details id="checklist-all"><summary>Tick off all ' + t.of + ' resources</summary><ul class="checklist small">' + order.map(function (r) {
+        return '<li><label><input type="checkbox" data-action="watched" data-id="' + esc(r.id) + '"' + (st.watched[r.id] ? ' checked' : '') + '><span>' + esc(r.title) +
+          ' <span class="muted">· ' + esc(r.type) + (r === mp.main ? ' · main pick' : '') + '</span> ' + (C.canEmbed(r) ? posChip(r) : '') + '</span></label></li>';
+      }).join('') + '</ul></details>' +
+      '<p class="small muted">Videos tick themselves when you finish them here, and playlists remember which video you were on. Courses on other sites, books and tools: tick them yourself. Only the main lesson is needed for module progress; the rest are extras and alternatives.</p>';
+  }
+  function refreshChecklist() {
+    var el = document.getElementById('watch-checklist'); if (!el) return;
+    var m = modById[el.getAttribute('data-mod')]; if (!m) return;
+    var d = document.getElementById('checklist-all'), open = d && d.open;
+    el.innerHTML = checklistHTML(m);
+    if (open) { d = document.getElementById('checklist-all'); if (d) d.open = true; }
+  }
+  // most recent unfinished videos or playlists, newest first
+  function continueList(max) {
+    var st = S();
+    return Object.keys(st.pos).filter(function (id) { return resById[id] && !st.watched[id] && posText(resById[id]); })
+      .sort(function (a, b) { return (st.pos[b].t || 0) - (st.pos[a].t || 0); }).slice(0, max || 5).map(function (id) { return resById[id]; });
+  }
+  function resModule(r) { var mid = (r.modules || []).filter(function (x) { return modById[x]; })[0]; return mid ? modById[mid] : null; }
+  function continueHTML(max) {
+    var list = continueList(max);
+    if (!list.length) return '';
+    return '<ul class="continue-list">' + list.map(function (r) {
+      var m = resModule(r);
+      return '<li><a href="#m-' + esc(m ? m.id : '') + '~watch"><strong>' + esc(r.title) + '</strong></a><span class="small muted num">' + esc(posText(r)) + (m ? ' · Module ' + esc(modNo(m)) : '') + '</span></li>';
+    }).join('') + '</ul>';
   }
 
   /* ---------- shell ---------- */
@@ -211,7 +322,8 @@
       '<li><strong>Play with the lab.</strong> Where a concept is visual, a lab lets you feel it before you code it.</li>' +
       '<li><strong>Practise.</strong> Solve small Python exercises right on the page.</li>' +
       '<li><strong>Test yourself.</strong> Score 70% or more on the quiz, then move on. A level is complete when its modules are done, you pass the level test and you finish one project.</li></ol></section>' +
-      (st.last || Object.keys(st.watched).length ? '<section class="card row-between"><div class="stack-sm"><strong>Your progress</strong><span class="small muted num">' + overallProgress() + '% of the course · ' + C.streak() + '-day streak</span></div><a class="btn" href="#progress">Open my progress</a></section>' : '') +
+      (st.last || Object.keys(st.watched).length || continueList(1).length ? '<section class="card stack-sm"><div class="row-between"><div class="stack-sm"><strong>Your progress</strong><span class="small muted num">' + overallProgress() + '% of the course · ' + C.streak() + '-day streak</span></div><a class="btn" href="#progress">Open my progress</a></div>' +
+        (continueList(1).length ? '<div class="stack-sm"><span class="eyebrow">Continue watching</span>' + continueHTML(3) + '</div>' : '') + '</section>' : '') +
       '</div>';
     setView(html, 'Home');
   }
@@ -358,7 +470,8 @@
     var parts = moduleParts(m), done = S().modules[m.id] && S().modules[m.id].done;
     return '<div class="card stack-sm"><strong>Your progress here</strong><ul class="checklist small">' + parts.map(function (p) {
       return '<li>' + (p.done ? '✓ ' : '○ ') + esc(p.k) + ' <span class="muted num">' + esc(p.pctLike ? p.n + '%' : p.n + '/' + p.of) + '</span></li>';
-    }).join('') + '</ul><button class="btn ' + (done ? '' : 'btn-haldi') + '" data-action="mod-done" data-id="' + esc(m.id) + '">' + (done ? 'Marked complete ✓ (undo)' : 'Mark module complete') + '</button></div>' +
+    }).join('') + '</ul>' + (function () { var t = resTicks(m); return t.of ? '<div class="small muted">Videos and courses ticked: <span class="num">' + t.n + ' of ' + t.of + '</span></div>' : ''; })() +
+      '<button class="btn ' + (done ? '' : 'btn-haldi') + '" data-action="mod-done" data-id="' + esc(m.id) + '">' + (done ? 'Marked complete ✓ (undo)' : 'Mark module complete') + '</button></div>' +
       (m.tip ? '<div class="callout small"><strong>Tip:</strong> ' + inline(m.tip) + '</div>' : '');
   }
   function renderModuleTab(m, tab, el) {
@@ -382,7 +495,8 @@
       var mp = mainPicks(m), list = mp.list, mainPick = mp.main, otherLangPick = mp.second, group = langGroup;
       var GROUP_LABEL = { hi: 'Hindi / Hinglish', in: 'Indian English', en: 'English' };
       var rest = list.filter(function (r) { return r !== mainPick && r !== otherLangPick; });
-      el.innerHTML = '<div class="stack-lg"><div class="row-between"><div class="small muted">' + list.length + ' resources for this module</div>' + langSeg() + '</div>' +
+      el.innerHTML = '<div class="stack-lg"><section class="card stack-sm" id="watch-checklist" data-mod="' + esc(m.id) + '">' + checklistHTML(m) + '</section>' +
+        '<div class="row-between"><div class="small muted">' + list.length + ' resources for this module</div>' + langSeg() + '</div>' +
         (location.protocol === 'file:' ? '<div class="callout small">Opened as a file: YouTube may refuse to play embedded videos here. Use "Open on YouTube", or publish the site on GitHub Pages (see README).</div>' : '') +
         (mainPick ? '<section class="stack"><h2 class="h-sub">Main pick · ' + GROUP_LABEL[group(mainPick)] + '</h2>' + resCard(mainPick, { player: true, featured: true, note: noteFor(m, mainPick) }) + '</section>' : '<div class="empty">Resources for this module are being added.</div>') +
         (otherLangPick ? '<section class="stack"><h2 class="h-sub">Main pick in ' + GROUP_LABEL[group(otherLangPick)] + '</h2>' + resCard(otherLangPick, { player: true, note: noteFor(m, otherLangPick) }) + '</section>' : '') +
@@ -858,7 +972,8 @@
     setView('<div class="wrap stack-lg">' + crumbs([['Home', 'home'], ['My progress']]) +
       '<header class="row-between"><div class="stack-sm"><h1>My progress</h1><p class="muted">Saved only in this browser on this device. Export it to keep a backup or move devices.</p></div>' + ring(overallProgress()) + '</header>' +
       (overallProgress() === 0 && !Object.keys(st.quiz).length ? '<div class="callout row-between"><span>Nothing here yet. Your first step takes about 30 minutes.</span><a class="btn btn-primary" href="#start">Start here</a></div>' : '') +
-      '<div class="lab-stats">' + stat('Course complete', overallProgress() + '%') + stat('Day streak', C.streak()) + stat('Exercises solved', solved + '/' + D.exercises.length) + stat('Quizzes passed', passed) + stat('Lab tasks', labTasks) + stat('Projects done', projDone + '/' + D.projects.length) + '</div>' +
+      '<div class="lab-stats">' + stat('Course complete', overallProgress() + '%') + stat('Day streak', C.streak()) + stat('Exercises solved', solved + '/' + D.exercises.length) + stat('Quizzes passed', passed) + stat('Lab tasks', labTasks) + stat('Projects done', projDone + '/' + D.projects.length) + stat('Videos & courses ticked', Object.keys(st.watched).filter(function (k) { return resById[k]; }).length) + '</div>' +
+      (continueList(1).length ? '<section class="card stack-sm"><h2 class="h-sub">Continue watching</h2>' + continueHTML(5) + '</section>' : '') +
       '<section class="stack">' + D.levels.map(function (l) { return '<div class="stack-sm"><div class="row-between"><a href="#level-' + l.id + '"><strong>Level ' + l.id + ' · ' + esc(l.name) + '</strong></a><span class="num small">' + levelProgress(l.id) + '%</span></div>' + bar(levelProgress(l.id), 'Level ' + l.id + ' progress') + '</div>'; }).join('') + '</section>' +
       '<div class="two-col"><section class="stack"><h2>Quizzes</h2>' + quizTable() + '</section><aside class="stack">' + plannerCard() +
       '<div class="card stack-sm"><strong>Backup</strong><div class="row"><button class="btn btn-sm" data-action="export">Copy progress</button><button class="btn btn-sm" data-action="download">Download file</button></div>' +
@@ -877,7 +992,9 @@
   document.addEventListener('click', function (ev) {
     var t = ev.target.closest('[data-action]'); if (!t) return;
     var a = t.getAttribute('data-action'), id = t.getAttribute('data-id'), st = S();
-    if (a === 'play') { var r = resById[id]; if (r) { C.play(t.parentNode, r); st.last = st.last; } }
+    if (a === 'play') { var r = resById[id]; if (r) startPlayer(t.parentNode, r); }
+    else if (a === 'play-inline') { var ri = resById[id], art = t.closest('.res-card'); if (ri && art) toggleInline(art, ri, t); }
+    else if (a === 'goto-res') { gotoRes(id, t.getAttribute('data-play') === '1'); }
     else if (a === 'lang') { st.prefs.lang = t.getAttribute('data-lang'); C.save(); var y = window.scrollY; route(); window.scrollTo(0, y); }
     else if (a === 'mod-done') { var cur = st.modules[id] && st.modules[id].done; st.modules[id] = { done: !cur, at: C.today() }; if (!cur) C.logActivity(); C.save(); C.toast(cur ? 'Module marked as not complete' : 'Module complete. Next one!'); refreshSide(); }
     else if (a === 'pdone') { var p = st.projects[id] = st.projects[id] || {}; p.done = !p.done; if (p.done) C.logActivity(); C.save(); C.toast(p.done ? 'Project complete. Add it to your portfolio!' : 'Project marked as in progress'); t.textContent = p.done ? 'Completed ✓ (undo)' : 'Mark project complete'; t.className = 'btn ' + (p.done ? '' : 'btn-haldi'); }
@@ -891,7 +1008,7 @@
   document.addEventListener('change', function (ev) {
     var t = ev.target, a = t.getAttribute && t.getAttribute('data-action'), id = t.getAttribute && t.getAttribute('data-id'), st = S();
     if (!a) return;
-    if (a === 'watched') { if (t.checked) { st.watched[id] = C.today(); C.logActivity(); } else delete st.watched[id]; C.save(); refreshSide(); C.toast(t.checked ? 'Marked as watched' : 'Removed from watched'); }
+    if (a === 'watched') { if (t.checked) { st.watched[id] = C.today(); C.logActivity(); } else delete st.watched[id]; C.save(); syncWatched(id, t.checked); C.toast(t.checked ? 'Marked as watched' : 'Removed from watched'); }
     else if (a === 'pstep') { var p = st.projects[id] = st.projects[id] || {}; p.steps = p.steps || {}; p.steps[t.getAttribute('data-i')] = t.checked; if (t.checked) C.logActivity(); C.save(); }
     else if (a === 'prub') { var q = st.projects[id] = st.projects[id] || {}; q.rubric = q.rubric || {}; q.rubric[t.getAttribute('data-i')] = Number(t.value); C.save(); updateRubric(projById[id], q); }
   });

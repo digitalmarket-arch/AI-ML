@@ -8,7 +8,7 @@
   var memory = null;
   function blank() {
     return { v: 1, prefs: { lang: 'hi', theme: 'system' }, watched: {}, quiz: {}, ex: {}, code: {}, labs: {},
-      projects: {}, modules: {}, notes: {}, last: null, log: {} };
+      projects: {}, modules: {}, notes: {}, last: null, log: {}, pos: {} };
   }
   // Make any stored or restored object safe to use: right shapes, numbers that are numbers.
   function normalize(d) {
@@ -29,6 +29,13 @@
     if (d.prefs.start != null && !/^\d{4}-\d{2}-\d{2}$/.test(String(d.prefs.start))) delete d.prefs.start;
     ['notes', 'code'].forEach(function (k) { Object.keys(d[k]).forEach(function (x) { if (typeof d[k][x] !== 'string') delete d[k][x]; }); });
     Object.keys(d.log).forEach(function (x) { d.log[x] = parseInt(d.log[x], 10) || 0; });
+    // where each video or playlist was left: i = playlist index, n = playlist length, s = seconds, t = when
+    Object.keys(d.pos).forEach(function (x) {
+      var p = d.pos[x];
+      if (!p || typeof p !== 'object') { delete d.pos[x]; return; }
+      var num = function (v) { v = Number(v); return isFinite(v) && v > 0 ? v : 0; };
+      d.pos[x] = { i: Math.floor(num(p.i)), n: Math.floor(num(p.n)), s: Math.floor(num(p.s)), t: num(p.t) };
+    });
     d.v = 1;
     return d;
   }
@@ -153,7 +160,7 @@
       '<button class="player-facade' + (thumb ? '' : ' no-thumb') + '" type="button" data-action="play" data-id="' + esc(r.id) + '"' + style + ' aria-label="Play: ' + esc(r.title) + '">' + poster +
       '<span class="play" aria-hidden="true"></span><span class="cap">' + (thumb ? esc(r.title) : '') + (r.listId ? (thumb ? ' · ' : '') + 'Playlist' : '') + '</span></button></div>';
   }
-  function play(container, r) {
+  function plainPlayer(container, r) {
     var src = embedSrc(r);
     if (!src) return;
     var f = document.createElement('iframe');
@@ -165,6 +172,93 @@
     f.allowFullscreen = true;
     container.innerHTML = '';
     container.appendChild(f);
+  }
+
+  // YouTube's player API lets the site notice when a video ends and which playlist video is playing.
+  var ytWait = null, ytScript = false;
+  function ensureYT(ms) {
+    if (window.YT && window.YT.Player) return Promise.resolve(window.YT);
+    if (ytWait) return ytWait;
+    ytWait = new Promise(function (resolve, reject) {
+      var settled = false;
+      var prev = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = function () {
+        if (typeof prev === 'function') { try { prev(); } catch (e) {} }
+        if (!settled) { settled = true; resolve(window.YT); }
+      };
+      if (!ytScript) {
+        ytScript = true;
+        var sc = document.createElement('script');
+        sc.src = 'https://www.youtube.com/iframe_api';
+        sc.async = true;
+        sc.onerror = function () { ytScript = false; if (!settled) { settled = true; ytWait = null; reject(new Error('blocked')); } };
+        document.head.appendChild(sc);
+      }
+      setTimeout(function () { if (!settled) { settled = true; ytWait = null; reject(new Error('timeout')); } }, ms || 6000);
+    });
+    return ytWait;
+  }
+
+  // hooks: getPos() -> {i, s} or null; onPos({i, n, s}); onComplete(). Returns { destroy }.
+  function play(container, r, hooks) {
+    hooks = hooks || {};
+    var alive = true, player = null, timer = null, completed = false;
+    var report = function () {
+      if (!player || typeof player.getCurrentTime !== 'function') return null;
+      var p = { i: 0, n: 0, s: 0, d: 0 };
+      try {
+        p.s = player.getCurrentTime() || 0;
+        p.d = player.getDuration() || 0;
+        if (r.listId) { p.i = player.getPlaylistIndex() || 0; var pl = player.getPlaylist(); p.n = pl && pl.length ? pl.length : 0; }
+      } catch (e) { return null; }
+      if (hooks.onPos) hooks.onPos(p);
+      return p;
+    };
+    var checkDone = function (p, ended) {
+      if (completed || !p) return;
+      var nearEnd = ended || (p.d > 0 && p.s / p.d >= 0.9);
+      var lastItem = !r.listId || (p.n > 0 && p.i >= p.n - 1);
+      if (nearEnd && lastItem) { completed = true; if (hooks.onComplete) hooks.onComplete(); }
+    };
+    var stopTimer = function () { if (timer) { clearInterval(timer); timer = null; } };
+    container.innerHTML = '<div class="player-loading">Loading the player…</div>';
+    ensureYT(6000).then(function (YT) {
+      if (!alive) return;
+      var holder = document.createElement('div');
+      container.innerHTML = '';
+      container.appendChild(holder);
+      var pos = (hooks.getPos && hooks.getPos()) || null;
+      var vars = { autoplay: 1, rel: 0, playsinline: 1 };
+      var opts = { host: 'https://www.youtube-nocookie.com', width: '100%', height: '100%', playerVars: vars, events: {} };
+      if (r.videoId) opts.videoId = r.videoId;
+      if (r.listId) { vars.listType = 'playlist'; vars.list = r.listId; }
+      if (!r.listId && pos && pos.s > 5) vars.start = Math.floor(pos.s);
+      opts.events.onReady = function (e) {
+        try { var fr = e.target.getIframe(); fr.title = r.title; fr.setAttribute('allowfullscreen', ''); } catch (err) {}
+        if (r.listId && pos && (pos.i > 0 || pos.s > 5)) {
+          try { e.target.loadPlaylist({ list: r.listId, listType: 'playlist', index: pos.i || 0, startSeconds: pos.s > 5 ? Math.floor(pos.s) : 0 }); } catch (err) {}
+        }
+      };
+      opts.events.onStateChange = function (e) {
+        var S = YT.PlayerState || { ENDED: 0, PLAYING: 1, PAUSED: 2 };
+        if (e.data === S.PLAYING) {
+          stopTimer();
+          timer = setInterval(function () { checkDone(report(), false); }, 10000);
+          report();
+        } else if (e.data === S.PAUSED) { stopTimer(); checkDone(report(), false); }
+        else if (e.data === S.ENDED) { stopTimer(); checkDone(report(), true); }
+      };
+      try { player = new YT.Player(holder, opts); } catch (err) { plainPlayer(container, r); }
+    }, function () {
+      if (alive) plainPlayer(container, r);
+    });
+    return {
+      destroy: function () {
+        if (!alive) return;
+        alive = false; stopTimer();
+        if (player) { report(); try { player.destroy(); } catch (e) {} player = null; }
+      }
+    };
   }
 
   /* ---------------- quiz engine ---------------- */
@@ -275,7 +369,7 @@
     get state() { return state; }, save: save, resetAll: resetAll, replaceState: replaceState, logActivity: logActivity, streak: streak, today: today,
     esc: esc, inline: inline, md: md, toast: toast, pct: pct,
     LANG_LABEL: LANG_LABEL, langChip: langChip, langRank: langRank,
-    ytIds: ytIds, embedSrc: embedSrc, canEmbed: canEmbed, playerHTML: playerHTML, play: play,
+    ytIds: ytIds, embedSrc: embedSrc, canEmbed: canEmbed, playerHTML: playerHTML, play: play, ensureYT: ensureYT,
     Quiz: Quiz
   };
 })();
