@@ -505,7 +505,7 @@
         if (!done.t1) completeTask('t1');
         if (!S.goalShown) {
           S.goalShown = true;
-          say('', '<b>Goal reached:</b> loss ' + L1(S.loss) + ' is within 1% of the best possible ' + L1(F.L) + ', after ' + fmtIN(S.steps, 0) + ' steps.', 'good');
+          if (msgKey !== 'tilt') say('goal', '<b>Goal reached:</b> loss ' + L1(S.loss) + ' is within 1% of the best possible ' + L1(F.L) + ', after ' + fmtIN(S.steps, 0) + ' steps.', 'good');
         }
       }
       // 5. outlier tilt

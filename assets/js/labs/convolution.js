@@ -54,7 +54,7 @@
 
   var TASKS = [
     { id: 't1', text: 'Find the kernel that lights up the up-down (vertical) strokes, then tap one of the brightest pixels in its feature map to see the multiply-and-add.' },
-    { id: 't2', text: 'Make your own kernel that detects horizontal lines: type numbers into the 3×3 grid so left-right strokes light up but up-down strokes stay grey. (Start from any preset, but change the numbers yourself.)' },
+    { id: 't2', text: 'Make your own horizontal-line detector: type numbers into the 3×3 kernel grid so left-right strokes light up but up-down strokes stay grey. (A preset alone does not count.)' },
     { id: 't3', text: 'Switch the stride to 2 (the filter jumps 2 pixels at a time) and watch the feature map shrink to about half its width.' },
     { id: 't4', text: 'Turn on ReLU + 2×2 max-pool and make the final output exactly 7 × 7. (Hint: use the output-size formula.)' }
   ];
@@ -310,6 +310,8 @@
     var calcFoot = el('div', { class: 'small', style: 'line-height:1.45' });
     calc.appendChild(calcHead); calc.appendChild(calcBody); calc.appendChild(calcFoot);
     left.appendChild(calc);
+    var formula = el('div', { class: 'card-flat', style: 'padding:10px 14px;font-size:.9rem;line-height:1.55' });
+    left.appendChild(formula);
     var srLive = el('p', { class: 'visually-hidden', 'aria-live': 'polite' });
     left.appendChild(srLive);
     left.appendChild(el('p', { class: 'kbd-hint', text: 'Keyboard: focus the picture and use the arrow keys to move the highlighted feature-map pixel. In the kernel grid, arrow up/down adds or takes away 1.' }));
@@ -407,8 +409,6 @@
       el('p', { class: 'small', style: 'color:var(--muted);line-height:1.45', html: '<b>ReLU</b> turns every negative number into 0. <b>Max-pool</b> keeps only the biggest number in each 2 × 2 block, so the map gets half as wide.' })
     ]));
 
-    var formula = el('div', { class: 'card-flat', style: 'padding:10px 12px;font-size:.9rem;line-height:1.55' });
-    controls.appendChild(formula);
 
     // tasks
     var taskItems = {};
@@ -462,7 +462,7 @@
     }
     function strongest() {
       var best = 0, bi = 0;
-      for (var k = 0; k < R.out.length; k++) if (Math.abs(R.out[k]) > best) { best = Math.abs(R.out[k]); bi = k; }
+      for (var k = 0; k < R.out.length; k++) if (R.out[k] > best) { best = R.out[k]; bi = k; }
       return { kind: 'f', i: Math.floor(bi / R.n), j: bi % R.n };
     }
 
@@ -664,7 +664,9 @@
         '<div style="display:grid;grid-template-columns:repeat(' + cols + ',' + (colW || '3.3em') + ');gap:2px;font-family:var(--font-mono);font-size:.78rem;font-variant-numeric:tabular-nums">' +
         cells + '</div></div>';
     }
-    function op(s) { return '<span aria-hidden="true" style="font-size:1.2rem;color:var(--muted);padding-bottom:.9em">' + s + '</span>'; }
+    function op(s, grid) {
+      return '<div style="display:flex;align-items:flex-end;gap:10px;min-width:0"><span aria-hidden="true" style="font-size:1.2rem;color:var(--muted);padding-bottom:.9em">' + s + '</span>' + grid + '</div>';
+    }
     function valueSwatch(v, scale) {
       var c = T ? colorOf(v, scale) : null;
       return c ? '<span aria-hidden="true" style="display:inline-block;width:.9em;height:.9em;border-radius:3px;vertical-align:-.1em;margin-left:4px;border:1px solid var(--line);background:' + rgb(c) + '"></span>' : '';
@@ -702,7 +704,7 @@
       var v = R.out[i * R.n + j];
       calcHead.innerHTML = 'Feature-map pixel: row ' + (i + 1) + ', column ' + (j + 1) +
         ' <span class="muted" style="font-weight:400">(its 3 × 3 patch is outlined in yellow on the input)</span>';
-      calcBody.innerHTML = gridBox('Input patch', patch, 3) + op('×') + gridBox('Kernel', kern, 3) + op('=') + gridBox('Products', prod, 3);
+      calcBody.innerHTML = gridBox('Input patch', patch, 3) + op('×', gridBox('Kernel', kern, 3)) + op('=', gridBox('Products', prod, 3));
       calcFoot.innerHTML = 'Add up the 9 products: <b class="mono" style="font-size:1rem">' + fmt(v) + '</b>' + valueSwatch(v, R.maxAbs) +
         '. That one sum is the highlighted pixel of the feature map.' +
         (padded ? ' <span class="muted">Dashed cells are the border of 0s added by “same” padding.</span>' : '') +
@@ -725,8 +727,8 @@
       var rf = stride + 3; // input area one pooled pixel "sees": (2 − 1) × stride + 3
       calcHead.innerHTML = 'Pooled pixel: row ' + (i + 1) + ', column ' + (j + 1) +
         ' <span class="muted" style="font-weight:400">(from feature-map rows ' + (2 * i + 1) + '–' + (2 * i + 2) + ', columns ' + (2 * j + 1) + '–' + (2 * j + 2) + ')</span>';
-      calcBody.innerHTML = gridBox('Feature-map block', raw, 2, '3.6em') + op('→') + gridBox('After ReLU', rel, 2, '3.6em') + op('→') +
-        gridBox('Max', cellBox(fmt(best), tintFor(best, scale, 40) || 'var(--surface)', 'var(--ink)', 'font-weight:700;'), 1, '3.6em');
+      calcBody.innerHTML = gridBox('Feature-map block', raw, 2, '3.6em') + op('→', gridBox('After ReLU', rel, 2, '3.6em')) +
+        op('→', gridBox('Max', cellBox(fmt(best), tintFor(best, scale, 40) || 'var(--surface)', 'var(--ink)', 'font-weight:700;'), 1, '3.6em'));
       calcFoot.innerHTML = 'ReLU turns the negatives into 0, then max-pool keeps only the biggest of the 4: <b class="mono" style="font-size:1rem">' + fmt(best) + '</b>' + valueSwatch(best, scale) +
         '. This one number sums up a ' + rf + ' × ' + rf + ' patch of the input (dashed yellow box), so deeper layers see bigger areas.';
     }
