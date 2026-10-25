@@ -8,7 +8,7 @@ window.AIM.pages = {
    {
     "heading": "What AI Marg is",
     "paragraphs": [
-     "AI Marg (मार्ग means 'path') is a free, self-paced course that takes you from zero to building real AI systems. It does not host its own videos. It links to strong free lessons already made by teachers such as CampusX, Krish Naik, NPTEL and the IITs, StatQuest and Andrej Karpathy. Then it adds what those videos lack: a clear order, practice, quizzes, projects and Indian examples.",
+     "AI Marg is a free, self-paced course that takes you from zero to building real AI systems. It does not host its own videos. It links to strong free lessons already made by teachers such as CampusX, Krish Naik, NPTEL and the IITs, StatQuest and Andrej Karpathy. Then it adds what those videos lack: a clear order, practice, quizzes, projects and Indian examples.",
      "The course has four levels, named in Sanskrit. Each level has 6 or 7 modules (a module is one topic, such as 'Python from Zero'), a set of projects and a 20-question level test. The hours below are for module study only; projects add more. Two optional Grand Capstones at the end combine skills from several levels."
     ],
     "bullets": [

@@ -210,7 +210,7 @@ window.AIM.labs = [
    },
    {
     "id": "t3",
-    "text": "Untangle the Spiral: reach 90% test accuracy. (Hint: try 2 hidden layers.)"
+    "text": "Untangle the Spiral: reach 90% test accuracy. (Hint: try 2 hidden layers with 6 to 8 neurons each.)"
    },
    {
     "id": "t4",
@@ -222,7 +222,7 @@ window.AIM.labs = [
   "id": "convolution",
   "module": "l3-cv",
   "title": "Convolution filters & pooling",
-  "summary": "Draw a digit or a Devanagari letter, slide a 3×3 filter over it, and see how edge, blur and sharpen kernels, stride, padding, ReLU and max-pooling change what a CNN (convolutional neural network) sees.",
+  "summary": "Draw a digit or a shape, slide a 3×3 filter over it, and see how edge, blur and sharpen kernels, stride, padding, ReLU and max-pooling change what a CNN (convolutional neural network) sees.",
   "tasks": [
    {
     "id": "t1",

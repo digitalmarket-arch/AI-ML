@@ -992,7 +992,7 @@ window.AIM.projects = [
    "l3-mlops"
   ],
   "why": "This is the 'MNIST of India'. You learn CNNs (convolutional neural networks, models that scan images with small learned filters), augmentation, transfer learning, error analysis and deployment on a script that matters for Hindi, Marathi, Nepali and Sanskrit. A live drawing demo is memorable in interviews, and it connects directly to your Sanskrit study.",
-  "brief": "An ed-tech app that teaches children, and adults learning Sanskrit, to write Devanagari wants a feature that checks a letter drawn on a phone screen. Train a classifier on a public handwritten Devanagari character dataset (the UCI DHCD has 46 classes: 36 consonants and 10 digits), first with a small CNN you write yourself in PyTorch, then with a fine-tuned pretrained model. Constraints: the deployed model must be under 20 MB and answer in under 300 ms on a free CPU; accuracy must be reported per class, with the 5 most-confused letter pairs explained (for example घ and ध); and the demo must cope with messy finger drawings, not just clean scans. Deploy it as a Gradio app on a free Hugging Face ZeroGPU Space with a drawing canvas.",
+  "brief": "An ed-tech app that teaches children, and adults learning Sanskrit, to write Devanagari wants a feature that checks a letter drawn on a phone screen. Train a classifier on a public handwritten Devanagari character dataset (the UCI DHCD has 46 classes: 36 consonants and 10 digits), first with a small CNN you write yourself in PyTorch, then with a fine-tuned pretrained model. Constraints: the deployed model must be under 20 MB and answer in under 300 ms on a free CPU; accuracy must be reported per class, with the 5 most-confused letter pairs explained (for example the letters gha and dha, which look alike); and the demo must cope with messy finger drawings, not just clean scans. Deploy it as a Gradio app on a free Hugging Face ZeroGPU Space with a drawing canvas.",
   "datasets": [
    {
     "name": "Devanagari Character Dataset (Large), Kaggle",
@@ -1510,7 +1510,7 @@ window.AIM.projects = [
    {
     "name": "Itihasa Sanskrit–English corpus",
     "url": "https://huggingface.co/datasets/rahular/itihasa",
-    "note": "About 93,000 ślokas in Devanagari with English translations, from M. N. Dutt's Rāmāyaṇa and Mahābhārata; Apache-2.0 according to the Hugging Face card. Splits: 75,162 train, 6,149 validation, 11,722 test. Extracted with OCR, so expect errors: one early śloka shows दृढत्नतः where the text should read दृढव्रतः."
+    "note": "About 93,000 ślokas in Devanagari with English translations, from M. N. Dutt's Rāmāyaṇa and Mahābhārata; Apache-2.0 according to the Hugging Face card. Splits: 75,162 train, 6,149 validation, 11,722 test. Extracted with OCR, so expect errors: some words contain wrong letters."
    },
    {
     "name": "Itihasa project page (GitHub)",
@@ -1538,7 +1538,7 @@ window.AIM.projects = [
   "milestones": [
    {
     "title": "Free setup and data prep",
-    "detail": "Use a Kaggle Notebook with a T4 GPU (weekly free quota) or Colab. Load the Sanskrit side, apply Unicode NFC normalisation, keep '।' and '॥' as symbols, and report corpus statistics (total characters, unique characters, average śloka length). Remove exact duplicates across splits."
+    "detail": "Use a Kaggle Notebook with a T4 GPU (weekly free quota) or Colab. Load the Sanskrit side, apply Unicode NFC normalisation, keep the danda and double danda (the Sanskrit full-stop marks) as symbols, and report corpus statistics (total characters, unique characters, average śloka length). Remove exact duplicates across splits."
    },
    {
     "title": "Tokenizer",
@@ -1617,7 +1617,7 @@ window.AIM.projects = [
   ],
   "pitfalls": [
    "Splitting a vowel sign or virāma from its consonant, which creates invalid text.",
-   "Formulaic lines repeated across splits (for example 'वैशम्पायन उवाच') inflating validation scores: deduplicate first.",
+   "Formulaic lines repeated across splits (for example 'Vaiśampāyana uvāca', meaning 'Vaiśampāyana said') inflating validation scores: deduplicate first.",
    "Comparing perplexity across different tokenizers, which is not a fair comparison: use bits per character.",
    "Over-claiming that the model 'understands Sanskrit'."
   ],

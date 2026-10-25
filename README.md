@@ -1,4 +1,4 @@
-# AI Marg (मार्ग): a free AI & ML course site
+# AI Marg: a free AI & ML course site
 
 **AI Marg** takes a complete beginner from their first line of Python to building LLM apps and AI agents, using the best **free** videos on YouTube, NPTEL and other platforms. **Indian teachers come first.** Every module leads with Hindi or Hinglish videos, then Indian English (for example Krish Naik, Codebasics and NPTEL/IIT professors). Global English classics such as StatQuest, 3Blue1Brown and Stanford appear only as extras, or where no good Indian option exists.
 
@@ -9,18 +9,18 @@ The site is interactive:
 - **Python in the browser.** Auto-graded coding exercises run on the page using [Pyodide](https://pyodide.org). Nothing to install.
 - **Quizzes and level tests.** Each module has a 10-question quiz with explanations, and each level ends with a tougher 20-question test (pass mark 70%).
 - **Tough projects.** Each project has a client-style brief, Indian datasets, milestones, a rubric and stretch goals, ending with two grand capstones.
-- **Progress tracking, notes, a study planner and a jargon glossary** with Hindi terms. Everything is saved in your own browser; there are no accounts and no tracking.
+- **Progress tracking, notes, a study planner and a jargon glossary** in plain English. Everything is saved in your own browser; there are no accounts and no tracking.
 
-**What's inside:** 4 levels, 27 modules, 428 free resources (409 with verified links), 350 quiz questions, 81 auto-graded coding exercises, 12 labs, 18 projects and 180 glossary terms.
+**What's inside:** 4 levels, 27 modules, 428 free resources (409 with verified links), 350 quiz questions, 81 auto-graded coding exercises, 12 labs, 18 projects and 180 glossary terms. All text on the site is in English; Hindi and Hinglish appear only in the videos.
 
 The four levels are named in Sanskrit:
 
 | Level | Name | Focus |
 |---|---|---|
-| 1 | Ārambha (आरम्भः, beginning) | AI basics, Python, tools, statistics, maths, NumPy/Pandas, EDA and SQL |
-| 2 | Abhyāsa (अभ्यासः, practice) | Core machine learning with scikit-learn |
-| 3 | Prāvīṇya (प्रावीण्यम्, proficiency) | Deep learning, PyTorch, computer vision, NLP, transformers, MLOps |
-| 4 | Naipuṇya (नैपुण्यम्, mastery) | LLMs, RAG, fine-tuning, agents, generative vision, RL, research and career |
+| 1 | Ārambha (beginning) | AI basics, Python, tools, statistics, maths, NumPy/Pandas, EDA and SQL |
+| 2 | Abhyāsa (practice) | Core machine learning with scikit-learn |
+| 3 | Prāvīṇya (proficiency) | Deep learning, PyTorch, computer vision, NLP, transformers, MLOps |
+| 4 | Naipuṇya (mastery) | LLMs, RAG, fine-tuning, agents, generative vision, RL, research and career |
 
 ---
 

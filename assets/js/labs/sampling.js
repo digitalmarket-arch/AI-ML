@@ -831,8 +831,10 @@
       g.font = '600 ' + (narrow ? 10 : 10.5) + 'px ' + T.font; g.fillStyle = rgb(T.muted);
       g.textAlign = 'left'; g.fillText('WORD', xWord, hy);
       g.textAlign = 'right'; g.fillText('COUNT', xCountR, hy); g.fillText('LOGIT', xLogitR, hy);
-      g.textAlign = 'left'; g.fillText(narrow ? 'CHANCE' : 'CHANCE (bar) · BEFORE CUTS (line)', xBar0, hy);
-      g.textAlign = 'right'; g.fillText('100%', xBar1, hy);
+      var chHead = narrow ? 'CHANCE' : 'CHANCE (bar) · BEFORE CUTS (line)';
+      g.textAlign = 'left'; g.fillText(chHead, xBar0, hy);
+      // the "100%" mark at the end of the bars, unless a very narrow screen leaves no room beside the heading
+      if (xBar0 + g.measureText(chHead).width + 8 < xBar1 - g.measureText('100%').width) { g.textAlign = 'right'; g.fillText('100%', xBar1, hy); }
       // light guide lines at 25, 50, 75 and 100%
       g.strokeStyle = rgb(T.line); g.lineWidth = 1;
       for (var q = 1; q <= 4; q++) {

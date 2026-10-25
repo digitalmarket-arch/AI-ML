@@ -167,7 +167,7 @@
   function langSeg() {
     var l = S().prefs.lang;
     return '<div class="seg" role="group" aria-label="Video language preference">' +
-      '<button type="button" data-action="lang" data-lang="hi" aria-pressed="' + (l === 'hi') + '">हिंदी / Hinglish first</button>' +
+      '<button type="button" data-action="lang" data-lang="hi" aria-pressed="' + (l === 'hi') + '">Hindi / Hinglish first</button>' +
       '<button type="button" data-action="lang" data-lang="en" aria-pressed="' + (l === 'en') + '">Indian English first</button></div>';
   }
   function stations() {
@@ -176,17 +176,12 @@
       var hours = ms.reduce(function (s, m) { return s + (m.hours || 0); }, 0);
       return '<a class="station' + (p >= 100 ? ' done' : p > 0 ? ' started' : '') + '" href="#level-' + l.id + '">' +
         '<span class="fill" style="height:calc((100% - 44px) * ' + (p / 100) + ')"></span>' +
-        '<span class="station-dot" aria-hidden="true">' + esc(l.glyph || firstGrapheme(l.sanskrit || '')) + '</span>' +
-        '<span class="stack-sm"><span class="station-name"><span class="sa">' + esc(l.sanskrit) + '</span><b>' + esc(l.name) + '</b><span class="muted small">' + esc(l.meaning) + '</span></span>' +
+        '<span class="station-dot" aria-hidden="true">' + esc(l.glyph || String(l.id)) + '</span>' +
+        '<span class="stack-sm"><span class="station-name"><b>' + esc(l.name) + '</b><span class="muted small">' + esc(l.meaning) + '</span></span>' +
         '<span><strong>Level ' + l.id + ': ' + esc(l.title) + '</strong></span>' +
         '<span class="small muted num">' + ms.length + ' modules' + (hours ? ' · ~' + hours + ' hours' : '') + ' · ' + esc(l.weeks || '') + ' weeks at 10 h/week (modules only)</span>' +
         bar(p, 'Level ' + l.id + ' progress') + '</span></a>';
     }).join('') + '</div>';
-  }
-
-  function firstGrapheme(str) {
-    try { if (window.Intl && Intl.Segmenter) { var it = new Intl.Segmenter('hi', { granularity: 'grapheme' }).segment(str)[Symbol.iterator](); var f = it.next(); return f.done ? '' : f.value.segment; } } catch (e) {}
-    return str.charAt(0);
   }
 
   /* ---------- views ---------- */
@@ -197,7 +192,7 @@
     var nQ = Object.keys(D.quizzes).reduce(function (s, k) { return s + D.quizzes[k].length; }, 0);
     var html = '<div class="wrap stack-lg">' +
       '<section class="hero"><div class="stack">' +
-      '<span class="eyebrow">Free AI & ML course · हिंदी, Hinglish & Indian English</span>' +
+      '<span class="eyebrow">Free AI & ML course · Videos in Hindi, Hinglish & Indian English</span>' +
       '<h1>From your first line of Python to building <em>AI agents</em>.</h1>' +
       '<p class="lede">A guided path through the best free videos from Indian teachers first, in Hindi, Hinglish and Indian English, with interactive labs, Python you can run in the browser, tests and tough projects. No fees, no sign-up.</p>' +
       '<div class="row"><a class="btn btn-primary" href="#start">Start here</a>' +
@@ -282,7 +277,7 @@
       D.levels.map(function (l) { return '<section class="stack">' + levelHeader(l, 'h2') + moduleList(l.id) + '</section>'; }).join('') + '</div>', 'Roadmap');
   }
   function levelHeader(l, tag) {
-    return '<div class="level-head"><div class="level-glyph" aria-hidden="true">' + esc(l.sanskrit) + '</div><div class="stack-sm">' +
+    return '<div class="level-head"><div class="level-glyph" aria-hidden="true">' + esc(l.glyph || String(l.id)) + '</div><div class="stack-sm">' +
       '<span class="eyebrow">Level ' + l.id + ' · ' + esc(l.name) + ' (' + esc(l.meaning) + ')</span><' + tag + '><a href="#level-' + l.id + '" style="color:inherit;text-decoration:none">' + esc(l.title) + '</a></' + tag + '>' +
       '<div class="row">' + bar(levelProgress(l.id), 'Level ' + l.id + ' progress').replace('class="bar"', 'class="bar" style="width:160px"') + '<span class="small muted num">' + levelProgress(l.id) + '%</span></div></div></div>';
   }
@@ -441,7 +436,7 @@
     S().quiz[key] = q; C.logActivity(); C.save(); refreshSide();
     var chip = document.getElementById('quiz-best');
     if (chip) { chip.hidden = false; chip.className = 'chip num' + (q.best >= 70 ? ' chip-ok' : ''); chip.textContent = 'Best: ' + q.best + '% · ' + q.attempts + ' attempt' + (q.attempts > 1 ? 's' : ''); }
-    C.toast(score >= 70 ? 'Quiz passed with ' + score + '%. बढ़िया!' : 'Scored ' + score + '%. Review and try again.');
+    C.toast(score >= 70 ? 'Quiz passed with ' + score + '%. Well done!' : 'Scored ' + score + '%. Review and try again.');
   }
 
   /* ---------- labs ---------- */
@@ -556,7 +551,7 @@
             return '<li class="small ex-res ' + (x.ok ? 'ok' : 'bad') + '"><span>' + (x.ok ? '✓ ' : '✗ ') + inline(x.name) + (!x.ok && x.hint ? '<br><span class="muted">Hint: ' + inline(x.hint) + '</span>' : '') + (!x.ok && x.error ? '<br><code>' + esc(x.error) + '</code>' + (FRIENDLY[et] ? '<br><span class="muted">' + esc(FRIENDLY[et]) + '</span>' : '') : '') + '</span></li>';
           }).join('');
           if (all.length && ok === all.length) {
-            line('ok', '\nAll ' + all.length + ' checks passed in ' + ((Date.now() - started) / 1000).toFixed(1) + ' s. बढ़िया!\n');
+            line('ok', '\nAll ' + all.length + ' checks passed in ' + ((Date.now() - started) / 1000).toFixed(1) + ' s. Well done!\n');
             if (!(S().ex[e.id] && S().ex[e.id].done)) {
               S().ex[e.id] = { done: true, at: C.today() }; C.logActivity(); C.save(); C.toast('Exercise solved'); refreshSide();
               var hr = root.querySelector('.ex > .row-between .row'); if (hr && !hr.querySelector('.chip-ok')) hr.insertAdjacentHTML('afterbegin', '<span class="chip chip-ok">Solved</span>');
@@ -754,17 +749,17 @@
   function viewGlossary() {
     var list = D.glossary.slice().sort(function (a, b) { return a.term.localeCompare(b.term); });
     setView('<div class="wrap stack-lg">' + crumbs([['Home', 'home'], ['Glossary']]) +
-      '<header class="stack-sm"><h1>Jargon buster</h1><p class="lede muted prose">' + list.length + ' AI and ML terms in plain English, with the Hindi word and an everyday example.</p><div class="row"><a class="btn btn-primary" href="#cards">Revise with flashcards</a></div></header>' +
+      '<header class="stack-sm"><h1>Jargon buster</h1><p class="lede muted prose">' + list.length + ' AI and ML terms in plain English, each with an everyday example.</p><div class="row"><a class="btn btn-primary" href="#cards">Revise with flashcards</a></div></header>' +
       '<div class="filters"><label class="visually-hidden" for="g-q">Search terms</label><input type="search" id="g-q" placeholder="Search: overfitting, embedding, LoRA…" value="' + esc(glossQ) + '"></div>' +
       '<nav class="az small" aria-label="Jump to letter">' + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').filter(function (L) { return list.some(function (g) { return g.term.charAt(0).toUpperCase() === L; }); }).map(function (L) { return '<a href="#" data-jump="g-' + L + '">' + L + '</a>'; }).join('') + '</nav><dl id="g-list"></dl></div>', 'Glossary');
     function apply() {
       var q = document.getElementById('g-q').value.toLowerCase().trim(); glossQ = q;
       var seen = {};
-      var f = list.filter(function (g) { return !q || (g.term + ' ' + g.simple + ' ' + (g.hindi || '')).toLowerCase().indexOf(q) >= 0; });
+      var f = list.filter(function (g) { return !q || (g.term + ' ' + g.simple).toLowerCase().indexOf(q) >= 0; });
       document.getElementById('g-list').innerHTML = f.map(function (g) {
         var m = modById[g.moduleId];
         var L = g.term.charAt(0).toUpperCase(), anchor = seen[L] ? '' : ' id="g-' + L + '"'; seen[L] = 1;
-        return '<div class="gloss-term"' + anchor + '><dt>' + esc(g.term) + (g.hindi ? '<div class="small muted" lang="hi">' + esc(g.hindi) + '</div>' : '') + '</dt><dd class="stack-sm"><span>' + inline(g.simple) + '</span>' +
+        return '<div class="gloss-term"' + anchor + '><dt>' + esc(g.term) + '</dt><dd class="stack-sm"><span>' + inline(g.simple) + '</span>' +
           (g.example ? '<span class="small muted">Example: ' + inline(g.example) + '</span>' : '') + (m ? '<a class="small" href="#m-' + esc(m.id) + '">Learn it in ' + esc(modNo(m) + ' ' + m.title) + '</a>' : '') + '</dd></div>';
       }).join('') || '<div class="empty">No term matches.</div>';
     }
@@ -800,7 +795,7 @@
       var labs = Object.keys(LABS).map(function (k) { return LABS[k]; }).filter(function (l) { return hit(l.title, q) || hit(l.summary, q); }).map(function (l) { return row('#lab-' + l.id, l.title, 'Lab'); });
       var exs = D.exercises.filter(function (e) { return hit(e.title, q) || hit(e.concept, q) || hit(e.task, q); }).map(function (e) { return row('#ex-' + e.id.replace(/^ex-/, ''), e.title, (modById[e.moduleId] || {}).title || ''); });
       var prj = D.projects.filter(function (p) { return hit(p.title, q) || hit(p.tagline, q) || hit(p.brief, q); }).map(function (p) { return row('#' + p.id, p.title, p.level === 5 ? 'Capstone' : 'Level ' + p.level + ' project'); });
-      var gl = D.glossary.filter(function (g) { return hit(g.term, q) || hit(g.hindi, q); }).map(function (g) { return row('#glossary', g.term + (g.hindi ? ' · ' + g.hindi : ''), g.simple); });
+      var gl = D.glossary.filter(function (g) { return hit(g.term, q); }).map(function (g) { return row('#glossary', g.term, g.simple); });
       var res = D.resources.filter(function (r) { return hit(r.title, q) || hit(r.creator, q) || hit((r.topics || []).join(' '), q); }).map(function (r) { return row('#m-' + r.modules[0] + '~watch', r.title, (r.creator || '') + ' · ' + (C.LANG_LABEL[r.language] || '')); });
       libState.q = q; glossQ = q;
       var html = group('Modules', mods) + group('Labs', labs) + group('Practice', exs) + group('Projects', prj) + group('Glossary', gl, '#glossary') + group('Videos and courses', res, '#library');
@@ -837,7 +832,7 @@
         root.innerHTML = '<div class="card stack" style="min-height:260px;justify-content:center;text-align:center;align-items:center">' +
           '<span class="eyebrow">' + esc((modById[g.moduleId] || {}).title || 'Glossary') + '</span>' +
           '<div style="font-family:var(--font-display);font-size:var(--step-3);line-height:1.2">' + esc(g.term) + '</div>' +
-          (flipped ? '<div class="small muted" lang="hi">' + esc(g.hindi || '') + '</div><p class="prose" style="max-width:52ch">' + inline(g.simple) + '</p>' + (g.example ? '<p class="small muted prose" style="max-width:52ch">' + inline(g.example) + '</p>' : '') : '<p class="muted small">What does it mean?</p>') +
+          (flipped ? '<p class="prose" style="max-width:52ch">' + inline(g.simple) + '</p>' + (g.example ? '<p class="small muted prose" style="max-width:52ch">' + inline(g.example) + '</p>' : '') : '<p class="muted small">What does it mean?</p>') +
           '<div class="row" style="justify-content:center">' + (flipped ? '<button class="btn" data-c="again">Again</button><button class="btn btn-primary" data-c="know">I knew it</button>' : '<button class="btn btn-primary" data-c="flip">Flip card</button>') + '</div></div>';
         root.querySelectorAll('[data-c]').forEach(function (b) {
           b.addEventListener('click', function () {

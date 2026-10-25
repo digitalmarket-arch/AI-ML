@@ -260,7 +260,7 @@
         '<div class="q-explain">' + inline(q.explain) + '</div></div></details>';
     }).join('');
     this.root.innerHTML = '<div class="stack"><div class="card score-box"><div class="score-big">' + score + '%</div><div class="stack-sm">' +
-      '<strong>' + (timeUp ? 'Time is up. ' : '') + correct + ' of ' + this.qs.length + ' correct. ' + (passed ? 'Passed. शाबाश!' : 'Pass mark is 70%. Review the explanations below and try again.') + '</strong>' +
+      '<strong>' + (timeUp ? 'Time is up. ' : '') + correct + ' of ' + this.qs.length + ' correct. ' + (passed ? 'Passed. Well done!' : 'Pass mark is 70%. Review the explanations below and try again.') + '</strong>' +
       '<div class="row">' + (passed && this.next ? '<a class="btn btn-primary" href="' + esc(this.next.href) + '">' + esc(this.next.label) + ' →</a><button class="btn" data-q="retry">Try again</button>' : '<button class="btn btn-primary" data-q="retry">Try again</button>') + '</div></div></div>' +
       '<h3>Review your answers</h3><div class="stack-sm">' + review + '</div></div>';
     this.root.querySelector('[data-q="retry"]').addEventListener('click', function () { self.start(); self.reveal(); });

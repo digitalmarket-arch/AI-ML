@@ -337,7 +337,7 @@
     var ghostText = el('p', { class: 'small muted', style: 'line-height:1.55;margin:0', hidden: true });
     var fertBox = el('section', { style: 'border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;background:var(--surface);display:flex;flex-direction:column;gap:10px', 'aria-labelledby': pre + 'fert-h' }, [
       el('div', {}, [
-        el('h4', { id: pre + 'fert-h', text: 'Tokens per word' }),
+        el('h2', { class: 'lab-h', id: pre + 'fert-h', text: 'Tokens per word' }),
         el('p', { class: 'small muted', text: 'Also called fertility: how many pieces one word is cut into, on average (punctuation not counted). Fewer is cheaper and faster.' })
       ]),
       fertBody, fertText, ghostText,
@@ -352,7 +352,7 @@
     var nextLi = el('li', { class: 'small', style: 'margin:0;padding:4px 8px;border:1px dashed var(--haldi);border-radius:var(--radius-sm);color:var(--muted);grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:6px' });
     var rows = [];
     var mergeBox = el('section', { style: 'border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;background:var(--surface);display:flex;flex-direction:column;gap:8px', 'aria-labelledby': pre + 'ml-h' }, [
-      el('div', { class: 'row-between' }, [el('h4', { id: pre + 'ml-h', text: 'Merge rules learned' }), mergeCount]),
+      el('div', { class: 'row-between' }, [el('h2', { class: 'lab-h', id: pre + 'ml-h', text: 'Merge rules learned' }), mergeCount]),
       el('p', { class: 'small muted', text: 'Rank, the pair that was glued, the new token, and how many times the pair appeared. Tap a rule to find its token in the text.' }),
       mlist
     ]);
@@ -411,7 +411,7 @@
       taskItems[t.id] = li;
       taskList.appendChild(li);
     });
-    controls.appendChild(el('div', { class: 'stack-sm' }, [el('h4', { text: 'Challenges' }), taskList]));
+    controls.appendChild(el('div', { class: 'stack-sm' }, [el('h2', { class: 'lab-h', text: 'Challenges' }), taskList]));
     body.appendChild(controls);
     lab.appendChild(body);
 
@@ -622,7 +622,7 @@
           ', so they become one new token. Their places are outlined in yellow.';
       } else if (M === 0) h = 'No pair of neighbouring tokens appears twice yet, so there is nothing to learn. Add more text.';
       else h = '<b>Training finished after ' + plural(M, 'merge') + ':</b> no pair of neighbouring tokens appears twice any more. ' +
-        'Real tokenizers keep going for 30,000 to 200,000 tokens because they learn from billions of words.';
+        'Real tokenizers keep going until their vocabulary has roughly 30,000 to 250,000 tokens, because they learn from billions of words.';
       setHtml(info, h);
     }
     function tokenInfo(tok) {

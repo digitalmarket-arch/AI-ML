@@ -38,11 +38,10 @@
     return pts;
   }
   var IMAGES = [
-    { id: 'ka', label: 'क (ka)', name: 'the Devanagari letter क (ka)', strokes: [
-      [[3.5, 6.5], [24.5, 6.5]],
-      [[16, 6.5], [16, 24]],
-      [[16, 14.2], [13.4, 11.4], [10.2, 10.9], [7.6, 12.6], [7.3, 15.7], [9.5, 17.9], [12.6, 17.4], [16, 14.6]],
-      [[16, 14.4], [18.6, 11.8], [21.4, 12], [23, 14.6], [22.2, 18], [19.4, 19.8]]
+    { id: 'four', label: '4', name: 'a handwritten 4', strokes: [
+      [[17, 5], [11.5, 11], [6, 17.5]],
+      [[6, 17.5], [14, 17.3], [22.5, 17]],
+      [[17, 5], [17, 14], [17, 24]]
     ] },
     { id: 'seven', label: '7', name: 'a handwritten 7', strokes: [
       [[6.5, 7.8], [13, 7], [21.5, 6.6]],
@@ -252,8 +251,8 @@
   function mount(root, ctx) {
     var pre = 'cv' + (++uid) + '-';
     var img = new Uint8Array(N * N);
-    var imgId = 'ka';
-    rasterize(img, byId(IMAGES, 'ka').strokes);
+    var imgId = 'four';
+    rasterize(img, byId(IMAGES, 'four').strokes);
     var kText = byId(KERNELS, 'outline').w.slice();
     var W = kText.map(parseWeight);
     var kernelTyped = false; // true once the learner has typed into the kernel grid since the last preset
@@ -1293,7 +1292,7 @@
     id: 'convolution',
     module: 'l3-cv',
     title: 'Convolution filters & pooling',
-    summary: 'Draw a digit or a Devanagari letter, slide a 3×3 filter over it, and see how edge, blur and sharpen kernels, stride, padding, ReLU and max-pooling change what a CNN (convolutional neural network) sees.',
+    summary: 'Draw a digit or a shape, slide a 3×3 filter over it, and see how edge, blur and sharpen kernels, stride, padding, ReLU and max-pooling change what a CNN (convolutional neural network) sees.',
     tasks: TASKS.map(function (t) { return { id: t.id, text: t.text }; }),
     mount: mount
   };

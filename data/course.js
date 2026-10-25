@@ -10,13 +10,12 @@ window.AIM.levels = [
  {
   "id": 1,
   "key": "arambha",
-  "sanskrit": "आरम्भः",
   "name": "Ārambha",
   "meaning": "Beginning",
   "title": "Foundations",
   "weeks": "8–10",
-  "glyph": "आ",
-  "intro": "Ārambha (आरम्भः, 'beginning') is where everyone starts, even if you have never written a line of code. You will learn what AI really is, write your first Python programs, set up free tools like Google Colab and GitHub, and pick up the school-level maths that machine learning (ML: software that learns patterns from examples) is built on. Then you will load real Indian data, clean it, chart it and query it with SQL (the language for asking questions of databases). By the end you can analyse a real dataset on your own and explain the results in plain words, which is the base you need for Level 2, where you build your first ML models.",
+  "glyph": "1",
+  "intro": "Ārambha ('beginning') is where everyone starts, even if you have never written a line of code. You will learn what AI really is, write your first Python programs, set up free tools like Google Colab and GitHub, and pick up the school-level maths that machine learning (ML: software that learns patterns from examples) is built on. Then you will load real Indian data, clean it, chart it and query it with SQL (the language for asking questions of databases). By the end you can analyse a real dataset on your own and explain the results in plain words, which is the base you need for Level 2, where you build your first ML models.",
   "outcomes": [
    "Explain AI, ML, deep learning and generative AI to a client in plain words, and spot hype.",
    "Write Python programs of 50–100 lines using lists, dictionaries, loops, functions and files.",
@@ -65,13 +64,12 @@ window.AIM.levels = [
  {
   "id": 2,
   "key": "abhyasa",
-  "sanskrit": "अभ्यासः",
   "name": "Abhyāsa",
   "meaning": "Practice",
   "title": "Core Machine Learning",
   "weeks": "10–12",
-  "glyph": "अ",
-  "intro": "Abhyāsa (अभ्यासः, 'practice') is where you start building real machine learning models with scikit-learn (the standard Python library for classic ML). Over 10–12 weeks you will learn how models learn from data, the main algorithms for predicting numbers (regression) and categories (classification), how to measure a model honestly, and how to find groups and outliers in data that has no labels (unsupervised learning). It is for anyone who has finished Level 1 (Ārambha) or can already write basic Python and use Pandas. By the end, you can take a business dataset such as leads, sales or customer orders, build a working model, judge it in ₹ terms, explain it to a client, and take part in a Kaggle competition.",
+  "glyph": "2",
+  "intro": "Abhyāsa ('practice') is where you start building real machine learning models with scikit-learn (the standard Python library for classic ML). Over 10–12 weeks you will learn how models learn from data, the main algorithms for predicting numbers (regression) and categories (classification), how to measure a model honestly, and how to find groups and outliers in data that has no labels (unsupervised learning). It is for anyone who has finished Level 1 (Ārambha) or can already write basic Python and use Pandas. By the end, you can take a business dataset such as leads, sales or customer orders, build a working model, judge it in ₹ terms, explain it to a client, and take part in a Kaggle competition.",
   "outcomes": [
    "Turn a business question into an ML problem: choose the features, the label and the right type (regression, classification or clustering)",
    "Build models with scikit-learn, from linear regression to XGBoost, and show that they beat a simple baseline",
@@ -120,13 +118,12 @@ window.AIM.levels = [
  {
   "id": 3,
   "key": "pravinya",
-  "sanskrit": "प्रावीण्यम्",
   "name": "Prāvīṇya",
   "meaning": "Proficiency",
   "title": "Deep Learning & Deployment",
   "weeks": "12–14",
-  "glyph": "प्रा",
-  "intro": "Prāvīṇya (प्रावीण्यम्, 'proficiency') is where you move from classic machine learning to deep learning (machine learning with neural networks that have many layers), and learn to put models in front of real users. You will build a neural network from scratch, then use PyTorch (the most widely used deep learning library) to train models that understand images and text, including Indian languages, and use Hugging Face (a free hub of ready-made models and the Python libraries to use them) to fine-tune transformers, the model design behind BERT, ChatGPT and most modern AI. Finally, you will wrap a model in an API, package it with Docker and deploy it free on the internet. This level is for anyone who has finished Level 2 (Abhyāsa) or can already train and evaluate a scikit-learn model. By the end, you can build, fine-tune and ship a working image or text AI product for a client, and explain what happens inside it.",
+  "glyph": "3",
+  "intro": "Prāvīṇya ('proficiency') is where you move from classic machine learning to deep learning (machine learning with neural networks that have many layers), and learn to put models in front of real users. You will build a neural network from scratch, then use PyTorch (the most widely used deep learning library) to train models that understand images and text, including Indian languages, and use Hugging Face (a free hub of ready-made models and the Python libraries to use them) to fine-tune transformers, the model design behind BERT, ChatGPT and most modern AI. Finally, you will wrap a model in an API, package it with Docker and deploy it free on the internet. This level is for anyone who has finished Level 2 (Abhyāsa) or can already train and evaluate a scikit-learn model. By the end, you can build, fine-tune and ship a working image or text AI product for a client, and explain what happens inside it.",
   "outcomes": [
    "Explain how a neural network learns (forward pass, loss, backpropagation, optimiser) and code a small one yourself in NumPy.",
    "Write a complete PyTorch training loop with batches, a GPU and saved checkpoints, and debug a model that is not learning.",
@@ -171,13 +168,12 @@ window.AIM.levels = [
  {
   "id": 4,
   "key": "naipunya",
-  "sanskrit": "नैपुण्यम्",
   "name": "Naipuṇya",
   "meaning": "Mastery",
   "title": "Generative AI, LLMs, Agents & Research",
   "weeks": "14–16",
-  "glyph": "नै",
-  "intro": "Naipuṇya (नैपुण्यम्, 'mastery') is the final level of AI Marg. Here you move from using AI models to understanding and building the newest kinds: large language models (LLMs, AI trained on huge amounts of text), LLM apps that answer from your own documents, fine-tuned models, AI agents, image generators and reinforcement learning. Over 14–16 weeks you will build a small GPT from scratch, ship a chatbot that cites its sources, fine-tune an open model on a free GPU, build an agent that uses real tools safely, and learn to read research papers on your own. It is for learners who have finished Level 3 (Prāvīṇya), or who can already train a neural network in PyTorch and use Hugging Face transformers. By the end, you can design, build, evaluate and deploy generative AI products for clients or employers, explain their limits honestly, and keep learning from papers as the field changes.",
+  "glyph": "4",
+  "intro": "Naipuṇya ('mastery') is the final level of AI Marg. Here you move from using AI models to understanding and building the newest kinds: large language models (LLMs, AI trained on huge amounts of text), LLM apps that answer from your own documents, fine-tuned models, AI agents, image generators and reinforcement learning. Over 14–16 weeks you will build a small GPT from scratch, ship a chatbot that cites its sources, fine-tune an open model on a free GPU, build an agent that uses real tools safely, and learn to read research papers on your own. It is for learners who have finished Level 3 (Prāvīṇya), or who can already train a neural network in PyTorch and use Hugging Face transformers. By the end, you can design, build, evaluate and deploy generative AI products for clients or employers, explain their limits honestly, and keep learning from papers as the field changes.",
   "outcomes": [
    "Explain how an LLM works, from tokens to sampling, and build a small GPT from scratch in PyTorch",
    "Build and evaluate a RAG chatbot that answers from a client's documents and shows its sources",
@@ -2626,7 +2622,7 @@ window.AIM.modules = [
   ],
   "commonMistakes": [
    "Jumping straight to deep learning. For short-text classification, TF-IDF with logistic regression is fast, cheap and often close to an LSTM, so always build it first as your baseline.",
-   "Cleaning away the meaning. Removing stop words such as 'not' or 'nahi' can flip a review's meaning ('not good'), so check what your cleaning removes, especially for sentiment tasks.",
+   "Cleaning away the meaning. Removing stop words such as 'not' or 'no' can flip a review's meaning ('not good'), so check what your cleaning removes, especially for sentiment tasks.",
    "Assuming English tools work for Indian languages. Many English tokenisers and stop-word lists break on Devanagari or Tamil script and on Hinglish typed in Roman letters; use tools built for Indian languages, such as the Indic NLP Library, and test on real messages from your users."
   ],
   "indiaExample": "AI4Bharat at IIT Madras builds open tools for Indian languages, including IndicTrans2 (a translation model for all 22 scheduled languages) and IndicFT (fastText word embeddings for 11 Indian languages), while the Indic NLP Library handles tokenisation, normalisation and script conversion for Indian scripts. The Government of India's Bhashini mission runs ULCA, a platform for sharing and using Indian-language datasets and models, so that public services and apps can work in the user's own language.",

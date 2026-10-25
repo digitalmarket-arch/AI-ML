@@ -1,4 +1,4 @@
-/* AI Marg — a path (मार्ग) from first line of Python to research-grade AI.
+/* AI Marg: a path from first line of Python to research-grade AI.
    Layout concept: one vertical journey line with level "stations"; every page hangs off that path.
    Palette: Indian indigo (neel) as the primary ink/accent, turmeric (haldi) for progress, vermilion (sindoor) used sparingly. */
 
@@ -30,9 +30,8 @@
   --shadow: 0 1px 2px rgba(22, 25, 48, .06), 0 6px 20px rgba(22, 25, 48, .06);
 
   /* type */
-  --font-display: "Rozha One", "Tiro Devanagari Sanskrit", Georgia, "Times New Roman", serif;
-  --font-body: "Mukta", "Noto Sans Devanagari", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-sanskrit: "Tiro Devanagari Sanskrit", "Noto Serif Devanagari", serif;
+  --font-display: "Rozha One", Georgia, "Times New Roman", serif;
+  --font-body: "Mukta", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --step--1: .875rem;
   --step-0: 1.0625rem;
@@ -143,7 +142,6 @@ pre { background: var(--surface-2); padding: 12px 14px; border-radius: var(--rad
 ul, ol { margin: 0; padding-left: 1.25em; }
 li + li { margin-top: .3em; }
 hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
-.sa { font-family: var(--font-sanskrit); }
 .muted { color: var(--muted); }
 .small { font-size: var(--step--1); }
 .eyebrow { font-family: var(--font-body); font-size: var(--step--1); text-transform: uppercase; letter-spacing: .08em; font-weight: 600; color: var(--muted); }
@@ -175,7 +173,6 @@ main { padding-block: 28px 64px; flex: 1 0 auto; }
 .brand { display: flex; align-items: baseline; gap: 8px; text-decoration: none; color: var(--ink); white-space: nowrap; }
 .brand-mark { font-family: var(--font-display); font-size: 1.5rem; line-height: 1; }
 .brand-mark b { color: var(--haldi-ink); font-weight: 400; }
-.brand-sa { font-family: var(--font-sanskrit); color: var(--muted); font-size: 1rem; }
 .nav { display: flex; gap: 2px; margin-left: auto; overflow-x: auto; scrollbar-width: none; }
 .nav::-webkit-scrollbar { display: none; }
 .nav a { padding: 8px 10px; border-radius: var(--radius-sm); color: var(--muted); text-decoration: none; font-weight: 500; white-space: nowrap; font-size: .98rem; }
@@ -251,7 +248,7 @@ a.card:hover, a.card:focus-visible { border-color: var(--indigo); box-shadow: va
 .station::before { content: ""; position: absolute; left: 21px; top: 44px; bottom: 0; width: 3px; background: var(--line); }
 .station:last-child::before { display: none; }
 .station .fill { position: absolute; left: 21px; top: 44px; width: 3px; background: var(--haldi); height: 0; transition: height .6s ease; }
-.station-dot { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); border: 3px solid var(--line); font-family: var(--font-sanskrit); font-size: 1.15rem; z-index: 1; }
+.station-dot { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); border: 3px solid var(--line); font-family: var(--font-display); font-size: 1.15rem; z-index: 1; }
 .station.started .station-dot { border-color: var(--haldi); }
 .station.done .station-dot { background: var(--haldi); border-color: var(--haldi); color: #1b1400; }
 .station-name { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
@@ -270,7 +267,7 @@ a.card:hover, a.card:focus-visible { border-color: var(--indigo); box-shadow: va
 .module-row .meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
 .level-head { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 18px; align-items: center; }
 @media (max-width: 520px) { .level-head { grid-template-columns: auto minmax(0, 1fr); } }
-.level-glyph { font-family: var(--font-sanskrit); font-size: 3.2rem; line-height: 1; color: var(--haldi-ink); }
+.level-glyph { font-family: var(--font-display); font-size: 3.2rem; line-height: 1; color: var(--haldi-ink); }
 @media (max-width: 520px) { .level-glyph { font-size: 2.4rem; } }
 
 /* breadcrumb */
