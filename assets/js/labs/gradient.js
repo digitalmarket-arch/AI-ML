@@ -133,7 +133,7 @@
     if (Math.abs(mx) > 1e-12) { e1 = [mx, l1 - exx]; } else { e1 = exx >= 1 ? [1, 0] : [0, 1]; }
     var len = Math.hypot(e1[0], e1[1]) || 1;
     e1 = [e1[0] / len, e1[1] / len];
-    return { n: n, mx: mx, my: my, exx: exx, vx: vx, w: w, b: b, L: lossAt(pts, w, b), l1: l1, l2: l2, e1: e1, e2: [-e1[1], e1[0]], lg: Math.sqrt(l1 * l2) };
+    return { n: n, mx: mx, my: my, exx: exx, vx: vx, flat: !(vx > 1e-12), w: w, b: b, L: lossAt(pts, w, b), l1: l1, l2: l2, e1: e1, e2: [-e1[1], e1[0]], lg: Math.sqrt(l1 * l2) };
   }
   function excess(F, w, b) { var dw = w - F.w, db = b - F.b; return F.exx * dw * dw + 2 * F.mx * dw * db + db * db; }
 
@@ -195,7 +195,7 @@
               '<div class="stack-sm">' +
                 '<span class="eyebrow">Loss map: each spot is one line</span>' +
                 '<div class="lab-canvas-wrap" id="' + P + 'cwrap"><canvas id="' + P + 'contour" role="img" style="touch-action:none" aria-label="Loss map: slope w across, intercept b up, with rings of equal loss and the path gradient descent has taken"></canvas></div>' +
-                '<p class="small muted" style="min-height:3em">Rings join lines with equal loss, like contour lines on a hill map; darker means lower loss. The arrow shows where the next step will land.</p>' +
+                '<p class="small muted" style="min-height:3em">Rings join lines with equal loss, like contour lines on a hill map; the stronger the blue shading, the lower the loss. The arrow shows where the next step will land.</p>' +
                 legend([['--indigo', 'Steps taken'], ['--ok', 'Best line ★'], ['--ink', 'Next step']]) +
               '</div>' +
             '</div>' +
@@ -237,7 +237,7 @@
             '<div class="stack-sm"><h4>Your tasks</h4><ul class="lab-tasks" id="' + P + 'tasks">' + tasksHtml + '</ul></div>' +
           '</div>' +
         '</div>' +
-        '<p class="small muted"><strong style="color:var(--ink)">Why it matters in real ML:</strong> almost every model, from this straight line to the huge networks behind chatbots, learns by this same downhill walk; the learning rate is one of the first settings engineers tune, and stochastic (or mini-batch) steps are how they train on millions of examples quickly.</p>' +
+        '<p class="small muted"><strong style="color:var(--ink)">Why it matters in real ML:</strong> almost every model, from this straight line to the huge networks behind chatbots, learns by this same downhill walk; the learning rate is one of the first settings engineers tune, and stochastic (or mini-batch: a small handful of examples per step) steps are how they train on millions of examples quickly.</p>' +
       '</div>';
 
     function $(id) { return root.querySelector('#' + P + id); }
@@ -266,7 +266,7 @@
     var sgdRnd = mulberry32(777), startRnd = mulberry32(4242);
     var view = { cw: F.w, cb: F.b, R: VIEW_R };
     var dims = { sw: 1, sh: 1, cw: 1, ch: 1, dpr: 1 };
-    var rafId = 0, lastT = 0, acc = 0, needDraw = true;
+    var rafId = 0, lastT = 0, acc = 0, needDraw = true, started = false;
     var heat = { canvas: document.createElement('canvas'), key: '' };
     var drag = null;
     var msgKey = '';
@@ -291,9 +291,10 @@
     }
 
     /* ---------- messages ---------- */
+    var msgSeq = 0;
     function say(key, html, tone) {
       if (key && key === msgKey) return;
-      msgKey = key || '';
+      msgKey = key || ''; msgSeq++;
       elMsg.innerHTML = html;
       elMsg.className = 'callout small' + (tone === 'warn' || tone === 'good' ? '' : ' callout-indigo');
       elMsg.style.borderLeftColor = tone === 'warn' ? 'var(--bad)' : tone === 'good' ? 'var(--ok)' : '';
@@ -322,6 +323,7 @@
     }
     function cx(G, w) { return G.pl + (w - G.wl) / G.upp; }
     function cy(G, b) { return G.pt + (G.bt - b) / G.upp; }
+    function nearPx(x, y) { return Math.abs(x) < 1e6 && Math.abs(y) < 1e6; }
     function inside(G, p) { return p.x >= G.pl && p.x <= G.pl + G.pw && p.y >= G.pt && p.y <= G.pt + G.ph; }
 
     var curAspect = null, aspectRaf = 0;
@@ -338,13 +340,15 @@
       var dpr = Math.min(window.devicePixelRatio || 1, 3);
       // the canvas fills the wrapper inside its border, so measure the canvas box itself for a 1:1 pixel match
       var r1 = scanvas.getBoundingClientRect(), r2 = ccanvas.getBoundingClientRect();
-      dims.dpr = dpr;
-      dims.sw = Math.max(1, Math.round(r1.width)); dims.sh = Math.max(1, Math.round(r1.height));
-      dims.cw = Math.max(1, Math.round(r2.width)); dims.ch = Math.max(1, Math.round(r2.height));
-      scanvas.width = Math.round(dims.sw * dpr); scanvas.height = Math.round(dims.sh * dpr);
-      ccanvas.width = Math.round(dims.cw * dpr); ccanvas.height = Math.round(dims.ch * dpr);
+      var sw = Math.max(1, Math.round(r1.width)), sh = Math.max(1, Math.round(r1.height));
+      var cw = Math.max(1, Math.round(r2.width)), ch = Math.max(1, Math.round(r2.height));
+      if (sw === dims.sw && sh === dims.sh && cw === dims.cw && ch === dims.ch && dpr === dims.dpr && scanvas.width > 1) return;
+      dims.dpr = dpr; dims.sw = sw; dims.sh = sh; dims.cw = cw; dims.ch = ch;
+      scanvas.width = Math.round(sw * dpr); scanvas.height = Math.round(sh * dpr);
+      ccanvas.width = Math.round(cw * dpr); ccanvas.height = Math.round(ch * dpr);
       heat.key = '';
-      requestDraw();
+      // setting canvas.width wipes it; repaint now rather than show a blank frame
+      if (started && !destroyed) paint(); else requestDraw();
     }
 
     /* ---------- core actions ---------- */
@@ -418,7 +422,9 @@
     }
     function dataMessage(added) {
       var oi = outlierInfo();
-      if (oi.count) {
+      if (F.flat) {
+        say('', 'Now every flat has the same size, so size can no longer tell cheap flats from dear ones: any line through their average price (₹' + fmtIN(F.my, 1) + ' lakh) is equally good. The bowl on the loss map has become a valley with a flat floor, and the ★ is just one spot on that floor.');
+      } else if (oi.count) {
         say('', (added ? 'Outlier added. ' : '') + 'The data changed, so the whole loss map changed too and the ★ moved: the best line is now ₹' + fmtIN(F.w * 200, 0) + ' per sq ft instead of ₹' + fmtIN(origFit.w * 200, 0) + '. The dashed grey line shows the old best line. Press <b>Run</b> and watch your line move.');
       } else {
         say('', 'The data changed, so the loss map changed too and the ★ moved. Press <b>Run</b> to let gradient descent catch up.');
@@ -478,7 +484,7 @@
       }
       // 2. diverging: in batch mode the loss of a bowl-shaped problem can only grow if the step is too big
       var wasDiverging = S.diverging;
-      var div = S.loss > BLOWUP ||
+      var div = (S.loss > BLOWUP && !(S.loss < prevL)) ||
         (S.mode === 'batch' ? S.upStreak >= 3 : (S.upStreak >= 2 && S.loss > 25 * Math.max(S.startLoss, F.L)));
       if (div) {
         S.diverging = true;
@@ -486,7 +492,7 @@
         say('div', '<b>Diverging!</b> The loss is growing with every step. The learning rate is too big: every step jumps right over the valley and lands even higher on the other side. Lower the learning rate, then press <b>Reset</b>.', 'warn');
         if (S.loss > BLOWUP && S.running) {
           setRunning(false);
-          say('', '<b>Diverging, so the run paused.</b> The loss is now ' + L1(S.loss) + ', astronomically big. Each step overshot further than the last. Lower the learning rate: you can even press <b>Step</b> to walk back, or <b>Reset</b>.', 'warn');
+          say('', '<b>Diverging, so the run paused.</b> The loss is now ' + L1(S.loss) + ', astronomically big: each step overshot further than the last. Lower the learning rate, then press <b>Run</b> or <b>Step</b> to walk back down, or press <b>Reset</b>.', 'warn');
         }
         return;
       }
@@ -510,7 +516,7 @@
       }
       // 5. outlier tilt
       var oi = outlierInfo();
-      if (oi.count && S.stepsSinceData >= 1 && S.loss <= 1.02 * F.L + 1e-9 && !S.tiltShown) {
+      if (oi.count && !F.flat && S.stepsSinceData >= 1 && S.loss <= 1.02 * F.L + 1e-9 && !S.tiltShown) {
         S.tiltShown = true;
         if (Math.abs(oi.tilt) >= 0.1) {
           completeTask('t4');
@@ -529,7 +535,7 @@
       // 7. gentle hints
       if (S.mode === 'batch' && S.bounce >= 3 && !S.bounceShown && !S.diverging) {
         S.bounceShown = true;
-        say('', '<b>Bouncing:</b> each step overshoots the valley floor and lands on the other side (see the zig-zag on the map), yet the loss still falls. This learning rate is close to the limit.');
+        say('', '<b>Bouncing:</b> each step overshoots the valley floor and lands on the other side (see the zig-zag on the map), yet the loss still falls. With this data, a learning rate above about ' + (1 / F.l1).toFixed(2) + ' would make every overshoot bigger than the last, and it would diverge.');
       }
       if (S.mode === 'batch' && !S.slowShown && S.steps >= 60 && S.lr < 0.02 && S.loss > 1.5 * F.L) {
         S.slowShown = true;
@@ -550,11 +556,11 @@
       var lc = S.blown || S.diverging ? 'var(--bad)' : S.loss - F.L <= 0.01 * F.L + 1e-9 ? 'var(--ok)' : '';
       if (lastStats.lc !== lc) { lastStats.lc = lc; elLoss.style.color = lc; }
       var eq;
-      if (S.blown) eq = 'Line now: the numbers are too big to draw.';
+      if (S.blown) eq = 'Line now: its numbers have grown too big for the computer to handle, so it is not drawn.';
       else {
         var perSqft = S.w * 200, B = S.b - 2 * S.w;  // undo the standardising: price = (w/500)·sq ft + (b − 2w) lakh
         eq = 'Line now, in everyday units: price ≈ ₹' + fmtNum(perSqft, 0) + ' per sq ft × size ' + (B < 0 ? '− ' : '+ ') + '₹' + fmtNum(Math.abs(B), 1) + ' lakh. ' +
-          'Best possible: ₹' + fmtIN(F.w * 200, 0) + ' per sq ft.';
+          (F.flat ? 'Best possible: any slope, since every flat has the same size.' : 'Best possible: ₹' + fmtIN(F.w * 200, 0) + ' per sq ft.');
       }
       setText(elEq, 'eq', eq);
     }
@@ -586,14 +592,15 @@
         updateStats();
         needDraw = true;
       }
-      if (needDraw) {
-        needDraw = false;
-        var T = readTheme();
-        drawScatter(T);
-        drawContour(T);
-        if (!S.running) updateAria();
-      }
+      if (needDraw) paint();
       if (S.running) rafId = requestAnimationFrame(tick);
+    }
+    function paint() {
+      needDraw = false;
+      var T = readTheme();
+      drawScatter(T);
+      drawContour(T);
+      if (!S.running) updateAria();
     }
 
     function font(T, px, weight) { return (weight ? weight + ' ' : '') + px + 'px ' + T.font; }
@@ -628,12 +635,25 @@
       g.beginPath(); g.rect(G.pl, G.pt, G.pw, G.ph); g.clip();
       function lineAt(w, b, color, width, dash) {
         if (!finite(w) || !finite(b)) return;
-        var x0 = sx(G, X_MIN), x1 = sx(G, X_MAX);
-        var y0 = sy(G, w * toX(X_MIN) + b), y1 = sy(G, w * toX(X_MAX) + b);
-        var c = clipSeg(x0, y0, x1, y1, G.pl - 4, G.pt - 4, G.pw + 8, G.ph + 8);
-        if (!c) return;
+        // clip in data units: (edge − b) ÷ w stays exact even when w and b are astronomically big,
+        // where clipping in pixels would lose all precision
+        var m = 4 * (Y_MAX - Y_MIN) / G.ph, lo = Y_MIN - m, hi = Y_MAX + m;
+        var xa = toX(X_MIN), xb = toX(X_MAX), p0, p1;
+        if (w === 0) {
+          if (b < lo || b > hi) return;
+          p0 = [xa, b]; p1 = [xb, b];
+        } else {
+          var tLo = (lo - b) / w, tHi = (hi - b) / w;
+          var enter = tLo < tHi ? [tLo, lo] : [tHi, hi], leave = tLo < tHi ? [tHi, hi] : [tLo, lo];
+          p0 = enter[0] > xa ? enter : [xa, clamp(w * xa + b, lo, hi)];
+          p1 = leave[0] < xb ? leave : [xb, clamp(w * xb + b, lo, hi)];
+          if (!(p0[0] < p1[0])) return;
+        }
         g.strokeStyle = color; g.lineWidth = width; g.setLineDash(dash || []);
-        g.beginPath(); g.moveTo(c[0], c[1]); g.lineTo(c[2], c[3]); g.stroke();
+        g.beginPath();
+        g.moveTo(sx(G, X_CENTRE + X_SCALE * p0[0]), sy(G, p0[1]));
+        g.lineTo(sx(G, X_CENTRE + X_SCALE * p1[0]), sy(G, p1[1]));
+        g.stroke();
         g.setLineDash([]);
       }
       var oi = outlierInfo();
@@ -650,7 +670,8 @@
           g.beginPath(); g.moveTo(ppx, ppy); g.lineTo(ppx, ly); g.stroke();
         }
       }
-      lineAt(S.w, S.b, T.indigo, 2.5);
+      if (!S.blown) lineAt(S.w, S.b, T.indigo, 2.5);
+      g.restore();
       // points (circles = original flats, diamonds = added by you)
       var r = dims.sw < 360 ? 4.5 : 5;
       for (i = 0; i < pts.length; i++) {
@@ -665,7 +686,6 @@
         g.beginPath(); g.arc(sx(G, pts[hi].size), sy(G, pts[hi].price), r + 5, 0, Math.PI * 2);
         g.lineWidth = 2; g.strokeStyle = T.ink; g.stroke();
       }
-      g.restore();
     }
 
     function buildHeat(T, G) {
@@ -747,7 +767,10 @@
       g.strokeStyle = rgba(T.rgb.indigo, 0.75); g.lineWidth = 1.6; g.lineJoin = 'round';
       g.beginPath();
       for (i = 1; i < path.length; i++) {
-        var sg2 = clipSeg(cx(G, path[i - 1].w), cy(G, path[i - 1].b), cx(G, path[i].w), cy(G, path[i].b), rx, ry, rw, rh);
+        var ax = cx(G, path[i - 1].w), ay = cy(G, path[i - 1].b), bx = cx(G, path[i].w), by = cy(G, path[i].b);
+        // after a blow-up, ends can be 10^150 px away; clipping those in floating point puts lines in random places
+        if (!nearPx(ax, ay) || !nearPx(bx, by)) continue;
+        var sg2 = clipSeg(ax, ay, bx, by, rx, ry, rw, rh);
         if (sg2) { g.moveTo(sg2[0], sg2[1]); g.lineTo(sg2[2], sg2[3]); }
       }
       g.stroke();
@@ -782,7 +805,7 @@
       if (!S.blown && finite(S.w) && finite(S.b)) {
         var gr = S.mode === 'batch' ? gradBatch(pts, S.w, S.b) : (pts[S.nextIdx] ? gradOne(pts[S.nextIdx], S.w, S.b) : { w: 0, b: 0 });
         var nx = cx(G, S.w - S.lr * gr.w), ny = cy(G, S.b - S.lr * gr.b), curx = cx(G, S.w), cury = cy(G, S.b);
-        var seg = clipSeg(curx, cury, nx, ny, rx, ry, rw, rh);
+        var seg = nearPx(curx, cury) && nearPx(nx, ny) ? clipSeg(curx, cury, nx, ny, rx, ry, rw, rh) : null;
         var alen = Math.hypot(nx - curx, ny - cury);
         if (seg && alen > 3) {
           g.strokeStyle = T.ink; g.fillStyle = T.ink; g.lineWidth = 1.6; g.setLineDash([4, 3]);
@@ -907,10 +930,13 @@
     });
     on(btnStep, 'click', function () {
       if (S.running) setRunning(false);
-      var before = S.loss;
+      var before = S.loss, seq = msgSeq;
       doStep();
-      if (S.steps === 1 && !S.diverging && !S.blown && msgKey !== 'conv') {
-        say('', 'One step: w and b each moved a little against the slope, landing where the arrow pointed. Loss went from ' + L1(before) + ' to ' + L1(S.loss) + '.');
+      // narrate plain steps, but never talk over a more important message from this step
+      if (msgSeq === seq && !S.diverging && !S.blown && !S.converged && (S.steps === 1 || msgKey.indexOf('step:') === 0)) {
+        var rose = S.loss > before;
+        say('step:' + S.steps, (S.steps === 1 ? 'One step: w and b each moved a little against the slope, landing where the arrow pointed. ' : 'Step ' + fmtIN(S.steps, 0) + ': ') +
+          'Loss went ' + (rose ? '<b>up</b>' : 'down') + ' from ' + L1(before) + ' to ' + L1(S.loss) + (rose && S.mode === 'sgd' ? ': that one flat pulled the line its own way.' : ' (best possible ' + L1(F.L) + ').'));
       }
       updateStats(); requestDraw();
     });
@@ -940,6 +966,7 @@
     applyAspect();
     resize();
     setStart(START.w, START.b, 'init');
+    started = true;
 
     return {
       destroy: function () {

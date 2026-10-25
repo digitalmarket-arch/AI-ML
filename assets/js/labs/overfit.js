@@ -12,7 +12,8 @@
   var N_TEST = 40;
   var PHI = 0.6180339887498949;
   var Y_MIN = -2.25, Y_MAX = 2.25;
-  var RIDGE = 1e-10;       // tiny ridge term (per training point), only there to keep the maths stable
+  var RIDGE = 1e-14;       // tiny ridge term (per training point), only there to keep the maths stable.
+                           // Checked against exact rational least squares: it changes no shown number.
   var CHART_LO = 1e-4, CHART_HI = 100;
   var SAMPLES = 301;
   var TWEEN_MS = 240;
@@ -27,7 +28,7 @@
   var TASKS = [
     { id: 't1', text: 'Find the sweet spot: move the degree to the one with the lowest test error (the lowest hollow dot on the error chart).' },
     { id: 't2', text: 'Overfit on purpose: raise the degree until training error is almost 0 (below 0.02) while test error shoots above 1. Tip: fewer training points make this easier.' },
-    { id: 't3', text: 'Cure overfitting with more data: at degree 10 or more, first see “Overfitting”, then add training points until the verdict says “Good fit”.' },
+    { id: 't3', text: 'Cure overfitting with more data: at degree 10 or more, first see “Overfitting”. Then, without lowering the degree, add training points until the verdict says “Good fit”.' },
     { id: 't4', text: 'Feel the wobble: drag a filled dot up or down with a low degree (4 or less), then with a high degree (10 or more). Which curve jumps more?' }
   ];
 
@@ -208,7 +209,7 @@
             '<div class="lab-stats">' +
               '<div class="stat"><div class="k">Train MSE</div><div class="v" id="' + P + 'train">—</div></div>' +
               '<div class="stat"><div class="k">Test MSE</div><div class="v" id="' + P + 'test">—</div></div>' +
-              '<div class="stat"><div class="k">Verdict</div><div class="v" id="' + P + 'verdict" style="font-family:var(--font-body);font-weight:700">—</div></div>' +
+              '<div class="stat" style="container-type:inline-size"><div class="k">Verdict</div><div class="v" id="' + P + 'verdict" style="font-family:var(--font-body);font-weight:700;font-size:.95rem;font-size:min(1.05rem,14cqi);line-height:calc(1.05rem * 1.6)">—</div></div>' +
             '</div>' +
             '<p class="small" id="' + P + 'msg" role="status" aria-live="polite" style="min-height:4.8em"></p>' +
             '<div class="lab-legend">' +
@@ -218,8 +219,8 @@
               legendItem(swatchDot('var(--series-2)', true), 'Test rings') +
             '</div>' +
             '<p class="kbd-hint" id="' + P + 'kbd">Drag a filled dot up or down to see how much the curve reacts. Keyboard: Tab to the plot, ← → picks a dot, ↑ ↓ moves it.</p>' +
-            '<p class="small muted" style="margin-top:6px"><strong style="color:var(--ink)">Error chart.</strong> Training and test error (MSE) for every degree from 0 to 15, on a log scale (each grid line is 10 times the one below). The dashed line is the noise level: on new data, no curve can do much better than that. Tap a degree to try it.</p>' +
-            '<div class="lab-canvas-wrap" id="' + P + 'ewrap" style="aspect-ratio:2/1;max-height:260px"><canvas id="' + P + 'err" role="img" aria-label="Error chart"></canvas></div>' +
+            '<p class="small muted" style="margin-top:6px"><strong style="color:var(--ink)">Error chart.</strong> Training and test error (MSE) for every degree from 0 to 15, on a log scale (each labelled 1, 10, 100 … step is 10 times the one below, so tiny and huge errors fit on one chart). The dashed line is the noise level: on new data, no curve can do much better than that. Tap a degree to try it.</p>' +
+            '<div class="lab-canvas-wrap" id="' + P + 'ewrap" style="aspect-ratio:2/1;max-height:260px"><canvas id="' + P + 'err" role="img" aria-label="Error chart" style="touch-action:pan-y"></canvas></div>' +
             '<div class="lab-legend">' +
               legendItem(swatchLine('var(--series-1)', false, 2) .replace('</svg>', '<circle cx="11" cy="5" r="3" style="fill:var(--series-1)"/></svg>'), 'Training error') +
               legendItem(swatchLine('var(--series-2)', false, 2).replace('</svg>', '<circle cx="11" cy="5" r="3" style="fill:var(--surface);stroke:var(--series-2);stroke-width:1.6"/></svg>'), 'Test error') +
@@ -231,7 +232,8 @@
               '<input type="range" id="' + P + 'noise" min="0" max="0.5" step="0.05" value="0.25"></div>' +
             '<div class="control"><label for="' + P + 'n">Training points <output id="' + P + 'nout" for="' + P + 'n">20</output></label>' +
               '<input type="range" id="' + P + 'n" min="' + N_MIN + '" max="' + N_MAX + '" step="1" value="20">' +
-              '<p class="small muted">There are always ' + N_TEST + ' test rings.</p></div>' +
+              '<p class="small muted">There are always ' + N_TEST + ' test rings.</p>' +
+              '<p class="small" id="' + P + 'nverdict"></p></div>' +
             '<div class="control"><span class="control-label" id="' + P + 'rulelbl">Hidden rule</span>' +
               '<div class="seg" role="group" aria-labelledby="' + P + 'rulelbl">' +
                 '<button type="button" data-rule="wave" aria-pressed="true">Wave</button>' +
@@ -259,7 +261,8 @@
     var g = canvas.getContext('2d'), ge = ecanvas.getContext('2d');
     var elDeg = $('deg'), elDegOut = $('degout'), elDegDesc = $('degdesc');
     var elNoise = $('noise'), elNoiseOut = $('noiseout'), elN = $('n'), elNOut = $('nout');
-    var elTrain = $('train'), elTest = $('test'), elVerdict = $('verdict'), elMsg = $('msg');
+    var elTrain = $('train'), elTest = $('test'), elVerdict = $('verdict'), elMsg = $('msg'), elNVerdict = $('nverdict');
+    var labEl = root.querySelector('.lab');
     var btnNew = $('new'), btnUndo = $('undo');
     var elShowTrue = $('showtrue'), elShowTest = $('showtest'), elShowGaps = $('showgaps');
     var ruleBtns = root.querySelectorAll('[data-rule]');
@@ -274,7 +277,7 @@
       fits: [], errs: [], bestDeg: 0, verdict: 'U',
       curveTo: null, curveFrom: null, tweenStart: 0,
       drag: null, hover: -1, sel: -1, focused: false,
-      userDeg: false, overfitN: {}, lowMove: 0, highMove: 0
+      resting: false, overfitSeen: {}, lowMove: 0, highMove: 0
     };
     var done = {};
     var dims = { w: 1, h: 1, ew: 1, eh: 1, sx: 1, sy: 1, esx: 1, esy: 1 };
@@ -333,8 +336,10 @@
         for (i = 0; i < N_TEST; i++) { e = evalPoly(c, tu[i]) - ty[i]; st += e * e; }
         S.fits.push(c);
         S.errs.push([se / n, st / N_TEST]);
-        if (st / N_TEST < best) { best = st / N_TEST; bestD = d; }
+        if (st / N_TEST < best) best = st / N_TEST;
       }
+      // the lowest test error; if several degrees tie (only rounding apart, e.g. zero noise), pick the simplest
+      for (d = 0; d <= MAX_DEG; d++) if (S.errs[d][1] <= best * (1 + 1e-9) + 1e-12) { bestD = d; break; }
       S.bestDeg = bestD;
       S.curveTo = sampleCurve(S.fits[S.deg]);
     }
@@ -364,7 +369,9 @@
       elTest.textContent = fmtErr(er[1]);
       var vName = v === 'U' ? 'Underfitting' : v === 'O' ? 'Overfitting' : 'Good fit';
       elVerdict.textContent = vName;
-      elVerdict.style.color = v === 'U' ? 'var(--warn)' : v === 'O' ? 'var(--bad)' : 'var(--ok)';
+      var vCol = v === 'U' ? 'var(--haldi-ink)' : v === 'O' ? 'var(--bad)' : 'var(--ok)';
+      elVerdict.style.color = vCol;
+      elNVerdict.innerHTML = 'Right now (degree ' + d + '): <b style="color:' + vCol + '">' + vName + '</b>, test error <span class="num">' + fmtErr(er[1]) + '</span>';
       var tr = '<span class="num">' + fmtErr(er[0]) + '</span>', te = '<span class="num">' + fmtErr(er[1]) + '</span>';
       var msg;
       if (v === 'U') {
@@ -373,8 +380,10 @@
         msg = '<b>Good fit.</b> Degree ' + d + ' follows the hidden rule without chasing every dot. Its test error (' + te + ') is close to the lowest of all 16 degrees' +
           (d === S.bestDeg ? '. In fact it <em>is</em> the lowest: the sweet spot.' : '.');
         if (S.noise === 0 && d >= 8) msg += ' With zero noise there is nothing random to memorise, so even a bendy curve does well.';
-      } else {
+      } else if (er[1] > 3 * S.errs[S.bestDeg][1] + 0.05) {
         msg = '<b>Overfitting.</b> Degree ' + d + ' bends to get close to every training dot, so training error is low (' + tr + '). But it swings wildly between them and misses the test rings (test error ' + te + '). It has memorised the noise instead of learning the rule.';
+      } else {
+        msg = '<b>Overfitting (a little).</b> Degree ' + d + ' has started to chase the noise in the training dots: training error is low (' + tr + '), but test error (' + te + ') is clearly worse than at degree ' + S.bestDeg + ' (<span class="num">' + fmtErr(S.errs[S.bestDeg][1]) + '</span>). Extra bendiness is now hurting.';
       }
       elMsg.innerHTML = msg;
       var dragged = false;
@@ -388,31 +397,42 @@
     /* ---------- tasks ---------- */
     function checkTasks() {
       var d = S.deg, er = S.errs[d], v = S.verdict;
-      if (S.userDeg && d === S.bestDeg) completeTask('t1');
+      // t1: the learner has settled on the best degree (released the slider / tapped the chart / used keys),
+      // not just swept past it on the way to 15
+      if (S.resting && d === S.bestDeg) completeTask('t1');
       if (er[0] < 0.02 && er[1] > 1 && er[1] > 20 * er[0]) completeTask('t2');
-      // t3: remember the fewest training points that overfitted at degree >= 10, for each noise level.
-      // Done when, at degree >= 10, the fit is good with at least 10 more points and no less noise.
-      var nk = S.noise.toFixed(2);
-      if (d >= 10 && v === 'O' && (S.overfitN[nk] == null || S.n < S.overfitN[nk])) S.overfitN[nk] = S.n;
+      // t3: remember the fewest training points that overfitted at degree >= 10, per hidden rule, data set,
+      // degree and noise. Done when, on the same rule and data set, a degree at least as high gets a good fit
+      // with at least 10 more points and no less noise: so it was the extra data that cured it.
+      var base = S.rule + '|' + S.seed + '|';
+      var key = base + d + '|' + S.noise.toFixed(2);
+      if (d >= 10 && v === 'O' && (S.overfitSeen[key] == null || S.n < S.overfitSeen[key])) S.overfitSeen[key] = S.n;
       if (d >= 10 && v === 'G') {
-        for (var key in S.overfitN) {
-          if (Object.prototype.hasOwnProperty.call(S.overfitN, key) && +key <= S.noise + 1e-9 && S.n >= S.overfitN[key] + 10) { completeTask('t3'); break; }
+        for (var k in S.overfitSeen) {
+          if (!Object.prototype.hasOwnProperty.call(S.overfitSeen, k) || k.indexOf(base) !== 0) continue;
+          var parts = k.split('|');
+          if (+parts[2] <= d && +parts[3] <= S.noise + 1e-9 && S.n >= S.overfitSeen[k] + 10) { completeTask('t3'); break; }
         }
       }
       if (S.lowMove >= 0.3 && S.highMove >= 0.3) completeTask('t4');
     }
 
     /* ---------- actions ---------- */
-    function setDegree(d, fromUser) {
+    // how: 'move' while the learner is still sweeping, 'settle' once they let go (slider release,
+    // chart tap, arrow key)
+    function setDegree(d, how) {
       d = clamp(Math.round(d), 0, MAX_DEG);
-      if (fromUser) S.userDeg = true;
-      if (d === S.deg) { checkTasks(); return; }
-      var now = performance.now();
-      var cur = displayedCurve(now);
-      S.deg = d;
-      S.curveTo = sampleCurve(S.fits[d]);
-      if (!reducedMotion() && cur) { S.curveFrom = cur; S.tweenStart = now; } else S.curveFrom = null;
-      syncUI(); checkTasks(); requestDraw();
+      if (!(d >= 0)) d = S.deg;
+      S.resting = how === 'settle';
+      if (d !== S.deg) {
+        var now = performance.now();
+        var cur = displayedCurve(now);
+        S.deg = d;
+        S.curveTo = sampleCurve(S.fits[d]);
+        if (!reducedMotion() && cur) { S.curveFrom = cur; S.tweenStart = now; } else S.curveFrom = null;
+        syncUI(); requestDraw();
+      }
+      checkTasks();
     }
     function dataChanged() {
       S.curveFrom = null;
@@ -790,26 +810,41 @@
     });
 
     /* ---------- error chart: tap or drag to pick a degree ---------- */
-    var errDrag = null;
+    // Mouse: press picks a degree at once. Touch/pen: a tap or a sideways drag picks one; an up/down
+    // swipe scrolls the page instead (touch-action: pan-y on this chart).
+    var errPtr = null;
     function degFromErr(e) {
       var G = geomErr(), p = localPos(e, ecanvas);
       return clamp(Math.floor((p.x - G.pl) / (G.pw / (MAX_DEG + 1))), 0, MAX_DEG);
     }
     on(ecanvas, 'pointerdown', function (e) {
       if (e.button != null && e.button > 0) return;
-      e.preventDefault();
-      errDrag = e.pointerId;
-      try { ecanvas.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
-      setDegree(degFromErr(e), true);
+      errPtr = { id: e.pointerId, x0: e.clientX, active: e.pointerType === 'mouse' };
+      if (errPtr.active) {
+        e.preventDefault();
+        try { ecanvas.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+        setDegree(degFromErr(e), 'move');
+      }
     });
-    on(ecanvas, 'pointermove', function (e) { if (errDrag === e.pointerId) setDegree(degFromErr(e), true); });
-    on(ecanvas, 'pointerup', function (e) { if (errDrag === e.pointerId) errDrag = null; });
-    on(ecanvas, 'pointercancel', function (e) { if (errDrag === e.pointerId) errDrag = null; });
+    on(ecanvas, 'pointermove', function (e) {
+      if (!errPtr || errPtr.id !== e.pointerId) return;
+      if (!errPtr.active && Math.abs(e.clientX - errPtr.x0) > 6) {
+        errPtr.active = true;
+        try { ecanvas.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+      }
+      if (errPtr.active) setDegree(degFromErr(e), 'move');
+    });
+    on(ecanvas, 'pointerup', function (e) {
+      if (!errPtr || errPtr.id !== e.pointerId) return;
+      errPtr = null;
+      setDegree(degFromErr(e), 'settle');
+    });
+    on(ecanvas, 'pointercancel', function (e) { if (errPtr && errPtr.id === e.pointerId) errPtr = null; });
     ecanvas.style.cursor = 'pointer';
 
     /* ---------- controls ---------- */
-    on(elDeg, 'input', function () { setDegree(+elDeg.value, true); });
-    on(elDeg, 'change', function () { setDegree(+elDeg.value, true); });
+    on(elDeg, 'input', function () { setDegree(+elDeg.value, 'move'); });
+    on(elDeg, 'change', function () { setDegree(+elDeg.value, 'settle'); });
     on(elNoise, 'input', function () { S.noise = Math.round(+elNoise.value * 100) / 100; dataChanged(); });
     on(elN, 'input', function () {
       S.n = clamp(Math.round(+elN.value), N_MIN, N_MAX);
@@ -848,6 +883,7 @@
 
     return {
       destroy: function () {
+        if (destroyed) return;
         destroyed = true;
         if (rafId) cancelAnimationFrame(rafId);
         rafId = 0;
@@ -855,7 +891,7 @@
         if (mql) { if (mql.removeEventListener) mql.removeEventListener('change', onTheme); else if (mql.removeListener) mql.removeListener(onTheme); }
         listeners.forEach(function (l) { l[0].removeEventListener(l[1], l[2], l[3]); });
         listeners = [];
-        root.innerHTML = '';
+        if (labEl && labEl.parentNode === root) root.removeChild(labEl);
       }
     };
   }
