@@ -123,6 +123,30 @@ window.AIM.labs = [
   ]
  },
  {
+  "id": "threshold",
+  "module": "l2-metrics-tuning",
+  "title": "Threshold, confusion matrix & ₹ cost",
+  "summary": "Pick the score above which a UPI payment is flagged as fraud, and watch the confusion matrix, precision, recall, the ROC curve and the rupee cost of mistakes change.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Get fooled by accuracy: set the fraud rate to 1% and the threshold to 1.00, so nothing is flagged. Accuracy shows 99%, but how many frauds did it catch?"
+   },
+   {
+    "id": "t2",
+    "text": "Find the cheapest threshold: move the threshold to the spot where the total ₹ cost of mistakes is lowest (the ★ on the cost chart)."
+   },
+   {
+    "id": "t3",
+    "text": "Catch at least 90% of frauds by moving the threshold (recall 90% or more). Then read the precision: what share of your flags are real frauds?"
+   },
+   {
+    "id": "t4",
+    "text": "Build a better model: raise Separation until the AUC is 0.97 or more, and watch the ROC curve bend towards the top-left corner."
+   }
+  ]
+ },
+ {
   "id": "tree",
   "module": "l2-trees-ensembles",
   "title": "Decision tree & forest",
