@@ -747,17 +747,17 @@
         }
       });
       if (firstBest >= 0 && shown.length > 1) {
-        var by = Y(M.loo[firstBest] / n), tx = X(firstBest);
+        var by = Y(M.loo[firstBest] / n), trY = Y(M.train[firstBest] / n);
+        var label = (shown.length === K_COUNT ? 'best ' : 'best so far ') + pct(M.loo[firstBest], n);
         c2.font = font(T, 11, '700');
         c2.fillStyle = rgbStr(T.ink);
-        c2.textBaseline = 'bottom';
-        c2.textAlign = firstBest === 0 ? 'left' : firstBest === K_COUNT - 1 ? 'right' : 'center';
-        var label = (shown.length === K_COUNT ? 'best ' : 'best so far ') + pct(M.loo[firstBest], n);
-        // keep the label clear of the training dot when they sit close together
-        var ly = by - 10;
-        if (Math.abs(Y(M.train[firstBest] / n) - by) < 22 && Y(M.train[firstBest] / n) < by) ly = by + 22, c2.textBaseline = 'bottom';
-        if (ly - 12 < 0) ly = by + 22;
-        c2.fillText(label, firstBest === 0 ? tx - slot / 2 + 2 : firstBest === K_COUNT - 1 ? tx + slot / 2 - 2 : tx, ly);
+        c2.textAlign = 'left'; c2.textBaseline = 'middle';
+        var lw = c2.measureText(label).width;
+        // above the dot, unless the training dot sits just above it or there is no room; then below
+        var ly = by - 15;
+        if ((trY < by && by - trY < 24) || ly < pt + 6) ly = by + 16;
+        if (ly > pt + ph - 6) ly = by - 15;
+        c2.fillText(label, clamp(X(firstBest) - lw / 2, pl + 3, pl + pw - lw - 3), ly);
       }
     }
 

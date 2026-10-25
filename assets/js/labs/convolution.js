@@ -849,6 +849,7 @@
       if (anim) stepAnim(now);
       ensureLayout();
       draw();
+      updateCalc();
       if (anim) raf = requestAnimationFrame(frame);
     }
 
@@ -1107,8 +1108,7 @@
       if (paintSeg(img, x0, y0, h.x, h.y, penRadius(), tool === 'eraser')) {
         imgId = 'drawing';
         recompute();
-        updateCalc();
-        requestDraw();
+        requestDraw(); // the worked calculation is refreshed in the same animation frame
       }
     }
     function select(sel, how) {
