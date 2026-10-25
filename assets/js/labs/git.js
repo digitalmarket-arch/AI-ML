@@ -233,11 +233,12 @@
     });
     return out;
   }
-  function statLines(ch) {
+  // summaryOnly: git commit and git revert print just the totals; git merge also prints one " file | 2 +-" line per file
+  function statLines(ch, summaryOnly) {
     if (!ch.length) return [];
     var w = 0, cw = 1, ins = 0, del = 0, out = [];
     ch.forEach(function (c) { w = Math.max(w, c.path.length); cw = Math.max(cw, String(c.ins + c.del).length); ins += c.ins; del += c.del; });
-    ch.forEach(function (c) {
+    if (!summaryOnly) ch.forEach(function (c) {
       out.push(' ' + c.path.padEnd(w) + ' | ' + String(c.ins + c.del).padStart(cw) + ' ' + '+'.repeat(Math.min(c.ins, 40)) + '-'.repeat(Math.min(c.del, 40)));
     });
     var s = ' ' + plural(ch.length, 'file', 'files') + ' changed';
@@ -555,8 +556,11 @@
       say('This lab holds up to ' + MAX_COMMITS + ' commits so the picture stays readable. Press <b>Reset to start</b> to begin again.', 'warn');
       return true;
     }
-    function blockedByMerge(cmd, errLine, fatalLine) {
-      var rows = [['cmd', cmd], ['err', errLine]];
+    function blockedByMerge(cmd, errLine, fatalLine, listUnmerged) {
+      var rows = [['cmd', cmd]];
+      // git commit first lists the files that still have conflicts ("U" = unmerged)
+      if (listUnmerged) R.merging.conflicts.forEach(function (cf) { rows.push(['out', 'U\t' + cf.path]); });
+      rows.push(['err', errLine]);
       if (fatalLine) rows.push(['err', fatalLine]);
       term(rows);
       say('<b>A merge is waiting for you.</b> Git will not do that until the conflict is fixed. Pick a version in the conflict box (or cancel the merge with <b>git merge --abort</b>).', 'warn');
@@ -567,7 +571,7 @@
     function doCommit(oops) {
       var h = headCommit();
       var msg = oops ? 'Oops: delete prices.csv' : peekItem().msg;
-      if (R.merging) { blockedByMerge('git commit -m "' + msg + '"', 'error: Committing is not possible because you have unmerged files.', 'fatal: Exiting because of an unresolved conflict.'); return; }
+      if (R.merging) { blockedByMerge('git commit -m "' + msg + '"', 'error: Committing is not possible because you have unmerged files.', 'fatal: Exiting because of an unresolved conflict.', true); return; }
       if (isFull()) return;
       var files = Object.assign({}, h.files), rows = [];
       if (oops) {
@@ -584,7 +588,7 @@
       var c = addCommit(R, { parents: [h.id], msg: msg, files: files, kind: oops ? 'oops' : 'normal', branch: R.head });
       R.branches[R.head] = c.id;
       rows.push(['out', '[' + R.head + ' ' + c.id + '] ' + msg]);
-      term(rows.concat(outRows(statLines(diffSnap(h.files, files)))));
+      term(rows.concat(outRows(statLines(diffSnap(h.files, files), true))));
       var B = '<b>' + esc(R.head) + '</b>';
       var html;
       if (oops) {
@@ -623,6 +627,13 @@
       if (name in R.branches) {
         term([cmd, ['err', "fatal: a branch named '" + name + "' already exists"]]);
         say('There is already a branch called <b>' + esc(name) + '</b>. Pick another name, or switch to it.', 'warn');
+        return;
+      }
+      // Git stores branch names like folders, so "fix" and "fix/x" cannot both exist
+      var clash = R.branchOrder.filter(function (b) { return name.indexOf(b + '/') === 0 || b.indexOf(name + '/') === 0; })[0];
+      if (clash) {
+        term([cmd, ['err', "fatal: cannot lock ref 'refs/heads/" + name + "': 'refs/heads/" + clash + "' exists; cannot create 'refs/heads/" + name + "'"]]);
+        say('<b>Git refused that name.</b> Git saves branch names like folders, so <b>' + esc(clash) + '</b> and <b>' + esc(name) + '</b> cannot both exist (a name cannot be a file and a folder at once). Pick another name, such as <b>' + esc(name.replace(/\//g, '-')) + '</b>.', 'warn');
         return;
       }
       if (R.branchOrder.length >= MAX_BRANCHES) {
@@ -763,7 +774,7 @@
       var msg = revertMsg(h.msg);
       var c = addCommit(R, { parents: [h.id], msg: msg, files: p.files, kind: 'revert', branch: R.head });
       R.branches[R.head] = c.id;
-      term([['cmd', cmdText], ['out', '[' + R.head + ' ' + c.id + '] ' + msg]].concat(outRows(statLines(ch))));
+      term([['cmd', cmdText], ['out', '[' + R.head + ' ' + c.id + '] ' + msg]].concat(outRows(statLines(ch, true))));
       var html = '<b>Reverted.</b> New commit <b>' + c.id + '</b> undoes ' + h.id + ': ' + esc(listWords(describeChanges(ch, ['is back', 'is gone again', 'is back to how it was']))) + '. ';
       if (isMerge) html += 'Because ' + h.id + ' is a merge, Git needs <b>-m 1</b> (“keep parent 1, the branch you were on”) to know which side to go back to. ';
       html += 'Commit ' + h.id + ' is still in the history, so nothing was erased: anyone who already has it can safely get this fix too.';
@@ -801,7 +812,7 @@
       R.branches.main = m.id;
       ui.target = 'feature'; ui.sel = null; ui.lastMerge = '—'; ui.scroll = true;
       termEl.textContent = '';
-      var st = outRows(statLines(diffSnap(base.files, f.files)));
+      var st = outRows(statLines(diffSnap(base.files, f.files), true));
       term([['info', '# Conflict story: Ravi and Asha both edit the Model line of README.md.'],
         ['cmd', 'git branch feature'], ['cmd', 'git switch feature'], ['out', "Switched to branch 'feature'"],
         ['cmd', 'git commit -am "Choose a decision tree"'], ['out', '[feature ' + f.id + '] Choose a decision tree']].concat(st,

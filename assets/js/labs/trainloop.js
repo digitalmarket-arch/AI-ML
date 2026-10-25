@@ -102,7 +102,9 @@
     if (e >= 4 || e <= -5) return '10' + String(e).split('').map(function (c) { return SUP[c] || c; }).join('');
     return fmtNum(v);
   }
-  function fmtC(v) { return finite(v) ? (v < 9.95 ? v.toFixed(1) : String(Math.round(v))) + ' °C' : 'huge'; }
+  function fmtC(v) { return finite(v) ? (Math.abs(v) < 9.95 ? v.toFixed(1) : Math.abs(v) < 1000 ? String(Math.round(v)) : fmtNum(v)) + ' °C' : 'huge'; }
+  // a temperature reading or guess, in °C, with one decimal (scientific only when absurdly large)
+  function fmtTemp(v) { return finite(v) ? (Math.abs(v) < 1000 ? v.toFixed(1).replace('-', '−') : fmtNum(v)) : 'a huge number'; }
   function typicalC(loss) { return YS * Math.sqrt(Math.max(0, loss)); }
   function lrFromPos(pos) { return +(LR_MIN * Math.pow(10, pos / LR_PER_DECADE)).toPrecision(2); }
   function posFromLr(lr) { return clamp(Math.round(Math.log10(lr / LR_MIN) * LR_PER_DECADE), 0, LR_SLIDER_MAX); }
@@ -235,7 +237,7 @@
     top.innerHTML =
       '<p class="lab-note"><strong>What you are seeing:</strong> 96 days of daily temperatures in New Delhi (made-up readings that follow the city’s real seasons: cool January, scorching May and June, a dip when the monsoon arrives). ' +
         'Filled dots are the 64 <em>training</em> days the model learns from; hollow rings are 32 <em>validation</em> days it never learns from, used only to check it. ' +
-        'The blue curve is a tiny neural network (1 input, 8 tanh units, 1 output: 25 weights) guessing the temperature for every day of the year. ' +
+        'The blue curve is a tiny neural network (1 input, 8 hidden units, 1 output: 25 adjustable numbers called <em>weights</em>) guessing the temperature for every day of the year. Each hidden unit passes its input through <em>tanh</em>, a smooth S-shaped curve, so together they can bend the line into a seasonal shape. ' +
         'Next to it is the PyTorch <em>training loop</em> that teaches it. Press <b>Next line</b> to run the loop one line at a time and see what each line does, or <b>Run</b> to train for many <em>epochs</em> (full passes over the training days).</p>' +
       '<p class="small muted">As in real code, the numbers are scaled to sit near 0 before training: x = (day − 183) ÷ 105 and y = (°C − 25) ÷ 7. So the losses below are on that scale: a loss of 0.05 means a typical error of about 7 × √0.05 ≈ 1.6 °C.</p>' +
       '<div class="lab-body">' +
@@ -285,7 +287,7 @@
                 '<i style="font-style:normal">' + legBar('--indigo') + '.grad used by optimizer.step()</i>' +
                 '<i style="font-style:normal">' + legDot('--ink') + 'That batch’s own gradient</i>' +
               '</div>' +
-              '<p class="small muted">The <em>gradient</em> says, for each weight, which way and how strongly it pushes the loss up. Its size is the <em>norm</em>: √(sum of all 25 values squared).</p>' +
+              '<p class="small muted">The <em>gradient</em> says, for each weight, which way and how strongly it pushes the loss up. Its size is the <em>norm</em>: √(sum of all 25 values squared). W1 and b1 are the first layer’s 8 weights and 8 <em>biases</em> (the biases are the starting offsets, also learned); W2 and b2 belong to the output layer.</p>' +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -314,7 +316,7 @@
           '<div class="small" style="display:grid;grid-template-columns:20px minmax(0,1fr);gap:8px;align-items:start"><input type="checkbox" id="' + P + 'overfit" style="margin:3px 0 0">' +
             '<label for="' + P + 'overfit"><b>Overfit one batch</b>: a debugging check. Train a fresh model on just 8 days, over and over. A healthy model and loop can push that loss to almost zero; if yours cannot, something is broken.</label></div>' +
           '<div class="control"><button type="button" class="btn" id="' + P + 'find">Run LR finder</button>' +
-            '<p class="small muted">The <em>LR finder</em> trains a copy of the model for 100 mini-batches while raising the learning rate from 0.0001 to 10, and plots the loss for each one. Your own model is not changed. Tap or click its chart to pick a learning rate.</p></div>' +
+            '<p class="small muted">The <em>LR finder</em> trains a copy of the model for up to 100 mini-batches while raising the learning rate from 0.0001 to 10, and plots the loss for each one (it stops early once the loss shoots up). Your own model is not changed. Tap or click its chart to pick a learning rate.</p></div>' +
           '<div class="small" style="display:grid;grid-template-columns:20px minmax(0,1fr);gap:8px;align-items:start"><input type="checkbox" id="' + P + 'true" style="margin:3px 0 0">' +
             '<label for="' + P + 'true">Show the true seasonal pattern (dashed grey): the smooth curve the readings were made from.</label></div>' +
           '<div class="stack-sm"><h2 class="lab-h">Your tasks</h2><ul class="lab-tasks" id="' + P + 'tasks">' + tasksHtml + '</ul></div>' +
@@ -498,7 +500,8 @@
       S.forgetSteps++;
       var L = S.blown ? Infinity : lossOn(S.p, trainSet());
       if (finite(L) && L < S.forgetMin) S.forgetMin = L;
-      var jump = !finite(L) || (S.forgetSteps >= 2 && S.backwards >= 2 && L > Math.max(2 * S.forgetMin, S.forgetMin + 0.05));
+      // only once .grad really holds more than one batch's gradient, so the pile-up is the cause
+      var jump = S.forgetSteps >= 2 && S.backwards >= 2 && (!finite(L) || L > Math.max(2 * S.forgetMin, S.forgetMin + 0.05));
       if (jump && completeTask('t2')) {
         info.t2 = { L: L, min: S.forgetMin };
       }
@@ -524,7 +527,7 @@
       } else if (n === 'forward') {
         var i0 = 0, p0 = S.xb[i0];
         h = '<b>Forward pass:</b> ' + codeTag('pred = model(xb)') + ' makes the network guess a temperature for ' + (S.xb.length === 1 ? 'the day' : 'each day') + ' in the batch. ' +
-          'For ' + dayLabel(p0.d) + ' it guesses ' + (YC + YS * S.pred[i0]).toFixed(1) + ' °C; the real reading was ' + p0.t.toFixed(1) + ' °C. The grey lines on the chart are the gaps. Nothing is learned yet: this line only makes guesses.';
+          'For ' + dayLabel(p0.d) + ' it guesses ' + fmtTemp(YC + YS * S.pred[i0]) + ' °C; the real reading was ' + fmtTemp(p0.t) + ' °C. The grey lines on the chart are the gaps. Nothing is learned yet: this line only makes guesses.';
       } else if (n === 'loss') {
         h = '<b>Loss = ' + fmtNum(S.batchLoss) + '.</b> The loss function, ' + codeTag('nn.MSELoss()') + ' (mean squared error), squares each gap and takes the average, on the scaled numbers. ' +
           'That is a typical gap of about ' + fmtC(typicalC(S.batchLoss)) + ' on this batch. One number that says how wrong the model is.';
@@ -554,19 +557,23 @@
       var nx = nextStop();
       return '<br><span class="muted">Next line: ' + codeTag(CODE_PLAIN[nx]) + (nx === 'eval' ? ' and the two loss lines under it' : '') + (S.forget && S.pc === 'step' ? ' (zero_grad() is skipped)' : '') + '</span>';
     }
+    function pileWhy() {
+      return S.optKind === 'sgd' ? 'so the steps grew too big and overshot'
+        : 'so every step kept following old, out-of-date gradients and overshot (Adam keeps each step about lr in size, but its direction was stale)';
+    }
     function taskNotes(info) {
       var out = [];
       if (info.t1) out.push('<b>Task done:</b> you ran one full training step by hand. Those five lines are all PyTorch training really is; the rest is repetition.');
       if (info.t2) out.push(finite(info.t2.L)
-        ? '<b>The loss jumped</b> to ' + fmtNum(info.t2.L) + ', more than double its lowest value since you forgot zero_grad() (' + fmtNum(info.t2.min) + '). Old gradients kept piling into .grad, so the steps grew too big and overshot. <b>Task done.</b>'
-        : '<b>The loss blew up</b> to infinity: old gradients kept piling into .grad until the steps were enormous. <b>Task done.</b>');
+        ? '<b>The loss jumped</b> to ' + fmtNum(info.t2.L) + ', more than double its lowest value since you forgot zero_grad() (' + fmtNum(info.t2.min) + '). Old gradients kept piling into .grad, ' + pileWhy() + '. <b>Task done.</b>'
+        : '<b>The loss blew up</b> to infinity: old gradients kept piling into .grad, ' + pileWhy() + '. <b>Task done.</b>');
       if (info.t3) out.push('<b>Task done:</b> validation loss ' + fmtNum(S.vaLoss) + ' after only ' + S.epochsDone + ' ' + plural(S.epochsDone, 'epoch', 'epochs') + ' with lr = ' + fmtLr(S.lr) + ' from the LR finder’s green zone' + (S.optKind === 'sgd' && S.bs === 8 ? '; the starting lr of 0.01 needs about 70 epochs to get there.' : '.'));
       if (info.t4) out.push('<b>Task done:</b> at epoch ' + fmtInt(S.epochsDone) + ' the training loss on the 8 days reached ' + fmtNum(S.trLoss) + ', almost zero: the model and loop work. But look at the validation loss, ' + fmtNum(S.vaLoss) + ': the model memorised 8 days instead of learning the seasons. That is overfitting, which is exactly what this check is meant to produce.');
       return out;
     }
     function blownMsg(notes) {
       say('<b>It blew up.</b> The weights grew so big that the computer could no longer store them (they became NaN, “not a number”). ' +
-        (S.forget ? 'Old gradients piling up in .grad made every step bigger than the last. ' : 'The learning rate is too high: every step overshot and landed further away. ') +
+        (S.forget && S.backwards >= 2 ? 'Old gradients piling up in .grad ' + (S.optKind === 'sgd' ? 'made every step bigger than the last. ' : 'kept pushing the weights the same way, further and further. ') : 'The learning rate is too high: every step overshot and landed further away. ') +
         'Lower the learning rate' + (S.forget ? ' or untick “Forget optimizer.zero_grad()”' : '') + ', then press <b>Reset</b>.' +
         (notes && notes.length ? '<br>' + notes.join('<br>') : ''), 'warn');
     }
@@ -666,8 +673,14 @@
     /* ---------- LR finder ---------- */
     function startFinder() {
       if (S.running) setRunning(false);
+      var L0 = lossOn(S.p, trainSet());
+      if (S.blown || !allFinite(S.p) || !finite(L0)) {
+        setView('finder');
+        say('The LR finder starts from a copy of your model, but your model has blown up (its weights are too big to compute with), so there is nothing to sweep from. Press <b>Reset</b> first, then run the LR finder on the fresh model.', 'warn');
+        return;
+      }
       finder = { p: Float64Array.from(S.p), opt: makeOpt(S.optKind), g: new Float64Array(NP), rng: mulberry32(FINDER_SEED),
-        batches: [], bi: 0, pts: [], best: Infinity, i: 0, acc: 0, L0: lossOn(S.p, trainSet()), cfg: cfgKey() };
+        batches: [], bi: 0, pts: [], best: Infinity, i: 0, acc: 0, L0: L0, cfg: cfgKey() };
       btnFind.textContent = 'Stop LR finder';
       setView('finder');
       say('LR finder running: training a copy of your model while the learning rate climbs from 0.0001 to 10…');
@@ -709,10 +722,14 @@
           (lrUnstable && lrUnstable <= lrMin ? ', then from about ' + fmtLr(lrUnstable) + ' the steps got so big that it turned jagged (red area); its lowest point, at lr ≈ ' + fmtLr(lrMin) + ', came during that wobble, just before it shot up. ' :
             ', reached its lowest point at lr ≈ ' + fmtLr(lrMin) + ', then the steps got too big and it shot up. ') +
           'A good learning rate sits on the steep downhill part, a few times smaller than the lowest point: the green zone runs from ' + fmtLr(res.lo) + ' to ' + fmtLr(res.hi) + ' (try about ' + fmtLr(res.sug) + '). ' +
-          'Tap or click the chart, or use the slider. (fastai’s classic rule is 10× smaller than the lowest point: safer, but slower.)', 'good');
+          'Tap or click the chart, or use the slider. (fastai, a popular deep-learning library, uses 10× smaller than the lowest point: safer, but slower.)', 'good');
       } else {
         zone = null; lastFinder = res;
-        say('<b>LR finder done, but the loss hardly fell</b> during the sweep (lowest ' + fmtNum(Lmin) + ' against ' + fmtNum(F.L0) + ' at the start). Your model is probably already well trained, so there is little left to learn. Press <b>Reset</b>, then run the LR finder again on the fresh model.');
+        say(!finite(Lmin)
+          ? '<b>LR finder stopped: the loss blew up straight away.</b> Your model’s weights are already so big that even the smallest learning rate throws them off (it was probably trained with a learning rate that was far too high). Press <b>Reset</b>, then run the LR finder again on the fresh model.'
+          : '<b>LR finder done, but the loss hardly fell</b> during the sweep (lowest ' + fmtNum(Lmin) + ' against ' + fmtNum(F.L0) + ' at the start). ' +
+            (F.L0 < 3 * D.floor ? 'Your model is already well trained, so there is little left to learn. ' : 'No learning rate in the sweep helped much from where your model is now (it may be stuck after a bad run). ') +
+            'Press <b>Reset</b>, then run the LR finder again on the fresh model.');
       }
       requestDraw();
       updateTexts();

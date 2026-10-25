@@ -351,7 +351,8 @@ window.AIM.modules = [
    }
   ],
   "best": "apna-college-complete-basics-of-ai-in-one-shot",
-  "figs": true
+  "figs": true,
+  "lab": "learn"
  },
  {
   "id": "l1-python",

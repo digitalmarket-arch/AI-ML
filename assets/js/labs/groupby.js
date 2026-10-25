@@ -546,7 +546,7 @@
     function metrics() {
       var phone = L.W < 520;
       // fs is the smallest text size; bars and their text grow (up to maxCH and maxFs) when there is room
-      return { pad: phone ? 8 : 12, fs: phone ? 11 : 12, maxFs: phone ? 13 : 15, gap: phone ? 4 : 6, gx: phone ? 6 : 10, bp: 6, hh: phone ? 18 : 22, cg: 3, maxCH: phone ? 30 : 36 };
+      return { pad: phone ? 8 : 12, fs: phone ? 11 : 12, maxFs: phone ? 13 : 16, gap: phone ? 4 : 6, gx: phone ? 6 : 10, bp: 6, hh: phone ? 18 : 24, cg: 3, maxCH: phone ? 32 : 42 };
     }
     var chipKey = [], chipVal = [];
     function chipTexts() {
@@ -617,7 +617,7 @@
           var ch = (L.H - 2 * M.pad - (cd.rows - 1) * M.gx - cd.rows * (M.hh + 2 * M.bp) + cd.rows * M.cg) / R - M.cg;
           var chc = Math.min(ch, M.maxCH);
           // taller bars help only up to a point; small box labels hurt a lot
-          var labFont = (M.hh >= 22 ? 13 : 12) * labScale;
+          var labFont = (M.hh >= 24 ? 14 : 12) * labScale;
           var score = Math.min(chc, 26) * 10 + cd.bonus - cc * 0.8 - Math.max(0, 11 - labFont) * 45 - (cw < minCW ? 200 : 0);
           var cand = { cd: cd, cc: cc, cw: Math.min(cw, maxCW), ch: chc, cellW: cellW, need: need, labScale: labScale, score: score };
           if (!loose || score > loose.score) loose = cand;
@@ -631,7 +631,7 @@
       var fs = clamp(ch * 0.5, M.fs, M.maxFs);
       fs = Math.max(M.fs, Math.min(fs, M.fs * (cw - 18) / valW));
       var aggH = clamp(ch + 4, 22, 40);
-      var labFs = M.hh >= 22 ? 13 : 12;
+      var labFs = M.hh >= 24 ? 14 : 12;
       var out = { box: {}, abox: {}, slot: {}, agg: {}, skipSlot: {}, fs: fs, aggFs: clamp(aggH * 0.5, fs + 0.5, M.maxFs),
         labFs: Math.max(8.5, labFs * Math.min(1, (best.cellW - 2 * M.bp - 2) / (labelW * labFs / 12))) };
       var innerChips = cc * cw + (cc - 1) * M.cg;
@@ -644,8 +644,8 @@
         var skipped = g.rows.filter(function (i) { return ROWS[i][cfg.agg] === null && cfg.missing === 'skip'; });
         var nS = skipped.length, beside = nS > 0 && cc - nS >= 1, below = nS > 0 && !beside && g.rows.length > nS;
         var content = aggH + (below ? M.cg + Math.ceil(nS / cc) * (ch + M.cg) - M.cg : 0);
-        plan[g.id] = { p: p, skipped: skipped, beside: beside, below: below };
-        arh[p[0]] = Math.max(arh[p[0]], M.hh + 2 * M.bp + content);
+        plan[g.id] = { p: p, skipped: skipped, beside: beside, below: below, h: M.hh + 2 * M.bp + content };
+        arh[p[0]] = Math.max(arh[p[0]], plan[g.id].h);
       });
       function rowTops(hs) {
         var tot = hs.reduce(function (a, b) { return a + b; }, 0) + (cd.rows - 1) * M.gx, acc = Math.max(M.pad, (L.H - tot) / 2), ys = [];
@@ -662,7 +662,7 @@
         g.rows.forEach(function (i, k) {
           out.slot[i] = { x: cx0 + (k % cc) * (cw + M.cg), y: by + M.bp + M.hh + Math.floor(k / cc) * (ch + M.cg), w: cw, h: ch };
         });
-        var ay = arowY[p[0]], ah = arh[p[0]], aTop = ay + M.bp + M.hh;
+        var ay = arowY[p[0]], ah = pl.h, aTop = ay + M.bp + M.hh;
         out.abox[g.id] = { x: bx, y: ay, w: boxW, h: ah, lx: bx + M.bp + 2, ly: ay + M.bp + M.hh / 2 };
         var aggCols = pl.beside ? cc - pl.skipped.length : cc;
         out.agg[g.id] = pl.beside ? { x: cx0, y: aTop, w: aggCols * cw + (aggCols - 1) * M.cg, h: aggH } : { x: bx + M.bp, y: aTop, w: boxW - 2 * M.bp, h: aggH };
@@ -921,8 +921,8 @@
       elCode.innerHTML = lines.map(function (ln) {
         var h = esc(ln).replace(/\.(?=[a-z_])/g, '\u0001.');
         h = h.replace(/'[^']*'/g, function (m) { return '<span style="color:var(--indigo)">' + m + '</span>'; });
-        return h.replace(/\u0001/g, '<wbr>');
-      }).join('\n');
+        return '<span style="display:block;padding-left:4ch;text-indent:-4ch">' + h.replace(/\u0001/g, '<wbr>') + '</span>';
+      }).join('');
       elOut.textContent = pyOutput(res, cfg, selGroup());
       elPlain.textContent = plainText();
     }
@@ -1049,16 +1049,16 @@
     function taskHint(g) {
       var all = res.kept.length === N;
       if (!done.t1 && res.keys.length === 1 && res.keys[0] === 'city') {
-        if (cfg.agg !== 'sales_rs') return 'For task 1: this adds up units (cups and snacks), not rupees. Switch the column to sales_rs.';
-        if (cfg.fn !== 'sum') return 'For task 1: this is the ' + cfg.fn + ', not the total. Choose sum to add up every sale.';
-        if (!all) return 'For task 1: your filter keeps only ' + res.kept.length + ' of 24 rows. Set the filter column to (no filter) to add up all three months.';
+        if (cfg.agg !== 'sales_rs') return 'Tip: this adds up units (cups and snacks), not rupees. Switch the column to sales_rs.';
+        if (cfg.fn !== 'sum') return 'Tip: this is the ' + cfg.fn + ', not the total. Choose sum to add up every sale.';
+        if (!all) return 'Tip: your filter keeps only ' + res.kept.length + ' of 24 rows. Set the filter column to (no filter) to add up all three months.';
         var top = res.groups.reduce(function (b, x) { return !b || x.value > b.value ? x : b; }, null);
-        if (g !== top) return 'For task 1: not the highest. Sort the result descending to put the biggest total on top.';
+        if (g !== top) return 'Tip: not the highest. Sort the result descending to put the biggest total on top.';
       }
       if (!done.t3 && cityProduct()) {
-        if (cfg.agg !== 'sales_rs' || cfg.fn !== 'sum') return 'For task 3: choose the sum of sales_rs.';
-        if (!all) return 'For task 3: remove the filter so every month counts.';
-        if (g.keys.indexOf('Pune') < 0 || g.keys.indexOf('Coffee') < 0) return 'For task 3: the task asks for the Pune · Coffee group.';
+        if (cfg.agg !== 'sales_rs' || cfg.fn !== 'sum') return 'Tip: choose the sum of sales_rs.';
+        if (!all) return 'Tip: remove the filter so every month counts.';
+        if (g.keys.indexOf('Pune') < 0 || g.keys.indexOf('Coffee') < 0) return 'Tip: the task asks for the Pune · Coffee group.';
       }
       return '';
     }
@@ -1150,7 +1150,12 @@
       cfg.fnum = isFinite(v) ? v : NaN;
       update('cfg');
     });
-    on(selK1, 'change', function () { cfg.k1 = selK1.value; update('cfg'); });
+    on(selK1, 'change', function () {
+      // picking the column that was second swaps the two, so both choices survive
+      if (selK1.value === cfg.k2) cfg.k2 = cfg.k1;
+      cfg.k1 = selK1.value;
+      update('cfg');
+    });
     on(selK2, 'change', function () { cfg.k2 = selK2.value; update('cfg'); });
     on(labEl.querySelector('.lab-controls'), 'click', function (ev) {
       var b = ev.target.closest('button');

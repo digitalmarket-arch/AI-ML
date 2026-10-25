@@ -3,6 +3,30 @@
 window.AIM = window.AIM || {};
 window.AIM.labs = [
  {
+  "id": "learn",
+  "module": "l1-ai-basics",
+  "title": "Teach the machine: rules vs learning",
+  "summary": "Sort mangoes into ripe and not ripe by drawing your own rule, then watch a machine learn its rule from labelled examples and compare both on new mangoes.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Write your own rule: drag the handles until your line gets at least 85% of the example mangoes right (with all 30 in use)."
+   },
+   {
+    "id": "t2",
+    "text": "Switch to “Machine learns it” and let it learn from all 30 examples until its line settles. See it match or beat your rule on the new (hollow) mangoes."
+   },
+   {
+    "id": "t3",
+    "text": "Make 3 labelling mistakes (tap example mangoes to flip their labels, or add mangoes with the wrong label), let the machine learn again until it settles, and watch its line tilt away from the correct-labels line."
+   },
+   {
+    "id": "t4",
+    "text": "Set the slider to just 4 example mangoes and let the machine learn until it settles, then do the same with all 30. See that 4 examples give a worse score on the new mangoes."
+   }
+  ]
+ },
+ {
   "id": "pytrace",
   "module": "l1-python",
   "title": "Step through Python",

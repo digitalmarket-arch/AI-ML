@@ -104,7 +104,9 @@
     'The biryani in Hyderabad was spicy',
     'The kabaddi match in Pune was a draw'
   ];
-  var HIGH_COS = 0.8, FAR_SHARE = 0.25;   // task 4: cosine 0.8 or more, over a quarter of the map's width apart
+  // task 4: cosine 0.80 or more and 25% or more of the map's width apart, judged on the rounded numbers the
+  // learner sees (2 decimals, whole per cent), so what is shown and what ticks the task always agree
+  var HIGH_COS_100 = 80, FAR_PCT = 25;
   var PCA_SEED = 20131;                   // seeds the random starting vector of the power iteration
   var NN_K = 5;
   // when space is short, these words get a label first (the tasks and examples use them)
@@ -114,7 +116,7 @@
     { id: 't1', text: 'Find the 3 nearest neighbours of Mumbai by cosine similarity: pick Mumbai on the map or in the “Selected word” list.' },
     { id: 't2', text: 'Solve king − man + woman in the analogy builder. Which word does the sum land on?' },
     { id: 't3', text: 'Solve Paris − France + India. Swapping the country should keep the “capital city” part.' },
-    { id: 't4', text: 'Catch the map bending the truth: in “Compare two words”, find a pair with cosine similarity 0.8 or more that sits over a quarter of the map’s width apart. Hint: an Indian place and a similar place abroad.' }
+    { id: 't4', text: 'Catch the map bending the truth: in “Compare two words”, find a pair with cosine similarity 0.80 or more that sits 25% or more of the map’s width apart. Hint: try Delhi and a capital city abroad.' }
   ];
 
   /* ---------- small helpers ---------- */
@@ -399,7 +401,7 @@
           '<strong>Bag of words</strong> counts how often each word appears in each sentence and ignores word order. ' +
           '<strong>TF-IDF</strong> (term frequency × inverse document frequency) multiplies each count by a weight, <em>idf</em>, that is small for words found in many sentences, such as “the”, and big for rare ones.</p>' +
         '<p class="small" style="padding:10px 12px;border-radius:var(--radius-sm);background:var(--surface-2)">TF-IDF = count × idf, where <span class="mono">idf = ln((1 + n) ÷ (1 + df)) + 1</span>. ' +
-          'Here n = number of sentences (3), df = how many sentences contain the word, and ln is the natural logarithm. This is the formula scikit-learn uses by default (<code>smooth_idf=True</code>). ' +
+          'Here n = number of sentences (3), df = how many sentences contain the word, and ln is the natural logarithm. This is the formula scikit-learn (a popular Python machine-learning library) uses by default (<code>smooth_idf=True</code>). ' +
           'Words are lower-cased and punctuation is dropped (scikit-learn would also drop one-letter words such as “a”).</p>' +
         '<div class="stack-sm" style="max-width:720px">' +
           [0, 1, 2].map(function (k) {
@@ -438,7 +440,7 @@
     };
     var A = null;          // analogy result
     var done = {};
-    var dims = { w: 1, h: 1, dpr: 1 };
+    var dims = { w: 1, h: 1, dpr: 1, sx: 1, sy: 1 };
     var rafId = 0, aspectRaf = 0, liveTimer = 0, curAspect = null, screenPos = [];
 
     /* ---------- tasks ---------- */
@@ -562,12 +564,17 @@
       var items = A.list.map(function (r) {
         return '<li style="margin-top:4px"><span style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><span>' + wordBtn(r.i) + ' <span class="muted small">' + KINDS[WORDS[r.i][1]].label + '</span></span><span class="mono small num">cosine ' + fx(r.cos, 3) + '</span></span></li>';
       }).join('');
-      var exact = best.cos > 0.9995;
+      // "exactly" only when the numbers really are the same; a cosine that merely rounds to 1.000 is not a match
+      var bv = vecOf(best.i), nb = esc(nameOf(best.i)), exact = euclid(A.vec, bv) < 1e-9, worst = 0;
+      for (var k = 1; k < ND; k++) if (Math.abs(A.vec[k] - bv[k]) > Math.abs(A.vec[worst] - bv[worst])) worst = k;
+      var verdict = exact ? 'The result has exactly the same 10 numbers as ' + nb + ' (cosine 1.000).' :
+        fx(best.cos, 3) === '1.000' ? 'The result points almost exactly the same way as ' + nb + ' (the cosine rounds to 1.000), but the numbers are not quite the same: its ' + DIMS[worst].name + ' is ' + fx(A.vec[worst], 2) + ' and ' + nb + '’s is ' + fx(bv[worst], 2) + '. Real embeddings are like this too: analogies come out roughly, not perfectly.' :
+        'No word matches exactly; ' + nb + ' is simply the closest. Real embeddings are like this too: analogies come out roughly, not perfectly.';
       elABody.innerHTML =
         '<p><span class="num">' + eq + ' = ?</span></p>' +
         '<p class="small">The sum works number by number: A’s 10 numbers, minus B’s, plus C’s. These words point most nearly the same way as the result:</p>' +
         '<ol style="padding-left:1.4em;margin:0">' + items + '</ol>' +
-        '<p class="small">' + (exact ? 'The result matches ' + esc(nameOf(best.i)) + ' exactly (cosine 1.000).' : 'No word matches exactly; ' + esc(nameOf(best.i)) + ' is simply the closest. Real embeddings are like this too: analogies come out roughly, not perfectly.') +
+        '<p class="small">' + verdict +
           ' A, B and C themselves are left out of the answers, as word-vector libraries such as gensim do; otherwise the answer would often just be A or C.</p>' +
         '<p class="small">On the map, the ★ is where the result lands: the arrow from A to the ★ is the same length and direction as the dashed arrow from B to C. (The map keeps this exactly, because PCA flattening is a <em>linear</em> squash: straight lines stay straight and parallel arrows stay parallel.)</p>' +
         vecTable([{ name: 'A − B + C', vec: A.vec, cssVar: '--series-2' }, { name: nameOf(best.i), vec: vecOf(best.i), cssVar: '--series-1' }]);
@@ -579,7 +586,8 @@
       var dx = M.xy[p][0] - M.xy[qq][0], dy = M.xy[p][1] - M.xy[qq][1];
       var md = Math.sqrt(dx * dx + dy * dy);
       var cs = M.cos[p][qq];
-      return { p: p, q: qq, cos: cs, angle: Math.acos(clamp(cs, -1, 1)) * 180 / Math.PI, eu: M.eu[p][qq], map: md, share: md / M.width, lp: len(vecOf(p)), lq: len(vecOf(qq)) };
+      var pct = Math.round(md / M.width * 100), hiCos = Math.round(+cs.toFixed(2) * 100) >= HIGH_COS_100;
+      return { p: p, q: qq, cos: cs, angle: Math.acos(clamp(cs, -1, 1)) * 180 / Math.PI, eu: M.eu[p][qq], map: md, share: md / M.width, pct: pct, hiCos: hiCos, bends: p !== qq && hiCos && pct >= FAR_PCT, lp: len(vecOf(p)), lq: len(vecOf(qq)) };
     }
     function rankOf(i, j) {
       var list = rankWords(vecOf(i), [i], 'cos');
@@ -589,14 +597,14 @@
     function ordinal(n) { var s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
     function renderCompare() {
       var c = cmpStats(), np = esc(nameOf(c.p)), nq = esc(nameOf(c.q)), same = c.p === c.q;
-      var pctW = Math.round(c.share * 100);
+      var pctW = c.pct;
       elCLine.innerHTML = same ? 'Pick two different words.' :
         'Cosine <b class="num">' + fx(c.cos, 2) + '</b> · Euclidean <b class="num">' + fx(c.eu, 2) + '</b> · <span class="num">' + pctW + '%</span> of the map’s width apart';
       var verdict;
       if (same) verdict = 'Both boxes hold the same word, so cosine is 1 and both distances are 0.';
-      else if (c.cos >= HIGH_COS && c.share >= FAR_SHARE) verdict = '<b>The map is misleading here.</b> ' + np + ' and ' + nq + ' point almost the same way (cosine ' + fx(c.cos, 2) + '), yet they sit ' + pctW + '% of the map’s width apart. The map shows straight-line gaps, which also count the numbers where the two words differ, while cosine looks only at direction across all 10 numbers.';
+      else if (c.bends) verdict = '<b>The map is misleading here.</b> ' + np + ' and ' + nq + ' point almost the same way (cosine ' + fx(c.cos, 2) + '), yet they sit ' + pctW + '% of the map’s width apart. The map shows straight-line gaps, which also count the numbers where the two words differ, while cosine looks only at direction across all 10 numbers.';
       else if (c.cos < 0.7 && c.share < 0.06) verdict = '<b>The map is misleading here.</b> ' + np + ' and ' + nq + ' sit almost on top of each other on the map, yet their cosine similarity is only ' + fx(c.cos, 2) + '. The numbers that tell them apart were lost when 10 numbers were squashed into 2.';
-      else if (c.cos >= HIGH_COS) verdict = np + ' and ' + nq + ' point almost the same way (cosine ' + fx(c.cos, 2) + ') and are fairly close on the map too.';
+      else if (c.hiCos) verdict = np + ' and ' + nq + ' point almost the same way (cosine ' + fx(c.cos, 2) + ') and are fairly close on the map too.';
       else if (c.cos < 0.3) verdict = np + ' and ' + nq + ' have little in common (cosine ' + fx(c.cos, 2) + ').';
       else verdict = np + ' and ' + nq + ' are partly alike (cosine ' + fx(c.cos, 2) + ').';
       var r1 = same ? 0 : rankOf(c.p, c.q);
@@ -610,7 +618,7 @@
         (same ? '' : '<p class="small muted">' + nq + ' is ' + np + '’s ' + ordinal(r1) + ' nearest word by cosine. Lengths: |' + np + '| = ' + fx(c.lp, 2) + ', |' + nq + '| = ' + fx(c.lq, 2) + '.</p>') +
         '<p class="small"><strong>Cosine</strong> compares only the <em>direction</em> of the two arrows: a long and a short arrow pointing the same way score 1. ' +
           '<strong>Euclidean distance</strong> is the straight-line gap between the arrow tips, so it grows when one arrow is longer than the other. ' +
-          'The <strong>gap on the map</strong> is the Euclidean distance after the squash to 2-D (given in map units, and as a share of the map’s width). It can only shrink in the squash, never grow, so it is never bigger than the 10-number Euclidean distance.</p>' +
+          'The <strong>gap on the map</strong> is the Euclidean distance after the squash to 2-D (given in map units, and as a percentage of the map’s width, measured from the leftmost word to the rightmost). It can only shrink in the squash, never grow, so it is never bigger than the 10-number Euclidean distance.</p>' +
         '<p class="small muted">A 2-D picture of high-dimensional vectors always distorts. The two map directions (PC1 and PC2, the first two <em>principal components</em>) hold ' + pctAll + '% of the <em>variance</em> (spread) of all 10 numbers; the other ' + (100 - pctAll) + '% is lost in the squash. 2-D pictures of real embeddings with hundreds of numbers usually lose far more. Trust the numbers, not the picture.</p>' +
         vecTable([{ name: nameOf(c.p), vec: vecOf(c.p), cssVar: '--series-1' }, { name: nameOf(c.q), vec: vecOf(c.q), cssVar: '--series-4' }]);
       return c;
@@ -640,7 +648,7 @@
           '<td class="mono num" style="text-align:right;padding:3px 6px;border-bottom:1px solid var(--line)">' + fx(v.idf, 2) + '</td>' + cells + '</tr>';
       }).join('');
       var what = S.tf === 'bow' ? 'Counts (bag of words)' : (S.l2 ? 'TF-IDF, each sentence scaled to length 1' : 'TF-IDF = count × idf');
-      var table = '<div class="table-wrap" style="width:0;min-width:100%;max-height:440px;overflow:auto;border:1px solid var(--line);border-radius:var(--radius-sm)">' +
+      var table = '<div class="table-wrap" style="width:0;min-width:100%;max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:var(--radius-sm)">' +
         '<table style="width:100%;border-collapse:collapse;font-size:.88rem;line-height:1.3">' +
         '<caption class="visually-hidden">' + what + ' for each word in each sentence</caption>' +
         '<thead><tr><th scope="col" ' + th.replace('text-align:right', 'text-align:left') + '>Word</th><th scope="col" ' + th + '>df</th><th scope="col" ' + th + '>idf</th>' +
@@ -652,8 +660,7 @@
         for (k = 0; k < row.length; k++) best = Math.max(best, row[k]);
         if (best <= 0) { topLines.push('<li>Sentence ' + (d + 1) + ': no words.</li>'); continue; }
         var winners = vocab.filter(function (v, k3) { return Math.abs(row[k3] - best) < 1e-9; }).map(function (v) { return v.word; });
-        var nw = tokens(S.sentences[d]).length;
-        topLines.push('<li>Sentence ' + (d + 1) + ': ' + (S.tf === 'bow' && winners.length === new Set(tokens(S.sentences[d])).size && nw > 1 ?
+        topLines.push('<li>Sentence ' + (d + 1) + ': ' + (S.tf === 'bow' && winners.length === new Set(tokens(S.sentences[d])).size && winners.length > 1 ?
           'every word has the same count, so nothing stands out.' :
           'highest ' + (S.tf === 'bow' ? 'count' : 'score') + ' ' + fx(best, dec) + ' for ' + winners.slice(0, 4).map(function (w) { return '“' + esc(w) + '”'; }).join(', ') + (winners.length > 4 ? ' and ' + (winners.length - 4) + ' more' : '') + '.') + '</li>');
       }
@@ -668,6 +675,7 @@
         'No word is in all ' + n + ' sentences right now. Add the same word (for example “the”) to every sentence and watch its idf drop to the smallest possible value, 1.00.';
       elTBody.innerHTML =
         '<p class="small"><b>' + what + '.</b> S1, S2, S3 = sentences 1 to 3. df = how many sentences contain the word (<span aria-hidden="true" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--haldi);margin:0 3px"></span>marks words found in every sentence).</p>' + table +
+        '<p class="small muted" data-more hidden>Scroll inside the table to see all ' + vocab.length + ' words.</p>' +
         '<p class="small">' + explain + '</p>' +
         '<ul class="small" style="padding-left:1.1em">' + topLines.join('') + '</ul>' +
         '<h2 class="lab-h" style="margin-top:6px">How alike are the sentences? (cosine similarity)</h2>' +
@@ -676,6 +684,8 @@
           '<tbody>' + simRow(0, 1) + simRow(0, 2) + simRow(1, 2) + '</tbody></table></div>' +
         '<p class="small muted">With counts, shared filler words such as “the” make every pair of sentences look alike. TF-IDF shrinks them, so similarity depends more on the words that carry the meaning. (Scaling to length 1 does not change cosine similarity.)</p>';
       markScrollers();
+      var tw = elTBody.querySelector('.table-wrap'), more = elTBody.querySelector('[data-more]');
+      if (tw && more) more.hidden = tw.scrollHeight <= tw.clientHeight + 1;
     }
 
     /* ---------- the map: geometry ---------- */
@@ -749,8 +759,8 @@
     function draw() {
       rafId = 0;
       if (destroyed || dims.w < 4) return;
-      var T = readTheme(), G = geom(), W = dims.w, H = dims.h, dpr = dims.dpr, i;
-      g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var T = readTheme(), G = geom(), W = dims.w, H = dims.h, i;
+      g.setTransform(dims.sx, 0, 0, dims.sy, 0, 0);
       g.fillStyle = rgb(T.surface);
       g.fillRect(0, 0, W, H);
       screenPos = M.xy.map(function (p) { return toPx(G, p); });
@@ -1011,9 +1021,11 @@
       if (how !== 'init') { S.mode = 'analogy'; setModeBtns(); }
       updateText(); requestDraw();
       if (how === 'init') return;
-      var nm = S.ana.map(nameOf).join('|');
-      if (nm === 'king|man|woman') completeTask('t2');
-      if (nm === 'Paris|France|India') completeTask('t3');
+      // A − B + C is the same sum as C − B + A, so either order solves the task
+      var nm = S.ana.map(nameOf);
+      function is(x, y, z) { return nm[1] === y && ((nm[0] === x && nm[2] === z) || (nm[0] === z && nm[2] === x)); }
+      if (is('king', 'man', 'woman')) completeTask('t2');
+      if (is('Paris', 'France', 'India')) completeTask('t3');
       announce(A.zero ? eqText() + ' gives all zeros.' : eqText() + ' is nearest to ' + nameOf(A.best) + ', cosine ' + fx(A.list[0].cos, 3) + '.', true);
     }
     function setCompare(p, qq, how) {
@@ -1023,7 +1035,7 @@
       if (how !== 'init') { S.mode = 'compare'; setModeBtns(); }
       updateText(); requestDraw();
       if (how === 'init') return;
-      if (c.p !== c.q && c.cos >= HIGH_COS && c.share >= FAR_SHARE) completeTask('t4');
+      if (c.bends) completeTask('t4');
       announce(c.p === c.q ? 'Same word twice.' : nameOf(c.p) + ' and ' + nameOf(c.q) + ': cosine ' + fx(c.cos, 2) + ', Euclidean ' + fx(c.eu, 2) + ', ' + Math.round(c.share * 100) + ' percent of the map width apart.', true);
     }
     function setRank(by) {
@@ -1144,10 +1156,12 @@
       // changing the wrapper's own size inside a ResizeObserver callback would loop, so defer that
       if (wantAspect() !== curAspect && !aspectRaf) aspectRaf = requestAnimationFrame(applyAspect);
       var dpr = Math.min(window.devicePixelRatio || 1, 3);
-      var rc = wrap.getBoundingClientRect(), w = Math.max(1, Math.round(rc.width)), h = Math.max(1, Math.round(rc.height));
-      if (w !== dims.w || h !== dims.h || dpr !== dims.dpr) {
-        dims.w = w; dims.h = h; dims.dpr = dpr;
-        canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+      // measure the canvas itself (the wrapper's 1px border is not part of it), so one backing pixel = one screen pixel
+      var rc = canvas.getBoundingClientRect(), w = Math.max(1, rc.width), h = Math.max(1, rc.height);
+      var bw = Math.max(1, Math.round(w * dpr)), bh = Math.max(1, Math.round(h * dpr));
+      if (Math.abs(w - dims.w) > 0.01 || Math.abs(h - dims.h) > 0.01 || bw !== canvas.width || bh !== canvas.height) {
+        dims.w = w; dims.h = h; dims.dpr = dpr; dims.sx = bw / w; dims.sy = bh / h;
+        canvas.width = bw; canvas.height = bh;
         // resizing clears the canvas: repaint now so there is no blank frame
         if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
         draw();
