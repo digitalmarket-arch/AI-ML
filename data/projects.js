@@ -417,7 +417,7 @@ window.AIM.projects = [
    },
    {
     "title": "Design the A/B test",
-    "detail": "Choose the main metric (repeat purchase within 30 days). Take the baseline rate from the data, choose a minimum detectable effect (the smallest lift worth finding, for example +3 percentage points), use 5% significance and 80% power, and compute the sample size per group with statsmodels (`proportion_effectsize`, then `NormalIndPower().solve_power`). Add rules: random assignment, fixed duration, no stopping early because results look good."
+    "detail": "Choose the main metric (repeat purchase within 30 days). Take the baseline rate from the data, choose a minimum detectable effect (the smallest lift worth finding, for example +3 percentage points), use 5% significance and 80% power (an 80% chance of detecting the lift if it is real), and compute the sample size per group with statsmodels (`proportion_effectsize`, then `NormalIndPower().solve_power`). Add rules: random assignment, fixed duration, no stopping early because results look good."
    },
    {
     "title": "Privacy step",
@@ -495,7 +495,7 @@ window.AIM.projects = [
    "l2-trees-ensembles",
    "l2-metrics-tuning"
   ],
-  "why": "Regression on real listings is the classic first ML portfolio project, but most online copies leak information and report fake accuracy. Doing it properly (leakage-free validation, a log target, errors in ₹ lakhs, reasons for each estimate) shows maturity. Builders and brokers are common agency clients, and a 'know your flat's fair price' tool is a proven lead magnet.",
+  "why": "Regression on real listings is the classic first ML portfolio project, but many online copies leak information and report fake accuracy. Doing it properly (leakage-free validation, a log target, errors in ₹ lakhs, reasons for each estimate) shows maturity. Builders and brokers are common agency clients, and a 'know your flat's fair price' tool is a common lead magnet.",
   "brief": "A property-listing startup wants a 'fair price' badge: flag homes priced more than 20% above a model's estimate. Using a dataset of Indian listings (BHK, area in sq ft, RERA approval, ready-to-move, resale, address, coordinates and price in lakhs), build a model that estimates price. Constraints: report error in ₹ lakhs and as MAPE (mean absolute percentage error, the average % miss) so the business understands it; the same property may appear more than once, so duplicates must never be split across training and test sets; the city must be extracted from the address; and each estimate needs its top 3 reasons in plain words. The model must clearly beat a simple baseline (median price per sq ft for that city × area), and you must say by how much.",
   "datasets": [
    {
@@ -549,7 +549,7 @@ window.AIM.projects = [
    },
    {
     "title": "Ship a demo",
-    "detail": "Build a Gradio app on Hugging Face Spaces (free CPU): inputs, then estimated range in lakhs, reasons and a fair-price flag. Add a model card and a 2-minute walkthrough."
+    "detail": "Build a Gradio app on a free Hugging Face ZeroGPU Space (free accounts can host up to 2 Gradio Spaces; other Gradio and Docker Spaces need a paid plan): inputs, then estimated range in lakhs, reasons and a fair-price flag. Add a model card and a 2-minute walkthrough."
    }
   ],
   "deliverables": [
@@ -604,7 +604,7 @@ window.AIM.projects = [
    "Trusting swapped coordinates or old prices without checking."
   ],
   "indiaContext": "Home buyers in India face opaque pricing, and RERA (the Real Estate (Regulation and Development) Act, 2016) has made listing details more standard. Property ads are a big spend for builders and brokers, and agencies use fair-price tools as lead magnets.",
-  "freeStack": "Google Colab or Kaggle (CPU), scikit-learn, LightGBM, Optuna, SHAP, Gradio on Hugging Face Spaces (free CPU), GitHub."
+  "freeStack": "Google Colab or Kaggle (CPU), scikit-learn, LightGBM, Optuna, SHAP, Gradio on a free Hugging Face ZeroGPU Space, GitHub."
  },
  {
   "id": "p-l2-crop-advisor",
@@ -677,13 +677,13 @@ window.AIM.projects = [
    },
    {
     "title": "Phone-friendly app and publish",
-    "detail": "Build one Streamlit or Gradio app with two tabs, simple Hindi and English labels, and the warning text. Deploy free on Hugging Face Spaces, test it on a phone, and record a 2-minute walkthrough."
+    "detail": "Build one Streamlit or Gradio app with two tabs, simple Hindi and English labels, and the warning text. Deploy it free (Gradio on a free Hugging Face ZeroGPU Space, or Streamlit on Streamlit Community Cloud), test it on a phone, and record a 2-minute walkthrough."
    }
   ],
   "deliverables": [
    "GitHub repo with README",
    "Notebook(s) for Part A and Part B",
-   "Deployed demo link (Hugging Face Spaces)",
+   "Deployed demo link (Hugging Face Spaces or Streamlit Community Cloud)",
    "1-page 'limits of this advisor' note in English and Hindi",
    "2-minute Loom/YouTube walkthrough"
   ],
@@ -715,7 +715,7 @@ window.AIM.projects = [
    {
     "criterion": "User-focused app",
     "basic": "Notebook only.",
-    "good": "A working two-tab app on Spaces with Hindi and English labels and the warning text.",
+    "good": "A working, deployed two-tab app with Hindi and English labels and the warning text.",
     "excellent": "Tested on a low-end Android phone with load time recorded in seconds, and 2 non-technical users finish both tabs without help."
    }
   ],
@@ -731,7 +731,7 @@ window.AIM.projects = [
    "Ignoring units: Area in hectares vs Production in tonnes or bales for some crops."
   ],
   "indiaContext": "Crop choice and yield expectations decide farmer income, loan repayment and crop-insurance claims. FPOs and agri-tech firms across India use simple advisors like this, and good ones are honest about their limits.",
-  "freeStack": "Google Colab (CPU), scikit-learn, LightGBM, Streamlit or Gradio on Hugging Face Spaces, GitHub."
+  "freeStack": "Google Colab (CPU), scikit-learn, LightGBM, Gradio on a free Hugging Face ZeroGPU Space or Streamlit on Streamlit Community Cloud, GitHub."
  },
  {
   "id": "p-l2-lead-scoring",
@@ -796,7 +796,7 @@ window.AIM.projects = [
    },
    {
     "title": "Ship a lead-scoring app",
-    "detail": "Streamlit app: upload a CSV of new leads, get score, segment and suggested message, and download the result. Deploy free on Streamlit Community Cloud or Hugging Face Spaces."
+    "detail": "Streamlit app: upload a CSV of new leads, get score, segment and suggested message, and download the result. Deploy free on Streamlit Community Cloud. It hosts all apps in the United States, so demo it with the public dataset, never a client's real leads."
    },
    {
     "title": "Client note and publish",
@@ -854,7 +854,7 @@ window.AIM.projects = [
    "Clusters that only say 'high vs low time on site' and suggest no different action."
   ],
   "indiaContext": "Indian ed-tech, real-estate and insurance companies buy leads from Meta and Google ads and run large tele-calling teams. Ranking leads saves calls and ad money, and agencies can charge a monthly fee for running it. The DPDP Act 2023 and TRAI's Do-Not-Disturb rules limit how you may contact people.",
-  "freeStack": "Google Colab (CPU), scikit-learn, LightGBM, kmodes, Streamlit Community Cloud or Hugging Face Spaces, GitHub."
+  "freeStack": "Google Colab (CPU), scikit-learn, LightGBM, kmodes, Streamlit Community Cloud, GitHub."
  },
  {
   "id": "p-l2-loan-default-rupee",
@@ -870,7 +870,7 @@ window.AIM.projects = [
    "l2-trees-ensembles",
    "l2-feature-eng"
   ],
-  "why": "Fintech (lending, UPI payments, insurance) is one of India's biggest employers of ML people. This project shows the skill most beginners lack: turning model scores into a business decision with an explicit ₹ cost, and explaining rejections the way regulators expect. It is a serious, interview-ready portfolio piece.",
+  "why": "Fintech (lending, UPI payments, insurance) hires many ML people in India. This project shows the skill most beginners lack: turning model scores into a business decision with an explicit ₹ cost, and explaining rejections the way regulators expect. It is a serious, interview-ready portfolio piece.",
   "brief": "A Bengaluru NBFC (non-banking financial company) that gives small personal loans wants a model that sorts applications into auto-approve, auto-reject and human review. Use the Home Credit Default Risk data (about 307,000 past applications, roughly 8% with payment difficulties). Assume an average loan of ₹1,50,000; when a borrower defaults the lender loses 60% of it (₹90,000), and rejecting a good borrower costs ₹18,000 in lost interest. Choose the thresholds that minimise expected ₹ loss per 1,000 applications, not the ones that maximise accuracy. Constraints: no feature may use information known only after the loan is given; every rejection needs its top 3 reasons in plain language, because RBI's Fair Practices Code asks lenders to tell applicants the main reasons for rejection; and you must compare approval and default rates across gender and age groups.",
   "datasets": [
    {
@@ -922,7 +922,7 @@ window.AIM.projects = [
    },
    {
     "title": "Model card and demo",
-    "detail": "Write a 1-page model card (purpose, data, metrics, fairness, limits). Deploy a Streamlit or Gradio demo on Hugging Face Spaces with a ₹-cost slider that shows how the thresholds move. Record a 2-minute walkthrough."
+    "detail": "Write a 1-page model card (purpose, data, metrics, fairness, limits). Deploy a Streamlit demo on Streamlit Community Cloud (or a Gradio demo on a free Hugging Face ZeroGPU Space) with a ₹-cost slider that shows how the thresholds move. Record a 2-minute walkthrough."
    }
   ],
   "deliverables": [
@@ -976,7 +976,7 @@ window.AIM.projects = [
    "Using gender or age as inputs without a fairness review."
   ],
   "indiaContext": "Digital lending to new-to-credit borrowers is growing fast in India. RBI expects lenders to be transparent, including telling applicants the main reasons for rejection. Risk teams talk in ₹ losses and thresholds, and this project teaches you to speak that language.",
-  "freeStack": "Kaggle Notebooks or Google Colab (CPU), pandas, scikit-learn, LightGBM, SHAP, Streamlit or Gradio on Hugging Face Spaces, GitHub."
+  "freeStack": "Kaggle Notebooks or Google Colab (CPU), pandas, scikit-learn, LightGBM, SHAP, Streamlit on Streamlit Community Cloud or Gradio on a free Hugging Face ZeroGPU Space, GitHub."
  },
  {
   "id": "p-l3-devanagari-cnn",
@@ -992,7 +992,7 @@ window.AIM.projects = [
    "l3-mlops"
   ],
   "why": "This is the 'MNIST of India'. You learn CNNs (convolutional neural networks, models that scan images with small learned filters), augmentation, transfer learning, error analysis and deployment on a script that matters for Hindi, Marathi, Nepali and Sanskrit. A live drawing demo is memorable in interviews, and it connects directly to your Sanskrit study.",
-  "brief": "An ed-tech app that teaches children, and adults learning Sanskrit, to write Devanagari wants a feature that checks a letter drawn on a phone screen. Train a classifier on a public handwritten Devanagari character dataset (the UCI DHCD has 46 classes: 36 consonants and 10 digits), first with a small CNN you write yourself in PyTorch, then with a fine-tuned pretrained model. Constraints: the deployed model must be under 20 MB and answer in under 300 ms on a free CPU; accuracy must be reported per class, with the 5 most-confused letter pairs explained (for example घ and ध); and the demo must cope with messy finger drawings, not just clean scans. Deploy it on Hugging Face Spaces with a drawing canvas.",
+  "brief": "An ed-tech app that teaches children, and adults learning Sanskrit, to write Devanagari wants a feature that checks a letter drawn on a phone screen. Train a classifier on a public handwritten Devanagari character dataset (the UCI DHCD has 46 classes: 36 consonants and 10 digits), first with a small CNN you write yourself in PyTorch, then with a fine-tuned pretrained model. Constraints: the deployed model must be under 20 MB and answer in under 300 ms on a free CPU; accuracy must be reported per class, with the 5 most-confused letter pairs explained (for example घ and ध); and the demo must cope with messy finger drawings, not just clean scans. Deploy it as a Gradio app on a free Hugging Face ZeroGPU Space with a drawing canvas.",
   "datasets": [
    {
     "name": "Devanagari Character Dataset (Large), Kaggle",
@@ -1048,7 +1048,7 @@ window.AIM.projects = [
    },
    {
     "title": "Optimise and deploy",
-    "detail": "Export to ONNX (a portable model file format), apply dynamic quantisation (storing weights in 8 bits), and confirm size under 20 MB and latency under 300 ms. Build a Gradio Sketchpad app on Hugging Face Spaces (free CPU). Make sure preprocessing matches training: colour inversion, centring and resizing to 32×32."
+    "detail": "Export to ONNX (a portable model file format), apply dynamic quantisation (storing weights in 8 bits), and confirm size under 20 MB and latency under 300 ms. Build a Gradio Sketchpad app on a free Hugging Face ZeroGPU Space (free accounts can host up to 2 Gradio Spaces; other Gradio and Docker Spaces need a paid plan). Make sure preprocessing matches training: colour inversion, centring and resizing to 32×32."
    },
    {
     "title": "Write-up",
@@ -1085,7 +1085,7 @@ window.AIM.projects = [
     "criterion": "Deployment",
     "basic": "Notebook demo only.",
     "good": "A public Space with a working drawing canvas.",
-    "excellent": "Model under 20 MB and median latency under 300 ms on the Space's free CPU, measured over 100 calls and shown in the README."
+    "excellent": "Model under 20 MB and median latency under 300 ms on CPU in the free Space, measured over 100 calls and shown in the README."
    },
    {
     "criterion": "Documentation",
@@ -1107,7 +1107,7 @@ window.AIM.projects = [
    "Peeking at the test set while tuning."
   ],
   "indiaContext": "Devanagari is used for Hindi, Marathi, Sanskrit, Nepali and other languages read by hundreds of millions of people. Handwriting recognition powers form digitisation in banks and government offices, and learning apps for children.",
-  "freeStack": "Kaggle Notebooks or Google Colab (free GPU), PyTorch, torchvision, ONNX Runtime, Gradio on Hugging Face Spaces (free CPU), GitHub."
+  "freeStack": "Kaggle Notebooks or Google Colab (free GPU), PyTorch, torchvision, ONNX Runtime, Gradio on a free Hugging Face ZeroGPU Space (the small ONNX model runs on CPU), GitHub."
  },
  {
   "id": "p-l3-hinglish-sentiment",
@@ -1123,7 +1123,7 @@ window.AIM.projects = [
    "l3-mlops"
   ],
   "why": "Indian social media is full of Hinglish ('product accha hai but delivery bahut late thi'), and English-only sentiment tools fail on it. An agency that can report sentiment on a client's comments every month has a real, sellable product. You learn classic NLP baselines, transformers and API deployment in one project.",
-  "brief": "Your agency manages YouTube and Instagram for three consumer brands, and every month clients ask: 'What are people saying about us?'. Build a 3-class sentiment classifier for Hinglish comments (Roman-script Hindi mixed with English). Start with a TF-IDF plus logistic regression baseline, then fine-tune a multilingual or Hinglish transformer (for example MuRIL, IndicBERT v2, HingRoBERTa or XLM-R) on a free GPU. Constraints: report macro-F1 (the average F1 across the three classes, so the smaller neutral class counts equally); the API must classify 100 comments in under 10 seconds on a free CPU; never store commenters' usernames; and return 'not sure' when the model's confidence is below a threshold you choose and justify.",
+  "brief": "Your agency manages YouTube and Instagram for three consumer brands, and every month clients ask: 'What are people saying about us?'. Build a 3-class sentiment classifier for Hinglish comments (Roman-script Hindi mixed with English). Start with a TF-IDF plus logistic regression baseline, then fine-tune a multilingual or Hinglish transformer (for example MuRIL, IndicBERT v2, HingRoBERTa or XLM-R) on a free GPU. Constraints: report macro-F1 (the average F1 across the three classes, so the smaller neutral class counts equally); the API must classify 100 comments in under 10 seconds on an ordinary CPU (your laptop or a small cloud server), with the timing shown; never store commenters' usernames; and return 'not sure' when the model's confidence is below a threshold you choose and justify.",
   "datasets": [
    {
     "name": "Hinglish YouTube Comments Sentiment Dataset",
@@ -1151,7 +1151,7 @@ window.AIM.projects = [
    "confidence thresholds",
    "FastAPI",
    "Docker",
-   "Hugging Face Spaces (Docker)"
+   "deploying a Docker container on Render"
   ],
   "milestones": [
    {
@@ -1176,7 +1176,7 @@ window.AIM.projects = [
    },
    {
     "title": "Serve it",
-    "detail": "Write a FastAPI (a Python library for web APIs) `/predict` endpoint that takes a batch of comments. Add a Dockerfile (a recipe that packages your app with its libraries) and deploy to Hugging Face Spaces (Docker, free CPU). Time 100 comments and optimise (shorter max length, ONNX, or a smaller model) if it is too slow."
+    "detail": "Write a FastAPI (a Python library for web APIs) `/predict` endpoint that takes a batch of comments. Add a Dockerfile (a recipe that packages your app with its libraries) and deploy the container to Render's free tier (Docker Spaces on Hugging Face now need a paid plan). Free instances have little CPU and memory, so time 100 comments and optimise (shorter max length, ONNX, or a smaller model) if it is too slow."
    },
    {
     "title": "Mini dashboard and publish",
@@ -1212,7 +1212,7 @@ window.AIM.projects = [
    {
     "criterion": "API and deployment",
     "basic": "Notebook demo only.",
-    "good": "A Dockerised FastAPI on Spaces that classifies 100 comments in under 10 seconds (timed 5 times).",
+    "good": "A Dockerised FastAPI, deployed on a free tier, that classifies 100 comments in under 10 seconds on CPU (timed 5 times).",
     "excellent": "Input limits (at most 500 comments, 1,000 characters each), a /health endpoint, and a load-test report with requests per second and p95 latency (the time 95% of requests finish within)."
    },
    {
@@ -1235,7 +1235,7 @@ window.AIM.projects = [
    "Storing usernames or profile links."
   ],
   "indiaContext": "Hinglish is the everyday language of Indian social media and customer chats. Brands and agencies need tools that understand it, and few off-the-shelf tools do it well.",
-  "freeStack": "Kaggle Notebooks or Google Colab (free GPU), Hugging Face transformers and datasets, scikit-learn, FastAPI, Docker, Hugging Face Spaces (free CPU), GitHub."
+  "freeStack": "Kaggle Notebooks or Google Colab (free GPU), Hugging Face transformers and datasets, scikit-learn, FastAPI, Docker, Render free tier (Docker), Gradio on a free Hugging Face ZeroGPU Space for the dashboard, GitHub."
  },
  {
   "id": "p-l3-monsoon-forecast-mlops",
@@ -1250,7 +1250,7 @@ window.AIM.projects = [
    "l3-nn-basics",
    "l2-feature-eng"
   ],
-  "why": "Most portfolios stop at a notebook. This project proves you can ship and maintain a model: data versioning, experiment tracking, an API in Docker, CI/CD (automatic testing and deployment) and monitoring. These MLOps skills appear in most Indian ML job listings. It also teaches humility: deep learning must beat simple baselines to earn its place.",
+  "why": "Most portfolios stop at a notebook. This project proves you can ship and maintain a model: data versioning, experiment tracking, an API in Docker, CI/CD (automatic testing and deployment) and monitoring. These MLOps skills appear in many Indian ML job listings. It also teaches humility: deep learning must beat simple baselines to earn its place.",
   "brief": "A crop-insurance startup wants a 7-day rainfall forecast for 5 districts to warn farmers before heavy-rain days. Using IMD's daily gridded rainfall for 2015–2025, forecast each of the next 1 to 7 days and compare (a) persistence ('same as the last few days') and climatology (the average for that date) baselines, (b) LightGBM with lag and rolling features, and (c) an LSTM or 1-D CNN in PyTorch. Constraints: every forecast may use only past data, so use walk-forward validation (train on earlier years, test on 2024–2025); report MAE in mm/day and recall for heavy-rain days (64.5 mm or more); and the deployed API must run on a free tier with an automated weekly retrain. If deep learning does not beat LightGBM, say so and ship the better model.",
   "datasets": [
    {
@@ -1301,7 +1301,7 @@ window.AIM.projects = [
    },
    {
     "title": "Serve",
-    "detail": "FastAPI endpoint `/forecast?district=...` returning 7 values and heavy-rain flags. Add a Dockerfile and pytest unit tests, then deploy to Hugging Face Spaces (Docker) or Render's free tier. Store the chosen model in a Hugging Face Hub model repo."
+    "detail": "FastAPI endpoint `/forecast?district=...` returning 7 values and heavy-rain flags. Add a Dockerfile and pytest unit tests, then deploy to Render's free tier (Docker Spaces on Hugging Face now need a paid plan). Store the chosen model in a Hugging Face Hub model repo."
    },
    {
     "title": "Automate",
@@ -1362,10 +1362,10 @@ window.AIM.projects = [
    "Random K-fold on time series, so the model sees the future.",
    "Normalising with statistics from the full dataset (a quiet form of leakage).",
    "Claiming skill without beating climatology.",
-   "Ignoring free-tier limits: Spaces sleep when idle, Actions jobs have time limits, and GitHub turns off scheduled workflows in public repos after 60 days without repository activity, so design for all three."
+   "Ignoring free-tier limits: free web services sleep when idle, Actions jobs have time limits, and GitHub turns off scheduled workflows in public repos after 60 days without repository activity, so design for all three."
   ],
   "indiaContext": "Short-range rain warnings matter for sowing, spraying and harvest decisions, and for crop-insurance schemes such as PMFBY (Pradhan Mantri Fasal Bima Yojana). Agri-tech and insurance startups in India need engineers who can keep such models running reliably.",
-  "freeStack": "Kaggle or Colab (free GPU for the deep model), LightGBM, PyTorch, MLflow, DVC, FastAPI, Docker, GitHub Actions (free for public repos), Evidently, Hugging Face Spaces or Render free tier."
+  "freeStack": "Kaggle or Colab (free GPU for the deep model), LightGBM, PyTorch, MLflow, DVC, FastAPI, Docker, GitHub Actions (free for public repos), Evidently, Render free tier."
  },
  {
   "id": "p-l3-number-plate",
@@ -1434,7 +1434,7 @@ window.AIM.projects = [
    },
    {
     "title": "Demo, licences and publish",
-    "detail": "Gradio app on Hugging Face Spaces (CPU) with sample images, plus a latency report. In the README, explain licences: Ultralytics is AGPL-3.0 (a licence that makes you share your full source code with anyone who uses your software, even over a network), so a closed commercial product needs their enterprise licence or a differently licensed detector. Record a 2-minute walkthrough."
+    "detail": "Gradio app on a free Hugging Face ZeroGPU Space with sample images, plus a latency report. In the README, explain licences: Ultralytics is AGPL-3.0 (a licence that makes you share your full source code with anyone who uses your software, even over a network), so a closed commercial product needs their enterprise licence or a differently licensed detector. Record a 2-minute walkthrough."
    }
   ],
   "deliverables": [
@@ -1467,7 +1467,7 @@ window.AIM.projects = [
     "criterion": "Engineering and latency",
     "basic": "Slow notebook pipeline.",
     "good": "An end-to-end Gradio app with median latency per image reported.",
-    "excellent": "Median latency under 1.5 seconds per image on the free CPU Space after optimisation (ONNX or a smaller model), measured over 50 images."
+    "excellent": "Median latency under 1.5 seconds per image on CPU in the free Space after optimisation (ONNX or a smaller model), measured over 50 images."
    },
    {
     "criterion": "Documentation and licensing",
@@ -1489,7 +1489,7 @@ window.AIM.projects = [
    "Over-correcting OCR, for example turning every O into 0."
   ],
   "indiaContext": "FASTag tolls, smart parking and gated societies in India increasingly use ANPR (automatic number-plate recognition). Under the DPDP Act 2023, consent, purpose limits and deletion are legal duties, so privacy-aware engineers are in demand.",
-  "freeStack": "Kaggle or Colab (free GPU), Ultralytics YOLO (AGPL-3.0) or an Apache-2.0 detector, PaddleOCR or EasyOCR, OpenCV, Gradio on Hugging Face Spaces, GitHub."
+  "freeStack": "Kaggle or Colab (free GPU), Ultralytics YOLO (AGPL-3.0) or an Apache-2.0 detector, PaddleOCR or EasyOCR, OpenCV, Gradio on a free Hugging Face ZeroGPU Space, GitHub."
  },
  {
   "id": "p-l4-sanskrit-gpt",
@@ -1566,7 +1566,7 @@ window.AIM.projects = [
    },
    {
     "title": "Share responsibly",
-    "detail": "Publish the model on the Hugging Face Hub with a model card (data, licence, limits, 'not scripture'). A Gradio demo on Spaces runs on free CPU for a model this size. Write a short blog post on one surprising finding and record a 2-minute walkthrough."
+    "detail": "Publish the model on the Hugging Face Hub with a model card (data, licence, limits, 'not scripture'). A Gradio demo on a free Hugging Face ZeroGPU Space is enough for a model this size. Write a short blog post on one surprising finding and record a 2-minute walkthrough."
    }
   ],
   "deliverables": [
@@ -1622,7 +1622,7 @@ window.AIM.projects = [
    "Over-claiming that the model 'understands Sanskrit'."
   ],
   "indiaContext": "Sanskrit and many Indian languages are under-represented in LLM training data. Groups such as AI4Bharat and Indian AI startups are building Indic models, and building a small one yourself teaches what it really takes.",
-  "freeStack": "Kaggle Notebooks or Google Colab (free T4 GPU), PyTorch, Hugging Face Hub and Spaces (free CPU), GitHub."
+  "freeStack": "Kaggle Notebooks or Google Colab (free T4 GPU), PyTorch, Hugging Face Hub and a free ZeroGPU Space, GitHub."
  },
  {
   "id": "p-l4-gst-rag",
@@ -1702,7 +1702,7 @@ window.AIM.projects = [
    },
    {
     "title": "Ship and cost it",
-    "detail": "Gradio app on Hugging Face Spaces with a sources panel. On the free CPU, use a model of about 2 billion parameters or smaller, or a free-tier API, and expect several seconds per answer. Log questions without client names. Measure latency and estimate ₹ cost per 100 questions for a local model vs a paid API, showing your assumptions. Record a 2-minute walkthrough."
+    "detail": "Gradio app with a sources panel on a free Hugging Face ZeroGPU Space (free accounts can host up to 2 Gradio Spaces; other Gradio and Docker Spaces need a paid plan). On free hardware, use a model of about 2 billion parameters or smaller, or a free-tier API, and expect several seconds per answer. Log questions without client names. Measure latency and estimate ₹ cost per 100 questions for a local model vs a paid API, showing your assumptions. Record a 2-minute walkthrough."
    }
   ],
   "deliverables": [
@@ -1757,7 +1757,7 @@ window.AIM.projects = [
    "Sending client data to third-party APIs without consent, which breaks confidentiality and the DPDP Act 2023."
   ],
   "indiaContext": "India has well over a crore GST registrations, and small businesses constantly ask their CAs the same questions. A cited assistant saves junior staff time, but only if it is honest about what it does not know.",
-  "freeStack": "Google Colab (free GPU for embeddings), sentence-transformers, FAISS or Chroma, rank-bm25, Ollama with a small local model or a free-tier API, RAGAS, Gradio on Hugging Face Spaces, GitHub."
+  "freeStack": "Google Colab (free GPU for embeddings), sentence-transformers, FAISS or Chroma, rank-bm25, Ollama with a small local model or a free-tier API, RAGAS, Gradio on a free Hugging Face ZeroGPU Space, GitHub."
  },
  {
   "id": "p-l4-hinglish-support-lora",
@@ -1963,7 +1963,7 @@ window.AIM.projects = [
    },
    {
     "title": "Deploy and publish",
-    "detail": "Gradio or Streamlit app on Hugging Face Spaces with a queue, plus a local Ollama option. Add Langfuse traces (an open-source tool that records every LLM and tool call; free tier or self-hosted). README with an architecture diagram and a 2-minute walkthrough showing one real audit."
+    "detail": "Gradio app with a queue on a free Hugging Face ZeroGPU Space (or a Streamlit app on Streamlit Community Cloud), plus a local Ollama option. Add Langfuse traces (an open-source tool that records every LLM and tool call; free tier or self-hosted). README with an architecture diagram and a 2-minute walkthrough showing one real audit."
    }
   ],
   "deliverables": [
@@ -2019,7 +2019,7 @@ window.AIM.projects = [
    "Cost blow-ups from unbounded agent loops: always cap steps and tokens."
   ],
   "indiaContext": "India has crores of MSMEs (micro, small and medium enterprises), and many have weak websites or none. Owners respond to concrete, local, ₹-priced advice, which makes this audit a natural first conversation for a digital agency. If you send an audit to an owner who did not ask for one, follow TRAI's rules on commercial messages and handle their contact details under the DPDP Act 2023.",
-  "freeStack": "LangGraph, httpx, BeautifulSoup, Pydantic, PageSpeed Insights API (free key), Ollama with a local model or a free-tier LLM API, Langfuse, Gradio or Streamlit on Hugging Face Spaces, GitHub."
+  "freeStack": "LangGraph, httpx, BeautifulSoup, Pydantic, PageSpeed Insights API (free key), Ollama with a local model or a free-tier LLM API, Langfuse, Gradio on a free Hugging Face ZeroGPU Space or Streamlit on Streamlit Community Cloud, GitHub."
  },
  {
   "id": "p-l5-agency-growth-copilot",
@@ -2039,7 +2039,7 @@ window.AIM.projects = [
    "l4-research-career"
   ],
   "why": "It proves you can take an AI product from problem discovery to deployment, monitoring and unit economics (cost and revenue per client), which is what founders, product companies and clients care about. For an agency founder it can become a productised service with monthly recurring revenue, and it uses almost every module in the course.",
-  "brief": "Your agency wants to turn its services into a product for 10 pilot clients such as restaurants, clinics and coaching centres. Start by interviewing at least 5 business owners to find their biggest marketing pain, then build a web app that (1) drafts weekly social posts in English, Hindi and Hinglish in each client's brand voice, (2) generates matching images with an open diffusion model, with human approval, (3) uses a multi-armed bandit (an algorithm that balances trying new options with repeating what works) to choose which caption or creative variant to post next based on engagement, and (4) scores incoming leads from forms or WhatsApp using a model like your Level 2 lead scorer. Constraints: the pilot must run on free tiers, with at least 2 real businesses for 4 weeks; no post goes live without human approval; each client's data is kept separate and handled under the DPDP Act 2023; images must not copy real people's likeness or trademarked logos; and image models must have licences that allow commercial use. Finally, publish a monthly ₹ cost model for 10, 50 and 200 clients and a price per client that includes 18% GST.",
+  "brief": "Your agency wants to turn its services into a product for 10 pilot clients such as restaurants, clinics and coaching centres. Start by interviewing at least 5 business owners to find their biggest marketing pain, then build a web app that (1) drafts weekly social posts in English, Hindi and Hinglish in each client's brand voice, (2) generates matching images with an open diffusion model, with human approval, (3) uses a multi-armed bandit (an algorithm that balances trying new options with repeating what works) to choose which caption or creative variant to post next based on engagement, and (4) scores incoming leads from forms or WhatsApp using a model like your Level 2 lead scorer. Constraints: the pilot must run on free tiers, with at least 2 real businesses for 4 weeks; no post goes live without human approval; each client's data is kept separate and handled under the DPDP Act 2023; images must not copy real people's likeness or trademarked logos; and image models must have licences that allow commercial use. Finally, publish a monthly ₹ cost model for 10, 50 and 200 clients and a price per client that includes 18% GST (if your agency is GST-registered).",
   "datasets": [
    {
     "name": "Your pilot clients' data (with written consent)",
@@ -2109,7 +2109,7 @@ window.AIM.projects = [
    },
    {
     "title": "Unit economics and pilot report",
-    "detail": "Build a cost sheet: LLM tokens, image GPU minutes, hosting, database and messaging fees for 10, 50 and 200 clients. Use real prices from providers' pricing pages on the day you calculate, and state the ₹-per-dollar rate you used. Set a price per client including 18% GST, compare pilot results with the PRD metrics, and record a 5-minute demo video."
+    "detail": "Build a cost sheet: LLM tokens, image GPU minutes, hosting, database and messaging fees for 10, 50 and 200 clients. Use real prices from providers' pricing pages on the day you calculate, and state the ₹-per-dollar rate you used. Set a price per client including 18% GST if you are GST-registered, compare pilot results with the PRD metrics, and record a 5-minute demo video."
    }
   ],
   "deliverables": [
@@ -2170,10 +2170,10 @@ window.AIM.projects = [
    "Building features before validating the pain with owners.",
    "Licence traps: non-commercial image checkpoints, logos and celebrity likeness.",
    "Mixing clients' data, for example one tenant's prompt retrieving another tenant's posts.",
-   "Free-tier limits and API cost blow-ups: Spaces cold starts, Supabase free projects pausing after about a week without activity, rate limits and runaway loops, so set hard budgets."
+   "Free-tier limits and API cost blow-ups: slow cold starts, Supabase free projects pausing after about a week without activity, rate limits and runaway loops, so set hard budgets."
   ],
   "indiaContext": "Most Indian SMBs market on Instagram, WhatsApp and Google but cannot afford a full-time marketer. Bilingual content and quick lead follow-up are what they ask agencies for, and a tool that does both at a predictable monthly ₹ price is easy to explain.",
-  "freeStack": "Google Colab or Kaggle (free GPU for images), diffusers, Ollama or free-tier LLM APIs, FastAPI, Supabase free tier, Hugging Face Spaces, GitHub Actions, Langfuse, Evidently."
+  "freeStack": "Google Colab or Kaggle (free GPU for images), diffusers, Ollama or free-tier LLM APIs, FastAPI, Supabase free tier, Render free tier, GitHub Actions, Langfuse, Evidently."
  },
  {
   "id": "p-l5-kisan-voice-advisor",
@@ -2267,7 +2267,7 @@ window.AIM.projects = [
    },
    {
     "title": "Deploy and monitor",
-    "detail": "FastAPI on Hugging Face Spaces or a free Render tier, with quantised models or a hosted free tier for heavy steps. Add Langfuse traces, a weekly review of 20 random answers, and tracking of new question types (drift). If a free-tier API handles farmers' voice or text, its terms may let the provider keep or use that data: say so in the consent message, or keep those steps on your own server."
+    "detail": "FastAPI on Render's free tier (or a Docker Space on a paid Hugging Face plan), with quantised models or a hosted free tier for heavy steps. Add Langfuse traces, a weekly review of 20 random answers, and tracking of new question types (drift). If a free-tier API handles farmers' voice or text, its terms may let the provider keep or use that data: say so in the consent message, or keep those steps on your own server."
    },
    {
     "title": "Cost and impact report",
@@ -2334,6 +2334,6 @@ window.AIM.projects = [
    "Assuming a good smartphone and fast data: design for low-end devices from day one."
   ],
   "indiaContext": "Most Indian farmers prefer to ask in their own language, by voice. Services like the Kisan Call Centre and platforms like Bhashini and AI4Bharat's models show both the need and the building blocks. A trustworthy, cited assistant can reach far more farmers than human experts alone.",
-  "freeStack": "Kaggle or Colab (free GPU), AI4Bharat open models on Hugging Face, sentence-transformers, FAISS, Ollama or free-tier LLM APIs, FastAPI, Hugging Face Spaces or Render free tier, Langfuse, GitHub."
+  "freeStack": "Kaggle or Colab (free GPU), AI4Bharat open models on Hugging Face, sentence-transformers, FAISS, Ollama or free-tier LLM APIs, FastAPI, Render free tier (Docker Spaces on Hugging Face need a paid plan), Langfuse, GitHub."
  }
 ];

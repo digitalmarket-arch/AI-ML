@@ -4020,31 +4020,6 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
-  "id": "sheryians-ai-school-complete-machine-learning-course-wit",
-  "title": "Complete Machine Learning Course with Projects | Learn ML Step-by-Step",
-  "creator": "Sheryians AI School",
-  "platform": "YouTube",
-  "type": "playlist",
-  "url": "https://www.youtube.com/playlist?list=PLaldQ9PzZd9qT0KsKJ7yCq70iFFP3MFJ5",
-  "firstVideoUrl": "",
-  "language": "hinglish",
-  "level": "beginner",
-  "modules": [
-   "l2-ml-foundations"
-  ],
-  "topics": [
-   "machine learning course with projects"
-  ],
-  "approxHours": 0,
-  "cost": "Free on YouTube (the channel also advertises paid courses, which are not needed)",
-  "why": "A newer full ML course in Hindi-English from an Indian coding school. It can serve as a fresher alternative if you find CampusX's 2021-era recordings slow.",
-  "caveats": "Added by the checker as a possible newer Hinglish option. Its topic list, length, recording year and spoken language were not checked in this run, so watch the first video before committing. Treat CampusX as the main Hinglish course.",
-  "year": 0,
-  "status": "partial",
-  "listId": "",
-  "videoId": ""
- },
- {
   "id": "microsoft-cloud-advocates-ml-for-beginners-hindi-transla",
   "title": "ML for Beginners (Hindi translation) - Microsoft 12-week, 26-lesson classic ML curriculum",
   "creator": "Microsoft Cloud Advocates",
@@ -4845,7 +4820,8 @@ window.AIM.resources = [
   "level": "beginner",
   "modules": [
    "l2-regression",
-   "l2-classification"
+   "l2-classification",
+   "l2-ml-foundations"
   ],
   "topics": [
    "linear regression",
@@ -5014,7 +4990,9 @@ window.AIM.resources = [
   "modules": [
    "l2-classification",
    "l2-trees-ensembles",
-   "l2-unsupervised"
+   "l2-unsupervised",
+   "l2-regression",
+   "l2-metrics-tuning"
   ],
   "topics": [
    "linear regression",
@@ -9537,36 +9515,6 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
-  "id": "andrej-karpathy-how-i-use-llms",
-  "title": "How I use LLMs",
-  "creator": "Andrej Karpathy",
-  "platform": "YouTube",
-  "type": "video",
-  "url": "https://www.youtube.com/watch?v=EWvNQjAaOHw",
-  "firstVideoUrl": "",
-  "language": "english",
-  "level": "beginner",
-  "modules": [
-   "l4-llm-apps"
-  ],
-  "topics": [
-   "practical LLM usage",
-   "prompting",
-   "tool use (search, code interpreter)",
-   "thinking models",
-   "file uploads",
-   "choosing models"
-  ],
-  "approxHours": 2,
-  "cost": "Free on YouTube",
-  "why": "A founding OpenAI researcher shows, without code, how he uses ChatGPT-style tools day to day. It builds a strong mental model before you build apps on LLMs.",
-  "caveats": "Recorded in early 2025, so product features and model names have moved on. The URL is unconfirmed by the checker.",
-  "year": 2025,
-  "status": "verified",
-  "listId": "",
-  "videoId": "EWvNQjAaOHw"
- },
- {
   "id": "langchain-academy-introduction-to-langchain-python-langc",
   "title": "Introduction to LangChain - Python (LangChain 1.x)",
   "creator": "LangChain Academy",
@@ -10572,8 +10520,7 @@ window.AIM.resources = [
   "language": "english",
   "level": "intermediate",
   "modules": [
-   "l4-agents",
-   "l4-finetuning"
+   "l4-agents"
   ],
   "topics": [
    "thought-action-observation loop",

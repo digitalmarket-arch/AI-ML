@@ -9,7 +9,7 @@ window.AIM.pages = {
     "heading": "What AI Marg is",
     "paragraphs": [
      "AI Marg (मार्ग means 'path') is a free, self-paced course that takes you from zero to building real AI systems. It does not host its own videos. It links to strong free lessons already made by teachers such as CampusX, Krish Naik, NPTEL and the IITs, StatQuest and Andrej Karpathy. Then it adds what those videos lack: a clear order, practice, quizzes, projects and Indian examples.",
-     "The course has four levels, named in Sanskrit. Each level has 6 or 7 modules (a module is one topic, such as 'Python from Zero'), a set of projects and a 20-question level test. The hours below are for module study only; projects add more."
+     "The course has four levels, named in Sanskrit. Each level has 6 or 7 modules (a module is one topic, such as 'Python from Zero'), a set of projects and a 20-question level test. The hours below are for module study only; projects add more. Two optional Grand Capstones at the end combine skills from several levels."
     ],
     "bullets": [
      "**Level 1 · Ārambha (Beginning): Foundations.** What AI is, Python, your tools, statistics, maths intuition, data handling and SQL. About 95 hours.",
@@ -50,15 +50,15 @@ window.AIM.pages = {
    {
     "heading": "How much time it takes",
     "paragraphs": [
-     "Module study adds up to about 465 hours across the four levels. With two projects per level, plan for roughly 550–600 hours in total. Use the **Plan your journey** planner on this page: set your weekly hours and start date, and it calculates your finish date for each level from the real module and project hours.",
-     "A rough guide for all four levels, including projects. These are plans, not promises. Most people take a little longer, and that is fine.",
+     "Module study adds up to about 465 hours across the four levels. Projects add more: each one takes 15–60 hours, depending on the level. With one project per level, plan for about 600 hours in total; with two per level, about 730 hours. The **Plan your journey** planner on this page counts module hours plus two projects per level: set your weekly hours and start date, and it calculates your finish date for each level.",
+     "A rough guide for all four levels, from one project per level (about 600 hours) to two (about 730 hours). The optional Grand Capstones (150–160 hours each) are extra. These are plans, not promises. Most people take a little longer, and that is fine.",
      "You do not need to finish everything to benefit. Level 1 alone is enough to start working with data. Levels 1–2 plus good projects are enough to apply for many data analyst and junior data science roles."
     ],
     "bullets": [
-     "**1 hour a day (about 7 hours a week):** about 18–20 months. Level 1 alone takes about 3–4 months.",
-     "**10 hours a week:** about 12–14 months. Level 1 takes about 2–3 months.",
-     "**2 hours a day (about 14 hours a week):** about 9–10 months.",
-     "**Full time (30 or more hours a week):** about 4–5 months, but only if you also rest. Burning out in month 2 costs more time than going slower."
+     "**1 hour a day (about 7 hours a week):** about 20–24 months. Level 1 alone, with one project, takes about 4 months.",
+     "**10 hours a week:** about 14–17 months. Level 1, with one project, takes about 3 months.",
+     "**2 hours a day (about 14 hours a week):** about 10–12 months.",
+     "**Full time (30 or more hours a week):** about 5–6 months, but only if you also rest. Burning out in month 2 costs more time than going slower."
     ]
    },
    {
@@ -74,16 +74,16 @@ window.AIM.pages = {
    {
     "heading": "Free setup (₹0, nothing to install on day 1)",
     "paragraphs": [
-     "Everything in Level 1 runs in a web browser. Create these free accounts in your first week."
+     "Almost everything in Level 1 runs in a web browser. The one exception is module 1.3, where you install Git and VS Code on a laptop to practise the command line. Create these free accounts in your first week."
     ],
     "bullets": [
      "**Google Colab** (colab.research.google.com): free Jupyter notebooks (documents that mix code, results and notes) that run on Google's computers. Sign in with any Google account. Notebooks save to your Google Drive. This is your main workspace for Levels 1–3.",
      "**Kaggle** (kaggle.com): free notebooks, thousands of datasets, short free courses and competitions. Create an account and verify your phone number; Kaggle asks for this before it lets you use a GPU.",
      "**GitHub** (github.com): free online storage for your code, with full history. It is also where employers and clients look at your work. Pick a professional username (your name, not 'coolboy123').",
      "**AI Marg's Practice tab** runs Python inside your browser for the small exercises, so you can practise even without Colab. You can also use the [Playground](#playground) to try any code.",
-     "**VS Code** (code.visualstudio.com): a free code editor for your own computer. You need it from about Level 2–3, when projects have several files. Module [1.3 Your AI Toolkit](#m-l1-tools) shows the setup.",
+     "**VS Code** (code.visualstudio.com): a free code editor for your own computer. Module [1.3 Your AI Toolkit](#m-l1-tools) shows the setup, and you will use it much more from Level 2–3, when projects have several files.",
      "**Python on your own laptop:** not required at first. Install it when module 1.3 or a project asks you to. Use the official installer from python.org, and on Windows tick 'Add python.exe to PATH' during installation.",
-     "**Later, when you build apps:** a free Hugging Face account (for models and datasets) and Streamlit Community Cloud, which hosts simple Python web apps for free straight from your GitHub repositories."
+     "**Later, when you build apps:** a free Hugging Face account (for models and datasets) and Streamlit Community Cloud, which hosts simple Python web apps for free straight from your GitHub repositories. A free Hugging Face account can also host up to 2 Gradio demos on ZeroGPU Spaces; most other app Spaces now need a paid plan."
     ]
    },
    {
@@ -379,8 +379,8 @@ window.AIM.pages = {
     ],
     "bullets": [
      "**Days 1–30:** modules [1.1](#m-l1-ai-basics) to [1.3](#m-l1-tools). Meanwhile, use AI assistants inside your own agency (proposal drafts, report summaries, content ideas) to learn their strengths and limits first-hand, with no client data.",
-     "**Days 31–60:** modules [1.6](#m-l1-numpy-pandas) and [1.7](#m-l1-eda-viz-sql), plus the RAG lessons in [4.2](#m-l4-llm-apps) for understanding. Build one demo on public data, for example an assistant that answers questions about a published government scheme, with a partner if needed.",
-     "**Days 61–90:** offer 2–3 existing clients a small paid AI audit, deliver it carefully, and turn the best finding into a pilot. Bring in an experienced ML or GenAI freelancer for the build, and learn by reviewing their work."
+     "**Days 31–60:** modules [1.6](#m-l1-numpy-pandas) and [1.7](#m-l1-eda-viz-sql), plus the RAG lessons in [4.2](#m-l4-llm-apps) for understanding. Module 1.7 uses averages and correlation, so skim those lessons in [1.4](#m-l1-stats) first. Build one demo on public data, for example an assistant that answers questions about a published government scheme, with a partner if needed.",
+     "**Days 61–90:** offer 2–3 existing clients a small paid AI audit, deliver it carefully, and turn the best finding into a pilot. Bring in an experienced ML or GenAI freelancer for the build, and learn by reviewing their work. After day 90, finish [1.4](#m-l1-stats) and [1.5](#m-l1-linalg-calc), then follow the founder's order on [Start here](#start)."
     ]
    }
   ]

@@ -713,7 +713,7 @@
         b.innerHTML = '<span class="mono small" style="color:var(--muted)">' + m.rank + '</span><span class="tk-pieces" style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;min-width:0">' +
           chipHtml(m.a) + '<span aria-hidden="true" style="color:var(--muted)">+</span>' + chipHtml(m.b) + '<span aria-hidden="true" style="color:var(--muted)">→</span>' + chipHtml(m.tok) +
           '</span><span class="mono small" style="color:var(--muted)">×' + m.count + '</span>';
-        var li = el('li', { style: 'margin:0;content-visibility:auto;contain-intrinsic-size:auto 36px' }, [b]);
+        var li = el('li', { style: 'margin:0' }, [b]);
         li.hidden = true;
         mlist.appendChild(li);
         var r = { li: li, b: b, m: m, vis: false, tagged: false };

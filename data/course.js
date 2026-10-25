@@ -18,13 +18,13 @@ window.AIM.levels = [
   "glyph": "आ",
   "intro": "Ārambha (आरम्भः, 'beginning') is where everyone starts, even if you have never written a line of code. You will learn what AI really is, write your first Python programs, set up free tools like Google Colab and GitHub, and pick up the school-level maths that machine learning (ML: software that learns patterns from examples) is built on. Then you will load real Indian data, clean it, chart it and query it with SQL (the language for asking questions of databases). By the end you can analyse a real dataset on your own and explain the results in plain words, which is the base you need for Level 2, where you build your first ML models.",
   "outcomes": [
-   "You will be able to explain AI, ML, deep learning and generative AI to a client in plain words, and spot hype.",
-   "You will be able to write Python programs of 50–100 lines using lists, dictionaries, loops, functions and files.",
-   "You will be able to work in Google Colab and Jupyter, and keep a public GitHub portfolio of your notebooks.",
-   "You will be able to use averages, spread, probability and A/B test results to make simple, honest business decisions.",
-   "You will be able to explain vectors, matrices and gradients well enough to follow how a model learns.",
-   "You will be able to load, clean, join and summarise a real dataset with Pandas.",
-   "You will be able to make clear charts and write SQL queries (SELECT, WHERE, GROUP BY, JOIN) that answer a business question."
+   "Explain AI, ML, deep learning and generative AI to a client in plain words, and spot hype.",
+   "Write Python programs of 50–100 lines using lists, dictionaries, loops, functions and files.",
+   "Work in Google Colab and Jupyter, and keep a public GitHub portfolio of your notebooks.",
+   "Use averages, spread, probability and A/B test results to make simple, honest business decisions.",
+   "Explain vectors, matrices and gradients well enough to follow how a model learns.",
+   "Load, clean, join and summarise a real dataset with Pandas.",
+   "Make clear charts and write SQL queries (SELECT, WHERE, GROUP BY, JOIN) that answer a business question."
   ],
   "howToStudy": "Type every line of code yourself instead of copy-pasting; your fingers learn the grammar of Python faster than your eyes do. Study in short daily blocks (about 90 minutes on 6–7 days a week) rather than one long weekend session; if you can give only 5 hours a week, simply take two weeks for every week in the plan. When you are stuck for more than 20 minutes, read the error message line by line, then ask an AI assistant to explain the error, not to write the whole answer. For the two maths modules, play with the interactive lab first to see the idea, and only then look at the formulas. Keep one Colab notebook per module and push it to GitHub every week; by the end of the level that habit has built your portfolio.",
   "weeklyPlan": [
@@ -54,7 +54,11 @@ window.AIM.levels = [
    },
    {
     "weeks": "10",
-    "focus": "Finish [1.7 EDA, Visualisation & SQL](#m-l1-eda-viz-sql) with SQL (~6 h). Then do a Level 1 project, take the 20-question level test, and revisit any module where your quiz score was below 70% (~5 h)."
+    "focus": "Finish [1.7 EDA, Visualisation & SQL](#m-l1-eda-viz-sql) with SQL (~6 h). Then revisit any module where your quiz score was below 70% (~4 h)."
+   },
+   {
+    "weeks": "11–12",
+    "focus": "Build one Level 1 project from the Projects page (15–22 hours; the IPL SQL report is the shortest). Then take the 20-question level test (aim for 70%+). The planner on Start here counts two projects per level; a second project adds about 2 more weeks."
    }
   ]
  },
@@ -108,8 +112,8 @@ window.AIM.levels = [
     "focus": "[2.7 Feature Engineering, Pipelines & Kaggle](#m-l2-feature-eng): encoding, Pipelines, time-series features, a beginner Kaggle competition and your end-to-end project."
    },
    {
-    "weeks": "12",
-    "focus": "Level projects, then the 20-question level test (aim for 70%+). Before the test, redo the module quizzes you scored lowest on."
+    "weeks": "12–15",
+    "focus": "Build one Level 2 project from the Projects page (28–38 hours, about 3–4 weeks at this pace; the house-price estimator is the shortest). Then redo the module quizzes you scored lowest on and take the 20-question level test (aim for 70%+). The planner on Start here counts two projects per level; a second project adds about 3 more weeks."
    }
   ]
  },
@@ -124,13 +128,13 @@ window.AIM.levels = [
   "glyph": "प्रा",
   "intro": "Prāvīṇya (प्रावीण्यम्, 'proficiency') is where you move from classic machine learning to deep learning (machine learning with neural networks that have many layers), and learn to put models in front of real users. You will build a neural network from scratch, then use PyTorch (the most widely used deep learning library) to train models that understand images and text, including Indian languages, and use Hugging Face (a free hub of ready-made models and the Python libraries to use them) to fine-tune transformers, the model design behind BERT, ChatGPT and most modern AI. Finally, you will wrap a model in an API, package it with Docker and deploy it free on the internet. This level is for anyone who has finished Level 2 (Abhyāsa) or can already train and evaluate a scikit-learn model. By the end, you can build, fine-tune and ship a working image or text AI product for a client, and explain what happens inside it.",
   "outcomes": [
-   "You will be able to explain how a neural network learns (forward pass, loss, backpropagation, optimiser) and code a small one yourself in NumPy.",
-   "You will be able to write a complete PyTorch training loop with batches, a GPU and saved checkpoints, and debug a model that is not learning.",
-   "You will be able to fine-tune a pretrained image model on a client's own photos and run object detection with YOLO.",
-   "You will be able to turn text, including Indian-language and Hinglish text, into numbers with TF-IDF and embeddings, and explain RNNs, LSTMs and attention.",
-   "You will be able to use Hugging Face pipelines and fine-tune a BERT-style model to classify text in English or an Indian language.",
-   "You will be able to serve a model through a FastAPI endpoint and a Gradio or Streamlit demo, package it with Docker, and deploy it on a free tier.",
-   "You will be able to track experiments with MLflow, version data with DVC, run automatic tests with GitHub Actions, and watch a live model for data drift."
+   "Explain how a neural network learns (forward pass, loss, backpropagation, optimiser) and code a small one yourself in NumPy.",
+   "Write a complete PyTorch training loop with batches, a GPU and saved checkpoints, and debug a model that is not learning.",
+   "Fine-tune a pretrained image model on a client's own photos and run object detection with YOLO.",
+   "Turn text, including Indian-language and Hinglish text, into numbers with TF-IDF and embeddings, and explain RNNs, LSTMs and attention.",
+   "Use Hugging Face pipelines and fine-tune a BERT-style model to classify text in English or an Indian language.",
+   "Serve a model through a FastAPI endpoint and a Gradio or Streamlit demo, package it with Docker, and deploy it on a free tier.",
+   "Track experiments with MLflow, version data with DVC, run automatic tests with GitHub Actions, and watch a live model for data drift."
   ],
   "howToStudy": "Deep learning needs a GPU (a graphics chip that does thousands of calculations at once), so do all heavy training in Google Colab or Kaggle notebooks, which give free GPU time with usage limits; save checkpoints to Google Drive or push to GitHub often, because free sessions disconnect without warning. Before you train on a full dataset, make the model learn a tiny sample of 10–20 examples first; if it cannot, you have a bug, and you have just saved hours. Use the three labs (Neural Network, Convolution and Tokenizer) to see each idea move before you read the code, and print the shape of your data (the size of each dimension) at every step, because shape mistakes cause most errors at this level. Pick one client-style project early, such as sorting product photos or Hindi customer messages, and grow it module by module, so that by l3-mlops you have something worth deploying. If you can give only 5 hours a week, take two weeks for every week in the plan.",
   "weeklyPlan": [
@@ -156,7 +160,11 @@ window.AIM.levels = [
    },
    {
     "weeks": "12–14",
-    "focus": "[3.6 Deployment & MLOps](#m-l3-mlops) (~24 h). Week 12: FastAPI, Gradio or Streamlit, and Docker. Week 13: MLflow, DVC and GitHub Actions. Week 14: deploy on Hugging Face Spaces or Render and add monitoring. Use the spare ~6 h on a Level 3 project (deploy your best image or text model as a live demo with an API), then take the 20-question level test and revisit any module where your quiz score was below 70%. If the project needs more time, add a week or two; that is normal."
+    "focus": "[3.6 Deployment & MLOps](#m-l3-mlops) (~24 h). Week 12: FastAPI, Gradio or Streamlit, and Docker. Week 13: MLflow, DVC and GitHub Actions. Week 14: deploy on Hugging Face Spaces or Render and add monitoring. Use the spare ~6 h to start a Level 3 project."
+   },
+   {
+    "weeks": "15–19",
+    "focus": "Finish one Level 3 project from the Projects page (35–50 hours in total, so about 3–5 more weeks at this pace; the Devanagari handwriting app is the shortest), for example by deploying your best image or text model as a live demo with an API. Then revisit any module where your quiz score was below 70% and take the 20-question level test. The planner on Start here counts two projects per level; a second project adds about 4–5 more weeks."
    }
   ]
  },
@@ -177,7 +185,7 @@ window.AIM.levels = [
    "Build tool-using AI agents with LangGraph and MCP, with guardrails such as human approval for risky actions",
    "Generate and edit images with diffusion models, and use CLIP and vision-language models responsibly",
    "Implement core reinforcement learning methods (bandits, Q-learning, PPO) and explain how RL is used to train LLMs",
-   "Read and reproduce ML papers, design complete ML systems, and present a portfolio that wins AI jobs or clients in India"
+   "Read and reproduce ML papers, design complete ML systems, and present a portfolio that helps you win AI jobs or clients in India"
   ],
   "howToStudy": "This level moves fast and its tools change every few months, so learn the ideas first and treat every library version as temporary: if a notebook from a video breaks, check the library's current documentation before giving up. Train on the free GPUs in Google Colab or Kaggle, and save checkpoints (saved copies of a model during training) to Google Drive often, because free sessions can disconnect. Keep one running 'client-ready' project, such as a chatbot over your agency's own service documents, and improve it with each module: better retrieval, a fine-tuned model, an agent, an evaluation report. Never send client personal data to free-tier AI APIs; use made-up or anonymised samples, or a model running on your own computer, because India's DPDP Act, 2023 holds you responsible for personal data you process. If you need sellable skills quickly, it is fine to study Building LLM Apps and then AI Agents right after the first half of How LLMs Work, and return to the other modules later.",
   "weeklyPlan": [
@@ -210,8 +218,8 @@ window.AIM.levels = [
     "focus": "[4.7 Research Skills, System Design & Career](#m-l4-research-career) (about 16 hours): reading and reproducing a paper, ML system design, interview preparation and your portfolio. Use the spare hours to start your level project."
    },
    {
-    "weeks": "16",
-    "focus": "Finish one level project, deploy it with a live demo and a README, then take the 20-question level test (aim for 70%+). Redo the module quizzes you scored lowest on first. If the project needs 1–2 extra weeks, take them: a finished, deployed project is worth more than a rushed one."
+    "weeks": "16–21",
+    "focus": "Finish one Level 4 project from the Projects page (45–60 hours in total, so about 4–6 more weeks at this pace; Itihāsa-GPT is the shortest), and deploy it with a live demo and a README. Then redo the module quizzes you scored lowest on and take the 20-question level test (aim for 70%+). A finished, deployed project is worth more than a rushed one. The planner on Start here counts two projects per level; a second project adds about 5 more weeks, and each optional Grand Capstone takes 150–160 hours."
    }
   ]
  }
@@ -232,12 +240,12 @@ window.AIM.modules = [
   "overview": "This module explains what AI is without any code or maths. Training a model is like training a new employee: you show them many past examples (say, bills marked 'fraud' or 'genuine'), they spot the pattern, and then they judge new cases on their own. AI (artificial intelligence) is the broad goal of machines doing tasks that need human-like judgement; ML (machine learning) is the main way we get there today, by learning from data; deep learning is ML with large neural networks; and generative AI is deep learning that creates new text, images or audio. You will also learn the three main ways machines learn, where AI goes wrong (bias and privacy), what India's DPDP Act 2023 asks of anyone handling personal data, and which AI career path fits you.",
   "whyItMatters": "Almost every AI product you will build or sell, whether a WhatsApp chatbot, a lead-scoring tool or a fraud alert, is one of a few patterns taught here. Knowing which pattern a client needs, and its limits, is what makes your agency trusted rather than just another 'AI agency'.",
   "outcomes": [
-   "You will be able to explain the difference between AI, ML, deep learning and generative AI, with one example of each.",
-   "You will be able to classify a business problem as supervised, unsupervised or reinforcement learning.",
-   "You will be able to describe in plain words how a model learns from data, and why the quality of data limits the quality of the model.",
-   "You will be able to name at least three real Indian uses of AI and say which type of learning each one uses.",
-   "You will be able to spot common sources of bias and privacy risk in an AI project, and state the DPDP Act's core idea of consent.",
-   "You will be able to pick a career path (data analyst, ML engineer, AI product builder, researcher) and plan how to use this course for it."
+   "Explain the difference between AI, ML, deep learning and generative AI, with one example of each.",
+   "Classify a business problem as supervised, unsupervised or reinforcement learning.",
+   "Describe in plain words how a model learns from data, and why the quality of data limits the quality of the model.",
+   "Name at least three real Indian uses of AI and say which type of learning each one uses.",
+   "Spot common sources of bias and privacy risk in an AI project, and state the DPDP Act's core idea of consent.",
+   "Pick a career path (data analyst, ML engineer, AI product builder, researcher) and plan how to use this course for it."
   ],
   "prerequisites": [
    "None: no coding or maths needed",
@@ -360,13 +368,13 @@ window.AIM.modules = [
   "overview": "Python is the language almost all AI work is written in, and it reads close to plain English. Learning it is like organising a kitchen: variables are labelled jars, lists are shopping lists, dictionaries are a contact list (look up a name, get a number), loops repeat a step for every item, and functions are recipes you write once and reuse. You will start from zero, storing numbers and text, and end by writing small programs that read a file, make decisions, handle errors and organise code into classes (templates for objects). Everything runs free in Google Colab or right here in the browser, so you do not need to install anything at first.",
   "whyItMatters": "Every later module, from data analysis to ML to LLM apps, is written in Python. Even as a founder who will hire developers, reading Python lets you review their work, estimate effort, and automate your own tasks, like turning a spreadsheet of sales into GST invoices.",
   "outcomes": [
-   "You will be able to store and change data using variables, numbers, strings, lists, tuples, dictionaries and sets.",
-   "You will be able to use if/else and loops to make decisions and repeat work over many items.",
-   "You will be able to write your own functions, including short lambda functions and list comprehensions.",
-   "You will be able to read a Python error message and handle errors with try/except.",
-   "You will be able to install packages with pip, import modules, and create a virtual environment for a project.",
-   "You will be able to write a simple class with attributes and methods.",
-   "You will be able to read from and write to text and CSV files."
+   "Store and change data using variables, numbers, strings, lists, tuples, dictionaries and sets.",
+   "Use if/else and loops to make decisions and repeat work over many items.",
+   "Write your own functions, including short lambda functions and list comprehensions.",
+   "Read a Python error message and handle errors with try/except.",
+   "Install packages with pip, import modules, and create a virtual environment for a project.",
+   "Write a simple class with attributes and methods.",
+   "Read from and write to text and CSV files."
   ],
   "prerequisites": [
    "l1-ai-basics",
@@ -497,13 +505,13 @@ window.AIM.modules = [
   "overview": "A carpenter needs a workbench and tools before making furniture; this module sets up your free AI workbench. Google Colab and Kaggle Notebooks let you run Python in the browser on their computers, including free GPUs (graphics chips that speed up AI training) with usage limits. Jupyter notebooks mix code, results and notes in one document, VS Code is a free code editor for bigger projects, and the command line lets you type instructions to your computer instead of clicking. Git is like a 'save game' system that records every version of your work, and GitHub is the website where you store and show those projects as your public portfolio. You will also learn to use AI coding assistants as a tutor and reviewer, not as a crutch.",
   "whyItMatters": "Many clients and employers now ask for a GitHub link along with a CV, because it shows real work. Git is also how every software team, including your future agency developers, works on the same code without overwriting each other.",
   "outcomes": [
-   "You will be able to create, run and share notebooks in Google Colab and Kaggle, and switch on a free GPU when you need one.",
-   "You will be able to write clear notes and headings in Markdown cells of a Jupyter notebook.",
-   "You will be able to open a project folder in VS Code and run a Python file from its built-in terminal.",
-   "You will be able to use basic command-line commands to move between folders and to list, create and delete files.",
-   "You will be able to use Git to commit changes, create a branch and merge it back.",
-   "You will be able to create a GitHub repository with a clear README and push your work to it.",
-   "You will be able to use an AI coding assistant to explain and review code, and check what it produces."
+   "Create, run and share notebooks in Google Colab and Kaggle, and switch on a free GPU when you need one.",
+   "Write clear notes and headings in Markdown cells of a Jupyter notebook.",
+   "Open a project folder in VS Code and run a Python file from its built-in terminal.",
+   "Use basic command-line commands to move between folders and to list, create and delete files.",
+   "Use Git to commit changes, create a branch and merge it back.",
+   "Create a GitHub repository with a clear README and push your work to it.",
+   "Use an AI coding assistant to explain and review code, and check what it produces."
   ],
   "prerequisites": [
    "l1-ai-basics",
@@ -558,7 +566,7 @@ window.AIM.modules = [
    "Watch the main playlist lessons on the command line and VS Code; practise cd, ls (dir on Windows), mkdir, and running a .py file.",
    "Watch the Git and GitHub lessons; create a free GitHub account and a repo named ai-marg-journey with a README.",
    "Practise the Git loop on your own computer: change a file, then git add, git commit and git push; next create a branch, change something on it, and merge it into main.",
-   "Read the Common mistakes and Tip below on AI coding assistants and secret keys, then take the quiz (aim for 70%+).",
+   "Read the Common mistakes below on secret keys and AI coding assistants, then take the quiz (aim for 70%+).",
    "Do the Self-check tasks, starting by pushing your [1.2 Python from Zero](#m-l1-python) notebooks to your repo."
   ],
   "selfCheck": [
@@ -634,13 +642,13 @@ window.AIM.modules = [
   "overview": "Statistics is the science of learning from data when you cannot see everything. It is like tasting one spoon of dal to judge the whole pot: if you stir well and take a fair spoonful (a random sample), a small taste tells you a lot. You will learn to summarise data with averages and spread, to describe how values are distributed, and to reason with probability (the chance of something happening), including Bayes' theorem for updating a belief when new evidence arrives. Finally you will see how A/B tests and p-values help you decide whether a change really worked or the difference is just luck, and why correlation (two things moving together) does not prove causation (one causing the other).",
   "whyItMatters": "Every ML model is a statistical guess, and every business test, like a new ad or a price change on a D2C store, needs statistics to tell a real gain from random noise. Clients pay for decisions they can trust, not for pretty charts.",
   "outcomes": [
-   "You will be able to calculate and interpret mean, median, mode, variance and standard deviation, and choose the right average for skewed data such as salaries.",
-   "You will be able to recognise normal, binomial and uniform distributions and say where each appears in real data.",
-   "You will be able to solve basic probability problems, including conditional probability and Bayes' theorem.",
-   "You will be able to explain the central limit theorem and why averages of samples behave predictably.",
-   "You will be able to build and interpret a confidence interval from a sample.",
-   "You will be able to run and read a simple A/B test with a p-value, and explain the result in plain words.",
-   "You will be able to tell correlation from causation and name a hidden factor that could explain a link."
+   "Calculate and interpret mean, median, mode, variance and standard deviation, and choose the right average for skewed data such as salaries.",
+   "Recognise normal, binomial and uniform distributions and say where each appears in real data.",
+   "Solve basic probability problems, including conditional probability and Bayes' theorem.",
+   "Explain the central limit theorem and why averages of samples behave predictably.",
+   "Build and interpret a confidence interval from a sample.",
+   "Run and read a simple A/B test with a p-value, and explain the result in plain words.",
+   "Tell correlation from causation and name a hidden factor that could explain a link."
   ],
   "prerequisites": [
    "l1-python",
@@ -766,12 +774,12 @@ window.AIM.modules = [
   "overview": "Machine learning turns everything, whether a photo, a sentence or a customer, into lists of numbers, and then does maths on them. Linear algebra is the maths of those lists (vectors) and tables (matrices): think of a vector as one customer's profile card with numbers for age, spend and visits, and a matrix as a spreadsheet of many such cards. Multiplying data by a matrix stretches, rotates or squashes it, and this one operation is the main workhorse inside neural networks. Calculus is the maths of change: a derivative tells you how much the output moves when you nudge the input, like how much profit changes if you raise a price by ₹1. Gradient descent uses these slopes to walk downhill, step by step, until a model's error is as small as possible, which is how almost every modern model learns.",
   "whyItMatters": "Recommendation feeds, search, face matching and LLMs all run on vectors and matrix multiplication, and all of them are trained with gradients. You need the intuition, not exam-level maths, to understand Levels 2 to 4.",
   "outcomes": [
-   "You will be able to represent data as vectors and matrices, and compute a dot product and a vector's length (norm).",
-   "You will be able to multiply two small matrices by hand and check the result with NumPy.",
-   "You will be able to describe what a linear transformation does to points (stretch, rotate, flip) and what the determinant says about area.",
-   "You will be able to explain eigenvectors as directions that a matrix only stretches and does not turn.",
-   "You will be able to find simple derivatives and partial derivatives, and apply the chain rule to a two-step function.",
-   "You will be able to explain what a gradient is and why stepping against it reduces error in gradient descent."
+   "Represent data as vectors and matrices, and compute a dot product and a vector's length (norm).",
+   "Multiply two small matrices by hand and check the result with NumPy.",
+   "Describe what a linear transformation does to points (stretch, rotate, flip) and what the determinant says about area.",
+   "Explain eigenvectors as directions that a matrix only stretches and does not turn.",
+   "Find simple derivatives and partial derivatives, and apply the chain rule to a two-step function.",
+   "Explain what a gradient is and why stepping against it reduces error in gradient descent."
   ],
   "prerequisites": [
    "l1-python",
@@ -888,12 +896,12 @@ window.AIM.modules = [
   "overview": "Real data arrives messy: Excel sheets with blank cells, repeated rows and dates written five different ways. NumPy and Pandas are the two Python libraries that make handling such data fast and easy. NumPy gives you arrays, grids of numbers you can do maths on all at once instead of looping one by one (this is called vectorisation). Pandas gives you the DataFrame, which is like an Excel sheet inside Python run by a fast, tireless clerk: you can filter rows, group and total, join two tables and pivot, each with a line or two of code. Cleaning data usually takes a large share of any data project, so this is one of the most practical modules in the course.",
   "whyItMatters": "Pandas is a daily tool for data analysts and ML engineers, and analyst job descriptions in India commonly ask for it. For an agency, a Pandas script can produce in seconds a client report that now takes hours in Excel.",
   "outcomes": [
-   "You will be able to create NumPy arrays, select parts of them (indexing and slicing), and use broadcasting to do maths without loops.",
-   "You will be able to load CSV, Excel and JSON files into a Pandas DataFrame and inspect them with head(), info() and describe().",
-   "You will be able to filter rows, select columns and sort data to answer a specific question.",
-   "You will be able to use groupby, merge (join) and pivot tables to summarise and combine data.",
-   "You will be able to find and handle missing values and duplicate rows, and explain your choice.",
-   "You will be able to convert text into dates and analyse data by day, month or year."
+   "Create NumPy arrays, select parts of them (indexing and slicing), and use broadcasting to do maths without loops.",
+   "Load CSV, Excel and JSON files into a Pandas DataFrame and inspect them with head(), info() and describe().",
+   "Filter rows, select columns and sort data to answer a specific question.",
+   "Use groupby, merge (join) and pivot tables to summarise and combine data.",
+   "Find and handle missing values and duplicate rows, and explain your choice.",
+   "Convert text into dates and analyse data by day, month or year."
   ],
   "prerequisites": [
    "l1-python",
@@ -1011,12 +1019,12 @@ window.AIM.modules = [
   "overview": "EDA (exploratory data analysis) means getting to know your data before you trust it, like a doctor's check-up before writing a prescription. You look at each column alone (univariate), at pairs of columns together (bivariate) and at several at once (multivariate), hunting for patterns, errors and outliers (values far away from the rest). Charts make these patterns visible: Matplotlib is the basic plotting library, Seaborn draws statistical charts in one line, and Plotly makes interactive charts you can hover over and zoom. SQL (Structured Query Language) is how you ask questions of data stored in databases, which is where most company data lives. The module ends with turning your findings into a short, clear story that a client can act on.",
   "whyItMatters": "SQL and clear charts are core skills for data-analyst roles, and they are how you win client trust. A dashboard or a one-page insight report is often the first paid project an AI agency delivers.",
   "outcomes": [
-   "You will be able to follow a step-by-step EDA workflow on a new dataset and write down what you found.",
-   "You will be able to choose the right chart (histogram, bar, line, scatter, box plot, heatmap) for a given question.",
-   "You will be able to make clear, labelled charts with Matplotlib, Seaborn and Plotly.",
-   "You will be able to detect outliers with box plots and the IQR rule, and decide whether to keep, fix or remove each one.",
-   "You will be able to write SQL queries with SELECT, WHERE, GROUP BY, ORDER BY and JOIN, and use a basic window function.",
-   "You will be able to turn an analysis into a short data story with one clear recommendation."
+   "Follow a step-by-step EDA workflow on a new dataset and write down what you found.",
+   "Choose the right chart (histogram, bar, line, scatter, box plot, heatmap) for a given question.",
+   "Make clear, labelled charts with Matplotlib, Seaborn and Plotly.",
+   "Detect outliers with box plots and the IQR rule (flag values more than 1.5 × the IQR, the spread of the middle 50% of values, below the first quartile or above the third), and decide whether to keep, fix or remove each one.",
+   "Write SQL queries with SELECT, WHERE, GROUP BY, ORDER BY and JOIN, and use a basic window function.",
+   "Turn an analysis into a short data story with one clear recommendation."
   ],
   "prerequisites": [
    "l1-numpy-pandas",
@@ -1215,7 +1223,41 @@ window.AIM.modules = [
    "Skipping the baseline. If 95 out of 100 enquiries never convert, a 'model' that always says 'no' scores 95% accuracy, so a model with 94% accuracy is worse than doing nothing. Always compare against a simple baseline first."
   ],
   "indiaExample": "Food delivery apps such as Swiggy and Zomato show an estimated delivery time before you place an order. Predicting it is a supervised ML problem: the features include the restaurant, distance, time of day, day of the week and weather, and the label is the number of minutes past orders actually took. Because the model is always used on future orders, an honest test trains on older weeks and tests on the most recent weeks, instead of shuffling all orders randomly.",
-  "tip": "Before training anything, write one line: 'At the moment of prediction, what information will I actually have?' Drop every column that fails this test. This one habit prevents the most common kind of data leakage."
+  "tip": "Before training anything, write one line: 'At the moment of prediction, what information will I actually have?' Drop every column that fails this test. This one habit prevents the most common kind of data leakage.",
+  "watch": [
+   {
+    "id": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
+    "note": "For this module watch the early videos on the ML development life cycle and on framing an ML problem, any bias-variance/overfitting video you find near the regularisation lessons, and Day 29 'sklearn pipelines' (folder day29-sklearn-pipelines in CampusX's GitHub repo) to see fit, transform and predict chained correctly."
+   },
+   {
+    "id": "codebasics-hindi-dhaval-patel-machine-learning-in-hindi",
+    "note": "Watch 'Hindi Machine Learning Tutorial 7 - Training and Testing Data' (confirmed title) to learn train_test_split in Hindi, and do its small exercise."
+   },
+   {
+    "id": "krish-naik-krish-naik-hindi-channel-machine-learning-pla",
+    "note": "Use as a second Hindi voice: scan the playlist for the introductory videos on train/test split and overfitting vs underfitting."
+   },
+   {
+    "id": "codebasics-dhaval-patel-machine-learning-tutorial-python",
+    "note": "Indian-English back-up: look for the 'Training and Testing Data' (train_test_split) video and the bias vs variance video in this series, and do the exercises."
+   },
+   {
+    "id": "nptel-iit-madras-introduction-to-machine-learning-nptel-",
+    "note": "For theory depth, watch only the early lectures on supervised learning set-up, training vs test error, bias-variance and validation; skip the rest until later modules."
+   },
+   {
+    "id": "kaggle-alexis-cook-kaggle-learn-intermediate-machine-lea",
+    "note": "Do the 'Data Leakage' and 'Pipelines' lessons in the browser; this is the best hands-on treatment of leakage we have, since no good Hindi video on it was found."
+   },
+   {
+    "id": "varada-kolhatkar-firas-moosvi-and-team-university-of-bri",
+    "note": "English supplement: watch the opening lectures on terminology, baselines (DummyClassifier), the fundamental trade-off and cross-validation, alongside the free course notes."
+   },
+   {
+    "id": "amazon-machine-learning-university-mlu-explain-visual-es",
+    "note": "Scroll through the bias-variance and train/test/validation essays to see overfitting and underfitting change visually without any maths."
+   }
+  ]
  },
  {
   "id": "l2-regression",
@@ -1310,7 +1352,45 @@ window.AIM.modules = [
    "Reading a high training R² as success. Check R² and RMSE on the test set, and remember that test R² can even be negative when the model is worse than predicting the average."
   ],
   "indiaExample": "Used-car platforms such as Cars24, CarDekho and CarWale offer online valuation tools: you enter the make, model, year, fuel type, kilometres driven and city, and get a price estimate. Predicting a ₹ amount from such features is a regression problem. Indian rules shape the features too: in Delhi-NCR, diesel cars older than 10 years and petrol cars older than 15 years are not allowed to run, so a feature such as 'years left before the age limit' can matter for cars registered there.",
-  "tip": "Always plot residuals (actual minus predicted). A curve or a funnel in that plot shows what the model is missing, which a single R² number hides."
+  "tip": "Always plot residuals (actual minus predicted). A curve or a funnel in that plot shows what the model is missing, which a single R² number hides.",
+  "watch": [
+   {
+    "id": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
+    "note": "Watch the regression block whose code sits in CampusX's GitHub folders day48 to day57: simple linear regression (Day 48), regression metrics (Day 49), multiple linear regression (Day 50), gradient descent (Day 51), types of gradient descent (Day 52), polynomial regression (Day 53), ridge/regularised linear models (Day 55), lasso (Day 56) and ElasticNet (Day 57)."
+   },
+   {
+    "id": "codebasics-hindi-dhaval-patel-machine-learning-in-hindi",
+    "note": "Watch the linear regression videos and 'Hindi Machine Learning Tutorial 4 - Gradient Descent and Cost Function' (confirmed title), doing each small exercise."
+   },
+   {
+    "id": "krish-naik-krish-naik-hindi-channel-machine-learning-pla",
+    "note": "Second Hindi explanation: scan for the linear regression, ridge and lasso videos when a CampusX topic did not click."
+   },
+   {
+    "id": "iit-faculty-listed-as-iit-in-cs-video-courses-optimisati",
+    "note": "Optional depth in Hindi after the basics: watch the gradient descent lectures to see the maths behind batch, stochastic and mini-batch updates."
+   },
+   {
+    "id": "codebasics-dhaval-patel-machine-learning-tutorial-python",
+    "note": "Indian-English back-up: watch the linear regression (single and multiple variables), gradient descent and cost function, and L1/L2 regularisation videos and do the exercises."
+   },
+   {
+    "id": "krish-naik-complete-machine-learning-in-python-detailed-",
+    "note": "Look up the linear regression, R-squared/adjusted R-squared, ridge/lasso and assumptions videos for a second Indian-English explanation with maths intuition."
+   },
+   {
+    "id": "iit-kharagpur-nptel-introduction-to-machine-learning-iit",
+    "note": "For university-style theory, watch the linear regression and regularisation lectures only."
+   },
+   {
+    "id": "josh-starmer-statquest-statquest-machine-learning",
+    "note": "English supplement: watch the linear regression, gradient descent and ridge/lasso videos for the clearest visual intuition."
+   },
+   {
+    "id": "google-for-developers-machine-learning-crash-course",
+    "note": "Do the linear regression, loss and gradient descent modules and play with the interactive widgets to watch the loss go down."
+   }
+  ]
  },
  {
   "id": "l2-classification",
@@ -1404,7 +1484,45 @@ window.AIM.modules = [
    "Judging a classifier by accuracy without checking how many examples each class has. Run value_counts() on the label first; if one class is rare, accuracy can mislead (the next module covers this fully)."
   ],
   "indiaExample": "In 2024 Bharti Airtel launched an AI-based spam detection system on its network that marks suspicious incoming calls and SMS as 'Suspected Spam' for its customers. At its heart this is binary classification: each call or message is sorted into spam or not spam using signals such as how often a number calls or messages and how long its calls last. A mistake in either direction has a cost (an annoyed customer or a missed scam), which is why the next module on metrics and thresholds matters.",
-  "tip": "Start every classification project with logistic regression on scaled features. It is fast, its weights are easy to explain, and it gives you a clear benchmark; move to SVMs or tree models only if they clearly beat it."
+  "tip": "Start every classification project with logistic regression on scaled features. It is fast, its weights are easy to explain, and it gives you a clear benchmark; move to SVMs or tree models only if they clearly beat it.",
+  "watch": [
+   {
+    "id": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
+    "note": "Watch the logistic regression block (code folders day58-logistic-regression and day60-logistic-regression-contd in CampusX's GitHub repo, covering the sigmoid, loss function and the softmax/multiclass part); the free 100 Days repo has no folders for KNN, Naive Bayes or SVM, so take those from the next entries."
+   },
+   {
+    "id": "krish-naik-krish-naik-hindi-channel-machine-learning-pla",
+    "note": "Use for Naive Bayes, SVM and KNN in Hindi: look for the Naive Bayes in-depth intuition parts (e.g. 'Hindi-Naive Baye's Machine Learning Algorithm Indepth Inution- Part 2') and the SVM/kernel and KNN videos."
+   },
+   {
+    "id": "codebasics-hindi-dhaval-patel-machine-learning-in-hindi",
+    "note": "Watch the logistic regression and SVM videos among the first 14 (the part Codebasics recommends) and do each exercise."
+   },
+   {
+    "id": "5-minutes-engineering-machine-learning-hindi",
+    "note": "Quick Hindi revision: watch the short KNN, Naive Bayes and SVM videos with hand-solved examples the day before a quiz."
+   },
+   {
+    "id": "codebasics-dhaval-patel-machine-learning-tutorial-python",
+    "note": "Indian-English back-up: watch the logistic regression (binary and multiclass), SVM, Naive Bayes and KNN videos and do the exercises."
+   },
+   {
+    "id": "krish-naik-complete-machine-learning-in-python-detailed-",
+    "note": "Look up one algorithm at a time for in-depth intuition, e.g. the logistic regression, KNN, Naive Bayes and SVM kernel-trick videos."
+   },
+   {
+    "id": "nptel-iit-madras-introduction-to-machine-learning-nptel-",
+    "note": "For theory depth, watch the lectures on logistic regression, Naive Bayes and support vector machines/kernels."
+   },
+   {
+    "id": "josh-starmer-statquest-statquest-machine-learning",
+    "note": "English supplement: watch the logistic regression, Naive Bayes and support vector machine (including kernels) videos for visual intuition."
+   },
+   {
+    "id": "microsoft-cloud-advocates-ml-for-beginners-12-week-26-le",
+    "note": "Do the classification lessons, which build several classifiers on an Asian and Indian cuisines dataset, as hands-on practice."
+   }
+  ]
  },
  {
   "id": "l2-metrics-tuning",
@@ -1498,7 +1616,37 @@ window.AIM.modules = [
    "Applying SMOTE before splitting or before cross-validation, so synthetic copies based on validation rows leak into training. Put SMOTE inside an imbalanced-learn Pipeline so it runs only on the training folds."
   ],
   "indiaExample": "In December 2024 the Reserve Bank of India announced MuleHunter.AI, an AI/ML model built by the Reserve Bank Innovation Hub to help banks find mule accounts (bank accounts used to receive and pass on money from frauds). Mule accounts are a tiny share of all accounts, so accuracy is useless here. A bank has to balance recall (catching as many mule accounts as possible) against precision (not freezing honest customers' accounts by mistake), which is exactly the threshold and cost trade-off this module teaches.",
-  "tip": "Before training, agree with the client what a false positive and a false negative each cost in ₹, even as a rough estimate. That one conversation decides your metric and your threshold."
+  "tip": "Before training, agree with the client what a false positive and a false negative each cost in ₹, even as a rough estimate. That one conversation decides your metric and your threshold.",
+  "watch": [
+   {
+    "id": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
+    "note": "Watch the classification metrics video (code folder day59-classification-metrics: look for accuracy, confusion matrix, precision, recall and F1) and revisit the regression metrics video (day49-regression-metrics) for MAE, RMSE and R-squared."
+   },
+   {
+    "id": "krish-naik-krish-naik-hindi-channel-machine-learning-pla",
+    "note": "Scan the playlist for performance-metric, cross-validation and imbalanced-data videos; their coverage was not confirmed, so skip it if nothing matches."
+   },
+   {
+    "id": "codebasics-dhaval-patel-machine-learning-tutorial-python",
+    "note": "Watch 'Machine Learning Tutorial Python 12 - K Fold Cross Validation' (confirmed title) and the GridSearchCV hyperparameter tuning video in the same series."
+   },
+   {
+    "id": "krish-naik-complete-machine-learning-in-python-detailed-",
+    "note": "Look up the classification performance metrics, ROC-AUC, handling imbalanced datasets and hyperparameter tuning videos for Indian-English explanations."
+   },
+   {
+    "id": "abhishek-thakur-kaggle-grandmaster-approaching-almost-an",
+    "note": "Read the cross-validation, evaluation metrics and hyperparameter optimisation chapters of the free PDF and type out the code."
+   },
+   {
+    "id": "josh-starmer-statquest-statquest-machine-learning",
+    "note": "English supplement: watch the confusion matrix, sensitivity/specificity, ROC and AUC, and cross-validation videos for visual intuition."
+   },
+   {
+    "id": "amazon-machine-learning-university-mlu-explain-visual-es",
+    "note": "Scroll through the precision-recall, ROC-AUC and cross-validation essays to see how moving the threshold changes the numbers."
+   }
+  ]
  },
  {
   "id": "l2-trees-ensembles",
@@ -1587,11 +1735,45 @@ window.AIM.modules = [
   ],
   "commonMistakes": [
    "Letting a tree grow with no limits, so it memorises the training data. Set max_depth or min_samples_leaf and compare training and validation scores.",
-   "Treating feature importance or SHAP as proof of cause. They show what the model relies on, not what causes the outcome, and the default impurity-based importance can favour columns with many unique values. Cross-check with permutation importance.",
+   "Treating feature importance or SHAP as proof of cause. They show what the model relies on, not what causes the outcome, and the default impurity-based importance can favour columns with many unique values. Cross-check with permutation importance (how much the score drops when one column's values are shuffled).",
    "Tuning dozens of XGBoost settings before having a baseline. Start with the default settings, then tune the number of trees, the learning rate and the depth, using early stopping on a validation set."
   ],
   "indiaExample": "Indian digital lenders, including banks, NBFCs (non-banking financial companies) and fintech apps, decide on small personal and business loans using tabular data: income, existing EMIs, credit bureau history such as the CIBIL score and, with the customer's consent, bank-statement data shared through RBI's Account Aggregator framework. Gradient-boosted trees are a common choice for this kind of credit-risk model. Because a rejected applicant or a regulator may ask why, explanation tools like SHAP can help a lender show which factors drove a decision.",
-  "tip": "On tabular data, try HistGradientBoostingClassifier or LightGBM with default settings early in the project. It often gives a strong score within minutes, so you can spend your time on features and validation instead of on settings."
+  "tip": "On tabular data, try HistGradientBoostingClassifier or LightGBM with default settings early in the project. It often gives a strong score within minutes, so you can spend your time on features and validation instead of on settings.",
+  "watch": [
+   {
+    "id": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
+    "note": "For this module skip to the ensemble part of the same 100 Days playlist: the official CampusX GitHub notebooks are labelled day65-random-forest, day66-adaboost, day68-stacking-and-blending and gradient-boosting, and the videos to look for include 'Decision Trees - Introduction and Geometric Intuition' and 'Random Forest Intuition'."
+   },
+   {
+    "id": "krish-naik-krish-naik-hindi-channel-machine-learning-pla",
+    "note": "Scan the playlist for decision tree, random forest and boosting videos; on the Krish Naik Hindi channel the decision tree lesson is titled 'Part 1-Decision Tree Classifier Indepth Intuition In Hindi'."
+   },
+   {
+    "id": "5-minutes-engineering-machine-learning-hindi",
+    "note": "Use its decision tree videos (entropy, information gain, worked examples by hand) for quick Hindi revision before the quiz; it has no coding."
+   },
+   {
+    "id": "codebasics-dhaval-patel-machine-learning-tutorial-python",
+    "note": "Watch the Decision Tree and Random Forest videos and do the exercise at the end of each to practise in scikit-learn."
+   },
+   {
+    "id": "krish-naik-complete-machine-learning-in-python-detailed-",
+    "note": "Use it as an Indian-English second explanation, searching inside the playlist for decision tree, random forest, AdaBoost, gradient boosting and XGBoost."
+   },
+   {
+    "id": "josh-starmer-statquest-statquest-machine-learning",
+    "note": "Watch its decision tree, random forest, AdaBoost, gradient boost and XGBoost videos for the clearest step-by-step pictures of what the Hindi videos explain more quickly."
+   },
+   {
+    "id": "kaggle-alexis-cook-kaggle-learn-intermediate-machine-lea",
+    "note": "Do the XGBoost lesson in your browser to train your first boosted model (in new XGBoost versions, put early_stopping_rounds in the constructor)."
+   },
+   {
+    "id": "kaggle-dan-becker-kaggle-learn-machine-learning-explaina",
+    "note": "Do the permutation importance and SHAP lessons to explain your tree model's predictions; no Hindi or Indian-English option for SHAP was found."
+   }
+  ]
  },
  {
   "id": "l2-unsupervised",
@@ -1615,7 +1797,7 @@ window.AIM.modules = [
    "Use DBSCAN to find clusters of any shape and flag noise points",
    "Reduce many features to a few with PCA and say how much information is kept",
    "Visualise complex, many-column data with t-SNE or UMAP and avoid common misreadings",
-   "Detect unusual records with Isolation Forest",
+   "Detect unusual records with Isolation Forest (a method that flags records that a few random splits can separate from the rest)",
    "Segment customers with RFM and turn each segment into a business action"
   ],
   "prerequisites": [
@@ -1687,7 +1869,45 @@ window.AIM.modules = [
    "Over-reading t-SNE or UMAP plots. The sizes of clusters and the gaps between them in these pictures are not reliable, so use them to explore, not as proof."
   ],
   "indiaExample": "In 2023 India's GST authorities ran a nationwide special drive against fake GST registrations. GSTN (the GST Network) used data analytics and risk parameters to shortlist suspicious registrations, which tax officers then verified in person. Picking out records that don't behave like the rest, without a complete list of known frauds, is the core idea of the anomaly detection taught in this module.",
-  "tip": "Give every cluster a human name and a business action, such as 'lapsed high spenders: send a win-back WhatsApp offer'. If you cannot name a cluster, the clustering is not useful yet."
+  "tip": "Give every cluster a human name and a business action, such as 'lapsed high spenders: send a win-back WhatsApp offer'. If you cannot name a cluster, the clustering is not useful yet.",
+  "watch": [
+   {
+    "id": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
+    "note": "Watch the PCA lesson (the official CampusX notebooks label it day47-pca) and the K-Means videos from the later part of the playlist (notebook folder 'kmeans'), and look there for hierarchical clustering and DBSCAN too."
+   },
+   {
+    "id": "krish-naik-krish-naik-hindi-channel-machine-learning-pla",
+    "note": "Scan the playlist for K-Means, hierarchical clustering, DBSCAN and PCA videos as a second Hindi explanation."
+   },
+   {
+    "id": "5-minutes-engineering-machine-learning-hindi",
+    "note": "For quick Hindi revision watch 'K means Clustering Algorithm Explained With an Example Easiest And Quickest Way Ever In Hindi' and any other clustering worked examples in the playlist."
+   },
+   {
+    "id": "codebasics-dhaval-patel-machine-learning-tutorial-python",
+    "note": "Watch its K-Means clustering and PCA videos and do the exercises to practise in scikit-learn."
+   },
+   {
+    "id": "krish-naik-complete-machine-learning-in-python-detailed-",
+    "note": "Look up its K-Means, hierarchical clustering, DBSCAN, PCA and anomaly detection (Isolation Forest) videos for an Indian-English explanation."
+   },
+   {
+    "id": "josh-starmer-statquest-statquest-machine-learning",
+    "note": "Watch its PCA, K-means, hierarchical clustering, DBSCAN, t-SNE and UMAP videos; this is the best place for t-SNE/UMAP intuition, which no Indian resource here covers."
+   },
+   {
+    "id": "varada-kolhatkar-firas-moosvi-and-team-university-of-bri",
+    "note": "Watch the clustering lectures (K-Means, DBSCAN, hierarchical clustering) alongside the free course notes for clean scikit-learn code."
+   },
+   {
+    "id": "andrew-ng-deeplearning-ai-and-stanford-online-coursera-m",
+    "note": "In course 3 (Unsupervised Learning), the K-means and anomaly detection weeks are a gentle introduction to spotting unusual records; first check whether free audit is still offered."
+   },
+   {
+    "id": "jake-vanderplas-python-data-science-handbook-free-online",
+    "note": "Read the 'In Depth' chapters on k-means, PCA and manifold learning and run each notebook yourself."
+   }
+  ]
  },
  {
   "id": "l2-feature-eng",
@@ -1707,7 +1927,7 @@ window.AIM.modules = [
   "outcomes": [
    "Encode categorical data with one-hot, ordinal and target encoding, and know when to use each",
    "Scale and transform numeric features, including log transforms for skewed values such as prices",
-   "Select useful features with filter, wrapper and model-based methods",
+   "Select useful features with filter methods (simple statistical scores), wrapper methods (trying subsets of features with a model) and model-based methods (using a model's own importance scores)",
    "Build leak-free preprocessing with scikit-learn Pipelines and ColumnTransformer",
    "Create lag, rolling and date features for time-series data and validate them with time-based splits",
    "Approach a Kaggle competition: read the metric, build a baseline, trust cross-validation, and submit",
@@ -1783,7 +2003,45 @@ window.AIM.modules = [
    "Chasing the Kaggle public leaderboard. It scores only part of the test data, so a model tuned to it can drop when the private leaderboard is revealed. Trust your own cross-validation score."
   ],
   "indiaExample": "Quick-commerce apps such as Blinkit, Zepto and Swiggy Instamart deliver within minutes from small neighbourhood warehouses (dark stores), so each store must stock the right quantity of each item in advance. That is a time-series demand-forecasting problem. A typical model uses exactly the features in this module: sales yesterday and on the same day last week (lags), 7-day and 28-day averages (rolling features), the day of the week, and flags for festivals such as Diwali or Holi, when demand for items like sweets, diyas or colours jumps.",
-  "tip": "Keep one notebook template for every project: load → split → Pipeline → cross-validate → tune → test once → save. Reusing the same skeleton saves hours and makes leakage much harder."
+  "tip": "Keep one notebook template for every project: load → split → Pipeline → cross-validate → tune → test once → save. Reusing the same skeleton saves hours and makes leakage much harder.",
+  "watch": [
+   {
+    "id": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
+    "note": "Watch Days 24-33 in order (the official CampusX notebooks are day24-standardization, day25-normalization, day26-ordinal-encoding, day27-one-hot-encoding, day28-column-transformer, day29-sklearn-pipelines, day30-function-transformer, day31-power-transformer, day32-binning-and-binarization, day33-handling-mixed-variables), then Day 34 (date and time) and Day 45 (feature construction and splitting)."
+   },
+   {
+    "id": "krish-naik-hindi-end-to-end-ml-projects-playlist-hindi",
+    "note": "Use it to build your end-to-end portfolio project in Hindi after finishing the CampusX pipeline days."
+   },
+   {
+    "id": "krish-naik-feature-engineering-detailed-playlist",
+    "note": "Use it as an Indian-English second explanation of encoding, scaling and transformations, but write your final code with Pipelines and ColumnTransformer as in CampusX Days 28-29."
+   },
+   {
+    "id": "krish-naik-feature-selection-detailed-playlist",
+    "note": "Watch it for the feature selection topic: how to decide which columns to keep and which to drop."
+   },
+   {
+    "id": "krish-naik-end-to-end-ml-projects-playlist-english",
+    "note": "Follow the student-performance starter project to see one project go from raw data to a deployed model, and skip the cloud parts if you do not want to give a credit card."
+   },
+   {
+    "id": "kaggle-alexis-cook-kaggle-learn-intermediate-machine-lea",
+    "note": "Do the categorical variables, pipelines, cross-validation and data leakage lessons in your browser."
+   },
+   {
+    "id": "kaggle-ryan-holbrook-kaggle-learn-feature-engineering",
+    "note": "Do it after Intermediate ML; it ends with the House Prices competition, a good first Kaggle entry."
+   },
+   {
+    "id": "kaggle-ryan-holbrook-kaggle-learn-time-series",
+    "note": "Use its lag, trend and seasonality lessons for the time-series features topic; no Hindi option was found."
+   },
+   {
+    "id": "abhishek-thakur-kaggle-grandmaster-approaching-almost-an",
+    "note": "Read the cross-validation, categorical variables and feature engineering chapters to learn how Kaggle winners approach a competition."
+   }
+  ]
  },
  {
   "id": "l3-nn-basics",
@@ -1799,16 +2057,16 @@ window.AIM.modules = [
    "vanishing/exploding gradients"
   ],
   "lab": "neuralnet",
-  "overview": "A neural network is a stack of simple maths units called neurons: each one multiplies its inputs by weights (importance numbers), adds them up, and passes the total through an activation function (a small rule that decides how strongly it 'fires'). Think of a hiring panel: junior interviewers each score one aspect of a candidate, a senior combines their scores, and a manager makes the final call; after every bad hire, everyone adjusts how much they trust each signal. Training works the same way: the forward pass makes a guess, the loss function measures how wrong it was, backpropagation (the chain rule from calculus) works out how each weight should change, and an optimiser such as SGD or Adam makes that change. You will build a small network from scratch in NumPy, so nothing in PyTorch feels like magic later, and learn the tricks (dropout, batch normalisation, weight decay) that stop networks memorising their data or getting stuck.",
+  "overview": "A neural network is a stack of simple maths units called neurons: each one multiplies its inputs by weights (importance numbers), adds them up, and passes the total through an activation function (a small rule that decides how strongly it 'fires'). Think of a hiring panel: junior interviewers each score one aspect of a candidate, a senior combines their scores, and a manager makes the final call; after every bad hire, everyone adjusts how much they trust each signal. Training works the same way: the forward pass makes a guess, the loss function measures how wrong it was, backpropagation (the chain rule from calculus) works out how each weight should change, and an optimiser such as SGD or Adam makes that change. You will build a small network from scratch in NumPy, so nothing in PyTorch feels like magic later, and learn the tricks that stop networks memorising their data or getting stuck: dropout (randomly switching off neurons during training), batch normalisation (rescaling each layer's outputs to a steady range) and weight decay (a small penalty on large weights).",
   "whyItMatters": "Every modern AI product, from face unlock on your phone to Google Translate and ChatGPT, is a neural network trained with this same loop of guess, measure and adjust. When a client's model refuses to learn or memorises its training data, these basics let you find the cause instead of guessing.",
   "outcomes": [
-   "You will be able to draw a multilayer perceptron and explain, step by step, how it turns inputs into a prediction.",
-   "You will be able to choose a suitable activation function (ReLU, sigmoid, softmax) and loss function (mean squared error, cross-entropy) for a given problem.",
-   "You will be able to work through backpropagation by hand for a tiny network using the chain rule.",
-   "You will be able to code and train a two-layer network in NumPy that beats logistic regression on curved (non-linear) data.",
-   "You will be able to compare SGD, momentum and Adam, and explain what the learning rate controls.",
-   "You will be able to use dropout, batch normalisation and weight decay to reduce overfitting, and explain why each one helps.",
-   "You will be able to recognise vanishing and exploding gradients from a training curve and name two fixes for each."
+   "Draw a multilayer perceptron and explain, step by step, how it turns inputs into a prediction.",
+   "Choose a suitable activation function (ReLU, sigmoid, softmax) and loss function (mean squared error, cross-entropy) for a given problem.",
+   "Work through backpropagation by hand for a tiny network using the chain rule.",
+   "Code and train a two-layer network in NumPy that beats logistic regression on curved (non-linear) data.",
+   "Compare SGD, momentum and Adam, and explain what the learning rate controls.",
+   "Use dropout, batch normalisation and weight decay to reduce overfitting, and explain why each one helps.",
+   "Recognise vanishing and exploding gradients from a training curve and name two fixes for each."
   ],
   "prerequisites": [
    "l2-regression",
@@ -1932,13 +2190,13 @@ window.AIM.modules = [
   "overview": "PyTorch is a free Python library, first built at Facebook (now Meta) and now run by the PyTorch Foundation, that does the heavy lifting of deep learning: it stores data as tensors (multi-dimensional arrays, like NumPy arrays that can run on a GPU) and calculates all the gradients automatically with a feature called autograd. If l3-nn-basics was cooking by grinding every masala by hand, PyTorch is a well-stocked kitchen: you still follow the same recipe (forward pass, loss, backward pass, update), but the tools are ready. You will learn the pieces almost every PyTorch project uses: a Dataset and a DataLoader to feed data in batches, an `nn.Module` to define the model, and a training loop you can reuse for years. You will also train on free GPUs in Colab and Kaggle, save and reload models, take a short tour of Keras (a simpler, higher-level library), and learn the debugging habits that save the most time.",
   "whyItMatters": "PyTorch is the library behind most deep learning research code and most models on Hugging Face, so it is what you will read and write in every later module. For an agency, one clean PyTorch training template becomes the starting point for every client project, whether it sorts product photos or customer messages.",
   "outcomes": [
-   "You will be able to create tensors, move them to a GPU, and explain how autograd calculates gradients.",
-   "You will be able to wrap your own data (a CSV file or a folder of images) in a Dataset and load it in shuffled batches with a DataLoader.",
-   "You will be able to write a full training and validation loop from memory, with `model.train()`, `model.eval()` and `torch.no_grad()` in the right places.",
-   "You will be able to train on a free GPU in Colab or Kaggle and keep your work safe when the session disconnects.",
-   "You will be able to save and reload a model's weights, and resume training from a checkpoint.",
-   "You will be able to read a short Keras model and map each line to the same idea in PyTorch.",
-   "You will be able to debug a model that is not learning by overfitting one batch and running a learning-rate finder."
+   "Create tensors, move them to a GPU, and explain how autograd calculates gradients.",
+   "Wrap your own data (a CSV file or a folder of images) in a Dataset and load it in shuffled batches with a DataLoader.",
+   "Write a full training and validation loop from memory, with `model.train()`, `model.eval()` and `torch.no_grad()` in the right places.",
+   "Train on a free GPU in Colab or Kaggle and keep your work safe when the session disconnects.",
+   "Save and reload a model's weights, and resume training from a checkpoint.",
+   "Read a short Keras model and map each line to the same idea in PyTorch.",
+   "Debug a model that is not learning by overfitting one batch and running a learning-rate finder."
   ],
   "prerequisites": [
    "l3-nn-basics",
@@ -2067,13 +2325,13 @@ window.AIM.modules = [
   "overview": "Computer vision (CV) means teaching computers to understand images and video. A CNN (convolutional neural network) examines a photo the way a quality checker inspects a saree for defects: sliding a small magnifying glass across the cloth patch by patch, first noticing edges and colours, then patterns, then whole shapes. That sliding glass is a convolution (a small grid of learned numbers, called a filter, moved across the image), and pooling shrinks the result so each deeper layer sees a bigger area. You will learn the classic designs (LeNet, VGG, ResNet), how data augmentation and transfer learning (starting from a model already trained on millions of images) give good results from a few hundred photos, and three core tasks: classification (what is in the image), object detection with YOLO (what is where), and segmentation with U-Net (which pixels belong to what). You will finish with OpenCV for everyday image handling and a short introduction to Vision Transformers.",
   "whyItMatters": "Image models power face check-in at airports (as in DigiYatra), quality checks on factory lines, crop and pest detection for farmers, and document reading for KYC at banks and fintechs. For an agency, fine-tuning a pretrained model on a client's own photos is one of the fastest ways to deliver a working AI product.",
   "outcomes": [
-   "You will be able to explain what a convolution, filter, stride, padding and pooling do, and calculate the output size of a convolution layer.",
-   "You will be able to build and train a small CNN in PyTorch that clearly beats an MLP on the same image dataset.",
-   "You will be able to explain why ResNet's skip connections let very deep networks train.",
-   "You will be able to fine-tune a pretrained model on a few hundred of your own photos, using data augmentation.",
-   "You will be able to run a pretrained YOLO model on images and video, and explain bounding boxes, IoU and mAP (mean average precision, the standard detection score).",
-   "You will be able to explain how U-Net segmentation works and when a client needs segmentation rather than detection.",
-   "You will be able to read, resize, crop and draw on images with OpenCV, and explain how a Vision Transformer looks at an image differently from a CNN."
+   "Explain what a convolution, filter, stride, padding and pooling do, and calculate the output size of a convolution layer.",
+   "Build and train a small CNN in PyTorch that clearly beats an MLP on the same image dataset.",
+   "Explain why ResNet's skip connections let very deep networks train.",
+   "Fine-tune a pretrained model on a few hundred of your own photos, using data augmentation.",
+   "Run a pretrained YOLO model on images and video, and explain bounding boxes, IoU and mAP (mean average precision, the standard detection score).",
+   "Explain how U-Net segmentation works and when a client needs segmentation rather than detection.",
+   "Read, resize, crop and draw on images with OpenCV, and explain how a Vision Transformer looks at an image differently from a CNN."
   ],
   "prerequisites": [
    "l3-pytorch",
@@ -2195,13 +2453,13 @@ window.AIM.modules = [
   "overview": "Natural Language Processing (NLP) means teaching computers to work with human language: reading reviews, sorting complaints, translating and answering questions. Computers only understand numbers, so the first job is turning text into numbers, a bit like a shopkeeper who first counts which words appear most often in customer notes (bag of words and TF-IDF), and later learns which words mean similar things, like 'cheap', 'sasta' and 'affordable' (word embeddings). You will clean and tokenise text (split it into pieces), build classic text classifiers, use Word2Vec and GloVe embeddings, and then learn RNNs, LSTMs and GRUs, networks that read a sentence word by word while keeping a running memory. You will finish with sequence-to-sequence models and attention, the idea that led to transformers, and with tools built for Indian languages by AI4Bharat and the Indic NLP Library.",
   "whyItMatters": "Support-ticket routing, review analysis, spam filters, resume screening and translation for Indian-language users are all NLP problems that agencies are asked to solve. India has 22 scheduled languages, and many people type Hindi and other languages in Roman letters (as in Hinglish), so knowing how to handle Indian-language text is a real business advantage.",
   "outcomes": [
-   "You will be able to clean and tokenise English and Hindi text, and explain why each cleaning step helps or hurts.",
-   "You will be able to build a TF-IDF plus logistic regression text classifier as a strong, cheap baseline.",
-   "You will be able to explain word embeddings, find similar words with pretrained Word2Vec, GloVe or fastText vectors, and spot the biases they can carry.",
-   "You will be able to explain how an RNN reads a sequence and why LSTMs and GRUs cope better with long sentences.",
-   "You will be able to train a small LSTM text classifier in PyTorch and compare it honestly with your TF-IDF baseline.",
-   "You will be able to explain sequence-to-sequence models and attention, using translation as the example.",
-   "You will be able to use the Indic NLP Library and AI4Bharat resources to process text in an Indian language."
+   "Clean and tokenise English and Hindi text, and explain why each cleaning step helps or hurts.",
+   "Build a TF-IDF plus logistic regression text classifier as a strong, cheap baseline.",
+   "Explain word embeddings, find similar words with pretrained Word2Vec, GloVe or fastText vectors, and spot the biases they can carry.",
+   "Explain how an RNN reads a sequence and why LSTMs and GRUs cope better with long sentences.",
+   "Train a small LSTM text classifier in PyTorch and compare it honestly with your TF-IDF baseline.",
+   "Explain sequence-to-sequence models and attention, using translation as the example.",
+   "Use the Indic NLP Library and AI4Bharat resources to process text in an Indian language."
   ],
   "prerequisites": [
    "l3-pytorch",
@@ -2324,13 +2582,13 @@ window.AIM.modules = [
   "overview": "A transformer is the neural network design behind BERT, GPT, Gemini, Claude and most modern AI. Its key idea, self-attention, works like a meeting where every word in a sentence can look at every other word and decide whom to listen to: in 'The bank near the river flooded', the word 'bank' pays attention to 'river' and so understands it is not a money bank. Because all the words are processed at the same time, transformers train much faster on GPUs than RNNs do, and positional encoding (extra numbers that tell the model each word's position) keeps track of word order. You will learn the difference between encoder models such as BERT (good at understanding and classifying text) and decoder models such as GPT (good at generating text), how tokenizers such as BPE and WordPiece split text into sub-word pieces, and how to load, run and fine-tune these models with the Hugging Face libraries in a few lines of code.",
   "whyItMatters": "Most text products an agency builds today, from ticket classification and resume parsing to chatbots, start from a pretrained transformer on Hugging Face rather than a model trained from scratch. For a fixed task such as sorting messages, a small fine-tuned BERT-style model can be cheaper and faster per request than a large paid LLM API, and it keeps the client's data under your control.",
   "outcomes": [
-   "You will be able to explain self-attention using queries, keys and values, and why multi-head attention runs several attention 'views' at once.",
-   "You will be able to explain why transformers need positional encoding and how they differ from RNNs.",
-   "You will be able to choose between an encoder (BERT-style) and a decoder (GPT-style) model for a given business task.",
-   "You will be able to use Hugging Face pipelines to run sentiment analysis, named entity recognition (finding names, places and organisations), translation or summarisation in a few lines.",
-   "You will be able to fine-tune a BERT-style model for text classification with the Hugging Face Trainer and evaluate it on a held-out test set.",
-   "You will be able to explain how BPE and WordPiece tokenizers work, and why Indian-language text often needs more tokens than English with tokenizers trained mostly on English.",
-   "You will be able to read a model card and check a model's training data, languages, licence and limits before using it for a client."
+   "Explain self-attention using queries, keys and values, and why multi-head attention runs several attention 'views' at once.",
+   "Explain why transformers need positional encoding and how they differ from RNNs.",
+   "Choose between an encoder (BERT-style) and a decoder (GPT-style) model for a given business task.",
+   "Use Hugging Face pipelines to run sentiment analysis, named entity recognition (finding names, places and organisations), translation or summarisation in a few lines.",
+   "Fine-tune a BERT-style model for text classification with the Hugging Face Trainer and evaluate it on a held-out test set.",
+   "Explain how BPE and WordPiece tokenizers work, and why Indian-language text often needs more tokens than English with tokenizers trained mostly on English.",
+   "Read a model card and check a model's training data, languages, licence and limits before using it for a client."
   ],
   "prerequisites": [
    "l3-nlp",
@@ -2454,16 +2712,16 @@ window.AIM.modules = [
    "cloud deployment on free tiers (Hugging Face Spaces, Render)",
    "monitoring and data drift"
   ],
-  "overview": "A model in a notebook helps nobody; deployment means putting it where real users and apps can use it, and MLOps (machine learning operations) means keeping it working reliably after launch. Think of a cloud kitchen: the recipe (your model) is only the start; you also need an order window (an API, so other apps can send requests), a standard sealed box (a Docker container, so it runs the same everywhere), a recipe register (MLflow, to record which experiment produced which model), dated ingredient batches (DVC, to version your data), an automatic quality check before every change goes live (CI/CD with GitHub Actions), and regular tasting to notice when customers' tastes change (monitoring for data drift). You will serve a model with FastAPI or Flask, build quick demos with Streamlit and Gradio, package it with Docker, and deploy it on free tiers such as Hugging Face Spaces and Render. By the end you will have a live, shareable AI app, which is the most convincing thing you can show a client.",
+  "overview": "A model in a notebook helps nobody; deployment means putting it where real users and apps can use it, and MLOps (machine learning operations) means keeping it working reliably after launch. Think of a cloud kitchen: the recipe (your model) is only the start; you also need an order window (an API, so other apps can send requests), a standard sealed box (a Docker container, so it runs the same everywhere), a recipe register (MLflow, to record which experiment produced which model), dated ingredient batches (DVC, to version your data), an automatic quality check before every change goes live (CI/CD with GitHub Actions), and regular tasting to notice when customers' tastes change (monitoring for data drift). You will serve a model with FastAPI or Flask, build quick demos with Streamlit and Gradio, package it with Docker, and deploy it on free tiers: Streamlit Community Cloud for Streamlit apps, a Hugging Face ZeroGPU Space for Gradio apps (free accounts can host up to 2), and Render for a Docker container. By the end you will have a live, shareable AI app, which is the most convincing thing you can show a client.",
   "whyItMatters": "Clients pay for working products, not notebooks: a lead-scoring API plugged into their CRM, the backend of a WhatsApp bot, or a demo link they can open on their phone. Monitoring matters because customer behaviour in India shifts around festivals like Diwali and big online sale seasons, and a model trained on ordinary months can quietly get worse at exactly those times.",
   "outcomes": [
-   "You will be able to wrap a trained model in a FastAPI endpoint that accepts JSON, checks the input, and returns predictions.",
-   "You will be able to build a shareable demo of a model with Gradio or Streamlit in under 50 lines of code.",
-   "You will be able to write a Dockerfile, build an image, and run your model API inside a container.",
-   "You will be able to log experiments (settings, metrics and model files) with MLflow and pick the best run.",
-   "You will be able to version a dataset with DVC alongside your code in Git.",
-   "You will be able to set up a GitHub Actions workflow that runs your tests on every push.",
-   "You will be able to deploy a demo on Hugging Face Spaces or Render, and set up basic monitoring for errors, response time and data drift."
+   "Wrap a trained model in a FastAPI endpoint that accepts JSON, checks the input, and returns predictions.",
+   "Build a shareable demo of a model with Gradio or Streamlit in under 50 lines of code.",
+   "Write a Dockerfile, build an image, and run your model API inside a container.",
+   "Log experiments (settings, metrics and model files) with MLflow and pick the best run.",
+   "Version a dataset with DVC alongside your code in Git.",
+   "Set up a GitHub Actions workflow that runs your tests on every push.",
+   "Deploy a demo on Hugging Face Spaces or Render, and set up basic monitoring for errors, response time and data drift."
   ],
   "prerequisites": [
    "l3-pytorch",
@@ -2515,7 +2773,7 @@ window.AIM.modules = [
   ],
   "studySteps": [
    "Watch the Watch & read lessons on serving models with FastAPI (or Flask); save a model from an earlier module, build a `/predict` endpoint, and test it from the automatic `/docs` page.",
-   "Build a Gradio or Streamlit demo for the same model and deploy it on Hugging Face Spaces; the free CPU Basic hardware is enough for small models.",
+   "Build a Gradio or Streamlit demo for the same model. Put a Gradio demo on a Hugging Face ZeroGPU Space (free personal accounts can host up to 2; other Gradio and Docker Spaces now need a paid PRO plan), or a Streamlit demo on Streamlit Community Cloud, which is free and deploys straight from GitHub.",
    "Watch the Docker lessons, write a Dockerfile for your FastAPI app, run it on your laptop (with Docker Desktop) or in GitHub Codespaces, then deploy the container on Render's free tier.",
    "Watch the MLflow and DVC lessons; log at least five training runs of one model to MLflow and put its dataset under DVC.",
    "Watch the CI/CD and monitoring lessons; add a GitHub Actions workflow that runs a few tests on every push, and log each request's inputs and response time so you can check for drift later.",
@@ -2523,15 +2781,15 @@ window.AIM.modules = [
   ],
   "selfCheck": [
    "Deploy one of your Level 3 models (image or text) as a FastAPI service inside Docker, and write a README with one `curl` command that anyone can copy to get a prediction.",
-   "Put a Gradio demo of the same model on Hugging Face Spaces and share the link with three people; note the inputs that broke it, and fix at least one.",
+   "Put a Gradio demo of the same model on a free Hugging Face ZeroGPU Space (or a Streamlit demo on Streamlit Community Cloud) and share the link with three people; note the inputs that broke it, and fix at least one.",
    "Log a small hyperparameter search (trying several settings) to MLflow, take a screenshot of the run comparison, and explain in three sentences why you chose the winning run.",
    "Write a GitHub Actions workflow that runs `pytest` on every push, add a test that fails on purpose, and confirm that the workflow catches it.",
-   "Simulate drift: compare your training data with a 'new month' of data in which one feature's average has shifted, using a simple check (compare means and histograms, or run a Kolmogorov–Smirnov test from scipy), and write the alert you would set up for a client."
+   "Simulate drift: compare your training data with a 'new month' of data in which one feature's average has shifted, using a simple check (compare means and histograms, or run a Kolmogorov–Smirnov test from scipy, a standard check of whether two sets of numbers come from the same distribution), and write the alert you would set up for a client."
   ],
   "commonMistakes": [
    "Loading the model inside the prediction function. That reloads it on every request and makes the API slow; load it once when the app starts.",
    "Skipping input checks. Real users send empty fields, wrong types and huge files, so use FastAPI's Pydantic models to validate inputs and return clear error messages instead of crashing.",
-   "Promising a client always-on service on a free tier. A Hugging Face Spaces app on free CPU Basic hardware goes to sleep after 48 hours without visitors, and Render's free web services spin down after about 15 minutes idle, so the next request is slow; for paid work, quote a small always-on server and include its monthly cost, plus 18% GST on your invoice to Indian clients."
+   "Promising a client always-on service on a free tier. Free apps go to sleep when nobody uses them: Hugging Face Spaces on free hardware sleep after a period without visitors, and Render's free web services spin down after about 15 minutes idle, so the next request is slow. For paid work, quote a small always-on server and include its monthly cost, plus 18% GST on your invoice to Indian clients if you are GST-registered."
   ],
   "indiaExample": "AI4Bharat at IIT Madras publishes live demos of its Indian-language models on Hugging Face Spaces, built with Gradio, such as Indic Parler-TTS (text-to-speech in Indian languages), which is exactly the Gradio-plus-Spaces route in this module. At national scale, the Government of India's Bhashini mission offers Indian-language translation and speech models as APIs that other apps call, the same 'model behind an API' pattern you build here with FastAPI.",
   "tip": "Deploy something rough in the first week of this module and then improve it. A live link with a plain Gradio page teaches you more about real-world problems (slow starts, odd inputs, missing libraries) than a perfect notebook, and it is what clients actually click on.",
@@ -2657,7 +2915,41 @@ window.AIM.modules = [
    "Believing temperature 0 gives correct answers. It only makes the model pick the most likely token every time, so a wrong answer simply becomes a consistently wrong answer."
   ],
   "indiaExample": "Bengaluru-based Sarvam AI built Sarvam-1, a 2-billion-parameter model for 10 Indian languages plus English, with a tokeniser designed for Indian scripts. Its model card reports a 'fertility' (average number of tokens per word) of 1.4–2.1 across those languages and says this is 2–4 times more efficient than existing multilingual models. Fewer tokens per word means cheaper, faster processing and more text fitting in the same context window, which is exactly the tokenisation effect you measure in this module. Sarvam's later open model, Sarvam-30B, is a mixture-of-experts model: it has 128 experts and routes each token to 6 of them, so only about 2.4 billion of its parameters (not counting embeddings) are active per token.",
-  "tip": "Before quoting any LLM project, paste a typical client document into a tokeniser and count its tokens. Tokens decide both the running cost and whether the document fits in one request, so this two-minute check prevents wrong quotes."
+  "tip": "Before quoting any LLM project, paste a typical client document into a tokeniser and count its tokens. Tokens decide both the running cost and whether the document fits in one request, so this two-minute check prevents wrong quotes.",
+  "watch": [
+   {
+    "id": "vizuara-building-llms-from-scratch-lecture-series",
+    "note": "This is your main course for the module: begin with 'Lecture 1: Building LLMs from scratch: Series introduction', then work through the lectures on tokenisation and byte pair encoding, attention, coding the GPT model, pretraining on a small text file and generating text with temperature and top-k, with Raschka's free notebooks open so you can code along."
+   },
+   {
+    "id": "iit-madras-introduction-to-large-language-models-iit-mad",
+    "note": "For a structured IIT lecture course, look for the lectures on language modelling, tokenisation, the decoder-only transformer, pretraining and scaling laws, and decoding strategies (greedy, top-k, top-p), and leave the application lectures for later."
+   },
+   {
+    "id": "vizuara-build-deepseek-from-scratch-kv-cache-multi-head-",
+    "note": "After your GPT build, use this series to understand the KV cache, multi-head latent attention and mixture of experts, the efficiency ideas inside today's open models."
+   },
+   {
+    "id": "vizuara-reasoning-llms-from-scratch",
+    "note": "Watch the opening lectures to get the idea behind 'thinking' models (spending more compute while answering, RL and distillation), and only go further if you want depth."
+   },
+   {
+    "id": "3blue1brown-grant-sanderson-but-what-is-a-gpt-visual-int",
+    "note": "Watch this visual chapter, and the attention chapter after it, to see what a GPT computes without any code, either before the from-scratch build or alongside it."
+   },
+   {
+    "id": "andrej-karpathy-neural-networks-zero-to-hero-micrograd-t",
+    "note": "For the classic English code-along, watch Lecture 7 'Let's build GPT: from scratch, in code, spelled out' and Lecture 8 'Let's build the GPT Tokenizer'; Lectures 1-6 are background if PyTorch still feels new."
+   },
+   {
+    "id": "sebastian-raschka-build-a-large-language-model-from-scra",
+    "note": "Code along one chapter at a time: Ch 2 'Working with Text Data' (tokenising and BPE), Ch 3 'Coding Attention Mechanisms', Ch 4 'Implementing a GPT Model from Scratch' and Ch 5 'Pretraining on Unlabeled Data', plus the Chapter 4 bonus notebooks on the KV cache and mixture of experts."
+   },
+   {
+    "id": "polo-club-of-data-science-georgia-tech-transformer-expla",
+    "note": "Type your own sentence into a real GPT-2 in your browser and try the sampling controls, such as temperature, to see the next-token probabilities change; there is nothing to install."
+   }
+  ]
  },
  {
   "id": "l4-llm-apps",
@@ -2753,7 +3045,41 @@ window.AIM.modules = [
    "Judging the bot by trying a few questions by hand. Keep a fixed test set of 20–50 questions with expected answers and re-run it after every change, so you know whether the change actually helped."
   ],
   "indiaExample": "Jugalbandi is an open-source chatbot platform from OpenNyAI, developed with partners including AI4Bharat and Microsoft, that lets people ask questions on WhatsApp in their own language, by text or by voice, using speech models from the government's Bhashini language mission. Its question-answering service is RAG in practice: it uses LLMs to answer questions based on a given set of documents, such as information on government schemes, rather than from the model's memory alone. The same pattern, with a clinic's or a coaching institute's FAQs in place of government documents, is what an agency builds for a local business.",
-  "tip": "Show the source (document name and page or section) under every answer your bot gives. Clients trust a bot they can check, and when an answer is wrong you can see at once whether retrieval or the model was at fault."
+  "tip": "Show the source (document name and page or section) under every answer your bot gives. Clients trust a bot they can check, and when an answer is wrong you can see at once whether retrieval or the model was at fault.",
+  "watch": [
+   {
+    "id": "campusx-nitish-singh-generative-ai-using-langchain-full-",
+    "note": "This is your main Hindi course: go in order, focusing on Video 3 'LangChain Models', Video 4 'Prompts in LangChain', Video 5 'Structured Output in LangChain', Video 10 'Document Loaders in LangChain', Video 12 'Vector Stores in LangChain' and Video 15 'YouTube Chatbot using LangChain' (your first full RAG app), and check imports against the LangChain 1.x docs because it was recorded on 0.3."
+   },
+   {
+    "id": "krish-naik-hindi-generative-ai-crash-course-with-langcha",
+    "note": "Use this one-sitting Hindi crash course as a quicker, more recent LangChain refresher, and compare its code with the CampusX playlist."
+   },
+   {
+    "id": "krish-naik-hindi-langchain-hindi-playlist",
+    "note": "Use this for a second Hindi explanation: pick the videos on prompt templates, embeddings, vector stores and RAG whenever a CampusX video does not click."
+   },
+   {
+    "id": "krish-naik-updated-langchain-playlist",
+    "note": "Pick the project videos that use free or open models (Ollama, Groq) to build chatbots and RAG apps for practice, and treat any LLMChain or initialize_agent code as outdated."
+   },
+   {
+    "id": "krish-naik-llamaindex-playlist",
+    "note": "Watch a few videos to see how LlamaIndex builds the same RAG pipeline differently from LangChain, and update the imports to the current llama-index-core packages."
+   },
+   {
+    "id": "microsoft-generative-ai-for-beginners-21-lessons-version",
+    "note": "Read the Hindi text (translations/hi) of Lessons 04 'Understanding Prompt Engineering Fundamentals', 05 'Creating Advanced Prompts', 08 'Building Search Apps Vector Databases', 11 'Integrating External Applications with Function Calling', 15 'Retrieval Augmented Generation (RAG) and Vector Databases' and 16 'Open Source Models and Hugging Face', and skip the GitHub Models code variants, which no longer work."
+   },
+   {
+    "id": "langchain-academy-introduction-to-langchain-python-langc",
+    "note": "Take this official course after the YouTube series to bring everything you learned up to the current LangChain 1.x API."
+   },
+   {
+    "id": "evidently-ai-llm-evaluations-course",
+    "note": "Take this to learn how to test and score your chatbot's answers instead of guessing, then use the same ideas with RAGAS on your own RAG app."
+   }
+  ]
  },
  {
   "id": "l4-finetuning",
@@ -2849,7 +3175,45 @@ window.AIM.modules = [
    "Using a model or dataset without reading its licence. Some open models and datasets do not allow commercial use, so check before using them in paid client work."
   ],
   "indiaExample": "AI4Bharat at IIT Madras built Airavata, a Hindi instruction-following model, by fine-tuning OpenHathi, a Hindi base model that Sarvam AI built on top of Llama 2. The team assembled about 385,000 English and Hindi instruction examples, mostly by translating existing English datasets with their own IndicTrans2 translation model and dropping poor translations. In their comparison, full fine-tuning improved some Hindi tasks but hurt English tasks, while LoRA kept or improved performance on both, so they chose LoRA for the final model. It is a real case of PEFT helping to avoid catastrophic forgetting.",
-  "tip": "Spend most of your fine-tuning time on the data, not the settings. A few hundred clean, consistent examples often beat thousands of messy ones, so read at least 50 of your examples yourself before you train."
+  "tip": "Spend most of your fine-tuning time on the data, not the settings. A few hundred clean, consistent examples often beat thousands of messy ones, so read at least 50 of your examples yourself before you train.",
+  "watch": [
+   {
+    "id": "krish-naik-hindi-finetuning-llm-lora-and-qlora-technique",
+    "note": "Watch this Hindi video ('Finetuning LLM- LoRA And QLoRA Techniques') first for the intuition and maths behind LoRA's small add-on matrices and QLoRA's 4-bit compression."
+   },
+   {
+    "id": "krish-naik-finetuning-llm-playlist",
+    "note": "Watch in order, from quantisation and LoRA/QLoRA intuition to fine-tuning an open model on custom data, but practise with current models and the Unsloth notebooks because the code dates from 2023-24."
+   },
+   {
+    "id": "iit-delhi-introduction-to-large-language-models-llms",
+    "note": "For academic depth, look for the lectures on instruction tuning, parameter-efficient fine-tuning, alignment (RLHF/DPO) and LLM evaluation."
+   },
+   {
+    "id": "microsoft-generative-ai-for-beginners-21-lessons-version",
+    "note": "Read Lesson 18 'Fine-Tuning LLMs' in Hindi (translations/hi) for a plain-language answer to when to fine-tune instead of prompting or using RAG."
+   },
+   {
+    "id": "andrej-karpathy-deep-dive-into-llms-like-chatgpt",
+    "note": "Watch the second half, on supervised fine-tuning, reinforcement learning and RLHF, for the clearest no-code picture of how a base model becomes a helpful assistant."
+   },
+   {
+    "id": "deeplearning-ai-banghua-zhu-post-training-of-llms-sft-dp",
+    "note": "Use the short lessons and labs to compare SFT, DPO and online RL side by side and see when each one is used."
+   },
+   {
+    "id": "hugging-face-hugging-face-llm-course-chapter-11-supervis",
+    "note": "Work through this chapter on a free Colab GPU to run supervised fine-tuning with SFTTrainer and LoRA yourself."
+   },
+   {
+    "id": "unsloth-ai-unsloth-fine-tuning-notebooks",
+    "note": "Pick one notebook for a small current model (for example Qwen3 or Gemma) and run QLoRA fine-tuning end to end on free Colab, with the Unsloth fine-tuning guide open alongside."
+   },
+   {
+    "id": "hugging-face-a-smol-course-instruction-tuning-evaluation",
+    "note": "After Chapter 11, do Unit 2 'Evaluation' and Unit 3 'Preference Alignment' (DPO) to evaluate and align your own small fine-tuned model."
+   }
+  ]
  },
  {
   "id": "l4-agents",
@@ -2944,7 +3308,41 @@ window.AIM.modules = [
    "Writing vague tool names and descriptions. The model chooses tools only from their names, descriptions and parameters, so write them like instructions for a new colleague, with an example of when to use each one."
   ],
   "indiaExample": "Razorpay, the Indian payments company, publishes an official MCP server on GitHub (razorpay/razorpay-mcp-server). It gives an AI assistant or agent tools for Razorpay's payment APIs, such as create_payment_link, create_payment_link_upi, create_order, fetch_payment and create_refund, and it can run on your own machine or be reached as a remote server hosted by Razorpay. An agency could use it to build an assistant that creates a UPI payment link for a client's invoice on request. Because these tools touch real money, it is also a clear case for guardrails: keep a human approval step before any payment or refund action.",
-  "tip": "Log every step of every agent run: the prompt, the tool chosen, its inputs, the result and the tokens used. When an agent fails, the log shows why within minutes; without it you are only guessing."
+  "tip": "Log every step of every agent run: the prompt, the tool chosen, its inputs, the result and the tokens used. When an agent fails, the log shows why within minutes; without it you are only guessing.",
+  "watch": [
+   {
+    "id": "campusx-nitish-singh-agentic-ai-using-langgraph-full-pla",
+    "note": "This is your main Hindi agents course: start at 'Generative AI vs Agentic AI | Agentic AI using LangGraph | Video 1' and go in order through the LangGraph workflow and chatbot videos and 'Tools in LangGraph', up to 'How to build MCP Client using LangGraph', watching for the videos on memory and multi-agent setups along the way."
+   },
+   {
+    "id": "campusx-nitish-singh-model-context-protocol-mcp-trilogy",
+    "note": "Watch this short Hindi mini-series to understand why MCP exists and how MCP clients and servers talk to each other, using the CampusX GitHub repos for working code."
+   },
+   {
+    "id": "krish-naik-hindi-building-ai-agents-with-pydantic-ai-cra",
+    "note": "Watch this after LangGraph to see, in Hindi, that the same LLM + tools + loop idea works in a lighter framework (Pydantic AI)."
+   },
+   {
+    "id": "krish-naik-agentic-ai-tutorials",
+    "note": "Pick the end-to-end LangGraph project videos for extra practice after the CampusX playlist."
+   },
+   {
+    "id": "krish-naik-mcp-model-context-protocol-playlist",
+    "note": "Start with 'All You Need To Know About Model Context Protocol(MCP)', then follow the videos that build MCP servers and connect them to agents, checking the current Streamable HTTP transport in the MCP docs."
+   },
+   {
+    "id": "microsoft-ai-agents-for-beginners-18-lessons",
+    "note": "Read the Hindi text of Lessons 04 'Tool Use Design Pattern', 06 'Building Trustworthy AI Agents', 07 'Planning Design Pattern', 08 'Multi-Agent Design Pattern', 11 'Using Agentic Protocols (MCP, A2A and NLWeb)', 13 'Managing Agentic Memory' and 18 'Securing AI Agents' for the design ideas, even if you skip the Azure code."
+   },
+   {
+    "id": "hugging-face-hugging-face-ai-agents-course",
+    "note": "Do Unit 1 'Introduction to Agents', Unit 2.3 'The LangGraph Framework' and the Unit 2 bonus 'Observability and Evaluation', then take on the Unit 4 final agent as a challenge."
+   },
+   {
+    "id": "deeplearning-ai-with-arize-ai-evaluating-ai-agents",
+    "note": "Take this short course to learn how to test an agent's tool choices and final answers systematically before anyone relies on it."
+   }
+  ]
  },
  {
   "id": "l4-gen-vision",
@@ -2964,7 +3362,7 @@ window.AIM.modules = [
    "Explain how autoencoders, VAEs, GANs and diffusion models generate images, and the main strength and weakness of each",
    "Train a small VAE and a small GAN on MNIST or Fashion-MNIST in PyTorch and generate new samples",
    "Explain the forward (add noise) and reverse (remove noise) processes of a diffusion model",
-   "Generate and edit images with Stable Diffusion using the Hugging Face diffusers library, controlling the prompt, negative prompt, guidance scale, number of steps and seed",
+   "Generate and edit images with Stable Diffusion using the Hugging Face diffusers library, controlling the prompt, negative prompt (things the image should avoid), guidance scale, number of steps and seed",
    "Use CLIP to search a folder of images with a text query",
    "Ask a vision-language model questions about an image and find where it fails",
    "Check licences, consent and AI-content labelling before using generated images for clients"
@@ -3055,7 +3453,7 @@ window.AIM.modules = [
    "RL for LLMs (intuition)"
   ],
   "overview": "Reinforcement learning (RL) is learning by trial and error from rewards, like learning to ride a bicycle: nobody tells you the right move at each moment, you only find out from the result whether it went well. An agent (the learner) takes actions in an environment (the world it acts in), receives rewards, and learns a policy (a rule for which action to take in each situation) that earns the most reward over time. You start with multi-armed bandits (choosing between options, such as ad creatives, while still learning which is best), then learn value functions and Q-learning, deep Q-networks that use a neural network, and policy-gradient methods such as PPO. Finally, you see how the same ideas are used to train chat models through RLHF and today's reasoning models through rewards for correct answers.",
-  "whyItMatters": "RL ideas run parts of recommendation and ad systems (bandits deciding what to show), robotics and game-playing AI, and the post-training of most modern chat and reasoning LLMs. Knowing RL also helps you read LLM papers, where terms like reward model, PPO and GRPO appear constantly.",
+  "whyItMatters": "RL ideas run parts of recommendation and ad systems (bandits deciding what to show), robotics and game-playing AI, and the post-training of most modern chat and reasoning LLMs. Knowing RL also helps you read LLM papers, where terms like reward model, PPO and GRPO (group relative policy optimisation, a cheaper variant of PPO that judges each answer by comparing it with several other answers to the same question) appear constantly.",
   "outcomes": [
    "Describe a problem as an MDP: its states, actions, rewards and discount factor",
    "Implement epsilon-greedy, UCB and Thompson sampling for a multi-armed bandit and compare their total reward",
@@ -3148,7 +3546,7 @@ window.AIM.modules = [
    "ML interview preparation",
    "building a portfolio and getting AI jobs/freelance work in India"
   ],
-  "overview": "This module turns you from a course-taker into someone who can learn alone, design real systems and earn from AI. Reading an ML research paper is like reading a long court judgment: you don't go from the first line to the last, you read the summary and conclusion first, then the main argument, and only then the details. You will learn a three-pass method for reading papers, reproduce a result from a paper that has released code, and practise ML system design (planning the data, model, serving, monitoring and cost of a whole product). You will also pick full university courses (Stanford, MIT, and IIT courses on NPTEL, India's free online course platform run by the IITs and IISc) for depth, prepare for ML interviews, and build a portfolio that wins jobs, freelance work or agency clients in India.",
+  "overview": "This module turns you from a course-taker into someone who can learn alone, design real systems and earn from AI. Reading an ML research paper is like reading a long court judgment: you don't go from the first line to the last, you read the summary and conclusion first, then the main argument, and only then the details. You will learn a three-pass method for reading papers, reproduce a result from a paper that has released code, and practise ML system design (planning the data, model, serving, monitoring and cost of a whole product). You will also pick full university courses (Stanford, MIT, and IIT courses on NPTEL, India's free online course platform run by the IITs and IISc) for depth, prepare for ML interviews, and build a portfolio that helps you win jobs, freelance work or agency clients in India.",
   "whyItMatters": "AI tools change every few months, so the skill that lasts is learning straight from papers, documentation and code. Employers and clients want to see working, deployed projects and hear you explain design trade-offs and costs, not just a list of certificates.",
   "outcomes": [
    "Read an ML paper with the three-pass method and summarise its problem, method, results and limits on one page",
@@ -3227,7 +3625,7 @@ window.AIM.modules = [
   "commonMistakes": [
    "Reading every paper from start to end and giving up halfway. Use the three-pass method and stop after the first pass for most papers; only a few deserve a full, deep read.",
    "Filling the portfolio with tutorial copies (Titanic, MNIST, a generic PDF chatbot). Build 2–3 projects on real Indian problems with your own data, deploy them, and state the result in numbers in each README.",
-   "Ignoring tax and contracts when starting freelance or agency work. Know the basics: GST registration is required once your turnover from services crosses ₹20 lakh in a year (₹10 lakh in a few special category states), exports of services can be zero-rated under a LUT, and every project needs a written scope. Confirm your own situation with a chartered accountant (CA)."
+   "Ignoring tax and contracts when starting freelance or agency work. Know the basics: GST registration is generally required once your aggregate turnover crosses ₹20 lakh in a financial year (₹10 lakh in a few special category states), some cases need it earlier, exports of services can be zero-rated under a LUT, and every project needs a written scope. Confirm your own situation with a chartered accountant (CA)."
   ],
   "indiaExample": "AI4Bharat at IIT Madras published IndicTrans2 (arXiv 2305.16307), an open-source translation model covering all 22 scheduled Indian languages. With the paper, the team released its training data (BPCC), the trained models, the IN22 evaluation sets, training and inference scripts, and a ready-to-run Colab notebook. That makes it an ideal first paper to reproduce: you can run the released model on part of IN22 and compare your scores with the paper's. It is also reused in other Indian work; for example, AI4Bharat used it to translate the training data for its Hindi model Airavata.",
   "tip": "Read one paper a week from the start of this level, not only in this module. Pick it from the Hugging Face daily papers page (huggingface.co/papers), spend 30 minutes on the first pass, and keep a running list of one-line summaries in a GitHub repository; it doubles as proof of learning for clients and employers."

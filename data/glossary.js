@@ -516,7 +516,7 @@ window.AIM.glossary = [
  {
   "term": "Hugging Face",
   "hindi": "हगिंग फ़ेस",
-  "simple": "A company and website that hosts over a million free models and datasets, the popular 'transformers' Python library and free demo hosting called Spaces. People often call it the GitHub of AI.",
+  "simple": "A company and website that hosts over a million free models and datasets, the popular 'transformers' Python library and demo hosting called Spaces (static pages and up to 2 Gradio demos per free account; other app Spaces need a paid plan). People often call it the GitHub of AI.",
   "example": "You can download an Indian-language speech-recognition model from Hugging Face and run it in Colab with a few lines of code.",
   "moduleId": "l3-transformers"
  },
@@ -1097,7 +1097,7 @@ window.AIM.glossary = [
  {
   "term": "Streamlit and Gradio",
   "hindi": "स्ट्रीमलिट और ग्रेडियो",
-  "simple": "Free Python libraries that turn a model or script into a simple web app with text boxes, buttons and file uploads in a few lines. They are ideal for demos, and Hugging Face Spaces can host them for free.",
+  "simple": "Free Python libraries that turn a model or script into a simple web app with text boxes, buttons and file uploads in a few lines. They are ideal for demos. Streamlit Community Cloud hosts Streamlit apps for free, and a free Hugging Face account can host up to 2 Gradio apps on ZeroGPU Spaces.",
   "example": "In one afternoon you can build a Gradio app where a client uploads a photo of an invoice and sees the extracted GSTIN and total.",
   "moduleId": "l3-mlops"
  },
