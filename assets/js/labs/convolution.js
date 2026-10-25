@@ -424,7 +424,7 @@
     var taskCount = el('span', { class: 'muted small num', text: '' });
     var taskMsg = el('p', { class: 'small', role: 'status', style: 'color:var(--ok);font-weight:600;min-height:1.2em;margin-top:6px' });
     controls.appendChild(el('div', {}, [
-      el('div', { class: 'row-between', style: 'margin-bottom:6px' }, [el('h4', { text: 'Tasks' }), taskCount]),
+      el('div', { class: 'row-between', style: 'margin-bottom:6px' }, [el('h2', { class: 'lab-h', text: 'Tasks' }), taskCount]),
       taskList, taskMsg
     ]));
     body.appendChild(controls);
