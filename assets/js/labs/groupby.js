@@ -137,7 +137,7 @@
       g.vals = g.rows.map(function (i) { return cellVal(ROWS[i], cfg.agg, cfg.missing); });
       g.nan = g.rows.filter(function (i) { return ROWS[i][cfg.agg] === null; }).length;
       g.value = aggregate(g.vals, cfg.fn);
-      g.label = keys.length === 0 ? 'All ' + g.rows.length + ' rows' : g.keys.join(' · ');
+      g.label = keys.length ? g.keys.join(' · ') : g.rows.length === 0 ? 'No rows' : g.rows.length === 1 ? 'The 1 row' : 'All ' + g.rows.length + ' rows';
       g.colour = keys.length ? '--series-' + (AZ[keys[0]].indexOf(g.keys[0]) + 1) : '--series-1';
       g.rows.forEach(function (i) { rowGroup[i] = gi; });
     });
@@ -337,6 +337,7 @@
             '<div class="stack-sm" style="min-width:0">' +
               '<h2 class="lab-h" id="' + P + 'outh">What print() shows</h2>' +
               '<pre id="' + P + 'out" tabindex="0" aria-labelledby="' + P + 'outh" style="white-space:pre;width:0;min-width:100%"></pre>' +
+              '<p class="small muted" id="' + P + 'outnote"></p>' +
             '</div>' +
             '<div class="stack-sm" style="min-width:0">' +
               '<h2 class="lab-h" id="' + P + 'resh">Read the result</h2>' +
@@ -351,20 +352,20 @@
         '<div class="lab-controls">' +
           '<div class="control"><span class="control-label">1. Filter rows: keep only rows where…</span>' +
             '<div style="display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.8fr) minmax(0,1.15fr);gap:6px;align-items:end">' +
-              '<div class="stack-sm" style="gap:2px"><label class="small" for="' + P + 'fcol">Column</label><select id="' + P + 'fcol" style="width:100%">' +
+              '<div class="stack-sm" style="gap:2px"><label class="small" for="' + P + 'fcol">Column</label><select id="' + P + 'fcol" style="width:100%;height:42px">' +
                 '<option value="">(no filter)</option>' + KEY_COLS.concat(NUM_COLS).map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join('') + '</select></div>' +
-              '<div class="stack-sm" style="gap:2px"><label class="small" for="' + P + 'fop">Test</label><select id="' + P + 'fop" style="width:100%"></select></div>' +
-              '<div class="stack-sm" style="gap:2px" id="' + P + 'fvalbox"><label class="small" for="' + P + 'fval">Value</label><select id="' + P + 'fval" style="width:100%"></select></div>' +
-              '<div class="stack-sm" style="gap:2px" id="' + P + 'fnumbox" hidden><label class="small" for="' + P + 'fnum">Value</label><input type="number" id="' + P + 'fnum" inputmode="decimal" step="any" style="width:100%"></div>' +
+              '<div class="stack-sm" style="gap:2px"><label class="small" for="' + P + 'fop">Test</label><select id="' + P + 'fop" style="width:100%;height:42px"></select></div>' +
+              '<div class="stack-sm" style="gap:2px" id="' + P + 'fvalbox"><label class="small" for="' + P + 'fval">Value</label><select id="' + P + 'fval" style="width:100%;height:42px"></select></div>' +
+              '<div class="stack-sm" style="gap:2px" id="' + P + 'fnumbox" hidden><label class="small" for="' + P + 'fnum">Value</label><input type="number" id="' + P + 'fnum" inputmode="decimal" step="any" style="width:100%;height:42px"></div>' +
             '</div>' +
             '<p class="small muted" id="' + P + 'fdesc"></p></div>' +
           '<div class="control"><span class="control-label" id="' + P + 'bylbl">2. Group by</span>' +
             '<div class="seg" role="group" aria-labelledby="' + P + 'bylbl">' +
               '<button type="button" data-by="0" aria-pressed="false">None</button><button type="button" data-by="1" aria-pressed="false">1 column</button><button type="button" data-by="2" aria-pressed="false">2 columns</button></div>' +
             '<div id="' + P + 'keys" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px;margin-top:4px">' +
-              '<div class="stack-sm" style="gap:2px"><label class="small" for="' + P + 'k1">First column</label><select id="' + P + 'k1" style="width:100%">' +
+              '<div class="stack-sm" style="gap:2px"><label class="small" for="' + P + 'k1">First column</label><select id="' + P + 'k1" style="width:100%;height:42px">' +
                 KEY_COLS.map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join('') + '</select></div>' +
-              '<div class="stack-sm" style="gap:2px" id="' + P + 'k2box"><label class="small" for="' + P + 'k2">Then by</label><select id="' + P + 'k2" style="width:100%"></select></div>' +
+              '<div class="stack-sm" style="gap:2px" id="' + P + 'k2box"><label class="small" for="' + P + 'k2">Then by</label><select id="' + P + 'k2" style="width:100%;height:42px"></select></div>' +
             '</div>' +
             '<p class="small muted" id="' + P + 'bydesc"></p></div>' +
           seg('agg', '3. Column to summarise', 'agg', [['units', 'units'], ['sales_rs', 'sales_rs']]) +
@@ -385,13 +386,14 @@
             ['index'].concat(KEY_COLS, NUM_COLS).map(function (c, j) { return '<th scope="col" style="' + thStyle + (j >= 4 ? ';text-align:right' : '') + '">' + c + '</th>'; }).join('') +
           '</tr></thead><tbody id="' + P + 'dfbody">' + dfRows + '</tbody></table></div>' +
       '</div>' +
-      '<p class="small muted"><strong style="color:var(--ink)">Why it matters in real ML:</strong> data scientists run groupby all the time before training a model: to check the data (how many rows each class has, where values are missing), to spot patterns (average sales per city) and to build features (new input columns), such as each shop’s average monthly sales. Skipping or filling missing values changes the numbers, so make that choice on purpose.</p>';
+      '<p class="small muted"><strong style="color:var(--ink)">Why it matters in real ML:</strong> data scientists run groupby all the time before training a model: to check the data (how many rows each class, or kind of answer, has; where values are missing), to spot patterns (average sales per city) and to build features (new input columns), such as each shop’s average monthly sales. Skipping or filling missing values changes the numbers, so make that choice on purpose.</p>';
     root.appendChild(labEl);
 
     function $(id) { return labEl.querySelector('#' + P + id); }
     var body = labEl.querySelector('.lab-body');
     var wrap = $('wrap'), svg = $('svg');
     var elCode = $('code'), elPlain = $('plain'), elCap = $('cap'), elOut = $('out'), elResBody = $('resbody'), elResV = $('resv'), elRead = $('read'), elLive = $('live');
+    var elOutNote = $('outnote');
     var elSKept = $('skept'), elSGroups = $('sgroups'), elSNan = $('snan');
     var selFcol = $('fcol'), selFop = $('fop'), selFval = $('fval'), inFnum = $('fnum'), boxFval = $('fvalbox'), boxFnum = $('fnumbox'), elFdesc = $('fdesc');
     var selK1 = $('k1'), selK2 = $('k2'), boxKeys = $('keys'), boxK2 = $('k2box'), elByDesc = $('bydesc');
@@ -917,11 +919,27 @@
       t += 'take the ' + FN_WORD[cfg.fn] + ' of ' + cfg.agg + (res.keys.length ? ' in each group' : '');
       if (res.keys.length && cfg.sort !== 'none') t += ', then sort the result ' + (cfg.sort === 'asc' ? 'smallest first' : 'largest first');
       t += '.';
+      var sg = selGroup();
+      if (sg) t += ' Then read one value with result.loc[' + locArg(sg) + '] (.loc looks a row up by its label).';
       if (res.ties && res.keys.length && cfg.sort !== 'none') t += ' Some groups tie, so kind=\'stable\' keeps tied groups in A-to-Z order (pandas’ default sort may shuffle them).';
       if (res.keys.indexOf('month') >= 0 && cfg.sort === 'none') t += ' Groups come out A to Z, so Feb is listed before Jan.';
       return t.charAt(0).toUpperCase() + t.slice(1);
     }
 
+    // what the dtype (data type) in the printed answer means
+    function outNote() {
+      if (res.scalar) {
+        return 'With no groups pandas prints just the number (a scalar): no labels and no dtype line.' +
+          (isNaN(res.groups[0].value) ? ' nan is how Python prints a missing number.' : '');
+      }
+      var t = !res.groups.length ? 'No rows means an empty result: pandas prints Series([]) with its name and dtype (data type). ' :
+        'The first line names the group-by column' + (res.keys.length > 1 ? 's' : '') + ', the left side holds the group labels (the index), and the Name line gives the result’s name and its dtype (data type). ';
+      if (res.isInt) return t + 'int64 means whole numbers.';
+      t += 'float64 means numbers that can have a decimal point';
+      if (cfg.fn === 'mean') return t + ': a mean is always float64.';
+      return t + (cfg.missing === 'fill' ? ': sales_rs held NaN (a decimal-number value), so it is float64, and fillna keeps that type.' :
+        ': sales_rs holds NaN, which is a decimal-number value, so the column is float64.');
+    }
     /* ---------- drawing the page parts ---------- */
     function selGroup() { return selId && res.byId[selId] && !res.scalar ? res.byId[selId] : null; }
     function renderCode() {
@@ -933,6 +951,7 @@
       }).join('');
       elOut.textContent = pyOutput(res, cfg, selGroup());
       elPlain.textContent = plainText();
+      elOutNote.textContent = outNote();
     }
     function renderCaption() { elCap.textContent = captionText(); }
     function renderStats() {
@@ -995,6 +1014,7 @@
       });
       var t = g.label + ': the ' + FN_WORD[cfg.fn] + ' of ' + cfg.agg + ' is ' + fmtAgg(g.value, cfg) + '. Its rows: ' + parts.join(', ') + '.';
       if (cfg.fn === 'sum' && cfg.agg === 'sales_rs' && g.nan === g.rows.length && cfg.missing === 'skip') t += ' Every value is NaN, and pandas says the sum of nothing is 0.';
+      else if (isNaN(g.value)) t += ' Every value is NaN, so there is nothing to take the ' + cfg.fn + ' of, and pandas gives NaN.';
       var hint = taskHint(g);
       return hint ? t + ' ' + hint : t;
     }
