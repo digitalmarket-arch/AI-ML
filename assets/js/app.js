@@ -38,6 +38,7 @@
   function placeFigures(m, el) {
     ensureFigures(m.id).then(function (figs) {
       if (!el.isConnected || !figs || !figs.length) return;
+      var lastAt = {}; // figures that share an anchor keep their file order
       figs.forEach(function (f, i) {
         if (!SAFE_SVG(f.svg)) return;
         var fig = document.createElement('figure');
@@ -48,9 +49,11 @@
           svg.removeAttribute('width'); svg.removeAttribute('height');
           svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', f.alt || f.title || 'Diagram'); svg.setAttribute('focusable', 'false');
         }
-        var anchor = el.querySelector('[data-sec="' + (f.after || 'overview') + '"]') || el.querySelector('[data-sec="overview"]');
+        var key = el.querySelector('[data-sec="' + (f.after || 'overview') + '"]') ? (f.after || 'overview') : 'overview';
+        var anchor = lastAt[key] || el.querySelector('[data-sec="' + key + '"]');
         if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(fig, anchor.nextSibling);
         else el.firstChild.appendChild(fig);
+        lastAt[key] = fig;
       });
     });
   }

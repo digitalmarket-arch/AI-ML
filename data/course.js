@@ -904,7 +904,8 @@ window.AIM.modules = [
     "note": "Watch last, to see a gradient as the downhill direction on a cost landscape and how a neural network uses it to learn."
    }
   ],
-  "best": "campusx-nitish-singh-maths-for-machine-learning-campusx"
+  "best": "campusx-nitish-singh-maths-for-machine-learning-campusx",
+  "figs": true
  },
  {
   "id": "l1-numpy-pandas",
@@ -1040,7 +1041,8 @@ window.AIM.modules = [
     "note": "Practise the missing-values and date-parsing lessons here to lock in the cleaning skills from CampusX Days 34-40."
    }
   ],
-  "best": "campusx-nitish-singh-campusx-data-science-mentorship-pro"
+  "best": "campusx-nitish-singh-campusx-data-science-mentorship-pro",
+  "figs": true
  },
  {
   "id": "l1-eda-viz-sql",
@@ -3665,7 +3667,8 @@ window.AIM.modules = [
     "note": "Train a toy GAN in your browser and watch the generator and discriminator compete. This makes the GAN lectures much easier to follow."
    }
   ],
-  "best": "iit-madras-mathematical-foundations-of-generative-ai-iit"
+  "best": "iit-madras-mathematical-foundations-of-generative-ai-iit",
+  "figs": true
  },
  {
   "id": "l4-rl",
@@ -3799,7 +3802,8 @@ window.AIM.modules = [
     "note": "Read it last for the intuition of how a reward model plus PPO trains chat models (RLHF). Then open the RLHF Book for newer methods such as DPO and GRPO."
    }
   ],
-  "best": "prof-balaraman-ravindran-iit-madras-nptel-nptel-reinforc"
+  "best": "prof-balaraman-ravindran-iit-madras-nptel-nptel-reinforc",
+  "figs": true
  },
  {
   "id": "l4-research-career",

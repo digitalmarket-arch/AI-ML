@@ -62,10 +62,10 @@
   var JOIN_KEEPS = { INNER: { M: 1 }, LEFT: { L: 1, M: 1 }, RIGHT: { M: 1, R: 1 }, FULL: { L: 1, M: 1, R: 1 } };
   var WHERES = [
     { id: 'none', sql: '', label: 'No WHERE filter' },
-    { id: 'oid_null', sql: 'orders.order_id IS NULL', label: 'WHERE orders.order_id IS NULL' },
-    { id: 'cid_null', sql: 'customers.customer_id IS NULL', label: 'WHERE customers.customer_id IS NULL' },
-    { id: 'amt_gt', sql: 'orders.amount_rs > 500', label: 'WHERE orders.amount_rs > 500' },
-    { id: 'city_pune', sql: "customers.city = 'Pune'", label: "WHERE customers.city = 'Pune'" }
+    { id: 'oid_null', sql: 'orders.order_id IS NULL', label: 'orders.order_id IS NULL' },
+    { id: 'cid_null', sql: 'customers.customer_id IS NULL', label: 'customers.customer_id IS NULL' },
+    { id: 'amt_gt', sql: 'orders.amount_rs > 500', label: 'orders.amount_rs > 500' },
+    { id: 'city_pune', sql: "customers.city = 'Pune'", label: "customers.city = 'Pune'" }
   ];
   var AGGS = [
     { id: 'n_rows', expr: 'COUNT(*)', help: 'counts rows, NULL rows too' },
@@ -73,14 +73,14 @@
     { id: 'total_rs', expr: 'SUM(orders.amount_rs)', help: 'adds up amounts, skipping NULLs' }
   ];
   var ORDER_UNGROUPED = [
-    { id: 'amt_desc', label: 'orders.amount_rs DESC (biggest first)', sql: 'orders.amount_rs DESC, customers.name', keys: [{ f: 'amount', desc: true }, { f: 'name' }] },
-    { id: 'name_asc', label: 'customers.name (A to Z)', sql: 'customers.name, orders.order_id', keys: [{ f: 'name' }, { f: 'order_id' }] }
+    { id: 'amt_desc', label: 'orders.amount_rs DESC: biggest first', sql: 'orders.amount_rs DESC, customers.name', keys: [{ f: 'amount', desc: true }, { f: 'name' }] },
+    { id: 'name_asc', label: 'customers.name: A to Z', sql: 'customers.name, orders.order_id', keys: [{ f: 'name' }, { f: 'order_id' }] }
   ];
   var ORDER_GROUPED = [
-    { id: 'city_asc', label: 'customers.city (A to Z)', sql: 'customers.city', keys: [{ f: 'city' }] },
-    { id: 'n_rows_desc', need: 'n_rows', label: 'n_rows DESC (most rows first)', sql: 'n_rows DESC, customers.city', keys: [{ f: 'n_rows', desc: true }, { f: 'city' }] },
-    { id: 'n_orders_desc', need: 'n_orders', label: 'n_orders DESC (most orders first)', sql: 'n_orders DESC, customers.city', keys: [{ f: 'n_orders', desc: true }, { f: 'city' }] },
-    { id: 'total_desc', need: 'total_rs', label: 'total_rs DESC (biggest total first)', sql: 'total_rs DESC, customers.city', keys: [{ f: 'total_rs', desc: true }, { f: 'city' }] }
+    { id: 'city_asc', label: 'customers.city: A to Z', sql: 'customers.city', keys: [{ f: 'city' }] },
+    { id: 'n_rows_desc', need: 'n_rows', label: 'n_rows DESC: most rows first', sql: 'n_rows DESC, customers.city', keys: [{ f: 'n_rows', desc: true }, { f: 'city' }] },
+    { id: 'n_orders_desc', need: 'n_orders', label: 'n_orders DESC: most orders first', sql: 'n_orders DESC, customers.city', keys: [{ f: 'n_orders', desc: true }, { f: 'city' }] },
+    { id: 'total_desc', need: 'total_rs', label: 'total_rs DESC: biggest total first', sql: 'total_rs DESC, customers.city', keys: [{ f: 'total_rs', desc: true }, { f: 'city' }] }
   ];
   var UNGROUPED_COLS = [
     { t: 'customers', n: 'customer_id', kind: 'num' },
@@ -220,12 +220,17 @@
   }
 
   /* ---------- the SQL text ---------- */
-  function sqlLines(S) {
+  // narrow = the box is too thin for 47 characters, so long lines are broken (still the same, valid SQL)
+  var SQL_WIDE_CHARS = 47;
+  function sqlLines(S, narrow) {
     var L = [];
+    function selectList(cols) { cols.forEach(function (s, i) { L.push({ cl: 'select', t: (i ? '       ' : 'SELECT ') + s + (i < cols.length - 1 ? ',' : '') }); }); }
     if (S.group === 'city') {
       var sel = ['customers.city'];
       AGGS.forEach(function (a) { if (S.aggs[a.id]) sel.push(a.expr + ' AS ' + a.id); });
-      sel.forEach(function (s, i) { L.push({ cl: 'select', t: (i ? '       ' : 'SELECT ') + s + (i < sel.length - 1 ? ',' : '') }); });
+      selectList(sel);
+    } else if (narrow) {
+      selectList(['customers.customer_id', 'customers.name', 'customers.city', 'orders.order_id', 'orders.customer_id', 'orders.amount_rs']);
     } else {
       L.push({ cl: 'select', t: 'SELECT customers.customer_id, customers.name,' });
       L.push({ cl: 'select', t: '       customers.city, orders.order_id,' });
@@ -233,11 +238,20 @@
     }
     L.push({ cl: 'from', t: 'FROM customers' });
     L.push({ cl: 'join', t: findBy(JOINS, S.join).sql + ' orders' });
-    L.push({ cl: 'join', t: '  ON customers.customer_id = orders.customer_id' });
+    if (narrow) {
+      L.push({ cl: 'join', t: '  ON customers.customer_id' });
+      L.push({ cl: 'join', t: '   = orders.customer_id' });
+    } else L.push({ cl: 'join', t: '  ON customers.customer_id = orders.customer_id' });
     if (S.where !== 'none') L.push({ cl: 'where', t: 'WHERE ' + findBy(WHERES, S.where).sql });
     if (S.group === 'city') L.push({ cl: 'group', t: 'GROUP BY customers.city' });
     var o = orderSpec(S);
-    if (o) L.push({ cl: 'order', t: 'ORDER BY ' + o.sql });
+    if (o) {
+      var ob = 'ORDER BY ' + o.sql, cut = ob.indexOf(', ');
+      if (narrow && ob.length > 40 && cut > 0) {
+        L.push({ cl: 'order', t: ob.slice(0, cut + 1) });
+        L.push({ cl: 'order', t: '         ' + ob.slice(cut + 2) });
+      } else L.push({ cl: 'order', t: ob });
+    }
     L[L.length - 1].t += ';';
     return L;
   }
@@ -308,7 +322,7 @@
           '<div class="stack-sm">' +
             '<h2 class="lab-h">The SQL query</h2>' +
             '<pre id="' + P + 'sql" aria-label="SQL query" style="font-size:.8rem;line-height:1.55;padding:10px 12px"></pre>' +
-            '<div class="lab-stats" style="grid-template-columns:repeat(auto-fit,minmax(76px,1fr))">' +
+            '<div class="lab-stats" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr))">' +
               '<div class="stat"><div class="k">1 · JOIN</div><div class="v" id="' + P + 'sjoin">—</div></div>' +
               '<div class="stat"><div class="k">2 · WHERE</div><div class="v" id="' + P + 'swhere">—</div></div>' +
               '<div class="stat"><div class="k">3 · GROUP BY</div><div class="v" id="' + P + 'sgroup">—</div></div>' +
@@ -335,7 +349,7 @@
         '<div class="lab-controls">' +
           '<div class="control"><span class="control-label" id="' + P + 'joinlbl">JOIN type</span>' +
             '<div class="seg" role="group" aria-labelledby="' + P + 'joinlbl">' +
-              JOINS.map(function (j) { return '<button type="button" data-join="' + j.id + '" aria-pressed="false">' + j.label + '</button>'; }).join('') +
+              JOINS.map(function (j) { return '<button type="button" data-join="' + j.id + '" aria-pressed="false" style="padding:6px 9px">' + j.label + '</button>'; }).join('') +
             '</div>' +
             '<div style="display:grid;grid-template-columns:132px minmax(0,1fr);gap:10px;align-items:center;margin-top:6px">' +
               '<svg id="' + P + 'venn" width="132" height="84" viewBox="0 0 160 92" role="img" aria-label="Venn diagram" style="display:block;max-width:100%;height:auto"></svg>' +
@@ -347,7 +361,7 @@
             '<select id="' + P + 'where">' + WHERES.map(function (w) { return '<option value="' + w.id + '">' + esc(w.label) + '</option>'; }).join('') + '</select>' +
             '<p class="small muted">WHERE keeps only the joined rows where the test is true.</p></div>' +
           '<div class="control"><label for="' + P + 'group">GROUP BY</label>' +
-            '<select id="' + P + 'group"><option value="none">No GROUP BY (one row per joined row)</option><option value="city">GROUP BY customers.city</option></select>' +
+            '<select id="' + P + 'group"><option value="none">No GROUP BY</option><option value="city">GROUP BY customers.city</option></select>' +
             '<fieldset id="' + P + 'aggs" hidden style="border:1px solid var(--line);border-radius:var(--radius-sm);padding:6px 10px 10px;margin:6px 0 0;min-width:0">' +
               '<legend class="small" style="font-weight:600;padding:0 4px">Work out for each city</legend>' +
               '<div class="small" style="display:grid;grid-template-columns:20px minmax(0,1fr);gap:8px;align-items:start">' +
@@ -505,12 +519,19 @@
       if (hasNull) s += ' NULL counts as the smallest value here (as in SQLite, the database built into Python), so NULLs come first in A to Z order and last with DESC. PostgreSQL does the opposite.';
       return s;
     }
-    var msgTimer = 0;
     function say(html) { elMsg.innerHTML = html; }
 
     /* ---------- rendering: SQL, stats, Venn, result ---------- */
+    var sqlNarrow = false;
+    function wantNarrowSql() {
+      var fs = parseFloat(getComputedStyle(elSql).fontSize) || 12.8;
+      var cw = textW('0', fs, false, getComputedStyle(elSql).fontFamily || 'monospace');
+      var cs = getComputedStyle(elSql), inner = elSql.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
+      return inner > 0 && inner < SQL_WIDE_CHARS * cw;
+    }
     function renderSql() {
-      var lines = sqlLines(S);
+      sqlNarrow = wantNarrowSql();
+      var lines = sqlLines(S, sqlNarrow);
       elSql.innerHTML = lines.map(function (l) {
         var hl = changed[l.cl];
         return '<span style="display:block' + (hl ? ';background:var(--haldi-soft);border-radius:3px' : '') + '">' + sqlHtml(l.t) + '</span>';
@@ -539,6 +560,7 @@
       FULL: 'FULL OUTER JOIN: everything in both circles.'
     };
     var REGION_NAME = { L: 'customers with no order', M: 'matching pairs', R: 'orders with no customer' };
+    var REGION_ONE = { L: 'customer with no order', M: 'matching pair', R: 'order with no customer' };
     function renderVenn() {
       var Rg = vennRegions();
       var r = 32, c1 = 60, c2 = 100, cy = 40, d = c2 - c1, xm = (c1 + c2) / 2, h = Math.sqrt(r * r - d * d / 4);
@@ -553,14 +575,14 @@
         '<path d="' + pR + '" style="' + fill(Rg.R) + '"/>' +
         '<circle cx="' + c1 + '" cy="' + cy + '" r="' + r + '" style="fill:none;stroke:var(--ink);stroke-width:1.5"/>' +
         '<circle cx="' + c2 + '" cy="' + cy + '" r="' + r + '" style="fill:none;stroke:var(--ink);stroke-width:1.5"/>' +
-        '<text x="' + (c1 - 10) + '" y="88" text-anchor="middle" style="fill:var(--ink);font-family:var(--font-body);font-size:13px">customers</text>' +
-        '<text x="' + (c2 + 12) + '" y="88" text-anchor="middle" style="fill:var(--ink);font-family:var(--font-body);font-size:13px">orders</text>';
+        '<text x="' + (c1 - 13) + '" y="88" text-anchor="middle" style="fill:var(--ink);font-family:var(--font-body);font-size:13px">customers</text>' +
+        '<text x="' + (c2 + 15) + '" y="88" text-anchor="middle" style="fill:var(--ink);font-family:var(--font-body);font-size:13px">orders</text>';
       var cap = JOIN_CAP[S.join];
       if (S.where !== 'none') {
         var parts = [];
         ['L', 'M', 'R'].forEach(function (k) {
           if (!JOIN_KEEPS[S.join][k] || !Q.produced[k]) return;
-          parts.push(Q.keptBy[k] + ' of ' + Q.produced[k] + ' ' + REGION_NAME[k] + (Q.produced[k] === 1 && k !== 'M' ? '' : ''));
+          parts.push(Q.keptBy[k] + ' of ' + Q.produced[k] + ' ' + (Q.produced[k] === 1 ? REGION_ONE[k] : REGION_NAME[k]));
         });
         cap += ' After WHERE: ' + parts.join(', ') + '.';
       }
@@ -792,10 +814,6 @@
       var s = '<rect x="0" y="0" width="' + L.width + '" height="' + L.height + '" style="fill:var(--surface)"/>';
       s += drawTable(L, 'c', cRows, used, spot, mid);
       s += drawTable(L, 'o', oRows, used, spot, mid);
-      // the ON label in the gap
-      if (L.gap >= 50) {
-        s += '<text x="' + f1(L.custX + L.custW + L.gap / 2) + '" y="' + f1(L.headTop + M.headH / 2) + '" dominant-baseline="central" text-anchor="middle" style="font-size:' + M.hf + 'px;fill:var(--muted)">ON =</text>';
-      }
       // lines: one per joined row
       var x1 = L.custX + L.custW, x2 = L.ordX, g = L.gap, lines = '', front = '';
       Q.pairs.forEach(function (p, pi) {
@@ -845,7 +863,7 @@
     function rebuildOrderSelect() {
       var opts = orderOptions(S);
       if (S.order !== 'none' && !findBy(opts, S.order)) S.order = 'none';
-      elOrder.innerHTML = '<option value="none">No ORDER BY</option>' + opts.map(function (o) { return '<option value="' + o.id + '">ORDER BY ' + esc(o.label) + '</option>'; }).join('');
+      elOrder.innerHTML = '<option value="none">No ORDER BY</option>' + opts.map(function (o) { return '<option value="' + o.id + '">' + esc(o.label) + '</option>'; }).join('');
       elOrder.value = S.order;
     }
     function syncControls() {
@@ -968,11 +986,12 @@
       if (destroyed) return;
       // lay out and repaint in the same callback, so there is never a blank frame
       if (relayout()) renderDiagram();
+      if (wantNarrowSql() !== sqlNarrow) renderSql();
       fitScrollable(elSql, 'SQL query');
       fitScrollable(elResWrap, null);
     }
     var ro = null;
-    if (window.ResizeObserver) { ro = new ResizeObserver(onResize); ro.observe(elWrap); ro.observe(elResWrap); }
+    if (window.ResizeObserver) { ro = new ResizeObserver(onResize); ro.observe(elWrap); ro.observe(elResWrap); ro.observe(elSql); }
     else on(window, 'resize', onResize);
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(function () { if (destroyed) return; layW = -1; onResize(); });
@@ -990,7 +1009,6 @@
         destroyed = true;
         if (rafId) cancelAnimationFrame(rafId);
         rafId = 0;
-        if (msgTimer) clearTimeout(msgTimer);
         if (ro) ro.disconnect();
         if (mql) { if (mql.removeEventListener) mql.removeEventListener('change', onTheme); else if (mql.removeListener) mql.removeListener(onTheme); }
         listeners.forEach(function (l) { l[0].removeEventListener(l[1], l[2], l[3]); });
