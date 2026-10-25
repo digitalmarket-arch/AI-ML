@@ -154,7 +154,7 @@
         'Move over the map, or drag on a phone, to see any spot’s neighbours.</p>' +
         '<div class="lab-body">' +
           '<div class="stack-sm" id="' + P + 'left">' +
-            '<div class="lab-canvas-wrap" id="' + P + 'wrap"><canvas id="' + P + 'plot" tabindex="0" role="img" aria-label="Map of past loans" style="outline-offset:-3px;cursor:crosshair"></canvas></div>' +
+            '<div class="lab-canvas-wrap" id="' + P + 'wrap"><canvas id="' + P + 'plot" tabindex="0" role="img" aria-label="Map of past loans" aria-describedby="' + P + 'kbd" style="outline-offset:-3px;cursor:crosshair"></canvas></div>' +
             '<div class="lab-legend" id="' + P + 'legend"></div>' +
             '<p class="small" id="' + P + 'readout" style="min-height:3.2em"></p>' +
             '<p class="visually-hidden" role="status" aria-live="polite" id="' + P + 'live"></p>' +
@@ -195,8 +195,8 @@
             legendItem(swatch('circle', 'var(--series-4)', 'var(--surface)', 1), 'Leave-one-out (fair test)') +
             legendItem(swatch('ring', 'none', 'var(--muted)', 1.6), 'Training (loans vote for themselves)') +
           '</div>' +
-          '<div class="lab-canvas-wrap" id="' + P + 'cwrap" style="aspect-ratio:16/5;min-height:150px;max-height:220px"><canvas id="' + P + 'chart" role="img" aria-label="Accuracy for each K tried"></canvas></div>' +
-          '<p class="kbd-hint">Keyboard: focus the map, move the probe with the arrow keys (Shift for bigger steps), press Enter to add a loan there (or remove the one under the probe) and Delete to remove the nearest loan.</p>' +
+          '<div class="lab-canvas-wrap" id="' + P + 'cwrap" style="aspect-ratio:16/5;min-height:150px;max-height:220px"><canvas id="' + P + 'chart" role="img" aria-label="Accuracy for each K tried" style="touch-action:auto"></canvas></div>' +
+          '<p class="kbd-hint" id="' + P + 'kbd">Keyboard: focus the map, move the probe with the arrow keys (Shift for bigger steps), press Enter to add a loan there (or remove the one under the probe) and Delete to remove the nearest loan.</p>' +
         '</div>' +
         '<p class="small muted"><strong style="color:var(--ink)">Why it matters in real ML:</strong> KNN simply remembers past examples, so it lives or dies by scaling the features, choosing the distance and picking K with a fair test such as leave-one-out or cross-validation: too small a K memorises noise, too big a K blurs away real patterns.</p>' +
       '</div>';
@@ -389,16 +389,16 @@
     }
     // A loan was just appended (it has the highest index, so it goes after any equal distance).
     function gridAddLast() {
-      var pts = S.pts, n = pts.length, P = pts[n - 1], nOld = n - 1, man = S.man;
+      var pts = S.pts, n = pts.length, added = pts[n - 1], nOld = n - 1, man = S.man;
       var nx = G.nx, ny = G.ny, dst = G.dst, idx = G.idx, cls = G.cls, len = G.len, node = 0;
       for (var j = 0; j <= ny; j++) {
         for (var i = 0; i <= nx; i++, node++) {
-          var o = node * CAP, L = len[node], d = gridDist(man, i / nx, j / ny, P.x, P.y), q;
+          var o = node * CAP, L = len[node], d = gridDist(man, i / nx, j / ny, added.x, added.y), q;
           if (L < CAP && L === nOld) q = L++;                              // the list held every loan: just join it
           else if (L > 0 && d < dst[o + L - 1]) { if (L < CAP) q = L++; else q = CAP - 1; }
           else continue;
           while (q > 0 && dst[o + q - 1] > d) { dst[o + q] = dst[o + q - 1]; idx[o + q] = idx[o + q - 1]; cls[o + q] = cls[o + q - 1]; q--; }
-          dst[o + q] = d; idx[o + q] = nOld; cls[o + q] = P.c;
+          dst[o + q] = d; idx[o + q] = nOld; cls[o + q] = added.c;
           len[node] = L;
         }
       }
@@ -521,8 +521,8 @@
 
     /* ---------- drawing ---------- */
     function font(T, px, weight) { return (weight || '400') + ' ' + px + 'px ' + T.font; }
-    function drawPoint(c2, T, p, r) {
-      var q = toPx(geom(), p.x, p.y);
+    function drawPoint(c2, T, Gm, p, r) {
+      var q = toPx(Gm, p.x, p.y);
       c2.beginPath();
       shapePath(c2, CLASSES[p.c].shape, q.x, q.y, r);
       c2.fillStyle = rgbStr(T.cls[p.c]);
@@ -566,12 +566,10 @@
         b.fillText(tickInr(incomeOf(i / 4)), Gm.pl + Gm.pw * i / 4, Gm.pt + Gm.ph + 5);
       }
       b.textAlign = 'right';
-      b.textBaseline = 'middle';
       for (i = 0; i <= 4; i++) {
-        var ty = Gm.pt + Gm.ph * (1 - i / 4);
-        if (i === 4) b.textBaseline = 'top'; else if (i === 0) b.textBaseline = 'bottom';
-        b.fillText(tickInr(emiOf(i / 4)), Gm.pl - 6, i === 4 ? ty : i === 0 ? ty : ty);
-        b.textBaseline = 'middle';
+        // the top and bottom labels sit inside the plot's height so they never touch the canvas edge
+        b.textBaseline = i === 4 ? 'top' : i === 0 ? 'bottom' : 'middle';
+        b.fillText(tickInr(emiOf(i / 4)), Gm.pl - 6, Gm.pt + Gm.ph * (1 - i / 4));
       }
       b.font = font(T, fs, '600');
       b.fillStyle = rgbStr(T.ink);
@@ -611,7 +609,7 @@
         b.moveTo(q.x + r + 3.5, q.y); b.arc(q.x, q.y, r + 3.5, 0, Math.PI * 2);
       }
       b.stroke();
-      for (i = 0; i < n; i++) drawPoint(b, T, pts[i], r);
+      for (i = 0; i < n; i++) drawPoint(b, T, Gm, pts[i], r);
       if (!n) {
         b.font = font(T, 14, '600');
         b.fillStyle = rgbStr(T.muted);
@@ -635,8 +633,8 @@
       g.drawImage(base, 0, 0);
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
       probeNb = n ? neighboursAt(S.probe.x, S.probe.y) : null;
-      if (probeNb) {
-        var pp = toPx(Gm, S.probe.x, S.probe.y), nb = probeNb;
+      var pp = toPx(Gm, S.probe.x, S.probe.y), nb = probeNb;
+      if (nb) {
         // the neighbourhood: every spot inside is at least as close as the K-th neighbour
         g.save();
         g.beginPath(); g.rect(Gm.pl, Gm.pt, Gm.pw, Gm.ph); g.clip();
@@ -660,7 +658,7 @@
           g.lineWidth = 3.4; g.strokeStyle = rgbStr(T.surface, 0.85); g.stroke();
           g.lineWidth = 1.6; g.strokeStyle = rgbStr(T.cls[pts[nb.idx[i]].c]); g.stroke();
         }
-        for (i = 0; i < nb.Ke; i++) drawPoint(g, T, pts[nb.idx[i]], r + 0.8);
+        for (i = 0; i < nb.Ke; i++) drawPoint(g, T, Gm, pts[nb.idx[i]], r + 0.8);
       }
       // hovered loan (the one a click would remove)
       if (S.hover >= 0 && S.hover < n) {
@@ -668,7 +666,7 @@
         g.beginPath(); g.arc(hq.x, hq.y, r + 6, 0, Math.PI * 2);
         g.lineWidth = 2.5; g.strokeStyle = rgbStr(T.haldi); g.stroke();
       }
-      if (probeNb) {
+      if (nb) {
         // the probe itself, filled with its predicted class colour
         g.beginPath(); g.arc(pp.x, pp.y, 7.5, 0, Math.PI * 2);
         g.fillStyle = rgbStr(T.surface); g.fill();
@@ -713,7 +711,7 @@
       c2.fillStyle = rgbStr(T.surface);
       c2.fillRect(0, 0, w, h);
       var pl = 44, pr = 10, pt = 12, pb = 30, pw = Math.max(10, w - pl - pr), ph = Math.max(10, h - pt - pb);
-      var slot = pw / K_COUNT, n = S.pts.length, ki, i;
+      var slot = pw / K_COUNT, n = S.pts.length, ki;
       function X(k) { return pl + (k + 0.5) * slot; }
       var shown = [];
       for (ki = 0; ki < K_COUNT; ki++) if (S.revealed || S.tried[2 * ki + 1]) shown.push(ki);
