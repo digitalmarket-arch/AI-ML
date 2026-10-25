@@ -211,7 +211,7 @@ main { padding-block: 28px 64px; flex: 1 0 auto; }
 .seg button { font: inherit; font-size: .9rem; font-weight: 600; padding: 6px 11px; background: var(--surface); color: var(--muted); border: 0; border-right: 1px solid var(--line); cursor: pointer; }
 .seg button:last-child { border-right: 0; }
 .seg button[aria-pressed="true"] { background: var(--indigo); color: var(--on-indigo); }
-input[type="text"], input[type="search"], input[type="number"], input[type="date"], select, textarea {
+input[type="text"], input[type="password"], input[type="search"], input[type="number"], input[type="date"], select, textarea {
   font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--field-line); border-radius: var(--radius-sm); padding: 8px 10px; max-width: 100%;
 }
 input[type="date"] { width: 100%; min-height: 44px; }
@@ -453,3 +453,14 @@ details.fold > div { padding: 0 14px 14px; }
 .s-ink { stroke: var(--ink); } .s-muted { stroke: var(--muted); } .s-line { stroke: var(--line); } .s-indigo { stroke: var(--indigo); }
 .s-haldi { stroke: var(--haldi); } .s-sindoor { stroke: var(--sindoor); } .s-ok { stroke: var(--ok); } .s-bad { stroke: var(--bad); }
 .s-s1 { stroke: var(--series-1); } .s-s2 { stroke: var(--series-2); } .s-s3 { stroke: var(--series-3); } .s-s4 { stroke: var(--series-4); }
+
+/* publish to GitHub and share on LinkedIn (project pages) */
+.pub-steps { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 18px; }
+.pub-steps > li::marker { font-weight: 700; color: var(--indigo); }
+.pub-form input[type="text"], .pub-form input[type="password"] { width: 100%; }
+.pub-form textarea, #li-text { width: 100%; font-family: var(--font-mono); font-size: .85rem; }
+.pub-files { list-style: none; padding: 0; margin: 6px 0 0; max-height: 180px; overflow: auto; display: flex; flex-direction: column; gap: 2px; }
+.pub-files .mono, .pub-log .mono { font-family: var(--font-mono); font-size: .85em; overflow-wrap: anywhere; }
+.pub-ok { color: var(--ok); font-weight: 600; }
+.pub-bad { color: var(--bad); font-weight: 600; }
+.btn.is-disabled { opacity: .55; cursor: not-allowed; }

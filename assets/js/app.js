@@ -788,6 +788,7 @@
         }).join('') + '</tr>';
       }).join('') + '</tbody></table></div><p class="small muted" id="rub-score"></p></section>' +
       listBlock('Stretch goals', p.stretch) + listBlock('Pitfalls to avoid', p.pitfalls) +
+      (window.AIM_PUBLISH ? window.AIM_PUBLISH.html(p, st) : '') +
       '</div><aside class="stack">' + (p.freeStack ? '<div class="callout small"><strong>Free tools (₹0):</strong> ' + inline(p.freeStack) + '</div>' : '') +
       '<div class="card stack-sm"><strong>Deliverables</strong><ul class="small">' + (p.deliverables || []).map(function (d) { return '<li>' + inline(d) + '</li>'; }).join('') + '</ul></div>' +
       (p.skills && p.skills.length ? '<div class="card stack-sm"><strong>Skills you will use</strong><ul class="small skill-list">' + p.skills.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul></div>' : '') +
@@ -798,6 +799,7 @@
       '</aside></div></div>';
     setView(html, p.title);
     updateRubric(p, st);
+    if (window.AIM_PUBLISH) window.AIM_PUBLISH.bind(main, p, st, { onLink: function (k, v) { var inp = document.getElementById('pl-' + k); if (inp) inp.value = v; } });
   }
   function updateRubric(p, st) {
     var el = document.getElementById('rub-score'); if (!el) return;
