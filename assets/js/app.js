@@ -348,14 +348,14 @@
       '</div>' + stations() + '</section>' +
       '<section class="stack"><div class="section-title"><h2>What you get</h2></div><div class="grid">' +
       featureCard('Indian teachers first', nRes + ' free playlists, courses and books. ' + nHi + ' are in Hindi or Hinglish and ' + nIn + ' in Indian English. Global English classics appear as extras.', '#library', 'Browse the library') +
-      featureCard('Interactive labs', Object.keys(LABS).length + ' visual labs: drag points, move sliders and watch gradient descent, overfitting, K-Means and neural networks react.', '#labs', 'Open the labs') +
+      featureCard('Interactive labs', Object.keys(LABS).length + ' visual labs, one for every module: drag points, move sliders and watch gradient descent, SQL joins, neural networks, RAG search and AI agents react.', '#labs', 'Open the labs') +
       featureCard('Python in your browser', D.exercises.length + ' auto-graded coding exercises. Write code, press Check, get instant feedback. Nothing to install.', '#practice', 'Start practising') +
       featureCard('Tests and tough projects', nQ + ' quiz questions, four level tests and ' + D.projects.length + ' portfolio projects built on Indian data and problems.', '#projects', 'See the projects') +
       '</div></section>' +
       '<section class="stack"><div class="section-title"><h2>How each module works</h2></div><ol class="stack-sm prose">' +
       '<li><strong>Read the overview.</strong> Plain-English explanation, key terms and a study plan.</li>' +
-      '<li><strong>Watch.</strong> The main pick from an Indian teacher in your language, plus alternatives if a teacher does not click for you.</li>' +
-      '<li><strong>Play with the lab.</strong> Where a concept is visual, a lab lets you feel it before you code it.</li>' +
+      '<li><strong>Watch.</strong> The best pick, from an Indian teacher in Hindi, Hinglish or Indian English, plus other options if a teacher does not click for you.</li>' +
+      '<li><strong>Play with the lab.</strong> Every module has a lab that lets you feel the idea before you code it.</li>' +
       '<li><strong>Practise.</strong> Solve small Python exercises right on the page.</li>' +
       '<li><strong>Test yourself.</strong> Score 70% or more on the quiz, then move on. A level is complete when its modules are done, you pass the level test and you finish one project.</li></ol></section>' +
       (st.last || Object.keys(st.watched).length || continueList(1).length ? '<section class="card stack-sm"><div class="row-between"><div class="stack-sm"><strong>Your progress</strong><span class="small muted num">' + overallProgress() + '% of the course · ' + C.streak() + '-day streak</span></div><a class="btn" href="#progress">Open my progress</a></div>' +

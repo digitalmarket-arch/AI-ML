@@ -1045,7 +1045,8 @@ window.AIM.modules = [
    }
   ],
   "best": "campusx-nitish-singh-campusx-data-science-mentorship-pro",
-  "figs": true
+  "figs": true,
+  "lab": "groupby"
  },
  {
   "id": "l1-eda-viz-sql",

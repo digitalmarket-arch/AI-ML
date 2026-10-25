@@ -160,7 +160,7 @@ window.AIM.pages = {
    {
     "heading": "Hindi, Hinglish or English videos?",
     "paragraphs": [
-     "Learn in the language you understand fastest. Many of the best Indian teachers teach in Hindi or Hinglish, such as CampusX (Nitish Singh), Krish Naik Hindi and CodeWithHarry. Use the language filter in the [Library](#library) or the language switch on each module's Watch & read tab.",
+     "Learn in the language you understand fastest. Many of the best Indian teachers teach in Hindi or Hinglish, such as CampusX (Nitish Singh), Krish Naik Hindi and CodeWithHarry. Every module's Best pick is in Hindi, Hinglish or Indian English, and the [Library](#library) has a language filter if you want only one language.",
      "But learn the English words. Code, error messages, documentation, job interviews and most advanced material are in English. A good habit: watch in Hindi or Hinglish, write your notes using the English terms, and use the [Glossary](#glossary), which gives a Hindi meaning for every term."
     ],
     "bullets": [
@@ -404,7 +404,7 @@ window.AIM.pages = {
   },
   {
    "q": "Should I watch Hindi/Hinglish or English videos?",
-   "a": "Whichever you understand fastest. Hindi and Hinglish teachers such as CampusX, Krish Naik Hindi and CodeWithHarry are excellent for first understanding. Then learn the English terms, because code, documentation and interviews are in English.\n\nThe [Library](#library) has a language filter, each module's Watch & read tab has a language switch, and the [Glossary](#glossary) gives a Hindi meaning for every term. From Level 3, more of the best material is in English; subtitles and 0.75× speed help."
+   "a": "Whichever you understand fastest. Hindi and Hinglish teachers such as CampusX, Krish Naik Hindi and CodeWithHarry are excellent for first understanding. Then learn the English terms, because code, documentation and interviews are in English.\n\nThe [Library](#library) has a language filter, and the [Glossary](#glossary) explains every term in plain English. From Level 3, more of the best material is in English; subtitles and 0.75× speed help."
   },
   {
    "q": "Are certificates useful?",
@@ -428,7 +428,7 @@ window.AIM.pages = {
   },
   {
    "q": "What if a video link is broken or a video is removed?",
-   "a": "1. If the lesson card shows a **Search YouTube** button, use it. It searches for the same lesson by title and creator.\n2. Otherwise, search YouTube for the title and creator shown on the card.\n3. Switch to another teacher for the same topic: most modules list a second main pick and More options in the Watch & read tab, and the [Library](#library) has every resource.\n4. Please report it on [GitHub Issues](https://github.com/digitalmarket-arch/AI-ML/issues) with the module name, so it can be fixed for everyone.\n\nCards marked 'link unconfirmed' are ones we could not fully check."
+   "a": "1. If the lesson card shows a **Search YouTube** button, use it. It searches for the same lesson by title and creator.\n2. Otherwise, search YouTube for the title and creator shown on the card.\n3. Switch to another teacher for the same topic: each module's Watch & read tab lists other options under the Best pick, and the [Library](#library) has every resource.\n4. Please report it on [GitHub Issues](https://github.com/digitalmarket-arch/AI-ML/issues) with the module name, so it can be fixed for everyone.\n\nCards marked 'link unconfirmed' are ones we could not fully check."
   },
   {
    "q": "Is my progress saved?",

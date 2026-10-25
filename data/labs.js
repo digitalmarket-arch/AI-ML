@@ -123,6 +123,30 @@ window.AIM.labs = [
   ]
  },
  {
+  "id": "groupby",
+  "module": "l1-numpy-pandas",
+  "title": "pandas groupby: split, apply, combine",
+  "summary": "Filter 24 rows of tea-shop sales, group them by city, month or product, and watch pandas split the rows, apply sum, mean, count, max or min, and combine the answers, with the exact pandas code beside it.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Find the city with the highest total sales over all three months: no filter, group by city, take the sum of sales_rs, then tap that city in the result."
+   },
+   {
+    "id": "t2",
+    "text": "Find the average units sold per product in February only: keep rows where month == 'Feb', group by product and take the mean of units."
+   },
+   {
+    "id": "t3",
+    "text": "Group by two columns, city and product, and take the sum of sales_rs with no filter. Then read one cell: tap the Pune · Coffee group to see how much coffee Pune sold."
+   },
+   {
+    "id": "t4",
+    "text": "Show the mean of sales_rs, then switch “Missing values” between Skip NaN and Fill with 0. Watch a group that has a NaN change its mean: filling adds a pretend ₹0 sale and one more value to divide by."
+   }
+  ]
+ },
+ {
   "id": "sql",
   "module": "l1-eda-viz-sql",
   "title": "SQL JOINs and GROUP BY",

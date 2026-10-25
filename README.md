@@ -1,11 +1,11 @@
 # AI Marg: a free AI & ML course site
 
-**AI Marg** takes a complete beginner from their first line of Python to building LLM apps and AI agents, using the best **free** videos on YouTube, NPTEL and other platforms. **Indian teachers come first.** Every module leads with Hindi or Hinglish videos, then Indian English (for example Krish Naik, Codebasics and NPTEL/IIT professors). Global English classics such as StatQuest, 3Blue1Brown and Stanford appear only as extras, or where no good Indian option exists.
+**AI Marg** takes a complete beginner from their first line of Python to building LLM apps and AI agents, using the best **free** videos on YouTube, NPTEL and other platforms. **Indian teachers come first.** Every module's best pick is from an Indian teacher, in Hindi, Hinglish or Indian English (for example CampusX, Krish Naik, Codebasics and NPTEL/IIT professors); the three languages are treated equally. Global English classics such as StatQuest, 3Blue1Brown and Stanford appear as extra options.
 
 The site is interactive:
 
 - **Curated video lessons** for every module: one "best pick" from an Indian teacher (Hindi, Hinglish and Indian English are treated equally), then other options. Every YouTube video plays inside the site, finished videos tick themselves, and playlists remember where you stopped.
-- **12 interactive labs.** Drag, click and move sliders to *see* gradient descent, overfitting, K-Means, decision trees, neural networks, convolution filters, tokenizers and LLM sampling.
+- **27 interactive labs, one for every module.** Drag, click and move sliders to *see* how a first model learns, Python running line by line, Git branches, pandas group-by and SQL joins, gradient descent, overfitting, decision trees, K-Means, neural networks, a PyTorch training loop, convolution filters, embeddings, tokenizers, LLM sampling, RAG search, LoRA, diffusion, AI agents, data drift, Q-learning and statistical significance. Each lab has tasks, and each was checked by a second reviewer who recomputed its numbers.
 - **Python in the browser.** Auto-graded coding exercises run on the page using [Pyodide](https://pyodide.org). Nothing to install.
 - **Quizzes and level tests.** Each module has a 10-question quiz with explanations, and each level ends with a tougher 20-question test (pass mark 70%).
 - **Tough projects.** Each project has a client-style brief, Indian datasets, milestones, a rubric and stretch goals, ending with two grand capstones.
@@ -13,7 +13,7 @@ The site is interactive:
 - **Publish and share projects:** upload a finished project to your own GitHub repository from the project page (with a README written for you), then share it on LinkedIn with a ready-made post.
 - **Progress tracking, notes, a study planner and a jargon glossary** in plain English. Everything is saved in your own browser, with optional Google sign-in to back up and sync progress across devices. No ads and no tracking.
 
-**What's inside:** 4 levels, 27 modules, 428 free resources (409 with verified links), 350 quiz questions, 81 auto-graded coding exercises, 12 labs, 18 projects and 180 glossary terms. All text on the site is in English; Hindi and Hinglish appear only in the videos.
+**What's inside:** 4 levels, 27 modules, 428 free resources (409 with verified links), 350 quiz questions, 81 auto-graded coding exercises, 27 labs, 18 projects and 180 glossary terms. All text on the site is in English; Hindi and Hinglish appear only in the videos.
 
 The four levels are named in Sanskrit:
 
@@ -151,7 +151,7 @@ It catches broken ids, missing fields, wrong answer numbers and missing lab file
 
 - Plain HTML, CSS and JavaScript. There is no build step and no framework, so it runs on any static host.
 - Python runs in the browser through Pyodide 0.29.5, loaded from `cdn.jsdelivr.net` the first time a learner presses Run (about 10–30 MB, then cached).
-- Fonts come from Google Fonts: Rozha One, Mukta, Tiro Devanagari Sanskrit and JetBrains Mono.
+- Fonts come from Google Fonts: Rozha One, Mukta and JetBrains Mono.
 - Labs are self-contained scripts in `assets/js/labs/`. Each one registers itself on `window.AILabs`.
 
 ## Credits
