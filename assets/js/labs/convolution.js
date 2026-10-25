@@ -54,7 +54,7 @@
 
   var TASKS = [
     { id: 't1', text: 'Find the kernel that lights up the up-down (vertical) strokes, then tap one of the brightest pixels in its feature map to see the multiply-and-add.' },
-    { id: 't2', text: 'Make your own horizontal-line detector: type numbers into the 3×3 kernel grid so left-right strokes light up but up-down strokes stay grey. (A preset alone does not count.)' },
+    { id: 't2', text: 'Make your own horizontal-line detector: type numbers into the 3×3 kernel grid so left-right strokes light up but up-down strokes stay blank (close to 0). (A preset alone does not count.)' },
     { id: 't3', text: 'Switch the stride to 2 (the filter jumps 2 pixels at a time) and watch the feature map shrink to about half its width.' },
     { id: 't4', text: 'Turn on ReLU + 2×2 max-pool and make the final output exactly 7 × 7. (Hint: use the output-size formula.)' }
   ];
@@ -277,7 +277,7 @@
     lab.appendChild(el('p', { class: 'lab-note', html:
       '<b>What you are seeing:</b> the first picture is 28 × 28 pixels (the size of the famous MNIST handwritten-digit images), and every pixel is a number from 0 (empty) to 1 (full ink). ' +
       'A <b>kernel</b> (also called a <b>filter</b>: a small 3 × 3 grid of numbers) slides across it. At every stop, the 9 pixels under it are multiplied by the 9 kernel numbers and added up, ' +
-      'and that one sum becomes one pixel of the <b>feature map</b> (the output picture): <b style="color:var(--series-1)">blue</b> means a positive sum, <b style="color:var(--series-2)">red</b> a negative one, grey about 0. ' +
+      'and that one sum becomes one pixel of the <b>feature map</b> (the output picture): <b style="color:var(--series-1)">blue</b> means a positive sum, <b style="color:var(--series-2)">red</b> a negative one, and the plain background colour means about 0. ' +
       'Draw on the input with your mouse or finger, and tap any feature-map pixel to see its sum worked out.' }));
 
     var body = el('div', { class: 'lab-body' });
@@ -495,9 +495,9 @@
       inp.removeAttribute('aria-invalid');
       inp.style.borderColor = '';
       stopAnim();
+      if (Math.abs(v - W[idx]) > 1e-12) kernelTyped = true; // retyping the same number over a preset does not make it "your own"
       kText[idx] = inp.value.trim();
       W[idx] = v;
-      kernelTyped = true;
       recompute(); syncUI(); requestDraw();
       checkTasks();
     }
@@ -662,6 +662,12 @@
       return '<span style="display:flex;align-items:center;justify-content:center;min-height:2em;padding:0 2px;border-radius:4px;white-space:nowrap;' +
         (bg ? 'background:' + bg + ';' : '') + (fg ? 'color:' + fg + ';' : '') + (extra || '') + '">' + esc(text) + '</span>';
     }
+    // column width that fits the longest number in a grid (mono digits are about 0.6em wide)
+    function colWidth(texts, base) {
+      var len = 0;
+      texts.forEach(function (t) { len = Math.max(len, String(t).length); });
+      return Math.max(base, 0.6 * len + 0.5).toFixed(2) + 'em';
+    }
     function gridBox(caption, cells, cols, colW) {
       return '<div style="display:flex;flex-direction:column;gap:3px;min-width:0">' +
         '<span style="font-size:.76rem;color:var(--muted);font-weight:600">' + caption + '</span>' +
@@ -691,6 +697,7 @@
     function calcFeature(i, j) {
       var r0 = i * stride - pad, c0 = j * stride - pad;
       var patch = '', kern = '', prod = '', rounded = false, padded = false, maxP = 0, maxW = 0, prods = [];
+      var pTexts = [], kTexts = [], prTexts = [];
       for (var k = 0; k < 9; k++) maxW = Math.max(maxW, Math.abs(W[k]));
       for (var a = 0; a < 3; a++) for (var b = 0; b < 3; b++) {
         var r = r0 + a, c = c0 + b, inside = r >= 0 && r < N && c >= 0 && c < N;
@@ -701,30 +708,38 @@
         if (inside) {
           var pct = Math.round(x * 85);
           patch += cellBox(fmt(x), pct ? 'color-mix(in srgb, var(--ink) ' + pct + '%, var(--surface))' : 'var(--surface)', x >= 0.6 ? 'var(--surface)' : 'var(--ink)');
+          pTexts.push(fmt(x));
         } else {
           patch += cellBox('0', 'transparent', 'var(--muted)', 'border:1px dashed var(--muted);');
         }
-        kern += cellBox(minus(kText[a * 3 + b]), tintFor(w, maxW, 38) || 'var(--surface)', 'var(--ink)');
+        // show the weight as typed ("1/9"), unless it is too long to fit: then rounded
+        var kt = minus(kText[a * 3 + b]);
+        if (kt.length > 6) { kt = fmt(w); if (needsRounding(w)) rounded = true; }
+        kTexts.push(kt);
+        kern += cellBox(kt, tintFor(w, maxW, 38) || 'var(--surface)', 'var(--ink)');
       }
       prods.forEach(function (pv) {
         if (needsRounding(pv)) rounded = true;
+        prTexts.push(fmt(pv));
         prod += cellBox(fmt(pv), tintFor(pv, maxP, 40) || 'var(--surface)', 'var(--ink)');
       });
       var v = R.out[i * R.n + j];
       calcHead.innerHTML = 'Feature-map pixel: row ' + (i + 1) + ', column ' + (j + 1) +
         ' <span class="muted" style="font-weight:400">(its 3 × 3 patch is outlined in yellow on the input)</span>';
-      calcBody.innerHTML = gridBox('Input patch', patch, 3) + op('×', gridBox('Kernel', kern, 3), 3) + op('=', gridBox('Products', prod, 3), 3);
+      calcBody.innerHTML = gridBox('Input patch', patch, 3, colWidth(pTexts, 3.3)) + op('×', gridBox('Kernel', kern, 3, colWidth(kTexts, 3.3)), 3) +
+        op('=', gridBox('Products', prod, 3, colWidth(prTexts, 3.3)), 3);
       calcFoot.innerHTML = 'Add up the 9 products: <b class="mono" style="font-size:1rem">' + fmt(v) + '</b>' + valueSwatch(v, R.maxAbs) +
         '. That one sum is the highlighted pixel of the feature map.' +
         (padded ? ' <span class="muted">Dashed cells are the border of 0s added by “same” padding.</span>' : '') +
-        (rounded ? ' <span class="muted">(Products are shown rounded to 2 decimals.)</span>' : '');
+        (rounded ? ' <span class="muted">(Some numbers are shown rounded to 2 decimals.)</span>' : '');
     }
     function calcPool(i, j) {
-      var raw = '', rel = '', vals = [], scale = R.maxAbs;
+      var raw = '', rel = '', vals = [], texts = [], scale = R.maxAbs;
       for (var a = 0; a < 2; a++) for (var b = 0; b < 2; b++) vals.push(R.out[(2 * i + a) * R.n + 2 * j + b]);
       var best = PR.P[i * PR.m + j];
       var bestIdx = -1;
       vals.forEach(function (v, k) {
+        texts.push(fmt(v));
         raw += cellBox(fmt(v), tintFor(v, scale, 40) || 'var(--surface)', 'var(--ink)');
         var rv = Math.max(0, v);
         if (bestIdx < 0 && Math.abs(rv - best) < 1e-12) bestIdx = k;
@@ -735,9 +750,10 @@
       });
       var rf = stride + 3; // input area one pooled pixel "sees": (2 − 1) × stride + 3
       calcHead.innerHTML = 'Pooled pixel: row ' + (i + 1) + ', column ' + (j + 1) +
-        ' <span class="muted" style="font-weight:400">(from feature-map rows ' + (2 * i + 1) + '–' + (2 * i + 2) + ', columns ' + (2 * j + 1) + '–' + (2 * j + 2) + ')</span>';
-      calcBody.innerHTML = gridBox('Feature-map block', raw, 2, '3.6em') + op('→', gridBox('After ReLU', rel, 2, '3.6em'), 2) +
-        op('→', gridBox('Max', cellBox(fmt(best), tintFor(best, scale, 40) || 'var(--surface)', 'var(--ink)', 'font-weight:700;min-height:calc(4em + 2px);outline:2px solid var(--haldi);outline-offset:-2px;'), 1, '3.6em'), 2);
+        ' <span class="muted" style="font-weight:400">(from feature-map <span style="white-space:nowrap">rows ' + (2 * i + 1) + '–' + (2 * i + 2) + '</span>, <span style="white-space:nowrap">columns ' + (2 * j + 1) + '–' + (2 * j + 2) + ')</span></span>';
+      var cw = colWidth(texts, 3.6);
+      calcBody.innerHTML = gridBox('Feature-map block', raw, 2, cw) + op('→', gridBox('After ReLU', rel, 2, cw), 2) +
+        op('→', gridBox('Max', cellBox(fmt(best), tintFor(best, scale, 40) || 'var(--surface)', 'var(--ink)', 'font-weight:700;min-height:calc(4em + 2px);outline:2px solid var(--haldi);outline-offset:-2px;'), 1, cw), 2);
       calcFoot.innerHTML = 'ReLU turns the negatives into 0, then max-pool keeps only the biggest of the 4: <b class="mono" style="font-size:1rem">' + fmt(best) + '</b>' + valueSwatch(best, scale) +
         '. This one number stands for a ' + rf + ' × ' + rf + ' patch of the input (dashed yellow box), so deeper layers see bigger areas.';
     }
@@ -1121,7 +1137,8 @@
         hover = sel;
       } else {
         hover = null;
-        if (sameSel(pinned, sel)) return;
+        // tapping the pixel that is already highlighted still counts as inspecting it (task 1)
+        if (sameSel(pinned, sel)) { checkInspect(sel); return; }
         pinned = sel;
       }
       updateCalc();
@@ -1223,7 +1240,9 @@
       mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class'] });
     }
     var ro = null;
-    if (window.ResizeObserver) { ro = new ResizeObserver(function () { resize(); }); ro.observe(wrap); }
+    // re-layout in the next animation frame: changing the wrapper's height inside the observer callback
+    // would trigger "ResizeObserver loop completed with undelivered notifications" errors
+    if (window.ResizeObserver) { ro = new ResizeObserver(function () { requestDraw(); }); ro.observe(wrap); }
     else window.addEventListener('resize', resize);
 
     /* ---------- start: a meaningful example, ready to explore ---------- */
@@ -1262,7 +1281,7 @@
     id: 'convolution',
     module: 'l3-cv',
     title: 'Convolution filters & pooling',
-    summary: 'Draw a digit or a Devanagari letter, slide a 3×3 filter over it, and see how edge, blur and sharpen kernels, stride, padding, ReLU and max-pooling change what a CNN sees.',
+    summary: 'Draw a digit or a Devanagari letter, slide a 3×3 filter over it, and see how edge, blur and sharpen kernels, stride, padding, ReLU and max-pooling change what a CNN (convolutional neural network) sees.',
     tasks: TASKS.map(function (t) { return { id: t.id, text: t.text }; }),
     mount: mount
   };

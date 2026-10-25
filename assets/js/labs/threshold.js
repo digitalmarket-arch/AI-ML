@@ -288,7 +288,7 @@
       rocX: new Float64Array(CURVE_N + 1), rocY: new Float64Array(CURVE_N + 1), prec: new Float64Array(CURVE_N + 1)
     };
     var done = {};
-    var rafId = 0, sweep = null, sweepNote = '';
+    var rafId = 0, dirty = false, sweep = null, sweepNote = '';
 
     /* ---------- tasks ---------- */
     function markLi(id) {
@@ -497,9 +497,12 @@
       });
       requestDraw();
     }
-    function requestDraw() {
+    // At most one animation frame is ever queued. The charts are only repainted when something changed
+    // (dirty), so a sweep repaints about 22 times a second (once per threshold step), not 60.
+    function schedule() {
       if (!rafId && !destroyed) rafId = requestAnimationFrame(frame);
     }
+    function requestDraw() { dirty = true; schedule(); }
     function frame(now) {
       rafId = 0;
       if (destroyed) return;
@@ -508,9 +511,12 @@
         if (p >= 1) stopSweep(true);
         else setT(STEPS * (1 - p), 'sweep');
       }
-      var T = readTheme();
-      drawDist(T); drawCurve(T); drawCost(T);
-      if (sweep) requestDraw();
+      if (dirty) {
+        dirty = false;
+        var T = readTheme();
+        drawDist(T); drawCurve(T); drawCost(T);
+      }
+      if (sweep) schedule();
     }
     function begin(c, T) {
       var g = c.g;

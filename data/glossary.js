@@ -845,7 +845,7 @@ window.AIM.glossary = [
  {
   "term": "p-value",
   "hindi": "पी-वैल्यू (पी-मान)",
-  "simple": "If there were really no difference, the p-value is the chance of seeing a result at least as extreme as yours just by luck. A small p-value (often below 0.05) suggests the effect is probably real, but it does not tell you how big or useful the effect is.",
+  "simple": "A small p-value (often below 0.05) means a result this big would be unusual if there were really no difference, so luck alone is an unlikely explanation. It does not tell you how likely the effect is to be real, or how big or useful it is.",
   "example": "Your new landing page gets more sign-ups, and a p-value of 0.01 means that if both pages were really equal, luck alone would produce a gap at least this big only about 1 time in 100.",
   "moduleId": "l1-stats"
  },

@@ -453,7 +453,7 @@ window.AIM.modules = [
   "watch": [
    {
     "id": "codewithharry-haris-ali-khan-python-tutorial-for-absolut",
-    "note": "Main course: watch one video a day in order and type every example yourself in Google Colab or VS Code; it covers the whole module up to OOP and file handling and ends with 'Conclusion and Where to go from here' (playlist ID confirmed in search results)."
+    "note": "Main course: watch one video a day in order and type every example yourself in Google Colab or VS Code. It covers the whole module up to OOP and file handling and ends with 'Conclusion and Where to go from here'."
    },
    {
     "id": "shradha-khapra-apna-college-python-language-full-course-",
@@ -588,12 +588,12 @@ window.AIM.modules = [
   "tip": "Commit small and often, with messages that say what changed and why, like 'Add GST function with 18% default', not just 'update'. A clean commit history on GitHub is itself proof of how carefully you work.",
   "watch": [
    {
-    "id": "codewithharry-linux-tutorial-for-beginners-in-hindi",
-    "note": "Watch first to get comfortable typing basic commands (moving between folders, listing and creating files); on Windows follow along in Git Bash or WSL."
-   },
-   {
     "id": "apna-college-shradha-khapra-complete-git-and-github-tuto",
     "note": "Main Git video: code along and push your first small project to GitHub by the end."
+   },
+   {
+    "id": "codewithharry-linux-tutorial-for-beginners-in-hindi",
+    "note": "Watch first to get comfortable typing basic commands (moving between folders, listing and creating files); on Windows follow along in Git Bash or WSL."
    },
    {
     "id": "chai-aur-code-hitesh-choudhary-complete-git-and-github-c",
@@ -861,7 +861,7 @@ window.AIM.modules = [
   "watch": [
    {
     "id": "campusx-nitish-singh-maths-for-machine-learning-campusx",
-    "note": "Start here for Hinglish ML maths: the video list was not checked, so pick the videos whose titles match this module (vectors, dot product, matrices, matrix multiplication, eigenvectors, derivatives, gradients) and watch them alongside 3Blue1Brown."
+    "note": "Start here for Hinglish ML maths. Pick the videos whose titles match this module (vectors, dot product, matrices, matrix multiplication, eigenvectors, derivatives, gradients) and watch them alongside 3Blue1Brown."
    },
    {
     "id": "digital-daru-linear-algebra-for-ml-hindi-2021",
@@ -881,7 +881,7 @@ window.AIM.modules = [
    },
    {
     "id": "prof-sarang-sane-iit-madras-b-s-degree-programme-mathema",
-    "note": "Indian English IIT Madras lectures paced for school leavers: pick the lectures on vectors, matrices, determinants, eigenvalues and multivariable calculus/gradients for a more formal second pass (the lecture list was not checked)."
+    "note": "Indian English IIT Madras lectures paced for school leavers. For a more formal second pass, pick the lectures whose titles match vectors, matrices, determinants, eigenvalues and multivariable calculus or gradients."
    },
    {
     "id": "iit-roorkee-nptel-per-proposer-prof-sanjeev-kumar-prof-s",
@@ -3046,6 +3046,10 @@ window.AIM.modules = [
   "tip": "Before quoting any LLM project, paste a typical client document into a tokeniser and count its tokens. Tokens decide both the running cost and whether the document fits in one request, so this two-minute check prevents wrong quotes.",
   "watch": [
    {
+    "id": "campusx-nitish-singh-100-days-of-deep-learning-ann-to-rn",
+    "note": "Hindi intuition for the GPT half of this module: watch the self-attention, masked self-attention and transformer decoder videos near the end of the playlist, then build a GPT with the Vizuara series."
+   },
+   {
     "id": "vizuara-building-llms-from-scratch-lecture-series",
     "note": "This is your main course for the module: begin with 'Lecture 1: Building LLMs from scratch: Series introduction', then work through the lectures on tokenisation and byte pair encoding, attention, coding the GPT model, pretraining on a small text file and generating text with temperature and top-k, with Raschka's free notebooks open so you can code along."
    },
@@ -3204,8 +3208,8 @@ window.AIM.modules = [
     "note": "Use its RAG, vectorless RAG and evals sections as a recent (2026) Indian-English refresher, and leave the agent sections for the AI Agents module."
    },
    {
-    "id": "microsoft-generative-ai-for-beginners-21-lessons-version",
-    "note": "Read the Hindi text (translations/hi) of Lessons 04 'Understanding Prompt Engineering Fundamentals', 05 'Creating Advanced Prompts', 08 'Building Search Apps Vector Databases', 11 'Integrating External Applications with Function Calling', 15 'Retrieval Augmented Generation (RAG) and Vector Databases' and 16 'Open Source Models and Hugging Face', and skip the GitHub Models code variants, which no longer work."
+    "id": "microsoft-generative-ai-for-beginners-hindi-translation-",
+    "note": "Read the Hindi text of Lessons 04 'Understanding Prompt Engineering Fundamentals', 05 'Creating Advanced Prompts', 08 'Building Search Apps Vector Databases', 11 'Integrating External Applications with Function Calling', 15 'Retrieval Augmented Generation (RAG) and Vector Databases' and 16 'Open Source Models and Hugging Face', and skip the GitHub Models code variants, which no longer work."
    },
    {
     "id": "langchain-academy-introduction-to-langchain-python-langc",
@@ -3326,8 +3330,8 @@ window.AIM.modules = [
     "note": "For academic depth, look for the lectures on instruction tuning, parameter-efficient fine-tuning, alignment (RLHF/DPO) and LLM evaluation."
    },
    {
-    "id": "microsoft-generative-ai-for-beginners-21-lessons-version",
-    "note": "Read Lesson 18 'Fine-Tuning LLMs' in Hindi (translations/hi) for a plain-language answer to when to fine-tune instead of prompting or using RAG."
+    "id": "microsoft-generative-ai-for-beginners-hindi-translation-",
+    "note": "Read Lesson 18 'Fine-Tuning LLMs' in Hindi for a plain-language answer to when to fine-tune instead of prompting or using RAG."
    },
    {
     "id": "andrej-karpathy-deep-dive-into-llms-like-chatgpt",
@@ -3475,7 +3479,7 @@ window.AIM.modules = [
     "note": "Watch this to add guardrails to an agent, meaning checks on what goes in and out and limits on risky actions, using the companion code."
    },
    {
-    "id": "microsoft-ai-agents-for-beginners-18-lessons",
+    "id": "microsoft-cloud-advocates-ai-agents-for-beginners-hindi-",
     "note": "Read the Hindi text of Lessons 04 'Tool Use Design Pattern', 06 'Building Trustworthy AI Agents', 07 'Planning Design Pattern', 08 'Multi-Agent Design Pattern', 11 'Using Agentic Protocols (MCP, A2A and NLWeb)', 13 'Managing Agentic Memory' and 18 'Securing AI Agents' for the design ideas, even if you skip the Azure code."
    },
    {
@@ -3589,12 +3593,12 @@ window.AIM.modules = [
     "note": "Read the Hindi lessons on autoencoders/VAEs, GANs and multi-modal networks (CLIP) and run their notebooks on Colab or Kaggle. This course has no diffusion lesson."
    },
    {
-    "id": "prof-vineeth-n-balasubramanian-iit-hyderabad-nptel-nptel",
-    "note": "Use the deep generative models part of this course (find the VAE and GAN lectures by their titles) for a careful Indian-English treatment. It was recorded before diffusion and CLIP became important."
-   },
-   {
     "id": "vizuara-the-principles-of-diffusion-models",
     "note": "This is your main Indian-English source for diffusion. Watch it in playlist order after the VAE lectures, and skip the heavy derivations the first time through."
+   },
+   {
+    "id": "prof-vineeth-n-balasubramanian-iit-hyderabad-nptel-nptel",
+    "note": "Use the deep generative models part of this course (find the VAE and GAN lectures by their titles) for a careful Indian-English treatment. It was recorded before diffusion and CLIP became important."
    },
    {
     "id": "aakash-n-s-jovian-published-by-freecodecamp-org-deep-lea",
@@ -3602,7 +3606,7 @@ window.AIM.modules = [
    },
    {
     "id": "iit-madras-mathematical-foundations-of-generative-ai-iit",
-    "note": "Optional theory: after the videos above, use it for the probability behind VAEs, GANs and diffusion. Check the lecture titles first, because its syllabus was not verified."
+    "note": "Optional theory: after the videos above, use it for the probability behind VAEs, GANs and diffusion. Pick the lectures whose titles match these topics."
    },
    {
     "id": "hugging-face-community-hugging-face-community-computer-v",
@@ -3722,7 +3726,8 @@ window.AIM.modules = [
    },
    {
     "id": "prof-balaraman-ravindran-iit-madras-nptel-nptel-reinforc",
-    "note": "Your main course. Start with the multi-armed bandit lectures (epsilon-greedy, UCB), then MDPs and Bellman equations, Q-learning and finally policy gradients; find them by title, since lecture numbers were not confirmed. DQN and PPO are covered only thinly."
+    "note": "Your main course. Start with the multi-armed bandit lectures (epsilon-greedy, UCB), then MDPs and Bellman equations, Q-learning and finally policy gradients; find them by title, since lecture numbers were not confirmed. DQN and PPO are covered only thinly.",
+    "main": true
    },
    {
     "id": "iit-madras-special-topics-in-ml-reinforcement-learning-ravindran",
@@ -3730,7 +3735,7 @@ window.AIM.modules = [
    },
    {
     "id": "iit-kanpur-ee675-introduction-to-reinforcement-learning-",
-    "note": "A 2024 IIT course for cross-checking value functions, Q-learning and policy gradients. Skim the lecture titles first, because its syllabus was not verified."
+    "note": "A 2024 IIT course for cross-checking value functions, Q-learning and policy gradients. Skim the lecture titles first and pick the ones that match these topics."
    },
    {
     "id": "vizuara-intro-reinforcement-learning-and-ppo-for-robotics",

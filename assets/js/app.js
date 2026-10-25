@@ -103,9 +103,19 @@
       }
       return null;
     };
-    var main = pickFrom(isVideo) || vids[0] || null;
-    var second = main ? (pickFrom(function (r) { return isVideo(r) && langGroup(r) !== 'en'; }, main) ||
-      pickFrom(function (r) { return langGroup(r) !== 'en'; }, main) || pickFrom(isVideo, main)) : null;
+    // curated (in the module's watch list) and confirmed links win; an editor can pin a main pick with "main": true
+    var curated = (m.watch || []).map(function (w) { return w.id; });
+    var good = function (r) { return curated.indexOf(r.id) >= 0 && r.status === 'verified'; };
+    var pinnedId = ((m.watch || []).filter(function (w) { return w.main; })[0] || {}).id;
+    var pinned = pinnedId ? list.filter(function (r) { return r.id === pinnedId; })[0] : null;
+    var ok = function (r) { return r.status === 'verified'; };
+    var indian = function (r) { return langGroup(r) !== 'en'; };
+    var main = pinned || pickFrom(function (r) { return isVideo(r) && good(r); }) || pickFrom(function (r) { return isVideo(r) && ok(r); }) ||
+      pickFrom(function (r) { return isVideo(r) && r.status !== 'unverified'; }) || pickFrom(isVideo) || vids[0] || null;
+    var second = main ? (pickFrom(function (r) { return isVideo(r) && good(r) && indian(r); }, main) ||
+      pickFrom(function (r) { return good(r) && indian(r); }, main) ||
+      pickFrom(function (r) { return isVideo(r) && ok(r) && indian(r); }, main) ||
+      pickFrom(function (r) { return indian(r) && r.status !== 'unverified'; }, main) || pickFrom(isVideo, main)) : null;
     return { list: list, main: main, second: second };
   }
   function noteFor(m, r) { var w = (m.watch || []).filter(function (x) { return x.id === r.id; })[0]; return w ? w.note : ''; }

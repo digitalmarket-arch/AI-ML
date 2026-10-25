@@ -858,7 +858,7 @@
       if (S.diverged) {
         key = 'div'; html = '<b>Training diverged:</b> the steps were so big that the numbers blew up to infinity. Lower the learning rate and press <b>Reset</b>.';
       } else if (lr >= 1 && S.trainLoss > 1.5) {
-        key = 'chaos'; html = '<b>Learning rate ' + fmtNum(lr) + ' is far too big.</b> Each step jumps right over the bottom of the valley, so the loss shoots up and down instead of falling.';
+        key = 'chaos'; html = '<b>Learning rate ' + fmtNum(lr) + ' is far too big.</b> Each step jumps right over the lowest point of the loss (think of overshooting the bottom of a valley), so the loss shoots up and down instead of falling.';
       } else if (deadAll >= 0) {
         key = 'dead'; html = '<b>Every ReLU neuron in hidden layer ' + (deadAll + 1) + ' is “dead”</b> (it outputs 0 for every point), so no signal gets through and nothing can learn. Lower the learning rate and press <b>Reset</b>.';
       } else if (S.layers === 0 && S.ds !== 'line' && S.epoch >= 100 && S.testAcc < 0.8) {

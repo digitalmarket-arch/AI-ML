@@ -222,7 +222,7 @@ window.AIM.labs = [
   "id": "convolution",
   "module": "l3-cv",
   "title": "Convolution filters & pooling",
-  "summary": "Draw a digit or a Devanagari letter, slide a 3×3 filter over it, and see how edge, blur and sharpen kernels, stride, padding, ReLU and max-pooling change what a CNN sees.",
+  "summary": "Draw a digit or a Devanagari letter, slide a 3×3 filter over it, and see how edge, blur and sharpen kernels, stride, padding, ReLU and max-pooling change what a CNN (convolutional neural network) sees.",
   "tasks": [
    {
     "id": "t1",
@@ -230,7 +230,7 @@ window.AIM.labs = [
    },
    {
     "id": "t2",
-    "text": "Make your own horizontal-line detector: type numbers into the 3×3 kernel grid so left-right strokes light up but up-down strokes stay grey. (A preset alone does not count.)"
+    "text": "Make your own horizontal-line detector: type numbers into the 3×3 kernel grid so left-right strokes light up but up-down strokes stay blank (close to 0). (A preset alone does not count.)"
    },
    {
     "id": "t3",

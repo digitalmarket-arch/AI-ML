@@ -187,7 +187,9 @@
           '</div>' +
         '</div>' +
         // explanation, accuracy chart and keyboard hint: under the map on wide screens, below the controls on phones
-        '<div class="stack-sm" id="' + P + 'more">' +
+        // container-type lets the chart's height follow this block's width (cqw) without an aspect-ratio + min-height
+        // pair, which would give the chart a 480px minimum width and push a phone page sideways
+        '<div class="stack-sm" id="' + P + 'more" style="container-type:inline-size">' +
           '<p class="small muted"><strong style="color:var(--ink)">Training accuracy</strong> checks each loan with the loan itself allowed to vote. <strong style="color:var(--ink)">Leave-one-out accuracy</strong> hides one loan, predicts it from all the others, and repeats for every loan. It is the fairer test, because no loan gets to vote for itself.</p>' +
           '<div class="row-between" style="margin-top:8px"><h4>Accuracy for each K you try</h4>' +
             '<button type="button" class="btn btn-sm" id="' + P + 'fill" aria-pressed="false">Show every K</button></div>' +
@@ -196,7 +198,7 @@
             legendItem(swatch('circle', 'var(--series-4)', 'var(--surface)', 1), 'Leave-one-out (fair test)') +
             legendItem(swatch('ring', 'none', 'var(--muted)', 1.6), 'Training (loans vote for themselves)') +
           '</div>' +
-          '<div class="lab-canvas-wrap" id="' + P + 'cwrap" style="aspect-ratio:16/5;min-height:150px;max-height:220px"><canvas id="' + P + 'chart" role="img" aria-label="Accuracy for each K tried" style="touch-action:auto"></canvas></div>' +
+          '<div class="lab-canvas-wrap" id="' + P + 'cwrap" style="aspect-ratio:auto;height:180px;height:clamp(150px,31.25cqw,220px)"><canvas id="' + P + 'chart" role="img" aria-label="Accuracy for each K tried" style="touch-action:auto"></canvas></div>' +
           '<p class="kbd-hint" id="' + P + 'kbd">Keyboard: focus the map, move the probe with the arrow keys (Shift for bigger steps), press Enter to add a loan there (or remove the one under the probe) and Delete to remove the nearest loan.</p>' +
         '</div>' +
         '<p class="small muted"><strong style="color:var(--ink)">Why it matters in real ML:</strong> KNN simply remembers past examples, so it lives or dies by scaling the features, choosing the distance and picking K with a fair test such as leave-one-out or cross-validation (testing on held-back slices of the data, one slice at a time): too small a K memorises noise, too big a K blurs away real patterns.</p>' +

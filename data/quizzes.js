@@ -3318,7 +3318,7 @@ window.AIM.quizzes = {
     "Set up a Kubernetes cluster with auto-scaling"
    ],
    "answer": 1,
-   "explain": "Gradio and Streamlit turn a Python function into an interactive web app, with audio upload, text output and so on, in a few lines of code, and Hugging Face Spaces can host such demos for free behind a shareable link. A custom frontend or Kubernetes (a system for running many containers at scale) is far more work than a demo needs. Asking non-technical colleagues to run Python defeats the purpose.",
+   "explain": "Gradio and Streamlit turn a Python function into an interactive web app, with audio upload, text output and so on, in a few lines of code, and a free Hugging Face account can host up to 2 Gradio demos on ZeroGPU Spaces, and Streamlit Community Cloud hosts Streamlit apps for free behind a shareable link. A custom frontend or Kubernetes (a system for running many containers at scale) is far more work than a demo needs. Asking non-technical colleagues to run Python defeats the purpose.",
    "difficulty": "medium"
   },
   {
@@ -3684,7 +3684,7 @@ window.AIM.quizzes = {
     "Use MLflow's experiment UI as the investor demo and DVC as the API"
    ],
    "answer": 1,
-   "explain": "Demo tools like Gradio and Streamlit are ideal for people clicking around, and Hugging Face Spaces gives a free shareable link. A production app needs a clean, documented REST endpoint (FastAPI even generates interactive API docs automatically), and Docker makes it easy to deploy the same image on platforms such as Render. Gradio apps can be called programmatically, but they are built for demos, not as the main backend of a busy mobile app.",
+   "explain": "Demo tools like Gradio and Streamlit are ideal for people clicking around, and a free Hugging Face ZeroGPU Space (or Streamlit Community Cloud) gives a shareable link. A production app needs a clean, documented REST endpoint (FastAPI even generates interactive API docs automatically), and Docker makes it easy to deploy the same image on platforms such as Render. Gradio apps can be called programmatically, but they are built for demos, not as the main backend of a busy mobile app.",
    "difficulty": "medium"
   }
  ],
