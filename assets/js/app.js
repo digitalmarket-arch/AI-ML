@@ -140,6 +140,7 @@
     flushPending(); pendingFlush = [];
     currentCleanup.forEach(function (f) { try { f(); } catch (e) {} });
     currentCleanup = [];
+    try { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); } catch (e) {}
     main.innerHTML = html;
     document.title = (title ? title + ' · ' : '') + (D.site.name || 'AI Marg');
     var h1 = main.querySelector('h1');
@@ -226,7 +227,7 @@
   function sectionsHTML(sections) {
     return (sections || []).map(function (s, i) {
       return '<section class="stack-sm" id="sec-' + i + '"><h3>' + esc(s.heading) + '</h3>' + (s.paragraphs || []).map(function (p) { return '<p>' + inline(p) + '</p>'; }).join('') +
-        (s.bullets && s.bullets.length ? '<ul>' + s.bullets.map(function (b) { return '<li>' + inline(b) + '</li>'; }).join('') + '</ul>' : '') + '</section>';
+        (s.bullets && s.bullets.length ? (s.bullets.every(function (b) { return /^\d+\.\s/.test(b); }) ? '<ol>' + s.bullets.map(function (b) { return '<li>' + inline(b.replace(/^\d+\.\s/, '')) + '</li>'; }).join('') + '</ol>' : '<ul>' + s.bullets.map(function (b) { return '<li>' + inline(b) + '</li>'; }).join('') + '</ul>') : '') + '</section>';
     }).join('');
   }
   function viewStart() {
@@ -234,7 +235,7 @@
     setView('<div class="wrap stack-lg">' + crumbs([['Home', 'home'], ['Start here']]) +
       '<header class="stack-sm"><h1>' + esc(pg.title || 'Start here') + '</h1><p class="lede muted prose">Everything you need before Level 1: how the site works, free tools, time, cost and how to study well.</p></header>' +
       '<div class="two-col"><div class="prose stack">' + tocHTML(pg.sections) + sectionsHTML(pg.sections) + '</div>' +
-      '<aside class="stack">' + plannerCard() + '<div class="card stack-sm"><strong>Ready?</strong><p class="small muted">Begin with the no-coding introduction, then Python.</p><a class="btn btn-primary" href="#m-' + esc((modulesOf(1)[0] || {}).id || '') + '">Open module 1.1</a></div></aside></div></div>', 'Start here');
+      '<aside class="stack start-aside">' + plannerCard() + '<div class="card stack-sm"><strong>Ready?</strong><p class="small muted">Begin with the no-coding introduction, then Python.</p><a class="btn btn-primary" href="#m-' + esc((modulesOf(1)[0] || {}).id || '') + '">Open module 1.1</a></div></aside></div></div>', 'Start here');
     bindPlanner();
   }
 
@@ -319,7 +320,7 @@
     var html = '<div class="wrap stack">' + crumbs([['Home', 'home'], ['Level ' + m.level + ' ' + (l ? l.name : ''), 'level-' + m.level], ['Module ' + modNo(m)]]) +
       '<header class="row-between"><div class="stack-sm"><span class="eyebrow">Module ' + modNo(m) + (m.hours ? ' · about ' + m.hours + ' hours' : '') + '</span><h1>' + esc(m.title) + '</h1></div>' + ring(moduleProgress(m)) + '</header>' +
       '<div class="tabs" role="tablist" aria-label="Module sections">' + tabs.map(function (t) { return '<button role="tab" type="button" id="tab-' + t[0] + '" aria-controls="tabpanel" data-tab="' + t[0] + '" aria-selected="' + (t[0] === tab) + '" tabindex="' + (t[0] === tab ? '0' : '-1') + '">' + esc(t[1]) + '</button>'; }).join('') + '</div>' +
-      '<div class="two-col"><div class="tab-panel" id="tabpanel" role="tabpanel" aria-labelledby="tab-' + tab + '"></div><aside class="stack"><div class="stack" id="mod-side" data-mod="' + esc(m.id) + '">' + moduleSide(m) + '</div>' +
+      '<div class="two-col' + (tab === 'lab' ? ' full' : '') + '" id="mod-cols"><div class="tab-panel" id="tabpanel" role="tabpanel" aria-labelledby="tab-' + tab + '"></div><aside class="stack"><div class="stack" id="mod-side" data-mod="' + esc(m.id) + '">' + moduleSide(m) + '</div>' +
       '<div class="row-between">' + (prev ? '<a class="btn btn-sm" href="#m-' + esc(prev.id) + '">← ' + esc(modNo(prev)) + '</a>' : '<span></span>') + (next ? '<a class="btn btn-sm" href="#m-' + esc(next.id) + '">' + esc(modNo(next)) + ' →</a>' : '') + '</div></aside></div></div>';
     setView(html, m.title);
     var tabBtns = Array.prototype.slice.call(main.querySelectorAll('[data-tab]'));
@@ -337,6 +338,7 @@
       currentCleanup.forEach(function (f) { try { f(); } catch (e) {} }); currentCleanup = [];
       tabBtns.forEach(function (b) { var on = b.getAttribute('data-tab') === t; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; if (on && focus) b.focus(); });
       var panel = document.getElementById('tabpanel'); panel.setAttribute('aria-labelledby', 'tab-' + t);
+      var cols = document.getElementById('mod-cols'); if (cols) cols.classList.toggle('full', t === 'lab');
       renderModuleTab(m, t, panel);
     }
     renderModuleTab(m, tab, document.getElementById('tabpanel'));
@@ -356,7 +358,12 @@
   }
   function renderModuleTab(m, tab, el) {
     if (tab === 'overview') {
-      el.innerHTML = '<div class="stack-lg"><div class="prose stack">' + (m.overview ? '<p>' + inline(m.overview) + '</p>' : '<p>' + esc((m.topics || []).join(', ')) + '</p>') +
+      var pre = (m.prerequisites || []).filter(function (p) { return !/^\s*none\b/i.test(p); }).map(function (p) {
+        var mm = /^(l\d-[a-z0-9-]+)\b\s*(.*)$/.exec(p);
+        if (mm && modById[mm[1]]) return '<a href="#m-' + esc(mm[1]) + '">' + esc(modNo(modById[mm[1]]) + ' ' + modById[mm[1]].title) + '</a>' + (mm[2] ? ' <span class="muted">' + inline(mm[2].replace(/^[:,\-–—\s]+/, '')) + '</span>' : '');
+        return inline(p);
+      });
+      el.innerHTML = '<div class="stack-lg">' + (pre.length ? '<div class="callout callout-indigo small"><strong>Before this:</strong> ' + pre.join('; ') + '</div>' : '') + '<div class="prose stack">' + (m.overview ? '<p>' + inline(m.overview) + '</p>' : '<p>' + esc((m.topics || []).join(', ')) + '</p>') +
         (m.whyItMatters ? '<div class="callout callout-indigo"><strong>Why it matters:</strong> ' + inline(m.whyItMatters) + '</div>' : '') + '</div>' +
         listBlock('You will be able to', m.outcomes) +
         listBlock('Study plan', m.studySteps, true) +
@@ -365,7 +372,6 @@
         listBlock('Common mistakes', m.commonMistakes) +
         listBlock('Check yourself (open tasks)', m.selfCheck) +
         listBlock('Topics covered', m.topics) +
-        (m.prerequisites && m.prerequisites.length ? '<p class="small muted">Before this: ' + m.prerequisites.map(function (p) { return modById[p] ? '<a href="#m-' + esc(p) + '">' + esc(modById[p].title) + '</a>' : esc(p); }).join(', ') + '</p>' : '') +
         '</div>';
     } else if (tab === 'watch') {
       var mp = mainPicks(m), list = mp.list, mainPick = mp.main, otherLangPick = mp.second, group = langGroup;
@@ -399,7 +405,10 @@
       var qz = D.quizzes[m.id], qs = S().quiz[m.id];
       el.innerHTML = '<div class="stack"><div class="row-between"><div class="stack-sm"><h2>Quiz</h2><span class="small muted">' + qz.length + ' questions · answers explained as you go · pass mark 70%</span></div>' +
         '<span id="quiz-best" class="chip num' + (qs && qs.best >= 70 ? ' chip-ok' : '') + '"' + (qs ? '' : ' hidden') + '>' + (qs ? 'Best: ' + esc(qs.best) + '% · ' + esc(qs.attempts) + ' attempt' + (qs.attempts > 1 ? 's' : '') : '') + '</span></div><div id="quizroot"></div></div>';
-      var quiz = new C.Quiz(document.getElementById('quizroot'), { questions: qz, mode: 'learn', onFinish: function (r) { recordQuiz(m.id, r.score); } });
+      var nm = D.modules[D.modules.indexOf(m) + 1];
+      var nxt = nm ? { href: '#m-' + nm.id, label: 'Next: ' + modNo(nm) + ' ' + nm.title } : { href: '#tests', label: 'Take a level test' };
+      if (nm && nm.level !== m.level) nxt = { href: '#test-l' + m.level, label: 'Take the level ' + m.level + ' test' };
+      var quiz = new C.Quiz(document.getElementById('quizroot'), { questions: qz, mode: 'learn', next: nxt, onFinish: function (r) { recordQuiz(m.id, r.score); } });
       currentCleanup.push(function () { quiz.destroy(); });
     } else if (tab === 'notes') {
       var note = S().notes[m.id] || '';
@@ -479,23 +488,26 @@
     ModuleNotFoundError: 'That library is not available in the browser version of Python.',
     RuntimeError: 'Something stopped the program while it was running. Read the message above; for input(), type the value straight into your code instead.'
   };
-  function mountExercise(e, root) {
+  function mountExercise(e, root, opts) {
+    opts = opts || {};
     var saved = S().code[e.id], done = S().ex[e.id] && S().ex[e.id].done;
     var hintN = 0, solArmed = false;
-    root.innerHTML = '<div class="ex"><div class="row-between"><h3>' + esc(e.title) + '</h3><div class="row">' +
-      (done ? '<span class="chip chip-ok">Solved</span>' : '') + (e.optional ? '<span class="chip chip-hi">Optional</span>' : '') + '<span class="chip chip-level">' + esc(e.difficulty) + '</span>' +
+    root.innerHTML = '<div class="ex"><div class="row-between">' + (opts.hideTitle ? '<span></span>' : '<h3>' + esc(e.title) + '</h3>') + '<div class="row">' +
+      (done ? '<span class="chip chip-ok">Solved</span>' : '') + (e.optional ? '<span class="chip chip-hi">Optional</span>' : '') + (e.difficulty && e.difficulty !== 'free' ? '<span class="chip chip-level">' + esc(e.difficulty) + '</span>' : '') +
       (e.packages && e.packages.length ? '<span class="chip">' + esc(e.packages.join(', ')) + '</span>' : '') + '</div></div>' +
       (e.concept ? '<span class="small muted">Practises: ' + inline(e.concept) + '</span>' : '') +
       (e.optional ? '<div class="callout small">Optional: this module needs no coding. Try this after Module 1.2 (Python), or just press <strong>Run</strong> and read the output.</div>' : '') +
       '<div class="prose">' + md(e.task) + '</div>' +
-      '<div class="editor"><label class="visually-hidden" for="code-' + esc(e.id) + '">Code for ' + esc(e.title) + '</label><textarea id="code-' + esc(e.id) + '" spellcheck="false" autocapitalize="off" autocomplete="off">' + esc(saved != null ? saved : e.starter) + '</textarea></div>' +
+      '<div class="editor"><label class="visually-hidden" for="code-' + esc(e.id) + '">Code for ' + esc(e.title) + '</label><textarea id="code-' + esc(e.id) + '" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off">' + esc(saved != null ? saved : e.starter) + '</textarea></div>' +
       '<div class="row"><button class="btn btn-primary" data-x="check">Check</button><button class="btn" data-x="run">Run</button><button class="btn" data-x="stop" hidden>Stop</button>' +
       '<button class="btn btn-ghost" data-x="hint">Hint</button><button class="btn btn-ghost" data-x="reset">Reset</button><button class="btn btn-ghost" data-x="sol">Show solution</button><span class="kbd-hint">Ctrl/⌘ + Enter = Check</span></div>' +
       '<div class="stack-sm" data-x="hints"></div><div class="console" data-x="out" aria-live="polite"><span class="info">Output appears here.</span></div><ul class="checklist" data-x="results"></ul></div>';
     var ta = root.querySelector('textarea'), out = root.querySelector('[data-x=out]'), res = root.querySelector('[data-x=results]');
     var bStop = root.querySelector('[data-x=stop]'), t = null, busy = false;
     var flushCode = function () { if (!t) return; clearTimeout(t); t = null; if (e.id !== 'playground') { S().code[e.id] = ta.value; C.save(); } };
-    ta.addEventListener('input', function () { clearTimeout(t); t = setTimeout(flushCode, 400); });
+    function fit() { ta.style.height = 'auto'; ta.style.height = Math.max(220, ta.scrollHeight + 2) + 'px'; }
+    ta.addEventListener('input', function () { clearTimeout(t); t = setTimeout(flushCode, 400); fit(); });
+    setTimeout(fit, 0);
     pendingFlush.push(flushCode); currentCleanup.push(flushCode);
     currentCleanup.push(function () { if (busy) R.stop(); });
     function setBusy(b) { busy = b; root.querySelector('[data-x=check]').disabled = b; root.querySelector('[data-x=run]').disabled = b; bStop.hidden = !b; }
@@ -531,7 +543,7 @@
           var all = r.results || [], ok = all.filter(function (x) { return x.ok; }).length;
           res.innerHTML = all.map(function (x) {
             var et = x.error ? String(x.error).split(':')[0] : '';
-            return '<li class="small"><span>' + (x.ok ? '✓ ' : '✗ ') + inline(x.name) + (!x.ok && x.hint ? '<br><span class="muted">Hint: ' + inline(x.hint) + '</span>' : '') + (!x.ok && x.error ? '<br><code>' + esc(x.error) + '</code>' + (FRIENDLY[et] ? '<br><span class="muted">' + esc(FRIENDLY[et]) + '</span>' : '') : '') + '</span></li>';
+            return '<li class="small ex-res ' + (x.ok ? 'ok' : 'bad') + '"><span>' + (x.ok ? '✓ ' : '✗ ') + inline(x.name) + (!x.ok && x.hint ? '<br><span class="muted">Hint: ' + inline(x.hint) + '</span>' : '') + (!x.ok && x.error ? '<br><code>' + esc(x.error) + '</code>' + (FRIENDLY[et] ? '<br><span class="muted">' + esc(FRIENDLY[et]) + '</span>' : '') : '') + '</span></li>';
           }).join('');
           if (all.length && ok === all.length) {
             line('ok', '\nAll ' + all.length + ' checks passed in ' + ((Date.now() - started) / 1000).toFixed(1) + ' s. बढ़िया!\n');
@@ -551,12 +563,12 @@
       if (hintN >= hs.length) { C.toast('No more hints. Try "Show solution".'); return; }
       var d = document.createElement('div'); d.className = 'callout small'; d.innerHTML = '<strong>Hint ' + (hintN + 1) + ':</strong> ' + inline(hs[hintN]); box.appendChild(d); hintN++;
     });
-    root.querySelector('[data-x=reset]').addEventListener('click', function () { ta.value = e.starter; S().code[e.id] = e.starter; C.save(); });
+    root.querySelector('[data-x=reset]').addEventListener('click', function () { ta.value = e.starter; S().code[e.id] = e.starter; C.save(); fit(); });
     root.querySelector('[data-x=sol]').addEventListener('click', function (ev) {
       var b = ev.currentTarget;
       if (!e.solution) return;
       if (!solArmed) { solArmed = true; b.textContent = 'Sure? Click again to reveal'; setTimeout(function () { solArmed = false; b.textContent = 'Show solution'; }, 4000); return; }
-      ta.value = e.solution; b.textContent = 'Solution shown'; solArmed = false;
+      ta.value = e.solution; b.textContent = 'Solution shown'; solArmed = false; fit();
     });
   }
   function viewPractice() {
@@ -566,12 +578,13 @@
       D.levels.map(function (l) {
         var ms = modulesOf(l.id).filter(function (m) { return exOf(m.id).length; });
         if (!ms.length) return '';
-        return '<section class="stack"><h2>Level ' + l.id + ' · ' + esc(l.name) + '</h2><div class="module-list">' + ms.map(function (m) {
-          return exOf(m.id).map(function (e) {
+        return '<section class="stack"><h2>Level ' + l.id + ' · ' + esc(l.name) + '</h2>' + ms.map(function (m) {
+          var exs = exOf(m.id);
+          return '<div class="stack-sm"><h3 class="small eyebrow"><a href="#m-' + esc(m.id) + '~practice">' + esc(modNo(m) + ' ' + m.title) + '</a> · ' + exs.length + ' exercise' + (exs.length > 1 ? 's' : '') + '</h3><div class="module-list">' + exs.map(function (e, i) {
             var d = st.ex[e.id] && st.ex[e.id].done;
-            return '<a class="module-row' + (d ? ' done' : '') + '" href="#ex-' + esc(e.id.replace(/^ex-/, '')) + '"><span class="idx num">' + (d ? '✓' : modNo(m)) + '</span><span><h3>' + esc(e.title) + '</h3><span class="meta"><span class="chip chip-level">' + esc(e.difficulty) + '</span><span class="chip">' + esc(m.title) + '</span></span></span><span></span></a>';
-          }).join('');
-        }).join('') + '</div></section>';
+            return '<a class="module-row' + (d ? ' done' : '') + '" href="#ex-' + esc(e.id.replace(/^ex-/, '')) + '"><span class="idx num">' + (d ? '✓' : modNo(m) + '.' + (i + 1)) + '</span><span><h3>' + esc(e.title) + '</h3>' + (e.concept ? '<span class="small muted">' + inline(e.concept) + '</span>' : '') + '</span><span class="row">' + (e.optional ? '<span class="chip chip-hi">Optional</span>' : '') + (d ? '<span class="chip chip-ok">Solved</span>' : '<span class="chip chip-level">' + esc(e.difficulty) + '</span>') + '</span></a>';
+          }).join('') + '</div></div>';
+        }).join('') + '</section>';
       }).join('') + (D.exercises.length ? '' : '<div class="empty">Exercises are being added.</div>') + '</div>', 'Practice');
   }
   function viewExercise(rid) {
@@ -580,12 +593,12 @@
     setView('<div class="wrap stack">' + crumbs([['Home', 'home'], ['Practice', 'practice'], [e.title]]) +
       '<header class="stack-sm"><span class="eyebrow">' + (m ? 'Module ' + modNo(m) + ' · ' + esc(m.title) : '') + '</span><h1>' + esc(e.title) + '</h1></header><div id="exroot"></div>' +
       (m ? '<p><a href="#m-' + esc(m.id) + '">Back to the module →</a></p>' : '') + '</div>', e.title);
-    mountExercise(e, document.getElementById('exroot'));
+    mountExercise(e, document.getElementById('exroot'), { hideTitle: true });
   }
   function viewPlayground() {
     var pg = { id: 'playground', title: 'Python playground', difficulty: 'free', packages: [], task: 'Write any Python here and press **Run**. `numpy`, `pandas` and `scikit-learn` load automatically when you import them.', starter: 'import numpy as np\n\nmarks = np.array([72, 85, 64, 90, 78])\nprint("Average marks:", marks.mean())\nprint("Above 75:", marks[marks > 75])\n', solution: '', tests: '', hints: ['Use print(...) to see values.'] };
     setView('<div class="wrap stack">' + crumbs([['Home', 'home'], ['Practice', 'practice'], ['Playground']]) + '<header><h1>Python playground</h1></header><div id="exroot"></div></div>', 'Playground');
-    mountExercise(pg, document.getElementById('exroot'));
+    mountExercise(pg, document.getElementById('exroot'), { hideTitle: true });
     var root = document.getElementById('exroot');
     ['check', 'sol'].forEach(function (k) { var b = root.querySelector('[data-x=' + k + ']'); if (b) b.hidden = true; });
     var kh = root.querySelector('.kbd-hint'); if (kh) kh.hidden = true;
@@ -607,7 +620,7 @@
         var ps = D.projects.filter(function (p) { return p.level === g; });
         if (!ps.length) return '';
         var l = levelById[g];
-        return '<section class="stack"><h2>' + (g === 5 ? 'Grand capstones' : 'Level ' + g + ' · ' + esc(l ? l.name : '')) + '</h2><div class="grid">' + ps.map(projCard).join('') + '</div></section>';
+        return '<section class="stack"><h2>' + (g === 5 ? 'Grand capstones' : 'Level ' + g + ' · ' + esc(l ? l.name : '')) + '</h2><div class="' + (ps.length === 4 ? 'grid-4' : 'grid') + '">' + ps.map(projCard).join('') + '</div></section>';
       }).join('') + (D.projects.length ? '' : '<div class="empty">Projects are being added.</div>') + '</div>', 'Projects');
   }
   function viewProject(id) {
@@ -622,16 +635,16 @@
       '<section class="stack-sm"><h3>Milestones</h3><ul class="checklist">' + (p.milestones || []).map(function (ms, i) {
         return '<li><label><input type="checkbox" data-action="pstep" data-id="' + esc(id) + '" data-i="' + i + '"' + (st.steps[i] ? ' checked' : '') + '><span><strong>' + esc(ms.title) + '</strong><br><span class="small muted">' + inline(ms.detail || '') + '</span></span></label></li>';
       }).join('') + '</ul></section>' +
-      '<section class="stack-sm"><h3>Rubric: grade yourself honestly</h3><div class="table-wrap"><table class="simple"><thead><tr><th>Criterion</th><th>Basic</th><th>Good</th><th>Excellent</th></tr></thead><tbody>' +
+      '<section class="stack-sm"><h3>Rubric: grade yourself honestly</h3><div class="table-wrap"><table class="simple rubric"><thead><tr><th>Criterion</th><th>Basic</th><th>Good</th><th>Excellent</th></tr></thead><tbody>' +
       (p.rubric || []).map(function (r, i) {
         return '<tr><td><strong>' + esc(r.criterion) + '</strong></td>' + ['basic', 'good', 'excellent'].map(function (lv, k) {
-          return '<td><label class="small" style="display:grid;grid-template-columns:20px 1fr;gap:6px"><input type="radio" name="rub-' + i + '" data-action="prub" data-id="' + esc(id) + '" data-i="' + i + '" value="' + (k + 1) + '"' + (st.rubric[i] === k + 1 ? ' checked' : '') + '><span>' + inline(r[lv] || '') + '</span></label></td>';
+          return '<td data-label="' + ['Basic', 'Good', 'Excellent'][k] + '"><label class="small" style="display:grid;grid-template-columns:20px 1fr;gap:6px"><input type="radio" name="rub-' + i + '" data-action="prub" data-id="' + esc(id) + '" data-i="' + i + '" value="' + (k + 1) + '"' + (st.rubric[i] === k + 1 ? ' checked' : '') + '><span>' + inline(r[lv] || '') + '</span></label></td>';
         }).join('') + '</tr>';
       }).join('') + '</tbody></table></div><p class="small muted" id="rub-score"></p></section>' +
       listBlock('Stretch goals', p.stretch) + listBlock('Pitfalls to avoid', p.pitfalls) +
       '</div><aside class="stack">' + (p.freeStack ? '<div class="callout small"><strong>Free tools (₹0):</strong> ' + inline(p.freeStack) + '</div>' : '') +
       '<div class="card stack-sm"><strong>Deliverables</strong><ul class="small">' + (p.deliverables || []).map(function (d) { return '<li>' + inline(d) + '</li>'; }).join('') + '</ul></div>' +
-      (p.skills && p.skills.length ? '<div class="card stack-sm"><strong>Skills you will use</strong><div class="row">' + p.skills.map(function (s) { return '<span class="chip">' + esc(s) + '</span>'; }).join('') + '</div></div>' : '') +
+      (p.skills && p.skills.length ? '<div class="card stack-sm"><strong>Skills you will use</strong><ul class="small skill-list">' + p.skills.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul></div>' : '') +
       '<div class="card stack-sm"><strong>Your links</strong><label class="small" for="pl-repo">GitHub repo</label><input type="text" id="pl-repo" data-action="plink" data-k="repo" data-id="' + esc(id) + '" value="' + esc(st.links.repo || '') + '" placeholder="https://github.com/you/project">' +
       '<label class="small" for="pl-demo">Live demo</label><input type="text" id="pl-demo" data-action="plink" data-k="demo" data-id="' + esc(id) + '" value="' + esc(st.links.demo || '') + '" placeholder="https://huggingface.co/spaces/...">' +
       '<button class="btn ' + (st.done ? '' : 'btn-haldi') + '" data-action="pdone" data-id="' + esc(id) + '">' + (st.done ? 'Completed ✓ (undo)' : 'Mark project complete') + '</button></div>' +
@@ -650,7 +663,7 @@
   /* ---------- tests ---------- */
   function viewTests() {
     setView('<div class="wrap stack-lg">' + crumbs([['Home', 'home'], ['Tests']]) +
-      '<header class="stack-sm"><h1>Level tests</h1><p class="lede muted prose">Each test mixes the whole level. Answers are revealed only after you submit. Pass with 70% before moving on. Module quizzes live on each module page.</p></header><div class="grid">' +
+      '<header class="stack-sm"><h1>Level tests</h1><p class="lede muted prose">Each test mixes the whole level. Answers are revealed only after you submit. Pass with 70% before moving on. Module quizzes live on each module page.</p></header><div class="grid-4">' +
       D.levels.map(function (l) {
         var q = D.quizzes['test-l' + l.id] || [], s = S().quiz['test-l' + l.id];
         return '<div class="card stack-sm"><span class="eyebrow">Level ' + l.id + ' · ' + esc(l.name) + '</span><h3>' + esc(l.title) + '</h3><span class="small muted">' + q.length + ' questions · ' + Math.max(15, Math.round(q.length * 1.5)) + ' minutes</span>' +
@@ -659,10 +672,15 @@
       '<section class="stack"><h2>Module quizzes taken</h2>' + quizTable() + '</section></div>', 'Tests');
   }
   function quizTable() {
+    var testRows = D.levels.filter(function (l) { return S().quiz['test-l' + l.id]; }).map(function (l) {
+      var q = S().quiz['test-l' + l.id];
+      return '<tr><td><a href="#test-l' + l.id + '">Level ' + l.id + ' test</a></td><td class="num">' + esc(q.best) + '%</td><td class="num">' + esc(q.attempts) + '</td><td>' + (q.best >= 70 ? '<span class="chip chip-ok">passed</span>' : '<span class="chip">retry</span>') + '</td></tr>';
+    });
     var rows = D.modules.filter(function (m) { return S().quiz[m.id]; }).map(function (m) {
       var q = S().quiz[m.id];
       return '<tr><td><a href="#m-' + esc(m.id) + '">' + esc(modNo(m) + ' ' + m.title) + '</a></td><td class="num">' + esc(q.best) + '%</td><td class="num">' + esc(q.attempts) + '</td><td>' + (q.best >= 70 ? '<span class="chip chip-ok">passed</span>' : '<span class="chip">retry</span>') + '</td></tr>';
     });
+    rows = testRows.concat(rows);
     return rows.length ? '<div class="table-wrap"><table class="simple"><thead><tr><th>Module</th><th>Best</th><th>Attempts</th><th></th></tr></thead><tbody>' + rows.join('') + '</tbody></table></div>' : '<div class="empty">No quizzes taken yet. Every module has one.</div>';
   }
   function viewTest(lv) {
@@ -670,7 +688,10 @@
     var mins = Math.max(15, Math.round(q.length * 1.5));
     setView('<div class="wrap stack">' + crumbs([['Home', 'home'], ['Tests', 'tests'], ['Level ' + lv]]) +
       '<header class="stack-sm"><span class="eyebrow">Level ' + lv + ' · ' + esc(l.name) + '</span><h1>Level ' + lv + ' test</h1><p class="muted prose">' + q.length + ' questions. Optional ' + mins + '-minute timer. You will see your score and full explanations after you submit.</p></header>' +
-      '<div id="testroot"><div class="card stack-sm"><label class="row"><input type="checkbox" id="timed" checked> Use the ' + mins + '-minute timer</label><div><button class="btn btn-primary" id="begin">Begin the test</button></div></div></div></div>', 'Level ' + lv + ' test');
+      '<div id="testroot"><div class="card stack test-start"><ul class="small">' +
+        '<li>Pass mark 70% · ' + q.length + ' questions</li><li>Covers modules ' + lv + '.1 to ' + lv + '.' + modulesOf(lv).length + '</li>' +
+        (S().quiz['test-l' + lv] ? '<li>Your best so far: ' + esc(S().quiz['test-l' + lv].best) + '%</li>' : '') + '</ul>' +
+        '<label class="row"><input type="checkbox" id="timed" checked> Use the ' + mins + '-minute timer</label><button class="btn btn-primary" id="begin" style="width:100%">Begin the test</button></div></div></div>', 'Level ' + lv + ' test');
     document.getElementById('begin').addEventListener('click', function () {
       var timed = document.getElementById('timed').checked;
       var quiz = new C.Quiz(document.getElementById('testroot'), { questions: q, mode: 'test', minutes: timed ? mins : 0, onFinish: function (r) { recordQuiz('test-l' + lv, r.score); } });
@@ -679,17 +700,20 @@
   }
 
   /* ---------- library ---------- */
-  var libState = { q: '', lang: 'all', level: 'all', type: 'all' };
+  var libState = { q: '', lang: 'all', level: 'all', type: 'all', shown: 48 };
+  var LIB_PAGE = 48;
+  function cap(t) { t = String(t || ''); return t.charAt(0).toUpperCase() + t.slice(1); }
   function viewLibrary() {
     var types = {}; D.resources.forEach(function (r) { types[r.type] = 1; });
     setView('<div class="wrap stack-lg">' + crumbs([['Home', 'home'], ['Library']]) +
       '<header class="stack-sm"><h1>Library</h1><p class="lede muted prose">Every free resource in the course, in one place. Filter by language, level or type.</p></header>' +
       '<div class="filters"><label class="visually-hidden" for="lib-q">Search</label><input type="search" id="lib-q" placeholder="Search: e.g. pandas, CampusX, transformers, NPTEL" value="' + esc(libState.q) + '">' +
       selectHTML('lib-lang', 'Language', [['all', 'All languages'], ['hi', 'Hindi + Hinglish'], ['indian-english', 'Indian English'], ['english', 'English']], libState.lang) +
-      selectHTML('lib-level', 'Level', [['all', 'All levels'], ['beginner', 'Beginner'], ['intermediate', 'Intermediate'], ['advanced', 'Advanced'], ['expert', 'Expert']], libState.level) +
-      selectHTML('lib-type', 'Type', [['all', 'All types']].concat(Object.keys(types).sort().map(function (t) { return [t, t]; })), libState.type) +
-      '</div><div class="small muted num" id="lib-count"></div><div class="grid" id="lib-grid"></div></div>', 'Library');
-    function apply() {
+      selectHTML('lib-level', 'Level', [['all', 'All levels'], ['beginner', 'Level 1 · Beginner'], ['intermediate', 'Level 2 · Intermediate'], ['advanced', 'Level 3 · Advanced'], ['expert', 'Level 4 · Expert']], libState.level) +
+      selectHTML('lib-type', 'Type', [['all', 'All types']].concat(Object.keys(types).sort().map(function (t) { return [t, cap(t)]; })), libState.type) +
+      '</div><div class="small muted num" id="lib-count"></div><div class="grid" id="lib-grid"></div><div id="lib-more"></div></div>', 'Library');
+    function apply(keepShown) {
+      if (!keepShown) libState.shown = LIB_PAGE;
       libState.q = document.getElementById('lib-q').value.toLowerCase().trim();
       libState.lang = document.getElementById('lib-lang').value; libState.level = document.getElementById('lib-level').value; libState.type = document.getElementById('lib-type').value;
       var list = D.resources.filter(function (r) {
@@ -701,28 +725,36 @@
         return true;
       });
       list = list.slice().sort(function (a, b) { return C.langRank(a.language, S().prefs.lang) - C.langRank(b.language, S().prefs.lang); });
-      document.getElementById('lib-count').textContent = list.length + ' of ' + D.resources.length + ' resources · Hindi, Hinglish and Indian English teachers listed first';
-      document.getElementById('lib-grid').innerHTML = list.slice(0, 300).map(function (r) { return resCard(r); }).join('') || '<div class="empty">Nothing matches. Clear a filter.</div>';
+      var shown = Math.min(libState.shown, list.length);
+      document.getElementById('lib-count').textContent = 'Showing ' + shown + ' of ' + list.length + ' matching resources · Hindi, Hinglish and Indian English teachers listed first';
+      document.getElementById('lib-grid').innerHTML = list.slice(0, shown).map(function (r) { return resCard(r); }).join('') || '<div class="empty stack-sm"><span>Nothing matches these filters.</span><div><button class="btn btn-sm" type="button" id="lib-clear">Clear filters</button></div></div>';
+      document.getElementById('lib-more').innerHTML = shown < list.length ? '<button class="btn" type="button" id="lib-more-btn">Show ' + Math.min(LIB_PAGE, list.length - shown) + ' more</button>' : '';
+      var mb = document.getElementById('lib-more-btn'); if (mb) mb.addEventListener('click', function () { libState.shown += LIB_PAGE; apply(true); });
+      var cb = document.getElementById('lib-clear'); if (cb) cb.addEventListener('click', function () { ['lib-lang', 'lib-level', 'lib-type'].forEach(function (id) { document.getElementById(id).value = 'all'; }); document.getElementById('lib-q').value = ''; apply(); });
     }
-    ['lib-q', 'lib-lang', 'lib-level', 'lib-type'].forEach(function (id) { document.getElementById(id).addEventListener(id === 'lib-q' ? 'input' : 'change', apply); });
-    apply();
+    ['lib-q', 'lib-lang', 'lib-level', 'lib-type'].forEach(function (id) { document.getElementById(id).addEventListener(id === 'lib-q' ? 'input' : 'change', function () { apply(); }); });
+    apply(true);
   }
   function selectHTML(id, label, opts, val) {
     return '<label class="visually-hidden" for="' + id + '">' + esc(label) + '</label><select id="' + id + '">' + opts.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (o[0] === val ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('') + '</select>';
   }
 
   /* ---------- glossary ---------- */
+  var glossQ = '';
   function viewGlossary() {
     var list = D.glossary.slice().sort(function (a, b) { return a.term.localeCompare(b.term); });
     setView('<div class="wrap stack-lg">' + crumbs([['Home', 'home'], ['Glossary']]) +
       '<header class="stack-sm"><h1>Jargon buster</h1><p class="lede muted prose">' + list.length + ' AI and ML terms in plain English, with the Hindi word and an everyday example.</p><div class="row"><a class="btn btn-primary" href="#cards">Revise with flashcards</a></div></header>' +
-      '<div class="filters"><label class="visually-hidden" for="g-q">Search terms</label><input type="search" id="g-q" placeholder="Search: overfitting, embedding, LoRA…"></div><dl id="g-list"></dl></div>', 'Glossary');
+      '<div class="filters"><label class="visually-hidden" for="g-q">Search terms</label><input type="search" id="g-q" placeholder="Search: overfitting, embedding, LoRA…" value="' + esc(glossQ) + '"></div>' +
+      '<nav class="az small" aria-label="Jump to letter">' + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').filter(function (L) { return list.some(function (g) { return g.term.charAt(0).toUpperCase() === L; }); }).map(function (L) { return '<a href="#" data-jump="g-' + L + '">' + L + '</a>'; }).join('') + '</nav><dl id="g-list"></dl></div>', 'Glossary');
     function apply() {
-      var q = document.getElementById('g-q').value.toLowerCase().trim();
+      var q = document.getElementById('g-q').value.toLowerCase().trim(); glossQ = q;
+      var seen = {};
       var f = list.filter(function (g) { return !q || (g.term + ' ' + g.simple + ' ' + (g.hindi || '')).toLowerCase().indexOf(q) >= 0; });
       document.getElementById('g-list').innerHTML = f.map(function (g) {
         var m = modById[g.moduleId];
-        return '<div class="gloss-term"><dt>' + esc(g.term) + (g.hindi ? '<div class="small muted" lang="hi">' + esc(g.hindi) + '</div>' : '') + '</dt><dd class="stack-sm"><span>' + inline(g.simple) + '</span>' +
+        var L = g.term.charAt(0).toUpperCase(), anchor = seen[L] ? '' : ' id="g-' + L + '"'; seen[L] = 1;
+        return '<div class="gloss-term"' + anchor + '><dt>' + esc(g.term) + (g.hindi ? '<div class="small muted" lang="hi">' + esc(g.hindi) + '</div>' : '') + '</dt><dd class="stack-sm"><span>' + inline(g.simple) + '</span>' +
           (g.example ? '<span class="small muted">Example: ' + inline(g.example) + '</span>' : '') + (m ? '<a class="small" href="#m-' + esc(m.id) + '">Learn it in ' + esc(modNo(m) + ' ' + m.title) + '</a>' : '') + '</dd></div>';
       }).join('') || '<div class="empty">No term matches.</div>';
     }
@@ -748,7 +780,7 @@
       '<div class="filters"><label class="visually-hidden" for="s-q">Search the course</label><input type="search" id="s-q" placeholder="Try: regression, RAG, CampusX, overfitting, LoRA" value="' + esc(searchQ) + '" autofocus></div><div id="s-out" class="stack-lg"></div></div>', 'Search');
     var inp = document.getElementById('s-q');
     function hit(text, q) { return String(text || '').toLowerCase().indexOf(q) >= 0; }
-    function group(title, items) { return items.length ? '<section class="stack-sm"><h2 class="small eyebrow">' + esc(title) + ' · ' + items.length + '</h2><div class="module-list">' + items.slice(0, 12).join('') + '</div></section>' : ''; }
+    function group(title, items, allHref) { return items.length ? '<section class="stack-sm"><h2 class="small eyebrow">' + esc(title) + ' · ' + items.length + '</h2><div class="module-list">' + items.slice(0, 12).join('') + '</div>' + (items.length > 12 && allHref ? '<a class="small" href="' + allHref + '">See all ' + items.length + ' →</a>' : '') + '</section>' : ''; }
     function row(href, title, meta) { return '<a class="module-row" href="' + href + '"><span class="idx" aria-hidden="true">→</span><span><h3>' + esc(title) + '</h3><span class="meta"><span class="small muted">' + esc(meta) + '</span></span></span><span></span></a>'; }
     function apply() {
       var q = inp.value.toLowerCase().trim(); searchQ = inp.value;
@@ -760,7 +792,8 @@
       var prj = D.projects.filter(function (p) { return hit(p.title, q) || hit(p.tagline, q) || hit(p.brief, q); }).map(function (p) { return row('#' + p.id, p.title, p.level === 5 ? 'Capstone' : 'Level ' + p.level + ' project'); });
       var gl = D.glossary.filter(function (g) { return hit(g.term, q) || hit(g.hindi, q); }).map(function (g) { return row('#glossary', g.term + (g.hindi ? ' · ' + g.hindi : ''), g.simple); });
       var res = D.resources.filter(function (r) { return hit(r.title, q) || hit(r.creator, q) || hit((r.topics || []).join(' '), q); }).map(function (r) { return row('#m-' + r.modules[0] + '~watch', r.title, (r.creator || '') + ' · ' + (C.LANG_LABEL[r.language] || '')); });
-      var html = group('Modules', mods) + group('Labs', labs) + group('Practice', exs) + group('Projects', prj) + group('Glossary', gl) + group('Videos and courses', res);
+      libState.q = q; glossQ = q;
+      var html = group('Modules', mods) + group('Labs', labs) + group('Practice', exs) + group('Projects', prj) + group('Glossary', gl, '#glossary') + group('Videos and courses', res, '#library');
       out.innerHTML = html || '<div class="empty">Nothing found for “' + esc(inp.value) + '”.</div>';
     }
     inp.addEventListener('input', apply); apply(); inp.focus();
@@ -769,11 +802,12 @@
   /* ---------- flashcards ---------- */
   function viewCards() {
     var st = S(); st.cards = st.cards || {};
-    var lvSel = st.prefs.cardLevel || 'all';
+    var lastM = st.last && modById[st.last];
+    var lvSel = st.prefs.cardLevel || (lastM ? String(lastM.level) : '1');
     setView('<div class="wrap stack-lg">' + crumbs([['Home', 'home'], ['Glossary', 'glossary'], ['Flashcards']]) +
       '<header class="stack-sm"><h1>Flashcards</h1><p class="lede muted prose">Revise the jargon. Read the term, say the meaning out loud, then flip. Cards you know come back less often.</p>' +
       '<div class="row">' + selectHTML('card-level', 'Level', [['all', 'All levels'], ['1', 'Level 1'], ['2', 'Level 2'], ['3', 'Level 3'], ['4', 'Level 4']], lvSel) + '<span class="small muted num" id="card-count"></span></div></header>' +
-      '<div id="card-root"></div></div>', 'Flashcards');
+      '<div id="card-root" class="card-stage"></div></div>', 'Flashcards');
     var sel = document.getElementById('card-level');
     function deck() {
       var lv = sel.value;
@@ -818,6 +852,7 @@
     var projDone = Object.keys(st.projects).filter(function (k) { return st.projects[k] && st.projects[k].done; }).length;
     setView('<div class="wrap stack-lg">' + crumbs([['Home', 'home'], ['My progress']]) +
       '<header class="row-between"><div class="stack-sm"><h1>My progress</h1><p class="muted">Saved only in this browser on this device. Export it to keep a backup or move devices.</p></div>' + ring(overallProgress()) + '</header>' +
+      (overallProgress() === 0 && !Object.keys(st.quiz).length ? '<div class="callout row-between"><span>Nothing here yet. Your first step takes about 30 minutes.</span><a class="btn btn-primary" href="#start">Start here</a></div>' : '') +
       '<div class="lab-stats">' + stat('Course complete', overallProgress() + '%') + stat('Day streak', C.streak()) + stat('Exercises solved', solved + '/' + D.exercises.length) + stat('Quizzes passed', passed) + stat('Lab tasks', labTasks) + stat('Projects done', projDone + '/' + D.projects.length) + '</div>' +
       '<section class="stack">' + D.levels.map(function (l) { return '<div class="stack-sm"><div class="row-between"><a href="#level-' + l.id + '"><strong>Level ' + l.id + ' · ' + esc(l.name) + '</strong></a><span class="num small">' + levelProgress(l.id) + '%</span></div>' + bar(levelProgress(l.id)) + '</div>'; }).join('') + '</section>' +
       '<div class="two-col"><section class="stack"><h2>Quizzes</h2>' + quizTable() + '</section><aside class="stack">' + plannerCard() +
@@ -910,7 +945,7 @@
     } catch (err) { if (window.console) console.error(err); viewNotFound(); }
     document.querySelectorAll('.nav a').forEach(function (a) { if (a.getAttribute('href') === '#' + navKey) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     var nav = document.querySelector('.nav'); if (nav) nav.classList.remove('open');
-    var mb = document.querySelector('.menu-btn'); if (mb) mb.setAttribute('aria-expanded', 'false');
+    var mb = document.querySelector('.menu-btn'); if (mb) { mb.setAttribute('aria-expanded', 'false'); mb.textContent = 'Menu'; }
   }
   window.addEventListener('hashchange', route);
   document.addEventListener('keydown', function (ev) {
@@ -918,7 +953,15 @@
     if (ev.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(tag) && !ev.ctrlKey && !ev.metaKey) { ev.preventDefault(); location.hash = 'search'; }
   });
   var menuBtn = document.querySelector('.menu-btn');
-  if (menuBtn) menuBtn.addEventListener('click', function () { var nav = document.querySelector('.nav'); var open = nav.classList.toggle('open'); menuBtn.setAttribute('aria-expanded', String(open)); });
+  function closeNav() { var n = document.querySelector('.nav'); if (n && n.classList.contains('open')) { n.classList.remove('open'); if (menuBtn) { menuBtn.setAttribute('aria-expanded', 'false'); menuBtn.textContent = 'Menu'; } } }
+  if (menuBtn) menuBtn.addEventListener('click', function () { var nav = document.querySelector('.nav'); var open = nav.classList.toggle('open'); menuBtn.setAttribute('aria-expanded', String(open)); menuBtn.textContent = open ? 'Close' : 'Menu'; });
+  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') closeNav(); });
+  document.addEventListener('click', function (ev) {
+    if (!ev.target.closest) return;
+    if (!document.querySelector('.nav.open')) return;
+    if (ev.target.closest('.nav a')) { closeNav(); return; }
+    if (!ev.target.closest('.site-head')) { ev.preventDefault(); ev.stopPropagation(); closeNav(); }
+  }, true);
   applyTheme();
   route();
   window.AIM_APP = { route: route, moduleProgress: moduleProgress, watchList: watchList };

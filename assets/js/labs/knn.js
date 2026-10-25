@@ -710,8 +710,9 @@
       var pad = 7, gap = 10, icon = 11, w = pad * 2 - gap, h = 22;
       var widths = items.map(function (c) { return icon + 4 + g.measureText(String(nb.counts[c])).width; });
       widths.forEach(function (wd) { w += wd + gap; });
-      // try the four corners round the probe and keep the one that hides the fewest loans (first wins a draw)
-      var cands = [[pp.x + 13, pp.y - 13 - h], [pp.x - 13 - w, pp.y - 13 - h], [pp.x + 13, pp.y + 13], [pp.x - 13 - w, pp.y + 13]];
+      // try spots round the probe (corners first, then sides) and keep the one that hides the fewest loans
+      var cands = [[pp.x + 13, pp.y - 13 - h], [pp.x - 13 - w, pp.y - 13 - h], [pp.x + 13, pp.y + 13], [pp.x - 13 - w, pp.y + 13],
+        [pp.x + 16, pp.y - h / 2], [pp.x - 16 - w, pp.y - h / 2], [pp.x - w / 2, pp.y - 16 - h], [pp.x - w / 2, pp.y + 16]];
       var x = 0, y = 0, bestScore = Infinity, r = pointRadius() + 1, pts = S.pts;
       for (var ci = 0; ci < cands.length; ci++) {
         var cx0 = clamp(cands[ci][0], Gm.pl + 2, Math.max(Gm.pl + 2, Gm.pl + Gm.pw - w - 2));
@@ -1063,10 +1064,19 @@
 
     // style.css stacks .lab-body into one column at 820px; then the chart moves below the controls,
     // so on a phone the K slider sits close enough to the map to watch both.
+    // style.css only looks at the screen width, so in a narrow box on a wide screen (a module page puts a
+    // 320px sidebar beside the lab) the map could shrink to about 200px. Below STACK_W of lab width we stack too.
+    var STACK_W = 680;
     var mqNarrow = window.matchMedia ? window.matchMedia('(max-width: 820px)') : null;
+    var labEl = root.querySelector('.lab'), stackedByWidth = false, layoutRaf = 0;
+    function narrowScreen() { return !!(mqNarrow && mqNarrow.matches); }
+    function wantStackByWidth() { var lw = labEl.getBoundingClientRect().width; return !narrowScreen() && lw > 0 && lw < STACK_W; }
     function placeMore() {
+      layoutRaf = 0;
       if (destroyed) return;
-      if (mqNarrow && mqNarrow.matches) { if (more.previousElementSibling !== body) body.parentNode.insertBefore(more, body.nextSibling); }
+      stackedByWidth = wantStackByWidth();
+      body.style.gridTemplateColumns = stackedByWidth ? 'minmax(0, 1fr)' : '';
+      if (narrowScreen() || stackedByWidth) { if (more.previousElementSibling !== body) body.parentNode.insertBefore(more, body.nextSibling); }
       else if (more.parentNode !== leftCol) leftCol.appendChild(more);
     }
     if (mqNarrow) { if (mqNarrow.addEventListener) mqNarrow.addEventListener('change', placeMore); else if (mqNarrow.addListener) mqNarrow.addListener(placeMore); }
@@ -1084,6 +1094,7 @@
       if (destroyed) return;
       // changing the wrapper's own size inside a ResizeObserver callback would loop, so defer it
       if (wantAspect() !== curAspect && !aspectRaf) aspectRaf = requestAnimationFrame(applyAspect);
+      if (wantStackByWidth() !== stackedByWidth && !layoutRaf) layoutRaf = requestAnimationFrame(placeMore);
       var dpr = Math.min(window.devicePixelRatio || 1, 2.5);
       var r = canvas.getBoundingClientRect(), w = Math.max(1, Math.round(r.width)), h = Math.max(1, Math.round(r.height));
       if (w !== dims.w || h !== dims.h || dpr !== dims.dpr) {
@@ -1116,7 +1127,8 @@
         destroyed = true;
         if (rafId) cancelAnimationFrame(rafId);
         if (aspectRaf) cancelAnimationFrame(aspectRaf);
-        rafId = 0; aspectRaf = 0;
+        if (layoutRaf) cancelAnimationFrame(layoutRaf);
+        rafId = 0; aspectRaf = 0; layoutRaf = 0;
         if (ro) ro.disconnect();
         if (mql) { if (mql.removeEventListener) mql.removeEventListener('change', onTheme); else if (mql.removeListener) mql.removeListener(onTheme); }
         if (mqNarrow) { if (mqNarrow.removeEventListener) mqNarrow.removeEventListener('change', placeMore); else if (mqNarrow.removeListener) mqNarrow.removeListener(placeMore); }

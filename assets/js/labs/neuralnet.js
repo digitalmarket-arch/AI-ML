@@ -29,9 +29,9 @@
   ];
   var TASKS = [
     { id: 't1', text: 'Pick Circle, set 0 hidden layers and train for at least 200 epochs. See test accuracy stay stuck below 75%: with no hidden layer the network can only draw one straight line.' },
-    { id: 't2', text: 'Solve XOR with exactly 1 hidden layer: reach 95% test accuracy.' },
+    { id: 't2', text: 'Solve XOR with exactly 1 hidden layer: reach 95% test accuracy. (Stuck below 95%? Press Reset to start again from new random weights.)' },
     { id: 't3', text: 'Untangle the Spiral: reach 90% test accuracy. (Hint: try 2 hidden layers.)' },
-    { id: 't4', text: 'Make training blow up: with tanh, set the learning rate to 3 or 10 and train until the training loss jumps above 1.5 (much worse than guessing).' }
+    { id: 't4', text: 'Make training blow up: set the learning rate to 10 and train until the training loss jumps above 1.5 (far worse than the 0.69 of pure guessing).' }
   ];
 
   /* ---------- small helpers ---------- */
@@ -64,10 +64,12 @@
   function fmtPct(v) { return isFinite(v) ? Math.round(v * 100) + '%' : '—'; }
   function fmtInt(n) { try { return n.toLocaleString('en-IN'); } catch (e) { return String(n); } }
   function fmtW(w, lead) {
+    if (!isFinite(w)) return lead ? '?' : ' + ?';
     var s = Math.abs(w).toFixed(2);
     if (lead) return (w < 0 ? '−' : '') + s;
     return (w < 0 ? ' − ' : ' + ') + s;
   }
+  function fmtSigned(v) { return isFinite(v) ? (v < 0 ? '−' : '') + Math.abs(v).toFixed(2) : '?'; }
   function fmtNum(v) { return v >= 1 ? String(v) : String(+v.toPrecision(2)); }
 
   /* ---------- datasets: 300 points in the square −1..1 x −1..1, 200 for training, 100 held back for testing ---------- */
@@ -342,7 +344,7 @@
               '<div class="row small"><span class="muted" id="' + P + 'splbl">Speed</span>' +
                 '<div class="seg" role="group" aria-labelledby="' + P + 'splbl">' + seg('speed', [['0', '1×'], ['1', '3×'], ['2', '10×']], '1') + '</div></div>' +
             '</div>' +
-            '<div class="lab-stats" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">' +
+            '<div class="lab-stats" id="' + P + 'stats" style="grid-template-columns:repeat(2,minmax(0,1fr))">' +
               '<div class="stat"><div class="k">Epoch</div><div class="v" id="' + P + 'epoch">0</div></div>' +
               '<div class="stat"><div class="k">Train loss</div><div class="v" id="' + P + 'trl">—</div></div>' +
               '<div class="stat"><div class="k">Test loss</div><div class="v" id="' + P + 'tel">—</div></div>' +
@@ -401,7 +403,7 @@
     var gm = mcan.getContext('2d'), gd = dcan.getContext('2d'), gl = lcan.getContext('2d');
     var btnPlay = $('play'), btnStep = $('step'), btnReset = $('reset');
     var elEpoch = $('epoch'), elTrl = $('trl'), elTel = $('tel'), elAcc = $('acc'), elMsg = $('msg'), elNcap = $('ncap');
-    var elDsDesc = $('dsdesc'), elActDesc = $('actdesc');
+    var elDsDesc = $('dsdesc'), elActDesc = $('actdesc'), elStats = $('stats');
     var elN1 = $('n1'), elN2 = $('n2'), elN1out = $('n1out'), elN2out = $('n2out'), elN1c = $('n1c'), elN2c = $('n2c');
     var elLr = $('lr'), elLrOut = $('lrout'), elL2 = $('l2'), elL2Out = $('l2out'), elShowTest = $('showtest');
     var taskEls = {};
@@ -587,7 +589,7 @@
       return { w: bw / dpr, h: bh / dpr };
     }
     // one column (phone): a shorter diagram; two columns: the diagram matches the square map
-    var curAspect = null, aspectRaf = 0;
+    var curAspect = null, aspectRaf = 0, curStatsCols = '';
     function wantAspect() {
       var gridW = mwrap.parentNode.parentNode.getBoundingClientRect().width, mw = mwrap.getBoundingClientRect().width;
       return mw > gridW * 0.7 ? '5 / 4' : '1 / 1';
@@ -604,6 +606,9 @@
       dims.dpr = Math.min(window.devicePixelRatio || 1, 3);
       var m = fitCanvas(mcan, mwrap), d = fitCanvas(dcan, dwrap), l = fitCanvas(lcan, lwrap);
       dims.mw = m.w; dims.mh = m.h; dims.dw = d.w; dims.dh = d.h; dims.lw = l.w; dims.lh = l.h;
+      // the four stat boxes sit 4 across when there is room, otherwise 2 x 2 (never 3 + 1 left over)
+      var cols = lwrap.getBoundingClientRect().width >= 4 * 130 + 3 * 8 ? 'repeat(4,minmax(0,1fr))' : 'repeat(2,minmax(0,1fr))';
+      if (cols !== curStatsCols) { curStatsCols = cols; elStats.style.gridTemplateColumns = cols; }
       gridDirty = true;
       requestDraw();
     }
@@ -665,7 +670,7 @@
           var pb = net.a[net.L][0];
           text = pb >= 0.5 ? 'Blue, ' + Math.floor(pb * 100) + '% sure' : 'Orange, ' + Math.floor((1 - pb) * 100) + '% sure';
         } else {
-          text = 'Output ' + net.a[c][j].toFixed(2);
+          text = 'This neuron gives ' + fmtSigned(net.a[c][j]);
         }
         g.beginPath(); g.arc(pp.x, pp.y, 7, 0, Math.PI * 2);
         g.lineWidth = 4; g.strokeStyle = rgba(T.surface, 0.9); g.stroke();
@@ -876,7 +881,8 @@
     function updateCaption() {
       var net = S.net, t;
       if (!S.sel || S.sel.c === net.L) {
-        t = 'Each square is a neuron, showing what it outputs at every spot of the map (blue = high, orange = low). Tap one to see it full size.';
+        t = 'Each square is a neuron, showing what it outputs at every spot of the map (blue = high, orange = low, pale = in between). Tap one, or use the arrow keys, to see it full size.';
+        if (net.actId === 1 && net.L > 1) t += ' A ReLU neuron never goes below 0, so its picture is only blue and pale.';
       } else {
         var c = S.sel.c, j = S.sel.j;
         if (c === 0) {

@@ -148,9 +148,10 @@
   function playerHTML(r) {
     var thumb = r.videoId ? 'https://i.ytimg.com/vi/' + r.videoId + '/hqdefault.jpg' : '';
     var style = thumb ? ' style="background-image:url(\'' + thumb + '\')"' : '';
+    var poster = thumb ? '' : '<span class="poster" aria-hidden="true"><span>' + esc(r.creator || '') + '</span><b>' + esc(r.title) + '</b></span>';
     return '<div class="player" data-player="' + esc(r.id) + '">' +
-      '<button class="player-facade" type="button" data-action="play" data-id="' + esc(r.id) + '"' + style + ' aria-label="Play: ' + esc(r.title) + '">' +
-      '<span class="play" aria-hidden="true"></span><span class="cap">' + esc(r.title) + (r.listId ? ' · playlist' : '') + '</span></button></div>';
+      '<button class="player-facade' + (thumb ? '' : ' no-thumb') + '" type="button" data-action="play" data-id="' + esc(r.id) + '"' + style + ' aria-label="Play: ' + esc(r.title) + '">' + poster +
+      '<span class="play" aria-hidden="true"></span><span class="cap">' + (thumb ? esc(r.title) : '') + (r.listId ? (thumb ? ' · ' : '') + 'Playlist' : '') + '</span></button></div>';
   }
   function play(container, r) {
     var src = embedSrc(r);
@@ -170,7 +171,7 @@
   // mode 'learn': feedback after each answer. mode 'test': feedback only at the end.
   function Quiz(root, opts) {
     this.root = root; this.qs = opts.questions || []; this.mode = opts.mode || 'learn';
-    this.key = opts.key; this.title = opts.title || 'Quiz'; this.onFinish = opts.onFinish;
+    this.key = opts.key; this.title = opts.title || 'Quiz'; this.onFinish = opts.onFinish; this.next = opts.next || null;
     this.minutes = opts.minutes || 0;
     this.i = 0; this.answers = {}; this.picks = {}; this.timer = null; this.deadline = 0;
     this.start();
@@ -205,7 +206,7 @@
       return '<label class="' + cls + '"><input type="radio" name="opt-' + esc(q.id) + '" value="' + k + '"' +
         ((reveal ? picked : tentative) === k ? ' checked' : '') + (reveal ? ' disabled' : '') + '><span>' + inline(o) + '</span></label>';
     }).join('');
-    var head = '<div class="row-between"><div class="row"><span class="chip chip-level num">Question ' + (this.i + 1) + ' of ' + n + '</span>' +
+    var head = '<div class="row-between' + (this.mode === 'test' ? ' quiz-head' : '') + '"><div class="row"><span class="chip chip-level num">Question ' + (this.i + 1) + ' of ' + n + '</span>' +
       '<span class="chip">' + esc(q.difficulty || '') + '</span></div>' +
       (this.mode === 'test' && this.minutes ? '<span class="chip chip-hi num" aria-live="off">⏱ <span data-timer>' + this.minutes + ':00</span></span>' : '') + '</div>';
     var explain = reveal ? '<div class="q-explain"><strong>' + (picked === q.answer ? 'Correct.' : 'Not quite.') + '</strong> ' + inline(q.explain) + '</div>' : '';
@@ -251,7 +252,8 @@
     if (this.onFinish) this.onFinish({ score: score, correct: correct, total: this.qs.length });
     var review = this.qs.map(function (q, idx) {
       var a = self.answers[q.id], ok = a === q.answer;
-      return '<details class="fold"' + (ok ? '' : ' open') + '><summary>' + (ok ? '✓ ' : '✗ ') + 'Q' + (idx + 1) + '. ' + inline(q.q) + '</summary><div class="stack-sm">' +
+      var firstCode = q.code ? ' <code>' + esc(String(q.code).split('\n')[0].slice(0, 60)) + '</code>' : '';
+      return '<details class="fold"' + (ok ? '' : ' open') + '><summary>' + (ok ? '✓ ' : '✗ ') + 'Q' + (idx + 1) + '. ' + inline(q.q) + firstCode + '</summary><div class="stack-sm">' +
         (q.code ? '<pre><code>' + esc(q.code) + '</code></pre>' : '') +
         '<div class="small">Your answer: <strong>' + (a == null ? 'not answered' : inline(q.options[a])) + '</strong></div>' +
         (ok ? '' : '<div class="small">Correct answer: <strong>' + inline(q.options[q.answer]) + '</strong></div>') +
@@ -259,7 +261,7 @@
     }).join('');
     this.root.innerHTML = '<div class="stack"><div class="card score-box"><div class="score-big">' + score + '%</div><div class="stack-sm">' +
       '<strong>' + (timeUp ? 'Time is up. ' : '') + correct + ' of ' + this.qs.length + ' correct. ' + (passed ? 'Passed. शाबाश!' : 'Pass mark is 70%. Review the explanations below and try again.') + '</strong>' +
-      '<div class="row"><button class="btn btn-primary" data-q="retry">Try again</button></div></div></div>' +
+      '<div class="row">' + (passed && this.next ? '<a class="btn btn-primary" href="' + esc(this.next.href) + '">' + esc(this.next.label) + ' →</a><button class="btn" data-q="retry">Try again</button>' : '<button class="btn btn-primary" data-q="retry">Try again</button>') + '</div></div></div>' +
       '<h3>Review your answers</h3><div class="stack-sm">' + review + '</div></div>';
     this.root.querySelector('[data-q="retry"]').addEventListener('click', function () { self.start(); self.reveal(); });
     this.reveal();

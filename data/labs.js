@@ -206,7 +206,7 @@ window.AIM.labs = [
    },
    {
     "id": "t2",
-    "text": "Solve XOR with exactly 1 hidden layer: reach 95% test accuracy."
+    "text": "Solve XOR with exactly 1 hidden layer: reach 95% test accuracy. (Stuck below 95%? Press Reset to start again from new random weights.)"
    },
    {
     "id": "t3",
@@ -214,7 +214,7 @@ window.AIM.labs = [
    },
    {
     "id": "t4",
-    "text": "Make training blow up: with tanh, set the learning rate to 3 or 10 and train until the training loss jumps above 1.5 (much worse than guessing)."
+    "text": "Make training blow up: set the learning rate to 10 and train until the training loss jumps above 1.5 (far worse than the 0.69 of pure guessing)."
    }
   ]
  },
