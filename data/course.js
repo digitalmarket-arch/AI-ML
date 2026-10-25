@@ -307,7 +307,41 @@ window.AIM.modules = [
    "Skipping ethics as 'just theory'. Under the DPDP Act, using customer data without clear consent is a legal risk for your company, with fines that can go up to ₹250 crore for the most serious failures, so plan consent and data security from day one."
   ],
   "indiaExample": "The Reserve Bank Innovation Hub (RBIH), set up by the RBI, built MuleHunter.AI, an AI/ML model that helps banks find 'mule' accounts (bank accounts used to receive and pass on money from frauds). Detecting mule accounts is a classic supervised learning problem: the model learns from accounts that investigations have already marked as mule or genuine, and then flags suspicious new accounts for the bank to check.",
-  "tip": "When anyone pitches you an 'AI solution', ask three questions: What data does it learn from? How was it tested, and on what data? What happens when it is wrong? These three questions will protect you and your clients more than any tool."
+  "tip": "When anyone pitches you an 'AI solution', ask three questions: What data does it learn from? How was it tested, and on what data? What happens when it is wrong? These three questions will protect you and your clients more than any tool.",
+  "watch": [
+   {
+    "id": "apna-college-complete-basics-of-ai-in-one-shot",
+    "note": "Start here: watch this Hinglish one-shot in 30-45 minute chunks to get the big picture of AI, ML, deep learning and generative AI before anything else."
+   },
+   {
+    "id": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
+    "note": "For this module watch only the short opening videos (what ML is, AI vs ML vs DL, types of ML such as supervised, unsupervised and reinforcement, applications and challenges of ML, the ML development life cycle) and stop before Day 15 ('working with CSV files', per CampusX's own GitHub repo), where the coding starts."
+   },
+   {
+    "id": "krish-naik-hindi-ai-engineers-vs-ml-engineers-vs-data-sc",
+    "note": "Watch at the end of the module (confirmed title 'AI Engineers Vs ML Engineers Vs Data Scientist- Krish Naik Hindi') to pick the career path this course will lead you towards."
+   },
+   {
+    "id": "indiaai-mission-government-of-india-yuva-ai-for-all-gove",
+    "note": "Enrol free on the FutureSkills Prime page, choose Hindi if you prefer (the government release lists Hindi among its Indian languages), and finish the short self-paced modules for an official certificate with Indian examples."
+   },
+   {
+    "id": "microsoft-generative-ai-for-beginners-hindi-translation-",
+    "note": "Read only lessons 01 (Intro to GenAI and LLMs), 03 (Using GenAI Responsibly, which covers this module's ethics and bias topic) and 04 (Prompt Engineering) in Hindi, and save the 'Build' lessons for later."
+   },
+   {
+    "id": "google-creative-lab-teachable-machine-train-your-own-ai-",
+    "note": "After the videos, spend 30 minutes training an image or sound classifier with your webcam or uploaded photos to see first-hand how examples become a model."
+   },
+   {
+    "id": "deeplearning-ai-andrew-ng-generative-ai-for-everyone",
+    "note": "English supplement (audit for free): watch the videos on what generative AI can and cannot do and the parts on responsible AI and its impact on jobs and society."
+   },
+   {
+    "id": "3blue1brown-grant-sanderson-large-language-models-explai",
+    "note": "A short animated English hook on how ChatGPT-style models predict the next word; watch it after the Hindi generative AI video to lock in the idea."
+   }
+  ]
  },
  {
   "id": "l1-python",
@@ -403,7 +437,49 @@ window.AIM.modules = [
    "Watching hours of video without writing code. Follow a simple rule: for every 30 minutes of video, spend at least 30 minutes coding."
   ],
   "indiaExample": "Zerodha, the Indian stockbroker, publishes an official open-source Python library called pykiteconnect (installed with pip install kiteconnect) for its Kite Connect trading API. Developers use plain Python, with functions, dictionaries, loops and error handling, to fetch market data and manage orders. If you try it, practise with pretend trades first (paper trading); trading with real money is risky.",
-  "tip": "Keep a 'my errors' cell at the top of your notebook: each time you hit an error, paste its last line and one sentence on what fixed it. After two weeks you will have your own debugging guide."
+  "tip": "Keep a 'my errors' cell at the top of your notebook: each time you hit an error, paste its last line and one sentence on what fixed it. After two weeks you will have your own debugging guide.",
+  "watch": [
+   {
+    "id": "codewithharry-haris-ali-khan-python-tutorial-for-absolut",
+    "note": "Main course: watch one video a day in order and type every example yourself in Google Colab or VS Code; it covers the whole module up to OOP and file handling and ends with 'Conclusion and Where to go from here' (playlist ID confirmed in search results)."
+   },
+   {
+    "id": "shradha-khapra-apna-college-python-language-full-course-",
+    "note": "Pick this instead of CodeWithHarry if you prefer fewer, longer lectures; do the free notes and practice questions after every lecture."
+   },
+   {
+    "id": "chai-aur-code-hitesh-choudhary-chai-aur-python",
+    "note": "Watch after a beginner series to go deeper on scopes, decorators, virtual environments (venv) and Jupyter, which this module's 'modules, pip, virtual environments' topic needs."
+   },
+   {
+    "id": "krish-naik-hindi-python-in-hindi-complete-python-playlis",
+    "note": "A Hinglish alternative with a data-science flavour; follow it in order and skip videos on topics you already know."
+   },
+   {
+    "id": "codewithharry-haris-ali-khan-the-ultimate-python-course-",
+    "note": "Use as a fast revision pass: pause after each chapter and solve the matching problem set in the CodeWithHarry/The-Ultimate-Python-Course GitHub repo."
+   },
+   {
+    "id": "telusko-navin-reddy-python-for-beginners-full-course",
+    "note": "Indian-English option: use its short numbered videos to revisit any single topic (lambda, exceptions, classes, files) that felt hard in Hindi."
+   },
+   {
+    "id": "swaroop-c-h-a-byte-of-python-free-book",
+    "note": "For readers: read it chapter by chapter alongside the videos, especially the chapters on functions, modules, OOP and exceptions."
+   },
+   {
+    "id": "alex-hall-open-source-futurecoder-interactive-python-cou",
+    "note": "Do this in-browser course in parallel with the videos for hands-on practice; you must run code to move on, and hints help when you are stuck."
+   },
+   {
+    "id": "harvard-university-david-j-malan-cs50-s-introduction-to-",
+    "note": "Take it after a Hindi series as proof of skill: watch the lectures and submit the auto-graded problem sets."
+   },
+   {
+    "id": "kaggle-colin-morris-kaggle-learn-python",
+    "note": "Finish the module with these short notebook lessons; they also teach the Kaggle Notebook setup used in later ML modules."
+   }
+  ]
  },
  {
   "id": "l1-tools",
@@ -497,7 +573,49 @@ window.AIM.modules = [
    "Letting an AI assistant write code you do not understand. If you cannot explain each line, you cannot fix it or defend it to a client; ask the assistant to explain, then rewrite it in your own words."
   ],
   "indiaExample": "AI4Bharat, the AI research lab at IIT Madras, publishes IndicTrans2, an open-source translation model for all 22 scheduled Indian languages, on GitHub under the MIT licence, with a Google Colab notebook linked from its README. Anyone can open that notebook in Colab and translate English into Hindi or Tamil without installing anything, which is exactly the GitHub + Colab workflow this module teaches.",
-  "tip": "Commit small and often, with messages that say what changed and why, like 'Add GST function with 18% default', not just 'update'. A clean commit history on GitHub is itself proof of how carefully you work."
+  "tip": "Commit small and often, with messages that say what changed and why, like 'Add GST function with 18% default', not just 'update'. A clean commit history on GitHub is itself proof of how carefully you work.",
+  "watch": [
+   {
+    "id": "codewithharry-linux-tutorial-for-beginners-in-hindi",
+    "note": "Watch first to get comfortable typing basic commands (moving between folders, listing and creating files); on Windows follow along in Git Bash or WSL."
+   },
+   {
+    "id": "apna-college-shradha-khapra-complete-git-and-github-tuto",
+    "note": "Main Git video: code along and push your first small project to GitHub by the end."
+   },
+   {
+    "id": "chai-aur-code-hitesh-choudhary-complete-git-and-github-c",
+    "note": "Watch next to understand why Git works the way it does (commits, branches, merges), not only which commands to type."
+   },
+   {
+    "id": "chai-aur-code-hitesh-choudhary-chai-aur-python",
+    "note": "For this module watch only the videos on virtual environments (venv) and Jupyter notebooks; the rest belongs to the Python module."
+   },
+   {
+    "id": "kunal-kushwaha-complete-git-and-github-tutorial",
+    "note": "Indian-English video for the fork, branch and pull-request workflow you will use to build a public GitHub portfolio."
+   },
+   {
+    "id": "krish-naik-git-and-github-tutorials-english-playlist-hin",
+    "note": "Optional extra Git practice aimed at data-science projects; this entry's description also links Krish Naik's Hinglish one-shot of the same material."
+   },
+   {
+    "id": "google-google-colab-welcome-notebook-and-free-cloud-pyth",
+    "note": "Open Colab, run every cell of the 'Welcome to Colab' notebook, then switch the runtime to a free GPU once to see how it works."
+   },
+   {
+    "id": "visual-studio-code-microsoft-official-channel-getting-st",
+    "note": "Watch the setup and Python videos to install VS Code and run a .py file on your own laptop; the screens may look slightly older than today's VS Code."
+   },
+   {
+    "id": "github-github-skills-introduction-to-github-interactive",
+    "note": "Do 'Introduction to GitHub' (under an hour) in a public repo and finish with a profile README as the first item in your portfolio."
+   },
+   {
+    "id": "mit-missing-semester-agentic-coding-missing-semester-202",
+    "note": "Watch last, once the terminal and Git feel familiar, to learn how to use AI coding assistants as a tutor and reviewer rather than a crutch."
+   }
+  ]
  },
  {
   "id": "l1-stats",
@@ -592,7 +710,45 @@ window.AIM.modules = [
    "Treating correlation as cause. Ice-cream sales and drowning cases both rise in summer because hot weather drives both; look for a hidden factor before claiming that one thing causes another."
   ],
   "indiaExample": "India's official unemployment figures come from the Periodic Labour Force Survey (PLFS), run by the National Statistics Office (NSO) under the Ministry of Statistics and Programme Implementation (MoSPI). It interviews a sample of households, not every household in the country, and uses sampling statistics to estimate rates for the whole population, which is the same sampling and estimation thinking taught in this module.",
-  "tip": "Before trusting any number, ask 'compared to what, and out of how many?'. '50% more sales' means little if sales went from 2 orders to 3."
+  "tip": "Before trusting any number, ask 'compared to what, and out of how many?'. '50% more sales' means little if sales went from 2 orders to 3.",
+  "watch": [
+   {
+    "id": "krish-naik-hindi-stats-for-data-science-in-hindi-detaile",
+    "note": "Main course: follow its numbered 'Tutorial' videos in order for descriptive stats, distributions, probability and hypothesis testing (titles seen include 'Tutorial 14-What Is Hypothesis Testing Explained In Hindi' and 'Tutorial 21- Chi Square test'), and leave 'Tutorial 15 - Statistics Practical Implementation With Python' until after l1-python."
+   },
+   {
+    "id": "prof-abhay-gopal-bhatt-indian-statistical-institute-delh",
+    "note": "Second pass for proper probability theory in Hindi (conditional probability, Bayes, distributions, limit theorems); check NPTEL for the next run or watch the lectures without enrolling, and expect some calculus."
+   },
+   {
+    "id": "dr-gajendra-purohit-mathscare-statistics-and-probability",
+    "note": "Use for hand-worked Hindi practice problems on probability and distributions once you understand the ideas; ignore the exam-only shortcuts."
+   },
+   {
+    "id": "codebasics-dhaval-patel-mathematics-statistics-for-data-",
+    "note": "Gentle Indian-English first pass with business examples; switch to it whenever a Hindi video feels too fast."
+   },
+   {
+    "id": "krish-naik-statistics-for-data-science-english-detailed-",
+    "note": "English version of the Krish Naik series; use its one-shot revision video (linked in this entry) before the module quiz."
+   },
+   {
+    "id": "statquest-with-josh-starmer-statistics-fundamentals",
+    "note": "Watch the videos on the normal distribution, p-values, confidence intervals and correlation to firm up intuition with simple pictures."
+   },
+   {
+    "id": "3blue1brown-grant-sanderson-bayes-theorem-the-geometry-o",
+    "note": "Watch for the clearest picture of Bayes' theorem, then redo the medical-test example on paper yourself."
+   },
+   {
+    "id": "3blue1brown-grant-sanderson-but-what-is-the-central-limi",
+    "note": "Watch the first half for the intuition of why averages become bell-shaped; the more mathematical second half is optional."
+   },
+   {
+    "id": "khan-academy-khan-academy-statistics-and-probability",
+    "note": "Do the practice exercises on summarising data, probability, sampling distributions, confidence intervals and significance tests to check yourself with instant feedback."
+   }
+  ]
  },
  {
   "id": "l1-linalg-calc",
@@ -685,7 +841,37 @@ window.AIM.modules = [
    "Thinking the gradient points to the minimum. It points uphill, in the direction of steepest increase; gradient descent moves the opposite way, in small steps set by the learning rate."
   ],
   "indiaExample": "The RBI allows banks and other regulated lenders to open accounts remotely through Video KYC (the Video-based Customer Identification Process). Face-match checks in such systems typically turn each face photo into a vector of numbers (an embedding) and measure how close the live selfie's vector is to the ID photo's vector; the model that produces those vectors is trained with gradient descent, so both halves of this module are at work.",
-  "tip": "Whenever you see a formula, ask 'what are the shapes?'. Writing the size next to each vector and matrix (a 3×2 times a 2×1 gives a 3×1) catches most mistakes before you write any code."
+  "tip": "Whenever you see a formula, ask 'what are the shapes?'. Writing the size next to each vector and matrix (a 3×2 times a 2×1 gives a 3×1) catches most mistakes before you write any code.",
+  "watch": [
+   {
+    "id": "campusx-nitish-singh-maths-for-machine-learning-campusx",
+    "note": "Start here for Hinglish ML maths: the video list was not checked, so pick the videos whose titles match this module (vectors, dot product, matrices, matrix multiplication, eigenvectors, derivatives, gradients) and watch them alongside 3Blue1Brown."
+   },
+   {
+    "id": "campusx-nitish-singh-gradient-descent-from-scratch-100-d",
+    "note": "Day 51 of CampusX's 100 Days of ML ('Gradient Descent From Scratch'): watch the intuition chapter (from about 07:25) and the maths chapter (from about 28:45) to see derivatives become downhill steps, and leave the code demo until you have met linear regression."
+   },
+   {
+    "id": "prof-sarang-sane-iit-madras-b-s-degree-programme-mathema",
+    "note": "Indian English IIT Madras lectures paced for school leavers: pick the lectures on vectors, matrices, determinants, eigenvalues and multivariable calculus/gradients for a more formal second pass (the lecture list was not checked)."
+   },
+   {
+    "id": "iit-roorkee-nptel-per-proposer-prof-sanjeev-kumar-prof-s",
+    "note": "Formal IIT Roorkee lectures that link each topic to an ML algorithm: use the matrix, eigenvalue/SVD and calculus/optimisation lectures as a deeper second pass once the intuition videos make sense."
+   },
+   {
+    "id": "3blue1brown-grant-sanderson-essence-of-linear-algebra",
+    "note": "The best visual intuition for the linear algebra half: watch 'Vectors', 'Linear combinations, span, and basis vectors', the linear transformations and matrix multiplication chapters, 'The determinant', 'Dot products and duality' and the eigenvectors chapter, with subtitles on if needed."
+   },
+   {
+    "id": "3blue1brown-grant-sanderson-essence-of-calculus",
+    "note": "Watch the chapters on what a derivative is and on the chain and product rules; the integral and Taylor-series chapters are optional for ML."
+   },
+   {
+    "id": "3blue1brown-grant-sanderson-gradient-descent-how-neural-",
+    "note": "Watch last, to see a gradient as the downhill direction on a cost landscape and how a neural network uses it to learn."
+   }
+  ]
  },
  {
   "id": "l1-numpy-pandas",
@@ -778,7 +964,37 @@ window.AIM.modules = [
    "Dropping every row that has a missing value without looking first. You may lose most of your data or skew it; count the missing values per column with df.isna().sum() and then decide column by column."
   ],
   "indiaExample": "Agmarknet, the government's agricultural marketing information portal, publishes daily mandi (wholesale market) prices for crops such as onion and tomato, and this data can also be downloaded from data.gov.in. With Pandas you can clean it, group prices by state and month, and spot sudden price spikes, using exactly the filtering, groupby and date skills taught in this module.",
-  "tip": "Print df.shape before and after every cleaning step. If the number of rows changes when you did not expect it, especially after a merge, stop and find out why before you go further."
+  "tip": "Print df.shape before and after every cleaning step. If the number of rows changes when you did not expect it, especially after a merge, stop and find out why before you go further.",
+  "watch": [
+   {
+    "id": "rishabh-mishra-python-libraries-playlist-pandas-for-begi",
+    "note": "Your main Hindi Pandas course: code along with his free notebook through Series, DataFrames, reading files, filtering, groupby, merging, missing values and dates."
+   },
+   {
+    "id": "campusx-nitish-singh-campusx-data-science-mentorship-pro",
+    "note": "For deeper Hinglish classes, find these sessions in the playlist: 'Session 13 - Numpy Fundamentals', 'Session 15 - Numpy Tricks', 'Session 16 - Pandas Series', 'Session 19 - GroupBy Object in Pandas' and 'Session 21 - MultiIndex Series and DataFrames', plus the DataFrame and merge sessions in between."
+   },
+   {
+    "id": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
+    "note": "Use only Day 15 (working with CSV files), Day 16 (JSON and SQL), Day 17 (API to DataFrame), Day 34 (handling date and time) and Days 35-40 (missing data: complete-case analysis, imputation, missing indicator, KNN and iterative imputers); the other days belong to later modules."
+   },
+   {
+    "id": "codewithharry-python-data-science-and-big-data-tutorials",
+    "note": "An optional gentle Hindi warm-up if the CampusX classes feel too long; expect some older pandas syntax and skip any 'Big Data' parts."
+   },
+   {
+    "id": "codebasics-dhaval-patel-codebasics-pandas-tutorial-serie",
+    "note": "Short Indian English videos, one concept each: use the ones on missing data, groupby, merge/concat, pivot/reshape and dates as a second explanation, remembering that DataFrame.append was removed in pandas 2."
+   },
+   {
+    "id": "kaggle-kaggle-learn-pandas",
+    "note": "Do these in-browser exercises after the videos to check that you can really select, filter, group and sort data on your own."
+   },
+   {
+    "id": "kaggle-rachael-tatman-maintained-by-alexis-cook-kaggle-l",
+    "note": "Practise the missing-values and date-parsing lessons here to lock in the cleaning skills from CampusX Days 34-40."
+   }
+  ]
  },
  {
   "id": "l1-eda-viz-sql",
@@ -870,7 +1086,41 @@ window.AIM.modules = [
    "Using WHERE to filter on a total in SQL. WHERE filters rows before grouping; use HAVING to filter groups after GROUP BY, for example HAVING SUM(amount) > 100000."
   ],
   "indiaExample": "PhonePe publishes PhonePe Pulse, an open dataset on GitHub with anonymised, aggregated digital-payment data, such as transaction counts, amounts and user numbers, for India, each state and each district, by quarter, in JSON files. It is a ready-made practice ground: load it with Pandas or into SQLite, chart how digital payments have grown in your state, and compare states with GROUP BY.",
-  "tip": "Start every analysis by writing the business question at the top of your notebook, for example 'Which city should get our next ₹1 lakh of ad spend?'. Every chart and query should help answer it; cut the ones that do not."
+  "tip": "Start every analysis by writing the business question at the top of your notebook, for example 'Which city should get our next ₹1 lakh of ad spend?'. Every chart and query should help answer it; cut the ones that do not.",
+  "watch": [
+   {
+    "id": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
+    "note": "Watch Day 19 (descriptive statistics), Day 20 'EDA using Univariate Analysis', Day 21 'EDA using Bivariate and Multivariate Analysis', Day 22 (pandas profiling, now called ydata-profiling) and Days 42-44 (outliers with z-score, IQR and percentiles)."
+   },
+   {
+    "id": "rishabh-mishra-complete-sql-tutorial-for-beginners-in-hi",
+    "note": "Your main Hindi SQL course: work through SELECT, WHERE, GROUP BY and JOINs with him and type every query yourself."
+   },
+   {
+    "id": "campusx-nitish-singh-campusx-data-science-mentorship-pro",
+    "note": "For Hinglish visualisation, find 'Session 24 - Advanced Matplotlib', 'Session 25 - Plotting using Seaborn', 'Session 26 - Plotting using Seaborn Part 2' and 'Session 29 - Exploratory Data Analysis' in this playlist."
+   },
+   {
+    "id": "krish-naik-exploratory-data-analysis-eda-detailed-playli",
+    "note": "Indian English end-to-end EDA on real datasets: watch it after the CampusX univariate and bivariate days to see the whole workflow repeated on new data."
+   },
+   {
+    "id": "krish-naik-mysql-sql-playlist",
+    "note": "An Indian English SQL course in a data-science context; use it instead of, or as a refresher after, the Hindi SQL course."
+   },
+   {
+    "id": "claus-o-wilke-fundamentals-of-data-visualization-free-on",
+    "note": "Read the chapters on choosing the right chart and on telling a story with data; this is the module's only resource on data storytelling."
+   },
+   {
+    "id": "kaggle-alexis-cook-kaggle-learn-advanced-sql-incl-window",
+    "note": "Practise window (analytic) functions in the browser after the Hindi window-functions video; do Kaggle Intro to SQL first if the basics feel shaky."
+   },
+   {
+    "id": "kaggle-alexis-cook-kaggle-learn-data-visualization-seabo",
+    "note": "Practise choosing and drawing Seaborn charts in the browser, and finish its mini-project on a dataset you pick."
+   }
+  ]
  },
  {
   "id": "l2-ml-foundations",
@@ -1630,7 +1880,41 @@ window.AIM.modules = [
    "Feeding unscaled inputs. If one feature is in lakhs of rupees and another is between 0 and 1, training becomes slow or unstable; standardise your features first, as you did in l2-feature-eng."
   ],
   "indiaExample": "Google's flood forecasting work began in 2018 with a pilot in the Patna region of Bihar, in partnership with India's Central Water Commission, and its Flood Hub service now shows flood forecasts for river areas across India. Its current forecasting model is a neural network (a type called LSTM, which you will meet in l3-nlp) trained on past river and weather data, and it learns through the same forward pass, loss and backpropagation loop you build in this module, only at a much larger scale.",
-  "tip": "Check your backpropagation code with a gradient check: nudge one weight by a tiny amount (say 0.0001), see how much the loss changes, divide by the nudge, and compare that with the gradient your code calculated. If the two numbers differ a lot, your backprop has a bug."
+  "tip": "Check your backpropagation code with a gradient check: nudge one weight by a tiny amount (say 0.0001), see how much the loss changes, divide by the nudge, and compare that with the gradient your code calculated. If the two numbers differ a lot, your backprop has a bug.",
+  "watch": [
+   {
+    "id": "campusx-nitish-singh-100-days-of-deep-learning-ann-to-rn",
+    "note": "Your main Hindi course for this module: start at the beginning (the perceptron days: Day 4 is 'Perceptron Trick' and Day 5 is 'Perceptron Loss Function', per the CampusX code repo), then look for the videos on MLP, forward propagation, loss functions, backpropagation, gradient descent, vanishing gradients, dropout and regularisation, weight initialisation, 'Batch Normalization in Deep Learning' and the optimisers (momentum, Adam), and stop when the CNN section begins."
+   },
+   {
+    "id": "krish-naik-hindi-deep-learning-playlist-in-hindi",
+    "note": "Use as a second Hindi explanation when a CampusX video does not click; the videos are numbered 'Tutorial N' (for example 'Tutorial 2 - What Is Perceptron Single Layered Neural Network'), so jump to the perceptron, backpropagation, activation function and optimiser tutorials."
+   },
+   {
+    "id": "microsoft-ai-for-beginners-12-week-curriculum-hindi-tran",
+    "note": "Read the Hindi text of the Neural Networks section (perceptron, multi-layered perceptron and the lesson where you build a tiny framework yourself) and run its notebooks on Colab as your from-scratch practice."
+   },
+   {
+    "id": "codebasics-dhaval-patel-deep-learning-with-tensorflow-2-",
+    "note": "The gentlest Indian-English walkthrough: watch the early videos on neurons, activation functions, loss functions, gradient descent and the 'neural network from scratch in Python' coding videos, then the dropout video; skip the later CNN/RNN parts for now."
+   },
+   {
+    "id": "prof-mitesh-m-khapra-iit-madras-cs7015-deep-learning-wor",
+    "note": "For a rigorous IIT treatment, watch the lectures on perceptrons and feedforward networks, backpropagation, the gradient-descent variants (momentum, Nesterov, AdaGrad, RMSProp, Adam), regularisation and dropout, and batch normalisation; skip the word-vector and RNN lectures until the NLP module."
+   },
+   {
+    "id": "3blue1brown-grant-sanderson-neural-networks-deep-learnin",
+    "note": "Watch the first four chapters (what a neural network is, gradient descent, backpropagation and its calculus) for the best visual picture of learning; leave the transformer chapters for the LLM track."
+   },
+   {
+    "id": "andrej-karpathy-neural-networks-zero-to-hero-micrograd-t",
+    "note": "Watch only the first lecture (micrograd) to see backpropagation and the chain rule coded live from zero; the later GPT lectures belong to the LLM modules."
+   },
+   {
+    "id": "google-tensorflow-team-tensorflow-playground-interactive",
+    "note": "Spend 30 minutes changing layers, activation functions, learning rate and regularisation here to see overfitting and vanishing gradients happen in front of you, with no code."
+   }
+  ]
  },
  {
   "id": "l3-pytorch",
@@ -1725,7 +2009,45 @@ window.AIM.modules = [
    "Getting 'expected all tensors to be on the same device' errors. Create one `device` variable at the top of the notebook and move the model and every batch to it."
   ],
   "indiaExample": "AI4Bharat, a research lab at IIT Madras, trained IndicTrans2, an open-source translation model for all 22 scheduled Indian languages, using fairseq, a toolkit built on PyTorch. The models are also published on Hugging Face, so you can load one in a Colab notebook and translate English to Hindi or Tamil with the skills from this module: tensors, a device, `model.eval()` and batches.",
-  "tip": "Keep one clean training-template notebook (load data → build model → train loop → evaluate → save) and copy it for every new project. Most beginner bugs come from rewriting the training loop from scratch each time."
+  "tip": "Keep one clean training-template notebook (load data → build model → train loop → evaluate → save) and copy it for every new project. Most beginner bugs come from rewriting the training loop from scratch each time.",
+  "watch": [
+   {
+    "id": "microsoft-ai-for-beginners-12-week-curriculum-hindi-tran",
+    "note": "Read the Hindi text of the Frameworks lesson, which shows the same small network in PyTorch and in TensorFlow/Keras, so you get the Keras overview side by side (notebook code is in English)."
+   },
+   {
+    "id": "aakash-n-s-jovian-published-by-freecodecamp-org-deep-lea",
+    "note": "Indian-English code-along: the first sessions (tensors, gradients, linear and logistic regression, training on a GPU) map directly to this module; run the notebooks on Colab or Kaggle if the Jovian links fail."
+   },
+   {
+    "id": "codebasics-dhaval-patel-deep-learning-with-tensorflow-2-",
+    "note": "Use for the Keras/TensorFlow overview topic: watch the early videos that build and train a model with Keras so you can read Keras code at work, then continue in PyTorch."
+   },
+   {
+    "id": "daniel-bourke-zero-to-mastery-learn-pytorch-for-deep-lea",
+    "note": "The most thorough beginner code-along in global English; do the fundamentals and workflow sections (tensors, the training loop, saving and loading models) in chunks if CampusX moves too fast."
+   },
+   {
+    "id": "daniel-bourke-learnpytorch-io-zero-to-mastery-learn-pyto",
+    "note": "Read the matching chapters (fundamentals, workflow, custom datasets) and do the end-of-chapter exercises to practise Dataset/DataLoader and saving/loading models."
+   },
+   {
+    "id": "pytorch-linux-foundation-pytorch-official-tutorials",
+    "note": "Use 'Learn the Basics' as the current (PyTorch 2.x) reference whenever an older video's code gives an error."
+   },
+   {
+    "id": "jeremy-howard-fast-ai-practical-deep-learning-for-coders",
+    "note": "Watch lesson 1 to train a real model on a free Kaggle GPU, and look for the learning-rate finder (lr_find) in the early lessons; treat fastai as a shortcut layer on top of PyTorch."
+   },
+   {
+    "id": "andrej-karpathy-neural-networks-zero-to-hero-micrograd-t",
+    "note": "Watch the makemore lectures for live examples of debugging training in PyTorch: checking the loss at initialisation, watching activations and gradients, and overfitting a small batch first."
+   },
+   {
+    "id": "aston-zhang-zachary-lipton-mu-li-alexander-smola-dive-in",
+    "note": "Keep open as a reference with the PyTorch tab selected; its preliminaries and 'builders' guide' chapters explain tensors, autograd, custom layers, GPUs and saving models."
+   }
+  ]
  },
  {
   "id": "l3-cv",
@@ -1822,7 +2144,41 @@ window.AIM.modules = [
    "Building on a model without checking its licence. Ultralytics YOLO is released under the AGPL-3.0 licence, and Ultralytics asks you to buy an Enterprise licence to use it inside a closed commercial product; check the licence of every model and library before you build a paid client product on it."
   ],
   "indiaExample": "Wadhwani AI, an independent non-profit institute in India, built a pest-monitoring system for cotton farmers. Pests such as the pink bollworm are caught in traps; a farmer or field worker photographs the trap with a phone app, an object detection model finds and counts each pest, and the count helps decide whether spraying is needed. The team described the system in a 2020 KDD conference paper, 'Pest management in cotton farms: an AI-system case study from the global South', and released an open dataset of pest images with bounding boxes.",
-  "tip": "Spend more effort on data than on the model: 200 clean, correctly labelled photos taken in the client's real conditions (their lighting, their phones, their backgrounds) usually beat 2,000 random images from the internet."
+  "tip": "Spend more effort on data than on the model: 200 clean, correctly labelled photos taken in the client's real conditions (their lighting, their phones, their backgrounds) usually beat 2,000 random images from the internet.",
+  "watch": [
+   {
+    "id": "campusx-nitish-singh-100-days-of-deep-learning-ann-to-rn",
+    "note": "Your main Hindi CNN course: watch the CNN section that follows the ANN videos, looking for convolution, padding and strides, pooling, CNN architecture, the three-part 'Backpropagation in CNN' series, data augmentation, pretrained models and transfer learning."
+   },
+   {
+    "id": "wscube-tech-opencv-full-tutorial-hindi",
+    "note": "Do the basics (look for reading and showing images, resizing, colour spaces, drawing, thresholding and edge detection) in Hindi before CNNs, so you know how images are stored and loaded."
+   },
+   {
+    "id": "microsoft-ai-for-beginners-12-week-curriculum-hindi-tran",
+    "note": "Read the Hindi text of the Computer Vision section (intro with OpenCV, CNNs, pretrained networks and transfer learning, object detection and segmentation) and run its notebooks; note the detection notebook is TensorFlow-only."
+   },
+   {
+    "id": "prof-vineeth-n-balasubramanian-iit-hyderabad-nptel-nptel",
+    "note": "The complete Indian-English university course: watch the CNN, CNN-architecture (VGG, ResNet), detection and segmentation weeks for the theory; skip the generative weeks for now."
+   },
+   {
+    "id": "aakash-n-s-jovian-published-by-freecodecamp-org-deep-lea",
+    "note": "Use the CNN and ResNet sessions to train an image classifier in PyTorch with data augmentation, the hands-on half of this module."
+   },
+   {
+    "id": "aarohi-singla-code-with-aarohi-code-with-aarohi-yolo-and",
+    "note": "Start with the YOLO11 custom object detection tutorial to train a detector on your own images, and check docs.ultralytics.com for the current YOLO26 commands."
+   },
+   {
+    "id": "polo-club-of-data-science-georgia-tech-cnn-explainer-int",
+    "note": "Open it alongside the CampusX CNN videos and click through each convolution, ReLU and pooling step on a real image."
+   },
+   {
+    "id": "stanford-online-fei-fei-li-s-group-stanford-cs231n-deep-",
+    "note": "Optional depth: use the 2025 lectures on CNN architectures, detection and segmentation, and vision transformers when you want the global standard treatment."
+   }
+  ]
  },
  {
   "id": "l3-nlp",
@@ -1916,7 +2272,41 @@ window.AIM.modules = [
    "Assuming English tools work for Indian languages. Many English tokenisers and stop-word lists break on Devanagari or Tamil script and on Hinglish typed in Roman letters; use tools built for Indian languages, such as the Indic NLP Library, and test on real messages from your users."
   ],
   "indiaExample": "AI4Bharat at IIT Madras builds open tools for Indian languages, including IndicTrans2 (a translation model for all 22 scheduled languages) and IndicFT (fastText word embeddings for 11 Indian languages), while the Indic NLP Library handles tokenisation, normalisation and script conversion for Indian scripts. The Government of India's Bhashini mission runs ULCA, a platform for sharing and using Indian-language datasets and models, so that public services and apps can work in the user's own language.",
-  "tip": "Before any modelling, read 100 real messages from your client's users. You will find the Hinglish, spelling variants, emojis and short forms ('pls', 'kb aayega') that decide which cleaning and tokenisation choices make sense."
+  "tip": "Before any modelling, read 100 real messages from your client's users. You will find the Hinglish, spelling variants, emojis and short forms ('pls', 'kb aayega') that decide which cleaning and tokenisation choices make sense.",
+  "watch": [
+   {
+    "id": "campusx-nitish-singh-natural-language-processing-nlp-com",
+    "note": "Start here for the classical half of the module and watch in order: the NLP pipeline and text-preprocessing videos, then text representation (bag of words, n-grams, TF-IDF), then Word2Vec and the text-classification project."
+   },
+   {
+    "id": "campusx-nitish-singh-100-days-of-deep-learning-ann-to-rn",
+    "note": "For the second half of the module, skip the ANN and CNN parts and start at the RNN section (RNN, problems with RNNs, LSTM, GRU), then continue to the encoder-decoder (seq2seq) and attention videos; day numbers were not confirmed, so go by the video titles."
+   },
+   {
+    "id": "krish-naik-nlp-live-series-classical-nlp-to-rnn-lstm-enc",
+    "note": "This is the Indian-English live-class version of the whole module: Day 5 ('Training Word2Vec From Scratch And AvgWord2vec') finishes the classical part, and Day 6 ('Recurrent Neural Network Indepth Intuition And NLP Application') starts the RNN, LSTM, GRU and encoder-decoder sessions."
+   },
+   {
+    "id": "prof-mitesh-m-khapra-iit-madras-cs7015-deep-learning-wor",
+    "note": "For university-level depth after the intro videos, watch the lectures on word representations (Word2Vec, GloVe), recurrent networks, LSTM/GRU, and encoder-decoder models with attention; lecture numbers were not confirmed, so go by the titles."
+   },
+   {
+    "id": "anoop-kunchukuttan-indic-nlp-library-python-text-process",
+    "note": "For the Indian-languages topic, follow the README to normalise and tokenise Hindi text, and look in the Indic NLP Catalog for Hindi datasets to practise on."
+   },
+   {
+    "id": "ai4bharat-iit-madras-indictrans2-open-translation-models",
+    "note": "Try the no-code web demo to translate between English and Hindi; if you know some Python, load the small distilled model in Colab to see a real seq2seq model working on Indian languages."
+   },
+   {
+    "id": "statquest-with-josh-starmer-statquest-neural-networks-de",
+    "note": "This is a global-English picture-based supplement: open the word embedding/Word2Vec, RNN, LSTM, seq2seq and attention videos whenever an idea from the Hindi videos is still unclear."
+   },
+   {
+    "id": "lena-voita-nlp-course-for-you-word-embeddings-text-class",
+    "note": "Read the word-embeddings, text-classification and seq2seq-with-attention lectures alongside the videos, and try the small interactive exercises to check your understanding."
+   }
+  ]
  },
  {
   "id": "l3-transformers",
@@ -2010,7 +2400,45 @@ window.AIM.modules = [
    "Fine-tuning with too high a learning rate or too many epochs. Pretrained models are easy to damage, so start with a small learning rate (2e-5 to 5e-5 is the usual range for BERT) and 2–4 epochs, and watch the validation score."
   ],
   "indiaExample": "Google released MuRIL (Multilingual Representations for Indian Languages), a BERT model pretrained on 17 Indian languages and on transliterated text (Indian languages written in Roman letters), which matters because many Indians type Hindi or Tamil in English script. AI4Bharat at IIT Madras released IndicBERT, another model for Indian languages. Both are free on the Hugging Face Hub, so you can fine-tune them with exactly the steps in this module, for example to sort customer messages in Hindi or Marathi into categories.",
-  "tip": "For classification jobs, try a small fine-tuned encoder model before reaching for a large LLM API: it can run on a cheap CPU server, gives the same answer for the same input every time, and the client's data never has to leave your control."
+  "tip": "For classification jobs, try a small fine-tuned encoder model before reaching for a large LLM API: it can run on a cheap CPU server, gives the same answer for the same input every time, and the client's data never has to leave your control.",
+  "watch": [
+   {
+    "id": "campusx-nitish-singh-100-days-of-deep-learning-ann-to-rn",
+    "note": "Jump to the attention and transformer videos near the end of the playlist (self-attention, multi-head attention, positional encoding, encoder and decoder architecture); 'Cross Attention in Transformers' is one confirmed title from this part of the series."
+   },
+   {
+    "id": "campusx-nitish-singh-what-is-self-attention-campusx",
+    "note": "Watch this first as a gentle Hinglish introduction to why transformers need self-attention; a search in this pass confirmed it is a CampusX video, possibly a recorded live session."
+   },
+   {
+    "id": "hugging-face-hindi-translation-by-pandyaved98-hugging-fa",
+    "note": "Read the Hindi chapters on what transformer models do, encoder vs decoder models and fine-tuning a pretrained model, then switch to the English LLM Course for the chapters that are not yet translated."
+   },
+   {
+    "id": "krish-naik-nlp-live-series-classical-nlp-to-rnn-lstm-enc",
+    "note": "For an Indian-English live-class explanation, continue past Day 6 (RNN) to the encoder-decoder, attention and transformer sessions; the day numbers of the transformer sessions were not confirmed."
+   },
+   {
+    "id": "vizuara-building-llms-from-scratch-lecture-series",
+    "note": "Watch the early lectures on tokenisation (BPE), token and positional embeddings and self-attention/multi-head attention to see a GPT-style decoder built step by step on a whiteboard; the later lectures belong to the LLM modules."
+   },
+   {
+    "id": "hugging-face-hugging-face-llm-course-formerly-the-nlp-co",
+    "note": "This is the main hands-on resource for the module: in Colab, work through the chapters on pipelines, models and tokenizers, fine-tuning a pretrained model (BERT-style text classification with the datasets library) and the tokenizers library (BPE, WordPiece)."
+   },
+   {
+    "id": "3blue1brown-grant-sanderson-but-what-is-a-gpt-visual-int",
+    "note": "Before any code, watch this and the next chapter on attention to get a clear picture of what a GPT computes."
+   },
+   {
+    "id": "polo-club-of-data-science-georgia-tech-transformer-expla",
+    "note": "Type your own sentences and watch the attention patterns and next-token probabilities of a real GPT-2 change, which makes self-attention concrete without code."
+   },
+   {
+    "id": "jay-alammar-the-illustrated-transformer-plus-the-illustr",
+    "note": "Read The Illustrated Transformer for the Q/K/V, multi-head attention and positional-encoding diagrams, then The Illustrated BERT to see the encoder-only (BERT) vs decoder-only (GPT) difference."
+   }
+  ]
  },
  {
   "id": "l3-mlops",
@@ -2106,7 +2534,33 @@ window.AIM.modules = [
    "Promising a client always-on service on a free tier. A Hugging Face Spaces app on free CPU Basic hardware goes to sleep after 48 hours without visitors, and Render's free web services spin down after about 15 minutes idle, so the next request is slow; for paid work, quote a small always-on server and include its monthly cost, plus 18% GST on your invoice to Indian clients."
   ],
   "indiaExample": "AI4Bharat at IIT Madras publishes live demos of its Indian-language models on Hugging Face Spaces, built with Gradio, such as Indic Parler-TTS (text-to-speech in Indian languages), which is exactly the Gradio-plus-Spaces route in this module. At national scale, the Government of India's Bhashini mission offers Indian-language translation and speech models as APIs that other apps call, the same 'model behind an API' pattern you build here with FastAPI.",
-  "tip": "Deploy something rough in the first week of this module and then improve it. A live link with a plain Gradio page teaches you more about real-world problems (slow starts, odd inputs, missing libraries) than a perfect notebook, and it is what clients actually click on."
+  "tip": "Deploy something rough in the first week of this module and then improve it. A live link with a plain Gradio page teaches you more about real-world problems (slow starts, odd inputs, missing libraries) than a perfect notebook, and it is what clients actually click on.",
+  "watch": [
+   {
+    "id": "krish-naik-hindi-end-to-end-ml-projects-playlist-hindi",
+    "note": "Start here: follow one project in Hinglish from notebook to modular code, pipelines and deployment; the episode list was not seen, so use the video titles to find the deployment parts."
+   },
+   {
+    "id": "krish-naik-end-to-end-ml-projects-playlist-english",
+    "note": "Use the project videos that add DVC and MLflow, for example 'End To End Deep Learning Project Using MLOPS DVC Pipeline With Deployments Azure And AWS', for data versioning and tracking in Indian English; skip the paid-cloud steps if you have no card."
+   },
+   {
+    "id": "krish-naik-mlflow-end-to-end-tutorials-with-deployment",
+    "note": "This video (YouTube title 'End To End MLOPS Data Science Project Implementation With Deployment') covers MLflow experiment tracking on a real project and deployment to AWS EC2 with GitHub Actions; check the MLflow 3 docs where the screens differ."
+   },
+   {
+    "id": "krish-naik-complete-dockers-in-one-shot",
+    "note": "After the Hindi Docker basics, watch this Indian-English one-shot for the data-science angle: Dockerising an ML app so it runs the same everywhere."
+   },
+   {
+    "id": "gradio-hugging-face-gradio-guide-sharing-your-app-free-h",
+    "note": "Follow this guide to turn your model into a Gradio demo and host it free on Hugging Face Spaces for your portfolio; use the Streamlit docs instead if you prefer Streamlit Community Cloud."
+   },
+   {
+    "id": "datatalksclub-alexey-grigorev-and-team-mlops-zoomcamp",
+    "note": "Once the Indian-teacher videos are done, use this self-paced global-English course to tie everything together: experiment tracking, orchestration, deployment and monitoring, with homework."
+   }
+  ]
  },
  {
   "id": "l4-llm-internals",

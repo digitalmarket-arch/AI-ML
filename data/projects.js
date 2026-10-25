@@ -26,7 +26,7 @@ window.AIM.projects = [
    },
    {
     "name": "Cricsheet IPL ball-by-ball files",
-    "url": "",
+    "url": "https://cricsheet.org/downloads/",
     "note": "The free original source that many IPL datasets are built from (cricsheet.org). Search 'Cricsheet downloads IPL' to get the raw ball-by-ball files, and credit Cricsheet."
    }
   ],
@@ -253,13 +253,13 @@ window.AIM.projects = [
     "note": "4,964 grid points (about 27 km apart), 1 Jan 2015 to 31 Dec 2025, about 19.9 million rows (point, lat, lon, date, rain_mm) in one 41 MB Parquet file, plus a grid-points CSV. The data belongs to IMD Pune: follow IMD's terms and cite Pai et al. (2014) as the card asks. A day's value is rain in the 24 hours ending 08:30 IST."
    },
    {
-    "name": "IMD gridded rainfall 1901–2025 (original NetCDF files)",
-    "url": "",
+    "name": "IMD gridded rainfall 1901 onward (original NetCDF files)",
+    "url": "https://www.imdpune.gov.in/cmpg/Griddata/Rainfall_25_NetCDF.html",
     "note": "Search 'IMD Pune gridded rainfall 0.25 NetCDF'. IMD Pune offers the same grid back to 1901 as free yearly NetCDF files, and the Hugging Face card above links to the download page. Use it for the long-record stretch goal."
    },
    {
     "name": "Sub-divisional monthly rainfall of India",
-    "url": "",
+    "url": "https://www.data.gov.in/resource/sub-divisional-monthly-rainfall-1901-2017",
     "note": "Search data.gov.in for 'sub divisional monthly rainfall'. A small CSV of monthly totals for India's meteorological subdivisions from 1901, ideal for long-term trend checks."
    }
   ],
@@ -384,7 +384,7 @@ window.AIM.projects = [
    },
    {
     "name": "Marketing A/B Testing (Kaggle)",
-    "url": "",
+    "url": "https://www.kaggle.com/datasets/faviovaz/marketing-ab-testing",
     "note": "Optional extra practice: search Kaggle for 'Marketing A/B testing' (ad vs public-service-announcement groups with a conversion flag) to practise a two-proportion test on a real experiment."
    }
   ],
@@ -758,7 +758,7 @@ window.AIM.projects = [
    },
    {
     "name": "Lead Scoring Dataset, full version (Kaggle)",
-    "url": "",
+    "url": "https://www.kaggle.com/datasets/amritachatterjee09/lead-scoring-dataset",
     "note": "Search Kaggle for 'amritachatterjee09 lead scoring dataset' (X Education). You need it for the behaviour features (time on site, page views) in milestones 1 and 5. About 9,000 leads and 37 columns, including Total Time Spent on Website, Page Views Per Visit, City and Specialization. Several columns use the placeholder 'Select', which means 'not answered'."
    }
   ],
@@ -1001,7 +1001,7 @@ window.AIM.projects = [
    },
    {
     "name": "Devanagari Handwritten Character Dataset (DHCD), UCI",
-    "url": "",
+    "url": "https://archive.ics.uci.edu/dataset/389/devanagari+handwritten+character+dataset",
     "note": "About 92,000 grayscale 32×32 images in 46 classes (36 consonants plus 10 digits), from Acharya et al. (2015). Search 'UCI Devanagari Handwritten Character Dataset' to download."
    },
    {
@@ -1260,7 +1260,7 @@ window.AIM.projects = [
    },
    {
     "name": "ERA5 reanalysis (Copernicus Climate Data Store)",
-    "url": "",
+    "url": "https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels?tab=overview",
     "note": "Optional extra predictors such as humidity and winds. Free with a Copernicus account: search 'ERA5 single levels Copernicus'."
    }
   ],
@@ -1657,7 +1657,7 @@ window.AIM.projects = [
    },
    {
     "name": "CBIC GST circulars, notifications and rate schedules",
-    "url": "",
+    "url": "https://beta.cbic.gov.in/htdocs-cbec/gst/circularcgst",
     "note": "Published free by the Central Board of Indirect Taxes and Customs: search 'CBIC GST circulars'. Download a dated set and record the download date, because rules change."
    }
   ],
@@ -1918,7 +1918,7 @@ window.AIM.projects = [
    },
    {
     "name": "Google PageSpeed Insights API",
-    "url": "",
+    "url": "https://developers.google.com/speed/docs/insights/v5/get-started",
     "note": "Free API (needs a Google Cloud API key) that returns Lighthouse performance, SEO and accessibility results. Search 'PageSpeed Insights API' for the documentation and quota."
    }
   ],
@@ -2217,12 +2217,12 @@ window.AIM.projects = [
    },
    {
     "name": "Agmarknet daily mandi prices (data.gov.in)",
-    "url": "",
+    "url": "https://www.data.gov.in/resource/current-daily-price-various-commodities-various-markets-mandi",
     "note": "Search data.gov.in for 'current daily price of various commodities from various markets (Mandi)'. Free API key. Cache prices daily instead of calling the API for every question."
    },
    {
     "name": "ICAR, KVK and state agriculture department advisories",
-    "url": "",
+    "url": "https://kvk.icar.gov.in/",
     "note": "Collect Hindi and English crop advisories and package-of-practices documents for your target crops and state. Record the source URL and date for every file."
    }
   ],

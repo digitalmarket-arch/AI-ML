@@ -72,6 +72,52 @@ window.AIM.resources = [
   "videoId": "auuJjEKFjuk"
  },
  {
+  "id": "microsoft-ai-for-beginners-12-week-curriculum-hindi-tran",
+  "title": "AI for Beginners: 12-week curriculum (Hindi translation)",
+  "creator": "Microsoft",
+  "platform": "GitHub",
+  "type": "course",
+  "url": "https://github.com/microsoft/AI-For-Beginners/blob/main/translations/hi/README.md",
+  "firstVideoUrl": "",
+  "language": "hindi",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics",
+   "l3-nn-basics",
+   "l3-pytorch",
+   "l3-cv",
+   "l3-nlp",
+   "l3-transformers",
+   "l4-gen-vision",
+   "l4-rl"
+  ],
+  "topics": [
+   "perceptron",
+   "multi-layer perceptron",
+   "building your own framework",
+   "PyTorch and TensorFlow intro",
+   "overfitting",
+   "OpenCV",
+   "CNN",
+   "CNN architectures",
+   "transfer learning",
+   "autoencoders and VAEs",
+   "GANs",
+   "style transfer",
+   "object detection",
+   "U-Net segmentation",
+   "CLIP"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "A structured, hands-on text curriculum with notebooks, labs and quizzes, and the lessons are in Hindi. It is one of the few Hindi resources that reaches autoencoders, VAEs, GANs and CLIP, with PyTorch notebooks for most lessons.",
+  "caveats": "The Hindi text is machine-translated by Microsoft's Co-op Translator, and the page carries an automated-translation disclaimer. Notebooks and code stay in English. English original: https://github.com/microsoft/AI-For-Beginners. There are no videos; run the notebooks on Colab or Kaggle. The object detection lesson is TensorFlow-only. Diffusion models are not covered.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "apna-college-complete-basics-of-ai-in-one-shot",
   "title": "Complete Basics of AI in One Shot",
   "creator": "Apna College",
@@ -110,7 +156,8 @@ window.AIM.resources = [
   "language": "hindi",
   "level": "beginner",
   "modules": [
-   "l1-ai-basics"
+   "l1-ai-basics",
+   "l4-llm-apps"
   ],
   "topics": [
    "introduction to generative AI and LLMs",
@@ -238,6 +285,101 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "deeplearning-ai-andrew-ng-ai-python-for-beginners",
+  "title": "AI Python for Beginners",
+  "creator": "DeepLearning.AI (Andrew Ng)",
+  "platform": "DeepLearning.AI",
+  "type": "course",
+  "url": "https://www.deeplearning.ai/short-courses/ai-python-for-beginners/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics",
+   "l1-python"
+  ],
+  "topics": [
+   "Python basics for AI",
+   "variables, lists, dicts, loops, functions",
+   "calling LLMs from Python",
+   "using an AI chatbot as a coding assistant",
+   "interactive (in-browser notebooks)"
+  ],
+  "approxHours": 5,
+  "cost": "Free on the DeepLearning.AI platform at time of listing (account required)",
+  "why": "Andrew Ng teaches Python from zero with an AI assistant built into the in-browser notebooks. This matches how non-coders will actually write code in 2026 and gets to AI use-cases quickly.",
+  "caveats": "Covers fewer core topics than a full course (light on OOP, venv and files), so pair it with a Hindi series or CS50P. DeepLearning.AI's paid-membership options have changed over time; check that the course is still free to take.",
+  "year": 2024,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "microsoft-cloud-advocates-ai-for-beginners-microsoft-12-",
+  "title": "AI for Beginners - Microsoft 12-week, 24-lesson curriculum",
+  "creator": "Microsoft Cloud Advocates",
+  "platform": "GitHub",
+  "type": "course",
+  "url": "https://github.com/microsoft/AI-For-Beginners",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics",
+   "l3-nn-basics",
+   "l3-cv",
+   "l3-nlp",
+   "l3-transformers",
+   "l4-rl"
+  ],
+  "topics": [
+   "history of AI",
+   "knowledge representation",
+   "perceptron and neural networks",
+   "CNNs",
+   "RNNs and transformers",
+   "deep RL",
+   "AI ethics"
+  ],
+  "approxHours": 48,
+  "cost": "Free (open source)",
+  "why": "Well-structured, project-and-quiz based tour of the whole AI field from Microsoft, with sketchnotes that make concepts visual.",
+  "caveats": "Needs basic Python from lesson 3 onward; classic ML is deliberately left to the separate ML-For-Beginners course.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "deeplearning-ai-ai-for-everyone-andrew-ng",
+  "title": "AI for Everyone (Andrew Ng)",
+  "creator": "DeepLearning.AI",
+  "platform": "Coursera (audit)",
+  "type": "course",
+  "url": "https://www.deeplearning.ai/ai-for-everyone/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics",
+   "l4-research-career"
+  ],
+  "topics": [
+   "what AI can and cannot do",
+   "building AI projects",
+   "AI strategy for companies",
+   "AI and society"
+  ],
+  "approxHours": 6,
+  "cost": "Usually free to audit on Coursera; certificate paid (audit availability not re-checked this session)",
+  "why": "The classic non-technical course for managers and founders on how to spot and run AI projects in a business.",
+  "caveats": "Recorded in 2019, before ChatGPT; pair it with a generative-AI primer. The link comes from a 2019 list entry, so it may now redirect to a newer DeepLearning.AI/Coursera page; Coursera has narrowed free audit on some courses, so look for 'Audit' or 'Preview' in the enrol dialog.",
+  "year": 2019,
+  "status": "partial",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "3blue1brown-grant-sanderson-but-what-is-a-neural-network",
   "title": "But what is a neural network? (Deep Learning, chapter 1)",
   "creator": "3Blue1Brown (Grant Sanderson)",
@@ -294,6 +436,34 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "",
   "videoId": "7xTGNNLPyMI"
+ },
+ {
+  "id": "gsms-b-community-upload-from-india-code-digital-personal",
+  "title": "Digital Personal Data Protection Act 2023 - structured text (JSON + official PDF)",
+  "creator": "GSMS-B (community upload from India Code)",
+  "platform": "Hugging Face",
+  "type": "dataset",
+  "url": "https://huggingface.co/datasets/GSMS-B/indian-law-the-digital-personal-data-protection-act-2023",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l1-ai-basics",
+   "l4-llm-apps"
+  ],
+  "topics": [
+   "DPDP Act 2023",
+   "privacy law India",
+   "legal text for RAG"
+  ],
+  "approxHours": 2,
+  "cost": "Free (CC-BY-4.0)",
+  "why": "India's DPDP Act 2023 as clean JSON plus the official PDF: read it for the AI-privacy lesson, then reuse it as a small RAG/chatbot corpus.",
+  "caveats": "Very new community upload (updated 18 Oct 2026, about 36 downloads). The card says 41 sections were extracted while the Act has 44, so check completeness against the bundled PDF / India Code; the DPDP Rules notified later are not included. Not legal advice.",
+  "year": 2026,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
  },
  {
   "id": "university-of-helsinki-minnalearn-originally-reaktor-ele",
@@ -356,6 +526,89 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "kaggle-google-intro-to-ai-ethics-kaggle-learn",
+  "title": "Intro to AI Ethics (Kaggle Learn)",
+  "creator": "Kaggle (Google)",
+  "platform": "Kaggle",
+  "type": "course",
+  "url": "https://www.kaggle.com/learn/ai-ethics",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics"
+  ],
+  "topics": [
+   "human-centered design",
+   "identifying bias",
+   "AI fairness metrics",
+   "model cards"
+  ],
+  "approxHours": 4,
+  "cost": "Free, with a free Kaggle certificate",
+  "why": "Hands-on ethics: you actually measure bias and fairness in small browser notebooks instead of only reading about it.",
+  "caveats": "Exercises use Python notebooks (mostly pre-written); examples are US-centric.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "google-cloud-introduction-to-generative-ai-google-cloud-",
+  "title": "Introduction to Generative AI (Google Cloud Skills Boost)",
+  "creator": "Google Cloud",
+  "platform": "Google Cloud Skills Boost",
+  "type": "course",
+  "url": "https://www.cloudskillsboost.google/paths/118/course_templates/536",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics",
+   "l4-llm-apps"
+  ],
+  "topics": [
+   "what generative AI is",
+   "LLMs vs traditional ML",
+   "generative AI use cases"
+  ],
+  "approxHours": 1,
+  "cost": "Free (free sign-in; free completion badge)",
+  "why": "A 45-minute, no-code micro-course that explains generative AI clearly. Good for founders who want the big picture before going deep.",
+  "caveats": "Some examples push Google Cloud / Vertex AI products.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "google-cloud-introduction-to-responsible-ai-google-cloud",
+  "title": "Introduction to Responsible AI (Google Cloud Skills Boost)",
+  "creator": "Google Cloud",
+  "platform": "Google Cloud Skills Boost",
+  "type": "course",
+  "url": "https://www.cloudskillsboost.google/course_templates/554",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics"
+  ],
+  "topics": [
+   "responsible AI principles",
+   "fairness and bias",
+   "accountability"
+  ],
+  "approxHours": 1,
+  "cost": "Free (free sign-in; free badge)",
+  "why": "Short, non-technical primer on why AI systems can be unfair and how companies try to build them responsibly.",
+  "caveats": "Corporate (Google) view of ethics; does not cover Indian law such as the DPDP Act 2023.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "3blue1brown-grant-sanderson-large-language-models-explai",
   "title": "Large Language Models explained briefly",
   "creator": "3Blue1Brown (Grant Sanderson)",
@@ -407,6 +660,37 @@ window.AIM.resources = [
   "why": "A fully interactive, no-code tool. A non-coder trains a real image or sound classifier with a webcam or microphone in minutes and sees first-hand how examples become a model, which is the most hands-on way to 'get' machine learning on day one.",
   "caveats": "English interface (no Hindi confirmed). A webcam or microphone helps but is optional, since images can be uploaded. It is a toy for building intuition, not a full course. The hours are an estimate.",
   "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "google-tensorflow-team-tensorflow-playground-interactive",
+  "title": "TensorFlow Playground (interactive neural network)",
+  "creator": "Google (TensorFlow team)",
+  "platform": "Website",
+  "type": "tool",
+  "url": "https://playground.tensorflow.org/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics",
+   "l3-nn-basics"
+  ],
+  "topics": [
+   "neurons and hidden layers",
+   "activation functions",
+   "learning rate",
+   "regularisation",
+   "overfitting",
+   "decision boundaries"
+  ],
+  "approxHours": 1,
+  "cost": "Free, runs in the browser",
+  "why": "Train a real neural network in your browser by clicking. Changing layers, activations and learning rate shows overfitting and convergence instantly, with no installation or code. It is the most interactive way to start this module.",
+  "caveats": "Toy 2-D datasets only. It builds intuition, not real projects.",
+  "year": 2016,
   "status": "verified",
   "listId": "",
   "videoId": ""
@@ -536,6 +820,34 @@ window.AIM.resources = [
   "year": 2025,
   "status": "verified",
   "listId": "PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+  "videoId": ""
+ },
+ {
+  "id": "great-learning-python-programming-in-hindi-great-learnin",
+  "title": "Python Programming in Hindi (Great Learning Academy)",
+  "creator": "Great Learning",
+  "platform": "Great Learning Academy",
+  "type": "course",
+  "url": "https://www.greatlearning.in/academy/learn-for-free/courses/python-programming-in-hindi",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-python"
+  ],
+  "topics": [
+   "Python basics in Hindi",
+   "variables and data types",
+   "control flow",
+   "functions"
+  ],
+  "approxHours": 0,
+  "cost": "Free with a free Great Learning account (certificate terms not checked)",
+  "why": "One of the few non-YouTube Python courses taught in Hindi on an Indian learning platform - fills the Hindi gap for the Python module.",
+  "caveats": "Added by the fact-checker to fill the Hindi gap. Language is almost certainly Hindi mixed with English technical terms (Hinglish); course page, length and certificate terms could not be opened from this session. Great Learning also sells paid programmes - ignore upsells.",
+  "year": 0,
+  "status": "partial",
+  "listId": "",
   "videoId": ""
  },
  {
@@ -670,6 +982,35 @@ window.AIM.resources = [
   "videoId": "bPrmA1SEN2k"
  },
  {
+  "id": "nptel-iit-madras-prof-madhavan-mukund-chennai-mathematic",
+  "title": "Programming, Data Structures and Algorithms in Python (NPTEL, IIT Madras)",
+  "creator": "NPTEL / IIT Madras (Prof. Madhavan Mukund, Chennai Mathematical Institute)",
+  "platform": "NPTEL",
+  "type": "course",
+  "url": "https://nptel.ac.in/courses/106106145/",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "intermediate",
+  "modules": [
+   "l1-python"
+  ],
+  "topics": [
+   "Python programming",
+   "searching and sorting",
+   "recursion",
+   "data structures",
+   "algorithm analysis"
+  ],
+  "approxHours": 40,
+  "cost": "Free to learn; NPTEL certificate exam paid (fee not re-verified, see caveats)",
+  "why": "An Indian professor teaching Python properly, at a pace and accent Indian learners find easy; the right second course once basics are done.",
+  "caveats": "Lectures and assignments are free. The optional proctored certificate exam is paid; NPTEL has long charged about Rs 1,000 per course exam, but this fee could NOT be re-verified in this session (web-search budget exhausted, nptel.ac.in unreachable) - confirm on nptel.ac.in before registering. Older recording; focuses on algorithms rather than data-science libraries.",
+  "year": 0,
+  "status": "partial",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "telusko-navin-reddy-python-for-beginners-full-course",
   "title": "Python for Beginners (Full Course)",
   "creator": "Telusko (Navin Reddy)",
@@ -700,36 +1041,6 @@ window.AIM.resources = [
   "year": 2019,
   "status": "verified",
   "listId": "PLsyeobzWxl7poL9JTVyndKe62ieoN-MZ3",
-  "videoId": ""
- },
- {
-  "id": "deeplearning-ai-andrew-ng-ai-python-for-beginners",
-  "title": "AI Python for Beginners",
-  "creator": "DeepLearning.AI (Andrew Ng)",
-  "platform": "DeepLearning.AI",
-  "type": "course",
-  "url": "https://www.deeplearning.ai/short-courses/ai-python-for-beginners/",
-  "firstVideoUrl": "",
-  "language": "english",
-  "level": "beginner",
-  "modules": [
-   "l1-python",
-   "l1-tools"
-  ],
-  "topics": [
-   "Python basics for AI",
-   "variables, lists, dicts, loops, functions",
-   "calling LLMs from Python",
-   "using an AI chatbot as a coding assistant",
-   "interactive (in-browser notebooks)"
-  ],
-  "approxHours": 5,
-  "cost": "Free on the DeepLearning.AI platform at time of listing (account required)",
-  "why": "Andrew Ng teaches Python from zero with an AI assistant built into the in-browser notebooks. This matches how non-coders will actually write code in 2026 and gets to AI use-cases quickly.",
-  "caveats": "Covers fewer core topics than a full course (light on OOP, venv and files), so pair it with a Hindi series or CS50P. DeepLearning.AI's paid-membership options have changed over time; check that the course is still free to take.",
-  "year": 2024,
-  "status": "verified",
-  "listId": "",
   "videoId": ""
  },
  {
@@ -793,6 +1104,35 @@ window.AIM.resources = [
   "why": "Harvard's world-famous beginner course, with outstanding lectures, auto-graded problem sets and a final project. It is highly interactive and gives real proof of skill for a portfolio.",
   "caveats": "The main lectures are the 2022 edition, still current for core Python. Submitting problem sets needs a free GitHub/edX login. Fast-paced for absolute beginners, so it works well after a Hindi series.",
   "year": 2022,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "kaggle-google-intro-to-programming-kaggle-learn",
+  "title": "Intro to Programming (Kaggle Learn)",
+  "creator": "Kaggle (Google)",
+  "platform": "Kaggle",
+  "type": "course",
+  "url": "https://www.kaggle.com/learn/intro-to-programming",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-python"
+  ],
+  "topics": [
+   "arithmetic and variables",
+   "functions",
+   "data types",
+   "conditions",
+   "lists"
+  ],
+  "approxHours": 3,
+  "cost": "Free, with a free Kaggle certificate",
+  "why": "Written for people who have never coded. Every lesson runs in the browser (no installation), with instant auto-checked exercises.",
+  "caveats": "Very short; continue straight into Kaggle's Python course.",
+  "year": 0,
   "status": "verified",
   "listId": "",
   "videoId": ""
@@ -927,6 +1267,35 @@ window.AIM.resources = [
   "cost": "Free (videos, free book, auto-graded exercises)",
   "why": "Built for people with zero programming background. It has gentle video lectures, a free textbook and free auto-graded exercises on the site.",
   "caveats": "Older production style and a slow pace. The later networking and database chapters go beyond this module. An interactive Runestone edition is listed in free-programming-interactive-tutorials-en.md.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "freecodecamp-scientific-computing-with-python-freecodeca",
+  "title": "Scientific Computing with Python (freeCodeCamp)",
+  "creator": "freeCodeCamp",
+  "platform": "freeCodeCamp",
+  "type": "course",
+  "url": "https://www.freecodecamp.org/learn/scientific-computing-with-python/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-python"
+  ],
+  "topics": [
+   "Python syntax",
+   "data structures",
+   "algorithms",
+   "OOP",
+   "certification projects"
+  ],
+  "approxHours": 300,
+  "cost": "Free, including free certification",
+  "why": "Fully interactive in-browser lessons plus build-it-yourself projects; you finish with a free certificate.",
+  "caveats": "freeCodeCamp has been restructuring its Python curriculum, so this path may be shown as a legacy/beta certification; 300 h is the official estimate for the full certification.",
   "year": 0,
   "status": "verified",
   "listId": "",
@@ -1082,33 +1451,6 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "",
   "videoId": "gwWKnnCMQ5c"
- },
- {
-  "id": "saima-academy-jupyter-tutorials-hindi-list",
-  "title": "Jupyter Tutorials (Hindi list)",
-  "creator": "Saima Academy",
-  "platform": "YouTube",
-  "type": "playlist",
-  "url": "https://www.youtube.com/@saimaacademy5537",
-  "firstVideoUrl": "",
-  "language": "hinglish",
-  "level": "beginner",
-  "modules": [
-   "l1-tools"
-  ],
-  "topics": [
-   "Jupyter notebook basics",
-   "running cells",
-   "markdown cells"
-  ],
-  "approxHours": 0,
-  "cost": "Free on YouTube",
-  "why": "The only Jupyter tutorial in the free-programming-books Hindi course list, which partly fills the gap for a Hindi-medium Jupyter/notebook intro.",
-  "caveats": "NOT PREVIEWED: the content quality, recording year, exact topics and exact language (Hindi or Urdu-leaning) are unknown. Preview it before featuring it. The same skills transfer to Google Colab.",
-  "year": 0,
-  "status": "partial",
-  "listId": "",
-  "videoId": ""
  },
  {
   "id": "codewithharry-linux-tutorial-for-beginners-in-hindi",
@@ -1440,6 +1782,37 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "microsoft-data-science-for-beginners-microsoft-hindi-tra",
+  "title": "Data Science for Beginners (Microsoft): Hindi translation",
+  "creator": "Microsoft",
+  "platform": "GitHub",
+  "type": "course",
+  "url": "https://github.com/microsoft/Data-Science-For-Beginners/blob/main/translations/hi/README.md",
+  "firstVideoUrl": "",
+  "language": "hindi",
+  "level": "beginner",
+  "modules": [
+   "l1-stats",
+   "l1-numpy-pandas",
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "working with relational data (SQL basics)",
+   "working with Python and Pandas",
+   "data preparation",
+   "visualising quantities, distributions, proportions and relationships",
+   "making meaningful visualisations"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "A rare structured data-science curriculum in Hindi text, with quizzes and assignments. It covers SQL basics and how to choose the right chart, complementing the video courses.",
+  "caveats": "Text lessons, not videos. The Hindi is produced automatically by Microsoft's Co-op Translator GitHub Action, so some wording may be awkward. The original English site is microsoft.github.io/Data-Science-For-Beginners.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "prof-abhay-gopal-bhatt-indian-statistical-institute-delh",
   "title": "Introduction to Probability & Statistics (in Hindi)",
   "creator": "Prof. Abhay Gopal Bhatt, Indian Statistical Institute Delhi (NPTEL/SWAYAM)",
@@ -1663,6 +2036,41 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "james-witten-hastie-tibshirani-taylor-an-introduction-to",
+  "title": "An Introduction to Statistical Learning, with Applications in Python (ISLP)",
+  "creator": "James, Witten, Hastie, Tibshirani, Taylor",
+  "platform": "Book",
+  "type": "book",
+  "url": "https://www.statlearning.com/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l1-stats",
+   "l2-ml-foundations",
+   "l2-regression",
+   "l2-feature-eng"
+  ],
+  "topics": [
+   "linear regression",
+   "classification",
+   "resampling methods",
+   "regularisation",
+   "tree-based methods",
+   "SVM",
+   "unsupervised learning",
+   "Python labs"
+  ],
+  "approxHours": 60,
+  "cost": "Free PDF download from the official site",
+  "why": "The best free textbook for classical ML: readable, with worked examples and Python labs that match the Stanford videos.",
+  "caveats": "A real textbook, so read selectively. The site hosts both the R and Python editions; download the Python (ISLP) one. The labs use the ISLP Python package.",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "3blue1brown-grant-sanderson-bayes-theorem-the-geometry-o",
   "title": "Bayes theorem, the geometry of changing beliefs",
   "creator": "3Blue1Brown (Grant Sanderson)",
@@ -1717,6 +2125,68 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "",
   "videoId": "zeJD6dqJ5lo"
+ },
+ {
+  "id": "cricsheet-stephen-rushe-cricsheet-ball-by-ball-cricket-d",
+  "title": "Cricsheet - ball-by-ball cricket data (incl. every IPL match)",
+  "creator": "Cricsheet (Stephen Rushe)",
+  "platform": "Website",
+  "type": "dataset",
+  "url": "https://cricsheet.org/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-stats",
+   "l1-eda-viz-sql",
+   "l2-feature-eng"
+  ],
+  "topics": [
+   "IPL",
+   "cricket analytics",
+   "ball-by-ball data",
+   "win prediction"
+  ],
+  "approxHours": 0,
+  "cost": "Free (open data, attribution requested)",
+  "why": "The canonical free source of ball-by-ball IPL and international cricket data, updated after matches - perfect for EDA, SQL and win-probability projects Indian learners care about.",
+  "caveats": "Data comes as per-match files (JSON and CSV variants); you need a small Pandas script to combine them into one table.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "microsoft-cloud-advocates-data-science-for-beginners-mic",
+  "title": "Data Science for Beginners - Microsoft 10-week, 20-lesson curriculum",
+  "creator": "Microsoft Cloud Advocates",
+  "platform": "GitHub",
+  "type": "course",
+  "url": "https://microsoft.github.io/Data-Science-For-Beginners",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-stats",
+   "l1-numpy-pandas",
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "data ethics",
+   "statistics basics",
+   "relational and non-relational data",
+   "Pandas",
+   "visualisation",
+   "data science lifecycle"
+  ],
+  "approxHours": 40,
+  "cost": "Free (open source)",
+  "why": "20 project-based lessons with quizzes covering the full data-handling path before ML.",
+  "caveats": "Some lessons are thinner than the ML-For-Beginners course. A Hindi translation is listed separately.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
  },
  {
   "id": "evan-miller-evan-s-awesome-a-b-tools-sample-size-t-test-",
@@ -1783,6 +2253,66 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "mit-opencourseware-prof-philippe-rigollet-mit-18-650-sta",
+  "title": "MIT 18.650 Statistics for Applications (OCW)",
+  "creator": "MIT OpenCourseWare (Prof. Philippe Rigollet)",
+  "platform": "MIT OpenCourseWare",
+  "type": "course",
+  "url": "https://ocw.mit.edu/courses/18-650-statistics-for-applications-fall-2016/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l1-stats",
+   "l4-research-career"
+  ],
+  "topics": [
+   "estimation",
+   "hypothesis testing",
+   "regression",
+   "Bayesian statistics",
+   "GLMs",
+   "PCA"
+  ],
+  "approxHours": 40,
+  "cost": "Free",
+  "why": "University-level statistics for learners who want rigorous depth after the basics.",
+  "caveats": "Requires calculus; not for absolute beginners.",
+  "year": 2016,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "mit-opencourseware-prof-john-tsitsiklis-mit-6-041-probab",
+  "title": "MIT 6.041 Probabilistic Systems Analysis and Applied Probability (OCW)",
+  "creator": "MIT OpenCourseWare (Prof. John Tsitsiklis)",
+  "platform": "MIT OpenCourseWare",
+  "type": "course",
+  "url": "https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-041sc-probabilistic-systems-analysis-and-applied-probability-fall-2013/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l1-stats"
+  ],
+  "topics": [
+   "probability models",
+   "random variables",
+   "Bayes rule",
+   "limit theorems",
+   "Markov chains"
+  ],
+  "approxHours": 50,
+  "cost": "Free",
+  "why": "A famously clear probability course with recitation videos and solved problems.",
+  "caveats": "Mathematical; take after Khan Academy if you want depth. The link uses OCW's older URL pattern, which normally redirects to the current course page.",
+  "year": 2013,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "marc-peter-deisenroth-a-aldo-faisal-cheng-soon-ong-cambr",
   "title": "Mathematics for Machine Learning (free book)",
   "creator": "Marc Peter Deisenroth, A. Aldo Faisal, Cheng Soon Ong (Cambridge University Press)",
@@ -1812,6 +2342,36 @@ window.AIM.resources = [
   "cost": "Free PDF from the authors (personal use); print copy paid",
   "why": "The standard free textbook linking linear algebra, calculus and probability directly to ML methods such as PCA, regression and SVMs, with tutorials. Use it as the reference once the visual intuition is in place.",
   "caveats": "Dense and proof-oriented, so not for day one. Use the authors' site, not third-party PDF copies.",
+  "year": 2020,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "deisenroth-faisal-ong-cambridge-university-press-mathema",
+  "title": "Mathematics for Machine Learning - free book",
+  "creator": "Deisenroth, Faisal, Ong (Cambridge University Press)",
+  "platform": "Book",
+  "type": "book",
+  "url": "https://mml-book.github.io/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l1-stats",
+   "l3-nn-basics"
+  ],
+  "topics": [
+   "linear algebra",
+   "calculus",
+   "probability",
+   "PCA",
+   "optimisation"
+  ],
+  "approxHours": 60,
+  "cost": "Free PDF",
+  "why": "Covers exactly the linear algebra, calculus and probability that ML uses, in one free book.",
+  "caveats": "Dense and maths-heavy; use as a reference when a later course gets mathematical, not as a first read.",
   "year": 2020,
   "status": "verified",
   "listId": "",
@@ -2035,36 +2595,6 @@ window.AIM.resources = [
   "year": 0,
   "status": "verified",
   "listId": "PLKnIA16_RmvbYFaaeLY28cWeqV-3vADST",
-  "videoId": ""
- },
- {
-  "id": "dr-gajendra-purohit-mathscare-vector-space-linear-algebr",
-  "title": "Vector Space (Linear Algebra) - Complete Course",
-  "creator": "Dr. Gajendra Purohit (MathsCare)",
-  "platform": "YouTube",
-  "type": "playlist",
-  "url": "https://www.youtube.com/playlist?list=PLU6SqdYcYsfJOGZdxUpDk3w9o-w94-RoG",
-  "firstVideoUrl": "",
-  "language": "hinglish",
-  "level": "intermediate",
-  "modules": [
-   "l1-linalg-calc"
-  ],
-  "topics": [
-   "vectors",
-   "vector spaces",
-   "linear combinations",
-   "span",
-   "basis and dimension",
-   "linear independence"
-  ],
-  "approxHours": 0,
-  "cost": "Free on YouTube",
-  "why": "Hindi-medium formal linear algebra vocabulary (span, basis, dimension) for learners who want it after 3Blue1Brown's visuals.",
-  "caveats": "NOT RE-VERIFIED. Made for B.Sc/GATE/IIT-JAM: abstract and proof-heavy, with little ML context, so it is weak for an intuition-first ML track. The proposer's channel URL was removed because it could not be checked.",
-  "year": 0,
-  "status": "verified",
-  "listId": "",
   "videoId": ""
  },
  {
@@ -2560,6 +3090,37 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "codebasics-dhaval-patel-bengaluru-house-prices-dataset-e",
+  "title": "Bengaluru House Prices dataset + end-to-end project (Codebasics)",
+  "creator": "Codebasics (Dhaval Patel)",
+  "platform": "GitHub",
+  "type": "dataset",
+  "url": "https://github.com/codebasics/py/tree/master/DataScience/BangloreHomePrices",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l1-numpy-pandas",
+   "l2-ml-foundations",
+   "l2-feature-eng"
+  ],
+  "topics": [
+   "Indian housing prices",
+   "data cleaning",
+   "outlier removal",
+   "regression",
+   "deploying a model with Flask"
+  ],
+  "approxHours": 10,
+  "cost": "Free",
+  "why": "A real Indian real-estate dataset (about 13,300 Bengaluru listings: area type, location, BHK, sqft, bath, balcony, price in lakhs) with a complete clean-train-deploy project you can copy and extend.",
+  "caveats": "Data is several years old (prices are dated). The CSV is model/bengaluru_house_prices.csv; the readme only says it came 'from kaggle.com', so the licence is unclear - fine for learning, not for commercial use.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "codebasics-dhaval-patel-codebasics-pandas-tutorial-serie",
   "title": "Codebasics Pandas tutorial series (channel playlists page)",
   "creator": "Codebasics (Dhaval Patel)",
@@ -2587,6 +3148,39 @@ window.AIM.resources = [
   "cost": "Free on YouTube",
   "why": "Short videos in clear Indian English, one concept per video. Especially strong on missing data, reshaping and dates, which beginners often find confusing.",
   "caveats": "The exact Pandas playlist URL could not be verified, so this opens the channel's Playlists tab; pick the Pandas tutorial playlist there. Recorded on older pandas (about 2017-18), so a few functions have changed (for example DataFrame.append was removed in pandas 2.0).",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "government-of-india-meity-nic-open-government-data-ogd-p",
+  "title": "Open Government Data (OGD) Platform India - data.gov.in",
+  "creator": "Government of India (MeitY / NIC)",
+  "platform": "Website",
+  "type": "dataset",
+  "url": "https://data.gov.in/",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l1-numpy-pandas",
+   "l1-eda-viz-sql",
+   "l2-feature-eng",
+   "l4-research-career"
+  ],
+  "topics": [
+   "Indian government open data",
+   "agriculture",
+   "rainfall (IMD)",
+   "health",
+   "census-style statistics",
+   "APIs"
+  ],
+  "approxHours": 0,
+  "cost": "Free (Government Open Data Licence - India)",
+  "why": "Thousands of official Indian datasets (crop production, district rainfall, health, transport) as CSV or API - the best source for genuinely Indian project ideas.",
+  "caveats": "Quality varies a lot by ministry; many resources are PDFs or have broken links; API access needs a free key. IndiaAI's AIKosh dataset platform is a newer complement, but its URL could not be verified in this session, so it is not listed.",
   "year": 0,
   "status": "verified",
   "listId": "",
@@ -2656,6 +3250,36 @@ window.AIM.resources = [
   "videoId": "2uvysYbKdjM"
  },
  {
+  "id": "freecodecamp-freecodecamp-data-analysis-with-python-cert",
+  "title": "Data Analysis with Python certification (freeCodeCamp)",
+  "creator": "freeCodeCamp",
+  "platform": "freeCodeCamp",
+  "type": "course",
+  "url": "https://www.freecodecamp.org/learn/data-analysis-with-python/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-numpy-pandas",
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "NumPy",
+   "Pandas",
+   "Matplotlib",
+   "Seaborn",
+   "data analysis projects"
+  ],
+  "approxHours": 300,
+  "cost": "Free, including free certification",
+  "why": "Free certificate earned by building five real data-analysis projects - good portfolio material.",
+  "caveats": "Lessons are partly video with quiz questions; the projects are where the learning happens. Curriculum layout may change as freeCodeCamp restructures.",
+  "year": 0,
+  "status": "partial",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "kaggle-rachael-tatman-maintained-by-alexis-cook-kaggle-l",
   "title": "Kaggle Learn: Data Cleaning",
   "creator": "Kaggle (Rachael Tatman; maintained by Alexis Cook)",
@@ -2666,8 +3290,7 @@ window.AIM.resources = [
   "language": "english",
   "level": "beginner",
   "modules": [
-   "l1-numpy-pandas",
-   "l1-eda-viz-sql"
+   "l1-numpy-pandas"
   ],
   "topics": [
    "handling missing values",
@@ -2728,6 +3351,7 @@ window.AIM.resources = [
   "modules": [
    "l1-numpy-pandas",
    "l1-eda-viz-sql",
+   "l2-ml-foundations",
    "l2-unsupervised"
   ],
   "topics": [
@@ -2815,33 +3439,32 @@ window.AIM.resources = [
   "videoId": "yzIMircGU5I"
  },
  {
-  "id": "freecodecamp-freecodecamp-data-analysis-with-python-cert",
-  "title": "freeCodeCamp Data Analysis with Python Certification",
-  "creator": "freeCodeCamp",
-  "platform": "freeCodeCamp",
-  "type": "course",
-  "url": "https://www.freecodecamp.org/learn/data-analysis-with-python/",
+  "id": "manikasaini-re-upload-of-the-public-kaggle-zomato-bangal",
+  "title": "Zomato Bangalore restaurants dataset (Hugging Face mirror)",
+  "creator": "ManikaSaini (re-upload of the public Kaggle Zomato Bangalore data)",
+  "platform": "Hugging Face",
+  "type": "dataset",
+  "url": "https://huggingface.co/datasets/ManikaSaini/zomato-restaurant-recommendation",
   "firstVideoUrl": "",
   "language": "english",
   "level": "beginner",
   "modules": [
    "l1-numpy-pandas",
-   "l1-eda-viz-sql"
+   "l1-eda-viz-sql",
+   "l2-feature-eng"
   ],
   "topics": [
-   "NumPy",
-   "Pandas",
-   "data cleaning",
-   "Matplotlib",
-   "Seaborn",
-   "project-based data analysis"
+   "Zomato restaurants",
+   "EDA",
+   "ratings prediction",
+   "recommendation"
   ],
-  "approxHours": 0,
-  "cost": "Free, including certificate",
-  "why": "A free, project-based track where you build and submit real analysis and visualisation projects, giving portfolio work and a free certificate.",
-  "caveats": "freeCodeCamp's 2026 README lists only the new v9 certifications and does not mention this one, so it may now be a legacy track. Check that it still accepts project submissions. The course videos are from about 2020 and use older pandas.",
-  "year": 2020,
-  "status": "partial",
+  "approxHours": 6,
+  "cost": "Free",
+  "why": "About 51.7K Bengaluru restaurant rows with 17 columns (cuisines, cost for two, rating, votes, location, reviews) - a fun, very Indian dataset for EDA and rating prediction, with no Kaggle login needed.",
+  "caveats": "Community re-upload with no dataset card or licence; data is several years old. Columns include restaurant phone numbers and raw review text - do not republish them. About 150 MB as Parquet.",
+  "year": 2026,
+  "status": "verified",
   "listId": "",
   "videoId": ""
  },
@@ -2871,36 +3494,6 @@ window.AIM.resources = [
   "year": 0,
   "status": "verified",
   "listId": "PLdOKnrf8EcP17p05q13WXbHO5Z_JfXNpw",
-  "videoId": ""
- },
- {
-  "id": "microsoft-data-science-for-beginners-microsoft-hindi-tra",
-  "title": "Data Science for Beginners (Microsoft): Hindi translation",
-  "creator": "Microsoft",
-  "platform": "GitHub",
-  "type": "course",
-  "url": "https://github.com/microsoft/Data-Science-For-Beginners/blob/main/translations/hi/README.md",
-  "firstVideoUrl": "",
-  "language": "hindi",
-  "level": "beginner",
-  "modules": [
-   "l1-eda-viz-sql",
-   "l1-numpy-pandas"
-  ],
-  "topics": [
-   "working with relational data (SQL basics)",
-   "working with Python and Pandas",
-   "data preparation",
-   "visualising quantities, distributions, proportions and relationships",
-   "making meaningful visualisations"
-  ],
-  "approxHours": 0,
-  "cost": "Free",
-  "why": "A rare structured data-science curriculum in Hindi text, with quizzes and assignments. It covers SQL basics and how to choose the right chart, complementing the video courses.",
-  "caveats": "Text lessons, not videos. The Hindi is produced automatically by Microsoft's Co-op Translator GitHub Action, so some wording may be awkward. The original English site is microsoft.github.io/Data-Science-For-Beginners.",
-  "year": 0,
-  "status": "verified",
-  "listId": "",
   "videoId": ""
  },
  {
@@ -2958,6 +3551,36 @@ window.AIM.resources = [
   "videoId": "ioN1jcWxbv8"
  },
  {
+  "id": "saswata-nandi-et-al-imdlib-imd-gridded-rainfall-and-temp",
+  "title": "IMD gridded rainfall and temperature data via imdlib (Python)",
+  "creator": "Saswata Nandi et al. (imdlib)",
+  "platform": "GitHub",
+  "type": "dataset",
+  "url": "https://github.com/iamsaswata/imdlib",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "intermediate",
+  "modules": [
+   "l1-eda-viz-sql",
+   "l2-feature-eng",
+   "l4-research-career"
+  ],
+  "topics": [
+   "Indian rainfall (IMD)",
+   "climate data",
+   "time series",
+   "geospatial"
+  ],
+  "approxHours": 4,
+  "cost": "Free (MIT licence; IMD data free for research)",
+  "why": "A pip-installable tool that downloads India Meteorological Department gridded daily rainfall/temperature and converts it to NumPy/xarray - the cleanest path to real IMD data for monsoon projects.",
+  "caveats": "Gridded binary data needs xarray skills; downloads depend on IMD's own server being up. For simpler state-wise tables search 'rainfall' on data.gov.in.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "krish-naik-mysql-sql-playlist",
   "title": "MySQL / SQL Playlist",
   "creator": "Krish Naik",
@@ -2985,6 +3608,36 @@ window.AIM.resources = [
   "videoId": "us1XyayQ6fU"
  },
  {
+  "id": "harvard-university-carter-zenke-david-j-malan-cs50-s-int",
+  "title": "CS50's Introduction to Databases with SQL",
+  "creator": "Harvard University (Carter Zenke, David J. Malan)",
+  "platform": "Harvard OpenCourseWare / edX",
+  "type": "course",
+  "url": "https://cs50.harvard.edu/sql/2023/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "querying",
+   "relating tables",
+   "designing schemas",
+   "writing data",
+   "views",
+   "optimising"
+  ],
+  "approxHours": 30,
+  "cost": "Free (free CS50 certificate; verified edX certificate paid)",
+  "why": "Rigorous, beautifully taught database course with graded problem sets.",
+  "caveats": "This URL is the 2023 edition; a newer edition may exist on the same site. Uses SQLite.",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "alex-the-analyst-alex-freberg-data-analyst-bootcamp-sql-",
   "title": "Data Analyst Bootcamp (SQL, Excel, Tableau, Power BI, Python, Pandas)",
   "creator": "Alex The Analyst (Alex Freberg)",
@@ -2995,8 +3648,7 @@ window.AIM.resources = [
   "language": "english",
   "level": "beginner",
   "modules": [
-   "l1-eda-viz-sql",
-   "l1-numpy-pandas"
+   "l1-eda-viz-sql"
   ],
   "topics": [
    "SQL basics to advanced",
@@ -3040,6 +3692,36 @@ window.AIM.resources = [
   "why": "The best free guide to making charts that are honest and persuasive. It covers the data-storytelling part of this module, which coding tutorials skip.",
   "caveats": "The figures were made in R/ggplot2, but the book shows no code; the principles apply equally to Matplotlib, Seaborn and Plotly.",
   "year": 2019,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "prasad-gade05-ipl-enriched-dataset-2008-2026-ball-by-bal",
+  "title": "IPL enriched dataset 2008-2026 (ball-by-ball with 27 engineered features)",
+  "creator": "prasad-gade05",
+  "platform": "Hugging Face",
+  "type": "dataset",
+  "url": "https://huggingface.co/datasets/prasad-gade05/ipl-enriched-dataset",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-eda-viz-sql",
+   "l2-ml-foundations",
+   "l2-feature-eng"
+  ],
+  "topics": [
+   "IPL",
+   "feature engineering",
+   "tabular classification",
+   "time-series"
+  ],
+  "approxHours": 6,
+  "cost": "Free (CC0-1.0)",
+  "why": "A ready-to-load Parquet table of IPL deliveries with derived columns such as match phase - lets beginners start modelling without parsing raw files.",
+  "caveats": "Community dataset built from Kaggle IPL data (updated Aug 2026); compare a few rows with Cricsheet before trusting stats.",
+  "year": 2026,
   "status": "verified",
   "listId": "",
   "videoId": ""
@@ -3251,6 +3933,34 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "zi-chong-kao-select-star-sql-interactive-book",
+  "title": "Select Star SQL - interactive book",
+  "creator": "Zi Chong Kao",
+  "platform": "Website",
+  "type": "practice",
+  "url": "https://selectstarsql.com",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "SQL querying",
+   "aggregation",
+   "joins",
+   "window-style thinking"
+  ],
+  "approxHours": 6,
+  "cost": "Free",
+  "why": "An interactive SQL book built around one real dataset, so you learn by answering genuine questions.",
+  "caveats": "The dataset (US death-row statements) is sensitive in tone.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "keith-galli-solving-real-world-data-science-tasks-with-p",
   "title": "Solving real world data science tasks with Python Pandas (sales data EDA)",
   "creator": "Keith Galli",
@@ -3335,6 +4045,39 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "microsoft-cloud-advocates-ml-for-beginners-hindi-transla",
+  "title": "ML for Beginners (Hindi translation) - Microsoft 12-week, 26-lesson classic ML curriculum",
+  "creator": "Microsoft Cloud Advocates",
+  "platform": "GitHub",
+  "type": "course",
+  "url": "https://github.com/microsoft/ML-For-Beginners/blob/main/translations/hi/README.md",
+  "firstVideoUrl": "",
+  "language": "hindi",
+  "level": "beginner",
+  "modules": [
+   "l2-ml-foundations",
+   "l2-feature-eng",
+   "l4-rl"
+  ],
+  "topics": [
+   "regression",
+   "classification",
+   "clustering",
+   "NLP basics",
+   "time series",
+   "Q-learning",
+   "scikit-learn"
+  ],
+  "approxHours": 50,
+  "cost": "Free (open source)",
+  "why": "26 lessons of classic scikit-learn ML with lesson text in Hindi, pre/post quizzes and projects themed on world cuisines and data.",
+  "caveats": "Hindi text is AI-translated (Co-op Translator disclaimer on the page); code and notebooks stay in English. Videos exist only for some lessons.",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "krish-naik-krish-naik-hindi-channel-machine-learning-pla",
   "title": "Machine Learning Playlist (Hindi)",
   "creator": "Krish Naik (Krish Naik Hindi channel)",
@@ -3401,6 +4144,69 @@ window.AIM.resources = [
   "year": 0,
   "status": "verified",
   "listId": "PLu0W_9lII9ai6fAMHp-acBmJONT7Y4BSG",
+  "videoId": ""
+ },
+ {
+  "id": "atharva-ingle-crop-recommendation-dataset-soil-and-clima",
+  "title": "Crop Recommendation dataset (soil and climate parameters)",
+  "creator": "Atharva Ingle",
+  "platform": "Kaggle",
+  "type": "dataset",
+  "url": "https://www.kaggle.com/atharvaingle/crop-recommendation-dataset",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l2-ml-foundations",
+   "l2-feature-eng"
+  ],
+  "topics": [
+   "agriculture",
+   "multi-class classification",
+   "N-P-K soil nutrients",
+   "rainfall and temperature"
+  ],
+  "approxHours": 4,
+  "cost": "Free (free Kaggle account needed to download)",
+  "why": "A clean, small tabular dataset (N, P, K, temperature, humidity, pH, rainfall -> best crop) built for an Indian farming app - ideal first classification project.",
+  "caveats": "The author calls it a 'custom built dataset' (augmented from Indian sources), so accuracy is unrealistically high (often about 99%); good for learning, not for real farm advice. Old-style Kaggle link that redirects to the /datasets/ page.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "iit-kharagpur-nptel-introduction-to-machine-learning-iit",
+  "title": "Introduction to Machine Learning (IIT Kharagpur)",
+  "creator": "IIT Kharagpur (NPTEL)",
+  "platform": "NPTEL",
+  "type": "course",
+  "url": "https://nptel.ac.in/courses/106105152/",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "intermediate",
+  "modules": [
+   "l2-ml-foundations",
+   "l2-regression"
+  ],
+  "topics": [
+   "learning basics",
+   "linear regression",
+   "decision trees",
+   "instance-based learning (KNN)",
+   "Bayesian learning/Naive Bayes",
+   "logistic regression",
+   "SVM",
+   "ensembles",
+   "clustering"
+  ],
+  "approxHours": 30,
+  "cost": "Free; NPTEL exam fee only if you want the certificate",
+  "why": "A calmer, well-structured IIT introduction to the same classical algorithms with clear Indian-English explanations. A good alternative to the IIT Madras course.",
+  "caveats": "Older slide-based recordings with no scikit-learn practice. The NPTEL page was not opened in this run.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
   "videoId": ""
  },
  {
@@ -3516,6 +4322,36 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "deep-ml-open-deep-ml-community-deep-ml-leetcode-style-ml",
+  "title": "Deep-ML - LeetCode-style ML coding practice",
+  "creator": "Deep-ML (Open-Deep-ML community)",
+  "platform": "Website",
+  "type": "practice",
+  "url": "https://deep-ml.com",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l2-ml-foundations",
+   "l3-nn-basics",
+   "l4-research-career"
+  ],
+  "topics": [
+   "implement ML algorithms from scratch",
+   "linear algebra in NumPy",
+   "neural network layers",
+   "interview practice"
+  ],
+  "approxHours": 0,
+  "cost": "Free (some premium extras)",
+  "why": "Practise writing ML algorithms (gradient descent, attention, backprop) from scratch with auto-graded tests - great preparation for ML interviews.",
+  "caveats": "Problems vary in quality; the community problem bank is on GitHub.",
+  "year": 2024,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "kaggle-alexis-cook-kaggle-learn-intermediate-machine-lea",
   "title": "Kaggle Learn: Intermediate Machine Learning",
   "creator": "Kaggle (Alexis Cook)",
@@ -3580,6 +4416,37 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "kaggle-dan-becker-kaggle-learn-machine-learning-explaina",
+  "title": "Kaggle Learn: Machine Learning Explainability",
+  "creator": "Kaggle (Dan Becker)",
+  "platform": "Kaggle",
+  "type": "course",
+  "url": "https://www.kaggle.com/learn/machine-learning-explainability",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l2-ml-foundations",
+   "l2-trees-ensembles",
+   "l2-feature-eng"
+  ],
+  "topics": [
+   "use cases for model insights",
+   "permutation importance",
+   "partial dependence plots",
+   "SHAP values",
+   "advanced uses of SHAP"
+  ],
+  "approxHours": 4,
+  "cost": "Free (free certificate)",
+  "why": "A hands-on introduction to SHAP and feature importance for tree models, exactly what you need to explain a random forest or XGBoost model to a business stakeholder.",
+  "caveats": "The SHAP library API has changed (newer shap.Explainer interface). The site was not opened in this run.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "prof-yaser-abu-mostafa-caltech-learning-from-data-caltec",
   "title": "Learning From Data (Caltech CS156)",
   "creator": "Prof. Yaser Abu-Mostafa, Caltech",
@@ -3613,6 +4480,38 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "mit-open-learning-mit-6-036-introduction-to-machine-lear",
+  "title": "MIT 6.036 Introduction to Machine Learning (MIT Open Learning Library)",
+  "creator": "MIT Open Learning",
+  "platform": "MIT Open Learning Library",
+  "type": "course",
+  "url": "https://openlearninglibrary.mit.edu/courses/course-v1:MITx+6.036+1T2019/about",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l2-ml-foundations",
+   "l4-research-career"
+  ],
+  "topics": [
+   "linear classifiers",
+   "perceptron",
+   "logistic regression",
+   "regression",
+   "neural networks",
+   "CNNs",
+   "RL basics"
+  ],
+  "approxHours": 60,
+  "cost": "Free (no certificate)",
+  "why": "MIT's own undergraduate ML course with auto-graded exercises - for learners who want university depth.",
+  "caveats": "Maths-heavy; 2019 version. MIT has been moving Open Learning Library content to newer platforms, so this page may redirect or need a free login.",
+  "year": 2019,
+  "status": "partial",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "microsoft-cloud-advocates-ml-for-beginners-12-week-26-le",
   "title": "ML-For-Beginners (12-week, 26-lesson curriculum)",
   "creator": "Microsoft Cloud Advocates",
@@ -3626,7 +4525,9 @@ window.AIM.resources = [
    "l2-ml-foundations",
    "l2-regression",
    "l2-classification",
-   "l2-unsupervised"
+   "l2-unsupervised",
+   "l2-feature-eng",
+   "l4-rl"
   ],
   "topics": [
    "intro to ML and fairness",
@@ -3694,7 +4595,8 @@ window.AIM.resources = [
   "modules": [
    "l2-ml-foundations",
    "l2-regression",
-   "l2-classification"
+   "l2-classification",
+   "l2-feature-eng"
   ],
   "topics": [
    "linear regression",
@@ -3711,6 +4613,102 @@ window.AIM.resources = [
   "cost": "Free",
   "why": "A short, interactive beginner course from Google with videos, visual widgets and exercises. Excellent for building intuition on loss, gradient descent and classification metrics without heavy maths.",
   "caveats": "Coding exercises are Colab notebooks that are not scikit-learn focused. The site and its current syllabus were not opened in this run.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "alexey-grigorev-datatalks-club-machine-learning-zoomcamp",
+  "title": "Machine Learning Zoomcamp",
+  "creator": "Alexey Grigorev, DataTalks.Club",
+  "platform": "GitHub",
+  "type": "course",
+  "url": "https://github.com/DataTalksClub/machine-learning-zoomcamp",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l2-ml-foundations",
+   "l2-regression",
+   "l2-classification",
+   "l2-metrics-tuning",
+   "l2-trees-ensembles",
+   "l2-feature-eng",
+   "l4-research-career"
+  ],
+  "topics": [
+   "regression project",
+   "classification project",
+   "evaluation metrics for classification",
+   "decision trees and ensemble learning",
+   "XGBoost",
+   "end-to-end ML project",
+   "deployment with FastAPI/Docker"
+  ],
+  "approxHours": 60,
+  "cost": "Free (pre-recorded videos on YouTube); certificate also free but requires two projects plus peer reviews during the yearly live cohort",
+  "why": "A free, current (2026 cohort) project-first course. You build real regression and classification projects, evaluate and tune tree models and deploy them, matching the end-to-end skills in this track.",
+  "caveats": "Needs basic Python. Modules 8-10 move into deep learning, serverless and Kubernetes, beyond this track. Videos: youtube.com/playlist?list=PL3MmuxUbc_hIhxl5Ji8t4O6lPAOpHaCLR (linked from the README).",
+  "year": 2026,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "freecodecamp-machine-learning-with-python-certification-",
+  "title": "Machine Learning with Python certification (freeCodeCamp)",
+  "creator": "freeCodeCamp",
+  "platform": "freeCodeCamp",
+  "type": "course",
+  "url": "https://www.freecodecamp.org/learn/machine-learning-with-python",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l2-ml-foundations",
+   "l3-nn-basics"
+  ],
+  "topics": [
+   "TensorFlow",
+   "neural networks",
+   "NLP with RNNs",
+   "reinforcement learning intro",
+   "5 certification projects"
+  ],
+  "approxHours": 300,
+  "cost": "Free, including free certification",
+  "why": "A free, project-based certificate (rock-paper-scissors bot, book recommender, SMS spam classifier and more) that is good for a portfolio.",
+  "caveats": "Lesson videos date from about 2020, so some TensorFlow APIs are outdated.",
+  "year": 2020,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "google-martin-zinkevich-rules-of-machine-learning-google",
+  "title": "Rules of Machine Learning (Google)",
+  "creator": "Google (Martin Zinkevich)",
+  "platform": "Google for Developers",
+  "type": "article",
+  "url": "https://developers.google.com/machine-learning/rules-of-ml/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l2-ml-foundations",
+   "l4-research-career"
+  ],
+  "topics": [
+   "ML engineering best practices",
+   "baselines first",
+   "feature engineering",
+   "monitoring"
+  ],
+  "approxHours": 2,
+  "cost": "Free",
+  "why": "43 hard-won rules from Google for building real ML products, starting with 'use a simple baseline first'.",
+  "caveats": "Pre-LLM era, but still widely cited.",
   "year": 0,
   "status": "verified",
   "listId": "",
@@ -3763,6 +4761,34 @@ window.AIM.resources = [
   "year": 0,
   "status": "verified",
   "listId": "PLblh5JKOoLUICTaGLRoHQDuF_7q2GfuJF",
+  "videoId": ""
+ },
+ {
+  "id": "kaggle-titanic-machine-learning-from-disaster-kaggle-sta",
+  "title": "Titanic - Machine Learning from Disaster (Kaggle starter competition)",
+  "creator": "Kaggle",
+  "platform": "Kaggle",
+  "type": "practice",
+  "url": "https://www.kaggle.com/c/titanic",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l2-ml-foundations",
+   "l2-feature-eng"
+  ],
+  "topics": [
+   "binary classification",
+   "feature engineering",
+   "first Kaggle submission"
+  ],
+  "approxHours": 6,
+  "cost": "Free",
+  "why": "The classic first competition: thousands of public notebooks to learn from and an always-open leaderboard.",
+  "caveats": "Tiny dataset; top leaderboard scores are leaked/overfit, so ignore the top ranks.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
   "videoId": ""
  },
  {
@@ -3867,106 +4893,6 @@ window.AIM.resources = [
   "year": 0,
   "status": "verified",
   "listId": "PLyqSpQzTE6M-pmLzCoMu_ANU6atEFyyJl",
-  "videoId": ""
- },
- {
-  "id": "iit-kharagpur-nptel-introduction-to-machine-learning-iit",
-  "title": "Introduction to Machine Learning (IIT Kharagpur)",
-  "creator": "IIT Kharagpur (NPTEL)",
-  "platform": "NPTEL",
-  "type": "course",
-  "url": "https://nptel.ac.in/courses/106105152/",
-  "firstVideoUrl": "",
-  "language": "indian-english",
-  "level": "intermediate",
-  "modules": [
-   "l2-regression"
-  ],
-  "topics": [
-   "learning basics",
-   "linear regression",
-   "decision trees",
-   "instance-based learning (KNN)",
-   "Bayesian learning/Naive Bayes",
-   "logistic regression",
-   "SVM",
-   "ensembles",
-   "clustering"
-  ],
-  "approxHours": 30,
-  "cost": "Free; NPTEL exam fee only if you want the certificate",
-  "why": "A calmer, well-structured IIT introduction to the same classical algorithms with clear Indian-English explanations. A good alternative to the IIT Madras course.",
-  "caveats": "Older slide-based recordings with no scikit-learn practice. The NPTEL page was not opened in this run.",
-  "year": 0,
-  "status": "verified",
-  "listId": "",
-  "videoId": ""
- },
- {
-  "id": "james-witten-hastie-tibshirani-taylor-an-introduction-to",
-  "title": "An Introduction to Statistical Learning, with Applications in Python (ISLP)",
-  "creator": "James, Witten, Hastie, Tibshirani, Taylor",
-  "platform": "Book",
-  "type": "book",
-  "url": "https://www.statlearning.com/",
-  "firstVideoUrl": "",
-  "language": "english",
-  "level": "intermediate",
-  "modules": [
-   "l2-regression"
-  ],
-  "topics": [
-   "linear regression",
-   "classification",
-   "resampling methods",
-   "regularisation",
-   "tree-based methods",
-   "SVM",
-   "unsupervised learning",
-   "Python labs"
-  ],
-  "approxHours": 60,
-  "cost": "Free PDF download from the official site",
-  "why": "The best free textbook for classical ML: readable, with worked examples and Python labs that match the Stanford videos.",
-  "caveats": "A real textbook, so read selectively. The site hosts both the R and Python editions; download the Python (ISLP) one. The labs use the ISLP Python package.",
-  "year": 2023,
-  "status": "verified",
-  "listId": "",
-  "videoId": ""
- },
- {
-  "id": "alexey-grigorev-datatalks-club-machine-learning-zoomcamp",
-  "title": "Machine Learning Zoomcamp",
-  "creator": "Alexey Grigorev, DataTalks.Club",
-  "platform": "GitHub",
-  "type": "course",
-  "url": "https://github.com/DataTalksClub/machine-learning-zoomcamp",
-  "firstVideoUrl": "",
-  "language": "english",
-  "level": "intermediate",
-  "modules": [
-   "l2-regression",
-   "l2-classification",
-   "l2-metrics-tuning",
-   "l2-trees-ensembles",
-   "l2-feature-eng"
-  ],
-  "topics": [
-   "regression project",
-   "classification project",
-   "evaluation metrics for classification",
-   "decision trees and ensemble learning",
-   "XGBoost",
-   "end-to-end ML project",
-   "deployment with FastAPI/Docker"
-  ],
-  "approxHours": 60,
-  "cost": "Free (pre-recorded videos on YouTube); certificate also free but requires two projects plus peer reviews during the yearly live cohort",
-  "why": "A free, current (2026 cohort) project-first course. You build real regression and classification projects, evaluate and tune tree models and deploy them, matching the end-to-end skills in this track.",
-  "caveats": "Needs basic Python. Modules 8-10 move into deep learning, serverless and Kubernetes, beyond this track. Videos: youtube.com/playlist?list=PL3MmuxUbc_hIhxl5Ji8t4O6lPAOpHaCLR (linked from the README).",
-  "year": 2026,
-  "status": "verified",
-  "listId": "",
   "videoId": ""
  },
  {
@@ -4415,35 +5341,6 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
-  "id": "kaggle-dan-becker-kaggle-learn-machine-learning-explaina",
-  "title": "Kaggle Learn: Machine Learning Explainability",
-  "creator": "Kaggle (Dan Becker)",
-  "platform": "Kaggle",
-  "type": "course",
-  "url": "https://www.kaggle.com/learn/machine-learning-explainability",
-  "firstVideoUrl": "",
-  "language": "english",
-  "level": "intermediate",
-  "modules": [
-   "l2-trees-ensembles"
-  ],
-  "topics": [
-   "use cases for model insights",
-   "permutation importance",
-   "partial dependence plots",
-   "SHAP values",
-   "advanced uses of SHAP"
-  ],
-  "approxHours": 4,
-  "cost": "Free (free certificate)",
-  "why": "A hands-on introduction to SHAP and feature importance for tree models, exactly what you need to explain a random forest or XGBoost model to a business stakeholder.",
-  "caveats": "The SHAP library API has changed (newer shap.Explainer interface). The site was not opened in this run.",
-  "year": 0,
-  "status": "verified",
-  "listId": "",
-  "videoId": ""
- },
- {
   "id": "yury-kashnitsky-and-opendatascience-ods-ai-mlcourse-ai-o",
   "title": "mlcourse.ai - Open Machine Learning Course",
   "creator": "Yury Kashnitsky and OpenDataScience (ods.ai)",
@@ -4477,6 +5374,38 @@ window.AIM.resources = [
   "videoId": "DrohHdQa8u8"
  },
  {
+  "id": "kaggle-ryan-holbrook-kaggle-learn-feature-engineering",
+  "title": "Kaggle Learn: Feature Engineering",
+  "creator": "Kaggle (Ryan Holbrook)",
+  "platform": "Kaggle",
+  "type": "course",
+  "url": "https://www.kaggle.com/learn/feature-engineering",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l2-unsupervised",
+   "l2-feature-eng"
+  ],
+  "topics": [
+   "what is feature engineering",
+   "mutual information",
+   "creating features",
+   "clustering with K-Means as features",
+   "PCA for features",
+   "target encoding",
+   "feature engineering for House Prices"
+  ],
+  "approxHours": 5,
+  "cost": "Free (free certificate)",
+  "why": "The best short, hands-on course on turning columns into better features, including using K-Means and PCA as feature tools. It ends with the House Prices competition.",
+  "caveats": "Do Intro and Intermediate ML first. The site was not opened in this run.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "krish-naik-hindi-end-to-end-ml-projects-playlist-hindi",
   "title": "End To End ML Projects (Hindi)",
   "creator": "Krish Naik (Krish Naik Hindi channel)",
@@ -4507,6 +5436,34 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "PLTDARY42LDV7jzL_f68SY-eOQ9tY2lYvR",
   "videoId": "NuwUnRpxq2c"
+ },
+ {
+  "id": "analytics-vidhya-analytics-vidhya-datahack-indian-hackat",
+  "title": "Analytics Vidhya DataHack - Indian hackathons and practice problems",
+  "creator": "Analytics Vidhya",
+  "platform": "Analytics Vidhya",
+  "type": "practice",
+  "url": "https://datahack.analyticsvidhya.com/",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "intermediate",
+  "modules": [
+   "l2-feature-eng",
+   "l4-research-career"
+  ],
+  "topics": [
+   "hackathons",
+   "practice problems",
+   "Indian business datasets"
+  ],
+  "approxHours": 0,
+  "cost": "Free to participate (Analytics Vidhya also sells paid programmes)",
+  "why": "India's best-known data-science community runs hackathons and practice problems with Indian business data (loans, retail, telecom).",
+  "caveats": "Analytics Vidhya restructures its site often, so this subdomain may redirect or have moved; check the 'free' label on anything you join.",
+  "year": 0,
+  "status": "partial",
+  "listId": "",
+  "videoId": ""
  },
  {
   "id": "krish-naik-end-to-end-ml-projects-playlist-english",
@@ -4594,6 +5551,34 @@ window.AIM.resources = [
   "videoId": "uMlU2JaiOd8"
  },
  {
+  "id": "kaggle-house-prices-advanced-regression-techniques-kaggl",
+  "title": "House Prices - Advanced Regression Techniques (Kaggle starter competition)",
+  "creator": "Kaggle",
+  "platform": "Kaggle",
+  "type": "practice",
+  "url": "https://www.kaggle.com/c/house-prices-advanced-regression-techniques",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l2-feature-eng"
+  ],
+  "topics": [
+   "regression",
+   "feature engineering",
+   "missing values",
+   "gradient boosting"
+  ],
+  "approxHours": 10,
+  "cost": "Free",
+  "why": "The standard playground for feature-engineering practice and the dataset used by Kaggle's Feature Engineering course.",
+  "caveats": "US (Iowa) housing; repeat the workflow on the Bengaluru dataset for an Indian portfolio project.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "kaggle-kaggle-competitions-getting-started-and-playgroun",
   "title": "Kaggle Competitions (Getting Started and Playground)",
   "creator": "Kaggle",
@@ -4604,7 +5589,8 @@ window.AIM.resources = [
   "language": "english",
   "level": "intermediate",
   "modules": [
-   "l2-feature-eng"
+   "l2-feature-eng",
+   "l4-research-career"
   ],
   "topics": [
    "Kaggle approach",
@@ -4617,38 +5603,6 @@ window.AIM.resources = [
   "cost": "Free",
   "why": "Where you practise everything in this track on real datasets. Start with the Getting Started competitions (Titanic, House Prices) and the Playground series, and learn from top public notebooks.",
   "caveats": "Chasing the leaderboard can teach you to overfit the public leaderboard, so trust your own cross-validation. The site was not opened in this run.",
-  "year": 0,
-  "status": "verified",
-  "listId": "",
-  "videoId": ""
- },
- {
-  "id": "kaggle-ryan-holbrook-kaggle-learn-feature-engineering",
-  "title": "Kaggle Learn: Feature Engineering",
-  "creator": "Kaggle (Ryan Holbrook)",
-  "platform": "Kaggle",
-  "type": "course",
-  "url": "https://www.kaggle.com/learn/feature-engineering",
-  "firstVideoUrl": "",
-  "language": "english",
-  "level": "intermediate",
-  "modules": [
-   "l2-feature-eng",
-   "l2-unsupervised"
-  ],
-  "topics": [
-   "what is feature engineering",
-   "mutual information",
-   "creating features",
-   "clustering with K-Means as features",
-   "PCA for features",
-   "target encoding",
-   "feature engineering for House Prices"
-  ],
-  "approxHours": 5,
-  "cost": "Free (free certificate)",
-  "why": "The best short, hands-on course on turning columns into better features, including using K-Means and PCA as feature tools. It ends with the House Prices competition.",
-  "caveats": "Do Intro and Intermediate ML first. The site was not opened in this run.",
   "year": 0,
   "status": "verified",
   "listId": "",
@@ -4727,48 +5681,6 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
-  "id": "microsoft-ai-for-beginners-12-week-curriculum-hindi-tran",
-  "title": "AI for Beginners: 12-week curriculum (Hindi translation)",
-  "creator": "Microsoft",
-  "platform": "GitHub",
-  "type": "course",
-  "url": "https://github.com/microsoft/AI-For-Beginners/blob/main/translations/hi/README.md",
-  "firstVideoUrl": "",
-  "language": "hindi",
-  "level": "beginner",
-  "modules": [
-   "l3-nn-basics",
-   "l3-pytorch",
-   "l3-cv",
-   "l4-gen-vision"
-  ],
-  "topics": [
-   "perceptron",
-   "multi-layer perceptron",
-   "building your own framework",
-   "PyTorch and TensorFlow intro",
-   "overfitting",
-   "OpenCV",
-   "CNN",
-   "CNN architectures",
-   "transfer learning",
-   "autoencoders and VAEs",
-   "GANs",
-   "style transfer",
-   "object detection",
-   "U-Net segmentation",
-   "CLIP"
-  ],
-  "approxHours": 0,
-  "cost": "Free",
-  "why": "A structured, hands-on text curriculum with notebooks, labs and quizzes, and the lessons are in Hindi. It is one of the few Hindi resources that reaches autoencoders, VAEs, GANs and CLIP, with PyTorch notebooks for most lessons.",
-  "caveats": "The Hindi text is machine-translated by Microsoft's Co-op Translator, and the page carries an automated-translation disclaimer. Notebooks and code stay in English. English original: https://github.com/microsoft/AI-For-Beginners. There are no videos; run the notebooks on Colab or Kaggle. The object detection lesson is TensorFlow-only. Diffusion models are not covered.",
-  "year": 0,
-  "status": "verified",
-  "listId": "",
-  "videoId": ""
- },
- {
   "id": "krish-naik-hindi-deep-learning-playlist-in-hindi",
   "title": "Deep Learning Playlist in Hindi",
   "creator": "Krish Naik Hindi",
@@ -4841,7 +5753,8 @@ window.AIM.resources = [
   "level": "beginner",
   "modules": [
    "l3-nn-basics",
-   "l3-cv"
+   "l3-cv",
+   "l3-pytorch"
   ],
   "topics": [
    "neurons",
@@ -4906,6 +5819,66 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "carnegie-mellon-university-bhiksha-raj-cmu-11-785-introd",
+  "title": "CMU 11-785 Introduction to Deep Learning (course site)",
+  "creator": "Carnegie Mellon University (Bhiksha Raj)",
+  "platform": "Website",
+  "type": "course",
+  "url": "https://deeplearning.cs.cmu.edu/S24/index.html",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "expert",
+  "modules": [
+   "l3-nn-basics",
+   "l4-research-career"
+  ],
+  "topics": [
+   "MLPs",
+   "backprop",
+   "CNNs",
+   "RNNs",
+   "attention and transformers",
+   "graded homework"
+  ],
+  "approxHours": 150,
+  "cost": "Free (materials public)",
+  "why": "One of the most demanding DL courses, taught by an Indian-origin professor; homework builds a mini PyTorch from scratch.",
+  "caveats": "Very heavy workload; this link is the Spring 2024 site.",
+  "year": 2024,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "stanford-university-cs231n-deep-learning-for-computer-vi",
+  "title": "CS231n: Deep Learning for Computer Vision - course notes",
+  "creator": "Stanford University",
+  "platform": "Website",
+  "type": "article",
+  "url": "https://cs231n.github.io/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l3-nn-basics",
+   "l3-cv"
+  ],
+  "topics": [
+   "image classification",
+   "backprop intuition",
+   "CNN architectures",
+   "transfer learning"
+  ],
+  "approxHours": 20,
+  "cost": "Free",
+  "why": "Stanford's legendary CNN notes; the backprop and ConvNet pages are still among the best written explanations.",
+  "caveats": "Written for university students; assignments assume strong Python/NumPy.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "andrew-ng-deeplearning-ai-deep-learning-specialization-l",
   "title": "Deep Learning Specialization lectures (official DeepLearningAI channel)",
   "creator": "Andrew Ng / DeepLearning.AI",
@@ -4935,6 +5908,74 @@ window.AIM.resources = [
   "why": "Andrew Ng's well-known course, uploaded free by his own company. Course 1 (Neural Networks and Deep Learning) and Course 2 (Improving Deep Neural Networks) are calm, classic explanations of every topic in this module.",
   "caveats": "Recorded in 2017-18. The programming assignments are not on YouTube. This links to the channel's Playlists page; pick Course 1 and Course 2 there.",
   "year": 2017,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "ashok-pant-devanagari-mnist-devanagari-character-dataset",
+  "title": "Devanagari MNIST / Devanagari Character Dataset (large)",
+  "creator": "Ashok Pant",
+  "platform": "Kaggle",
+  "type": "dataset",
+  "url": "https://www.kaggle.com/ashokpant/devanagari-character-dataset-large",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l3-nn-basics",
+   "l3-cv"
+  ],
+  "topics": [
+   "handwritten Devanagari characters",
+   "image classification",
+   "CNN practice"
+  ],
+  "approxHours": 4,
+  "cost": "Free (free Kaggle account needed)",
+  "why": "An Indian-script alternative to MNIST: train your first neural network or CNN to read handwritten Devanagari letters and digits.",
+  "caveats": "Created by Nepal-based researchers, so handwriting style may differ from Hindi writers in India; check the Kaggle page for licence before reuse. Old-style Kaggle link that redirects.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "aston-zhang-zachary-lipton-mu-li-alexander-smola-dive-in",
+  "title": "Dive into Deep Learning (interactive book)",
+  "creator": "Aston Zhang, Zachary Lipton, Mu Li, Alexander Smola",
+  "platform": "Website",
+  "type": "book",
+  "url": "https://d2l.ai/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l3-nn-basics",
+   "l3-pytorch",
+   "l3-cv",
+   "l3-nlp",
+   "l3-transformers"
+  ],
+  "topics": [
+   "linear networks",
+   "MLP",
+   "dropout",
+   "numerical stability and vanishing gradients",
+   "optimisation algorithms",
+   "PyTorch implementations",
+   "CNNs",
+   "modern CNNs (ResNet)",
+   "augmentation and fine-tuning",
+   "object detection",
+   "semantic segmentation",
+   "attention and ViT"
+  ],
+  "approxHours": 0,
+  "cost": "Free online (print book paid)",
+  "why": "Every concept comes with runnable PyTorch code, so you learn theory and implementation together. It is used in many university courses and is a great reference while you build models.",
+  "caveats": "Dense and long, so use it as a companion. It has several framework tabs; choose PyTorch. The current edition dates from 2023.",
+  "year": 2023,
   "status": "verified",
   "listId": "",
   "videoId": ""
@@ -4971,6 +6012,35 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "mit-opencourseware-mit-6-7960-deep-learning-fall-2024-oc",
+  "title": "MIT 6.7960 Deep Learning (Fall 2024, OCW)",
+  "creator": "MIT OpenCourseWare",
+  "platform": "MIT OpenCourseWare",
+  "type": "course",
+  "url": "https://ocw.mit.edu/courses/6-7960-deep-learning-fall-2024/video_galleries/lecture-videos/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l3-nn-basics",
+   "l4-research-career"
+  ],
+  "topics": [
+   "deep learning theory",
+   "architectures",
+   "generative models",
+   "scaling"
+  ],
+  "approxHours": 40,
+  "cost": "Free",
+  "why": "A recent MIT graduate deep-learning course for depth after the practical courses.",
+  "caveats": "Graduate level.",
+  "year": 2024,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "alexander-amini-ava-amini-mit-mit-6-s191-introduction-to",
   "title": "MIT 6.S191 Introduction to Deep Learning",
   "creator": "Alexander Amini & Ava Amini (MIT)",
@@ -5001,6 +6071,40 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "PLtBw6njQRU-rwp5__7C0oIVt26ZgjG9NI",
   "videoId": "njKP3FqW3Sk"
+ },
+ {
+  "id": "alexander-amini-and-ava-amini-mit-mit-6-s191-introductio",
+  "title": "MIT 6.S191: Introduction to Deep Learning",
+  "creator": "Alexander Amini and Ava Amini, MIT",
+  "platform": "Website + YouTube",
+  "type": "course",
+  "url": "https://introtodeeplearning.com/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l3-nn-basics",
+   "l3-cv",
+   "l3-nlp",
+   "l4-gen-vision",
+   "l4-rl",
+   "l4-research-career"
+  ],
+  "topics": [
+   "deep learning overview",
+   "deep generative modeling",
+   "deep reinforcement learning",
+   "LLMs",
+   "hands-on labs"
+  ],
+  "approxHours": 10,
+  "cost": "Free",
+  "why": "A short MIT bootcamp refreshed every year, with lectures on generative models, RL and LLMs. A fast, polished overview before the longer Stanford and CMU courses.",
+  "caveats": "Overview depth only; the labs need Python. A lecture playlist is https://www.youtube.com/playlist?list=PLtBw6njQRU-rwp5__7C0oIVt26ZgjG9NI, but which year's edition it holds was not verified; the website links the current year. The per-year lecture topics were not re-checked.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
  },
  {
   "id": "3blue1brown-grant-sanderson-neural-networks-deep-learnin",
@@ -5065,6 +6169,34 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "michael-nielsen-neural-networks-and-deep-learning-free-o",
+  "title": "Neural Networks and Deep Learning (free online book)",
+  "creator": "Michael Nielsen",
+  "platform": "Book",
+  "type": "book",
+  "url": "https://neuralnetworksanddeeplearning.com/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l3-nn-basics"
+  ],
+  "topics": [
+   "perceptrons and sigmoid neurons",
+   "backpropagation derivation",
+   "cost functions",
+   "why deep nets are hard to train"
+  ],
+  "approxHours": 20,
+  "cost": "Free",
+  "why": "The clearest written explanation of backpropagation, with interactive figures and code written from scratch.",
+  "caveats": "Code is Python 2-era NumPy; concepts are timeless.",
+  "year": 2015,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "andrej-karpathy-neural-networks-zero-to-hero-micrograd-t",
   "title": "Neural Networks: Zero to Hero",
   "creator": "Andrej Karpathy",
@@ -5101,31 +6233,62 @@ window.AIM.resources = [
   "videoId": "VMj-3S1tku0"
  },
  {
-  "id": "google-tensorflow-team-tensorflow-playground-interactive",
-  "title": "TensorFlow Playground (interactive neural network)",
-  "creator": "Google (TensorFlow team)",
+  "id": "andrej-karpathy-neural-networks-zero-to-hero-course-page",
+  "title": "Neural Networks: Zero to Hero (course page)",
+  "creator": "Andrej Karpathy",
   "platform": "Website",
-  "type": "tool",
-  "url": "https://playground.tensorflow.org/",
+  "type": "course",
+  "url": "https://karpathy.ai/zero-to-hero.html",
   "firstVideoUrl": "",
   "language": "english",
-  "level": "beginner",
+  "level": "advanced",
   "modules": [
-   "l3-nn-basics"
+   "l3-nn-basics",
+   "l3-transformers"
   ],
   "topics": [
-   "neurons and hidden layers",
-   "activation functions",
-   "learning rate",
-   "regularisation",
-   "overfitting",
-   "decision boundaries"
+   "micrograd backprop from scratch",
+   "makemore language models",
+   "building GPT from scratch",
+   "tokenizers"
   ],
-  "approxHours": 1,
-  "cost": "Free, runs in the browser",
-  "why": "Train a real neural network in your browser by clicking. Changing layers, activations and learning rate shows overfitting and convergence instantly, with no installation or code. It is the most interactive way to start this module.",
-  "caveats": "Toy 2-D datasets only. It builds intuition, not real projects.",
-  "year": 2016,
+  "approxHours": 20,
+  "cost": "Free",
+  "why": "Build backprop and then a GPT from scratch in plain Python/PyTorch with one of the field's best teachers.",
+  "caveats": "Videos are hosted on YouTube; needs comfortable Python and some calculus.",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "fast-ai-jeremy-howard-practical-deep-learning-for-coders",
+  "title": "Practical Deep Learning for Coders (fast.ai)",
+  "creator": "fast.ai (Jeremy Howard)",
+  "platform": "fast.ai",
+  "type": "course",
+  "url": "https://course.fast.ai/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l3-nn-basics",
+   "l3-cv",
+   "l3-nlp"
+  ],
+  "topics": [
+   "image classification",
+   "deployment",
+   "tabular models",
+   "NLP",
+   "collaborative filtering",
+   "neural nets from scratch"
+  ],
+  "approxHours": 50,
+  "cost": "Free",
+  "why": "Top-down teaching: you train working models in lesson 1, then learn how they work. Free notebooks and the fastbook online.",
+  "caveats": "Current edition is from 2022 and uses the fastai library; best done on free Kaggle/Colab GPUs.",
+  "year": 2022,
   "status": "verified",
   "listId": "",
   "videoId": ""
@@ -5168,35 +6331,6 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
-  "id": "campusx-nitish-singh-campusx-youtube-channel-find-its-py",
-  "title": "CampusX YouTube channel (find its PyTorch for Deep Learning playlist)",
-  "creator": "CampusX (Nitish Singh)",
-  "platform": "YouTube",
-  "type": "channel",
-  "url": "https://www.youtube.com/@campusx-official",
-  "firstVideoUrl": "",
-  "language": "hinglish",
-  "level": "beginner",
-  "modules": [
-   "l3-pytorch"
-  ],
-  "topics": [
-   "tensors",
-   "autograd",
-   "Dataset and DataLoader",
-   "training loop",
-   "building neural networks in PyTorch"
-  ],
-  "approxHours": 0,
-  "cost": "Free on YouTube",
-  "why": "CampusX's PyTorch series continues its Hindi deep learning course in the same careful style. It is the likeliest Hindi route from Keras-style theory to real PyTorch code.",
-  "caveats": "Only the channel URL is verified. No GitHub source listed the exact PyTorch playlist URL, and the web-search budget ran out, so the playlist's existence, contents and topic list were not confirmed. Open the channel's Playlists tab and look for the PyTorch series.",
-  "year": 0,
-  "status": "partial",
-  "listId": "",
-  "videoId": ""
- },
- {
   "id": "aakash-n-s-jovian-published-by-freecodecamp-org-deep-lea",
   "title": "Deep Learning with PyTorch: Zero to GANs",
   "creator": "Aakash N S (Jovian), published by freeCodeCamp.org",
@@ -5228,43 +6362,6 @@ window.AIM.resources = [
   "year": 2020,
   "status": "verified",
   "listId": "PLWKjhJtqVAbm3T2Eq1_KgloC7ogdXxdRa",
-  "videoId": ""
- },
- {
-  "id": "aston-zhang-zachary-lipton-mu-li-alexander-smola-dive-in",
-  "title": "Dive into Deep Learning (interactive book)",
-  "creator": "Aston Zhang, Zachary Lipton, Mu Li, Alexander Smola",
-  "platform": "Website",
-  "type": "book",
-  "url": "https://d2l.ai/",
-  "firstVideoUrl": "",
-  "language": "english",
-  "level": "intermediate",
-  "modules": [
-   "l3-pytorch",
-   "l3-cv"
-  ],
-  "topics": [
-   "linear networks",
-   "MLP",
-   "dropout",
-   "numerical stability and vanishing gradients",
-   "optimisation algorithms",
-   "PyTorch implementations",
-   "CNNs",
-   "modern CNNs (ResNet)",
-   "augmentation and fine-tuning",
-   "object detection",
-   "semantic segmentation",
-   "attention and ViT"
-  ],
-  "approxHours": 0,
-  "cost": "Free online (print book paid)",
-  "why": "Every concept comes with runnable PyTorch code, so you learn theory and implementation together. It is used in many university courses and is a great reference while you build models.",
-  "caveats": "Dense and long, so use it as a companion. It has several framework tabs; choose PyTorch. The current edition dates from 2023.",
-  "year": 2023,
-  "status": "verified",
-  "listId": "",
   "videoId": ""
  },
  {
@@ -5459,6 +6556,36 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "nptel-iit-kharagpur-deep-learning-for-visual-computing-n",
+  "title": "Deep Learning for Visual Computing (NPTEL, IIT Kharagpur)",
+  "creator": "NPTEL / IIT Kharagpur",
+  "platform": "NPTEL",
+  "type": "course",
+  "url": "https://nptel.ac.in/courses/108/105/108105103/",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "advanced",
+  "modules": [
+   "l3-cv"
+  ],
+  "topics": [
+   "CNNs",
+   "image classification",
+   "object detection",
+   "segmentation",
+   "autoencoders",
+   "GANs"
+  ],
+  "approxHours": 40,
+  "cost": "Free to learn; NPTEL certificate exam paid (fee not re-verified, see caveats)",
+  "why": "An IIT course on deep learning for images taught by Indian faculty, with assignments.",
+  "caveats": "Lectures and assignments are free. The optional proctored certificate exam is paid; NPTEL has long charged about Rs 1,000 per course exam, but this fee could NOT be re-verified in this session (web-search budget exhausted, nptel.ac.in unreachable) - confirm on nptel.ac.in before registering. This link uses NPTEL's older three-part URL format, which may redirect or break (course id 108105103). Older recording; pre-dates vision transformers.",
+  "year": 0,
+  "status": "partial",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "prof-vineeth-n-balasubramanian-iit-hyderabad-nptel-nptel",
   "title": "NPTEL Deep Learning for Computer Vision (IIT Hyderabad)",
   "creator": "Prof. Vineeth N Balasubramanian, IIT Hyderabad (NPTEL)",
@@ -5594,6 +6721,34 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "zenitsu09-indian-number-plate-images-with-plate-text-and",
+  "title": "Indian number plate images with plate text and bounding boxes",
+  "creator": "zenitsu09",
+  "platform": "Hugging Face",
+  "type": "dataset",
+  "url": "https://huggingface.co/datasets/zenitsu09/indian-number-plate",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l3-cv"
+  ],
+  "topics": [
+   "number plate detection",
+   "OCR",
+   "object detection",
+   "YOLO fine-tuning"
+  ],
+  "approxHours": 8,
+  "cost": "Free (no licence stated)",
+  "why": "About 1,700 Indian vehicle plate images with plate text, state and box coordinates - a compact dataset for an ANPR (automatic number plate recognition) project.",
+  "caveats": "No licence or dataset card; small dataset. Box coordinates are stored as text, so convert them to numbers. Plate images can identify people's vehicles, so do not publish raw images (DPDP-sensitive).",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "kaggle-ryan-holbrook-kaggle-learn-computer-vision",
   "title": "Kaggle Learn: Computer Vision",
   "creator": "Kaggle (Ryan Holbrook)",
@@ -5660,6 +6815,35 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "ultralytics-ultralytics-yolo-docs-quickstart",
+  "title": "Ultralytics YOLO docs - Quickstart",
+  "creator": "Ultralytics",
+  "platform": "Website",
+  "type": "tool",
+  "url": "https://docs.ultralytics.com/quickstart",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l3-cv"
+  ],
+  "topics": [
+   "YOLO object detection",
+   "segmentation",
+   "pose",
+   "training on custom data",
+   "export and deploy"
+  ],
+  "approxHours": 6,
+  "cost": "Free (open source, AGPL-3.0)",
+  "why": "The official, up-to-date way to train YOLO detectors on your own images (for example Indian number plates) in a few lines of Python.",
+  "caveats": "AGPL-3.0 licence: a commercial product built on it needs an Ultralytics Enterprise License or must be open-sourced. Model versions change quickly (the 2026 README banner promotes YOLO27 while examples still show YOLO26).",
+  "year": 2026,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "ultralytics-ultralytics-yolo-documentation-yolo26",
   "title": "Ultralytics YOLO documentation (YOLO26)",
   "creator": "Ultralytics",
@@ -5691,32 +6875,32 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
-  "id": "krish-naik-krish-naik-hindi-channel-krish-naik-hindi-cha",
-  "title": "Krish Naik Hindi channel (Hindi NLP tutorial series)",
-  "creator": "Krish Naik (Krish Naik Hindi channel)",
-  "platform": "YouTube",
-  "type": "channel",
-  "url": "https://www.youtube.com/@krishnaikhindi/playlists",
+  "id": "hugging-face-hindi-translation-by-pandyaved98-hugging-fa",
+  "title": "Hugging Face Course, Hindi translation (chapters 0, 1, 3 and the chapter 2 intro)",
+  "creator": "Hugging Face (Hindi translation by @pandyaved98)",
+  "platform": "Hugging Face",
+  "type": "course",
+  "url": "https://huggingface.co/course/hi/chapter1/1",
   "firstVideoUrl": "",
-  "language": "hinglish",
+  "language": "hindi",
   "level": "beginner",
   "modules": [
-   "l3-nlp"
+   "l3-nlp",
+   "l3-transformers"
   ],
   "topics": [
-   "NLP roadmap",
-   "tokenisation",
-   "stemming vs lemmatisation",
-   "Bag of Words",
-   "n-grams",
-   "TF-IDF"
+   "what transformers can do",
+   "how transformers work",
+   "encoder, decoder and sequence-to-sequence models",
+   "bias and limitations",
+   "fine-tuning a pretrained model"
   ],
   "approxHours": 0,
-  "cost": "Free on YouTube",
-  "why": "Krish Naik's Hindi channel is a second Hindi voice for the basics of turning text into numbers. His companion GitHub repo krishnaik06/NLP-In-Hindi exists.",
-  "caveats": "Links to the channel's Playlists tab because no Hindi NLP playlist URL could be confirmed. Krish Naik's own materials README still lists 'Complete Deep Learning And NLP Playlist Hindi: Coming soon', so look for the NLP videos on the channel. The individual tutorial video links in the proposal were removed because they could not be re-verified. Classical NLP only.",
+  "cost": "Free",
+  "why": "A rare official-site Hindi (Devanagari) version of the Hugging Face course. A Hindi-first learner can read what transformers are, encoder vs decoder models and fine-tuning in Hindi, then switch to English.",
+  "caveats": "Marked WIP. Translated so far: chapter 0, all of chapter 1, only the introduction of chapter 2, and chapter 3; everything else is English only. Text, not video. The old /course URLs now redirect to the newer LLM Course, so check that the Hindi page still opens and expect it to lag the English version.",
   "year": 0,
-  "status": "partial",
+  "status": "verified",
   "listId": "",
   "videoId": ""
  },
@@ -5754,6 +6938,34 @@ window.AIM.resources = [
   "videoId": "zlUpTlaxAKI"
  },
  {
+  "id": "government-of-india-bhashini-mission-meity-bhashini-ulca",
+  "title": "Bhashini ULCA - Indian language datasets and models platform",
+  "creator": "Government of India (Bhashini mission, MeitY)",
+  "platform": "Website",
+  "type": "dataset",
+  "url": "https://bhashini.gov.in/ulca",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "advanced",
+  "modules": [
+   "l3-nlp",
+   "l4-research-career"
+  ],
+  "topics": [
+   "Indian-language datasets",
+   "speech and translation data",
+   "government language AI platform"
+  ],
+  "approxHours": 0,
+  "cost": "Free (registration may be needed for some data)",
+  "why": "Added by the fact-checker: the government's open platform for Indian-language datasets and models, a natural complement to data.gov.in for NLP projects.",
+  "caveats": "Link taken from a community catalog; the Bhashini site has been reorganised several times, so the ULCA page may have moved. AIKosh (IndiaAI's dataset platform) could not be verified this session.",
+  "year": 0,
+  "status": "partial",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "krish-naik-complete-nlp-playlist-natural-language-proces",
   "title": "Complete NLP Playlist (Natural Language Processing)",
   "creator": "Krish Naik",
@@ -5784,6 +6996,150 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "PLZoTAELRMXVMdJ5sqbCK2LiM0HhQVWNzm",
   "videoId": "fM4qTMfCoak"
+ },
+ {
+  "id": "microsoft-research-india-gluecos-code-switched-nlp-bench",
+  "title": "GLUECoS - code-switched NLP benchmark (incl. Hindi-English sentiment)",
+  "creator": "Microsoft Research India",
+  "platform": "GitHub",
+  "type": "dataset",
+  "url": "https://microsoft.github.io/GLUECoS",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "advanced",
+  "modules": [
+   "l3-nlp",
+   "l4-research-career"
+  ],
+  "topics": [
+   "code-mixed NLP",
+   "Hinglish sentiment",
+   "NER",
+   "POS",
+   "NLI",
+   "QA"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "The standard research benchmark for Hinglish NLP tasks, useful once you want to compare models properly.",
+  "caveats": "Hard to set up: the download script asks for Twitter/X developer keys (now paid) for some tasks; treat as research-only.",
+  "year": 2020,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "shae2977-hinglish-youtube-comments-sentiment-dataset-cod",
+  "title": "Hinglish YouTube comments sentiment dataset (code-mixed Hindi-English)",
+  "creator": "shae2977",
+  "platform": "Hugging Face",
+  "type": "dataset",
+  "url": "https://huggingface.co/datasets/shae2977/hinglish-youtube-sentiments-dataset",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "intermediate",
+  "modules": [
+   "l3-nlp",
+   "l3-transformers"
+  ],
+  "topics": [
+   "Hinglish",
+   "code-mixed sentiment analysis",
+   "XLM-RoBERTa fine-tuning"
+  ],
+  "approxHours": 4,
+  "cost": "Free (CC-BY-4.0)",
+  "why": "3,190 manually labelled Roman-script Hinglish comments (negative/neutral/positive) - realistic code-mixed text that is easy to download.",
+  "caveats": "Small 2026 community dataset; check label quality on a sample before trusting results.",
+  "year": 2026,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "ai4bharat-indicbert-v2-mlm-only-bert-model-for-23-indian",
+  "title": "IndicBERT v2 (MLM-only) - BERT model for 23 Indian languages",
+  "creator": "AI4Bharat",
+  "platform": "Hugging Face",
+  "type": "tool",
+  "url": "https://huggingface.co/ai4bharat/IndicBERTv2-MLM-only",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "advanced",
+  "modules": [
+   "l3-nlp",
+   "l3-transformers"
+  ],
+  "topics": [
+   "fine-tuning BERT",
+   "Indian-language classification",
+   "IndicXTREME"
+  ],
+  "approxHours": 6,
+  "cost": "Free (MIT licence)",
+  "why": "A pretrained BERT built for Indian languages; fine-tune it on IndicSentiment or Naamapadam for a strong Hindi classifier or NER model.",
+  "caveats": "Encoder-only (classification/NER), not a chat model.",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "ai4bharat-indiccorp-v2-monolingual-corpus-for-22-indian-",
+  "title": "IndicCorp v2 - monolingual corpus for 22+ Indian languages (incl. Sanskrit)",
+  "creator": "AI4Bharat",
+  "platform": "Hugging Face",
+  "type": "dataset",
+  "url": "https://huggingface.co/datasets/ai4bharat/IndicCorpV2",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "advanced",
+  "modules": [
+   "l3-nlp",
+   "l3-transformers"
+  ],
+  "topics": [
+   "word embeddings",
+   "language model pretraining",
+   "tokenizer training",
+   "Sanskrit and Hindi text"
+  ],
+  "approxHours": 0,
+  "cost": "Free (check the licence section on the card)",
+  "why": "About 20 billion tokens of Indian-language text; take the Hindi (hin_Deva) or Sanskrit (san_Deva) split to train Word2Vec or a BPE tokenizer.",
+  "caveats": "Very large (each big language split is about 2 GB as Parquet); load one language folder at a time as the card shows (data_dir='data/tel_Telu' style).",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "ai4bharat-indicsentiment-product-reviews-in-english-and-",
+  "title": "IndicSentiment - product reviews in English and 10+ Indian languages",
+  "creator": "AI4Bharat",
+  "platform": "Hugging Face",
+  "type": "dataset",
+  "url": "https://huggingface.co/datasets/ai4bharat/IndicSentiment",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "intermediate",
+  "modules": [
+   "l3-nlp",
+   "l3-transformers"
+  ],
+  "topics": [
+   "sentiment analysis",
+   "Hindi and Indian languages",
+   "multilingual classification"
+  ],
+  "approxHours": 6,
+  "cost": "Free",
+  "why": "Parallel English and Indian-language product reviews with sentiment labels - good for a Hindi sentiment classifier or for fine-tuning IndicBERT.",
+  "caveats": "Small evaluation-sized dataset (part of the IndicXTREME benchmark); no licence on the card. It still uses an old Python loading script (the Hub viewer refuses to run it), so recent versions of the datasets library may not load it with load_dataset - download the files from the repo's Files tab instead.",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
  },
  {
   "id": "krish-naik-nlp-live-series-classical-nlp-to-rnn-lstm-enc",
@@ -5856,6 +7212,181 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "ai4bharat-naamapadam-indian-language-named-entity-recogn",
+  "title": "Naamapadam - Indian-language named entity recognition dataset",
+  "creator": "AI4Bharat",
+  "platform": "Hugging Face",
+  "type": "dataset",
+  "url": "https://huggingface.co/datasets/ai4bharat/naamapadam",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "advanced",
+  "modules": [
+   "l3-nlp",
+   "l3-transformers"
+  ],
+  "topics": [
+   "NER",
+   "token classification",
+   "11 Indian languages"
+  ],
+  "approxHours": 0,
+  "cost": "Free (CC0-1.0)",
+  "why": "About 5.8M NER-tagged sentences in 11 Indian languages (about 1M in Hindi) for fine-tuning IndicBERT on extracting names, places and organisations.",
+  "caveats": "Labels are machine-generated (projected), so they contain noise.",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "nptel-iit-bombay-natural-language-processing-nptel-iit-b",
+  "title": "Natural Language Processing (NPTEL, IIT Bombay - Prof. Pushpak Bhattacharyya)",
+  "creator": "NPTEL / IIT Bombay",
+  "platform": "NPTEL",
+  "type": "course",
+  "url": "https://nptel.ac.in/courses/106101007/",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "advanced",
+  "modules": [
+   "l3-nlp"
+  ],
+  "topics": [
+   "morphology",
+   "POS tagging",
+   "parsing",
+   "semantics",
+   "machine translation",
+   "Indian language NLP"
+  ],
+  "approxHours": 40,
+  "cost": "Free to learn; NPTEL certificate exam paid (fee not re-verified, see caveats)",
+  "why": "Classic linguistics-heavy NLP from India's leading NLP professor, with many Hindi/Marathi examples.",
+  "caveats": "Lectures and assignments are free. The optional proctored certificate exam is paid; NPTEL has long charged about Rs 1,000 per course exam, but this fee could NOT be re-verified in this session (web-search budget exhausted, nptel.ac.in unreachable) - confirm on nptel.ac.in before registering. Old recording (pre-deep-learning era); use it for linguistic foundations, not for modern transformer NLP.",
+  "year": 0,
+  "status": "partial",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "ai4bharat-samanantar-english-indic-parallel-corpus-49-6m",
+  "title": "Samanantar - English-Indic parallel corpus (49.6M sentence pairs)",
+  "creator": "AI4Bharat",
+  "platform": "Hugging Face",
+  "type": "dataset",
+  "url": "https://huggingface.co/datasets/ai4bharat/samanantar",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "advanced",
+  "modules": [
+   "l3-nlp",
+   "l3-transformers"
+  ],
+  "topics": [
+   "machine translation",
+   "seq2seq",
+   "11 Indian languages"
+  ],
+  "approxHours": 0,
+  "cost": "Free (CC-BY-NC-4.0, non-commercial)",
+  "why": "The largest public English-Indian language translation corpus; use a small slice (e.g. the Hindi config) to train a seq2seq/attention translator.",
+  "caveats": "Huge (the Hindi config alone is about 10M pairs / 1.9 GB) - stream or sample it; non-commercial licence.",
+  "year": 2021,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "google-research-india-kaggle-chaii-hindi-and-tamil-quest",
+  "title": "chaii - Hindi and Tamil Question Answering (Kaggle competition)",
+  "creator": "Google Research India / Kaggle",
+  "platform": "Kaggle",
+  "type": "practice",
+  "url": "https://www.kaggle.com/c/chaii-hindi-and-tamil-question-answering/overview",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "advanced",
+  "modules": [
+   "l3-nlp",
+   "l3-transformers"
+  ],
+  "topics": [
+   "extractive question answering",
+   "Hindi NLP",
+   "fine-tuning multilingual transformers"
+  ],
+  "approxHours": 10,
+  "cost": "Free (free Kaggle account)",
+  "why": "Added by the fact-checker: a real Indian-language NLP competition with about 1,100 Hindi and Tamil questions and many public solution notebooks to learn from.",
+  "caveats": "The competition ended in 2021; data and notebooks remain viewable, but late-submission rules should be checked on the page.",
+  "year": 2021,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "ines-montani-explosion-advanced-nlp-with-spacy-free-inte",
+  "title": "Advanced NLP with spaCy (free interactive course)",
+  "creator": "Ines Montani (Explosion)",
+  "platform": "Website",
+  "type": "course",
+  "url": "https://course.spacy.io",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l3-nlp"
+  ],
+  "topics": [
+   "tokenisation",
+   "POS and NER",
+   "rule-based matching",
+   "processing pipelines",
+   "training custom models"
+  ],
+  "approxHours": 6,
+  "cost": "Free",
+  "why": "Interactive in-browser exercises for practical NLP pipelines (tokenisation, NER) - the classic preprocessing skills.",
+  "caveats": "Targets spaCy v3 APIs; English-only examples.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "hugging-face-hugging-face-llm-course-formerly-the-nlp-co-2",
+  "title": "Hugging Face LLM Course (formerly the NLP Course)",
+  "creator": "Hugging Face",
+  "platform": "Hugging Face Learn",
+  "type": "course",
+  "url": "https://huggingface.co/learn/llm-course/chapter1/1",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l3-nlp",
+   "l3-transformers",
+   "l4-llm-apps"
+  ],
+  "topics": [
+   "transformers library",
+   "pipelines",
+   "tokenizers (BPE, WordPiece)",
+   "datasets library",
+   "fine-tuning BERT",
+   "LLM fine-tuning and reasoning"
+  ],
+  "approxHours": 40,
+  "cost": "Free",
+  "why": "The official course for the transformers, datasets and tokenizers libraries - exactly the tools used in these modules.",
+  "caveats": "Assumes Python and basic deep learning; some chapters still have older TensorFlow tabs.",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "anoop-kunchukuttan-indic-nlp-library-python-text-process",
   "title": "Indic NLP Library (Python text processing for Indian languages)",
   "creator": "Anoop Kunchukuttan",
@@ -5916,6 +7447,34 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "rahul-aralikatte-et-al-itihasa-sanskrit-english-translat",
+  "title": "Itihasa - Sanskrit-English translation corpus (Ramayana and Mahabharata)",
+  "creator": "Rahul Aralikatte et al.",
+  "platform": "Hugging Face",
+  "type": "dataset",
+  "url": "https://huggingface.co/datasets/rahular/itihasa",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l3-nlp",
+   "l3-transformers"
+  ],
+  "topics": [
+   "Sanskrit NLP",
+   "machine translation",
+   "seq2seq fine-tuning"
+  ],
+  "approxHours": 6,
+  "cost": "Free (Apache-2.0)",
+  "why": "93,000 Sanskrit shlokas with English translations, already split into train/validation/test - a uniquely Indian translation project.",
+  "caveats": "Translations come from M. N. Dutt's 19th-century English, so the style is archaic and even strong models score low. If load_dataset complains about a loading script, use the auto-converted Parquet files.",
+  "year": 2021,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "lena-voita-nlp-course-for-you-word-embeddings-text-class",
   "title": "NLP Course | For You (word embeddings, text classification, language models, seq2seq and attention)",
   "creator": "Lena Voita",
@@ -5940,6 +7499,34 @@ window.AIM.resources = [
   "why": "A free, beautifully illustrated course with animations, small interactive elements and 'research thinking' exercises on embeddings, language models and seq2seq with attention. Good reading next to video lectures.",
   "caveats": "Text, no videos. Written around 2020, so it stops near transformers. The link opens the word-embeddings lecture; other lectures are linked from that page.",
   "year": 2020,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "kaggle-natural-language-processing-learn-guide-kaggle",
+  "title": "Natural Language Processing learn guide (Kaggle)",
+  "creator": "Kaggle",
+  "platform": "Kaggle",
+  "type": "article",
+  "url": "https://www.kaggle.com/learn-guide/natural-language-processing",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l3-nlp"
+  ],
+  "topics": [
+   "text preprocessing",
+   "BoW and TF-IDF",
+   "embeddings",
+   "transformers on Kaggle"
+  ],
+  "approxHours": 6,
+  "cost": "Free",
+  "why": "Kaggle's curated NLP path of notebooks and competitions; lets you practise on free GPUs.",
+  "caveats": "A guide to notebooks rather than a structured course with exercises.",
+  "year": 0,
   "status": "verified",
   "listId": "",
   "videoId": ""
@@ -6015,6 +7602,38 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "stanford-university-chris-manning-stanford-cs224n-nlp-wi",
+  "title": "Stanford CS224N: NLP with Deep Learning (course site)",
+  "creator": "Stanford University (Chris Manning)",
+  "platform": "Website",
+  "type": "course",
+  "url": "https://web.stanford.edu/class/cs224n/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l3-nlp",
+   "l3-transformers",
+   "l4-research-career"
+  ],
+  "topics": [
+   "word vectors",
+   "RNNs and LSTMs",
+   "seq2seq and attention",
+   "transformers",
+   "pretraining",
+   "LLM topics"
+  ],
+  "approxHours": 80,
+  "cost": "Free (slides, notes and assignments public)",
+  "why": "The gold-standard university NLP course; slides, readings and assignments are open on the site.",
+  "caveats": "Graduate level; lecture videos are on YouTube (Stanford Online).",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "ai4bharat-and-contributors-the-indic-nlp-catalog",
   "title": "The Indic NLP Catalog",
   "creator": "AI4Bharat and contributors",
@@ -6025,7 +7644,8 @@ window.AIM.resources = [
   "language": "english",
   "level": "intermediate",
   "modules": [
-   "l3-nlp"
+   "l3-nlp",
+   "l4-research-career"
   ],
   "topics": [
    "Indian-language NLP datasets",
@@ -6037,35 +7657,6 @@ window.AIM.resources = [
   "cost": "Free",
   "why": "The most complete single map of datasets, models and tools for Indian languages. The place to start any Hindi or Indic NLP project.",
   "caveats": "A list of links, not a tutorial; some entries are from 2021-22. The Indic NLP Library README points to the same catalog under github.com/indicnlpweb/indicnlp_catalog (same content).",
-  "year": 0,
-  "status": "verified",
-  "listId": "",
-  "videoId": ""
- },
- {
-  "id": "hugging-face-hindi-translation-by-pandyaved98-hugging-fa",
-  "title": "Hugging Face Course, Hindi translation (chapters 0, 1, 3 and the chapter 2 intro)",
-  "creator": "Hugging Face (Hindi translation by @pandyaved98)",
-  "platform": "Hugging Face",
-  "type": "course",
-  "url": "https://huggingface.co/course/hi/chapter1/1",
-  "firstVideoUrl": "",
-  "language": "hindi",
-  "level": "beginner",
-  "modules": [
-   "l3-transformers"
-  ],
-  "topics": [
-   "what transformers can do",
-   "how transformers work",
-   "encoder, decoder and sequence-to-sequence models",
-   "bias and limitations",
-   "fine-tuning a pretrained model"
-  ],
-  "approxHours": 0,
-  "cost": "Free",
-  "why": "A rare official-site Hindi (Devanagari) version of the Hugging Face course. A Hindi-first learner can read what transformers are, encoder vs decoder models and fine-tuning in Hindi, then switch to English.",
-  "caveats": "Marked WIP. Translated so far: chapter 0, all of chapter 1, only the introduction of chapter 2, and chapter 3; everything else is English only. Text, not video. The old /course URLs now redirect to the newer LLM Course, so check that the Hindi page still opens and expect it to lag the English version.",
   "year": 0,
   "status": "verified",
   "listId": "",
@@ -6247,6 +7838,35 @@ window.AIM.resources = [
   "videoId": "wjZofJX0v4M"
  },
  {
+  "id": "deeplearning-ai-jay-alammar-maarten-grootendorst-how-tra",
+  "title": "How Transformer LLMs Work (short course)",
+  "creator": "DeepLearning.AI (Jay Alammar, Maarten Grootendorst)",
+  "platform": "DeepLearning.AI",
+  "type": "course",
+  "url": "https://www.deeplearning.ai/short-courses/how-transformer-llms-work/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l3-transformers"
+  ],
+  "topics": [
+   "tokenizers",
+   "embeddings",
+   "attention",
+   "transformer blocks",
+   "mixture of experts"
+  ],
+  "approxHours": 2,
+  "cost": "Free to watch with a free account",
+  "why": "A visual 2025 short course on what happens inside a GPT-style model, from the authors of Hands-On LLMs.",
+  "caveats": "Conceptual; little hands-on training.",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "hugging-face-hugging-face-llm-course-formerly-the-nlp-co",
   "title": "Hugging Face LLM Course (formerly the NLP Course)",
   "creator": "Hugging Face",
@@ -6273,6 +7893,63 @@ window.AIM.resources = [
   "cost": "Free",
   "why": "Hugging Face's own free, hands-on course for pipelines, tokenizers and fine-tuning in Colab. The transformers documentation recommends it as the place to start, and it now also covers fine-tuning LLMs and reasoning.",
   "caveats": "Code-first; needs basic Python. Some embedded clips date from the 2021-22 NLP Course video playlist: https://www.youtube.com/playlist?list=PLo2EIpI_JMQvWfQndUesu0nPBAtZ9gP1o. The newer LLM chapters change quickly.",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "google-cloud-introduction-to-large-language-models-googl",
+  "title": "Introduction to Large Language Models (Google Cloud Skills Boost)",
+  "creator": "Google Cloud",
+  "platform": "Google Cloud Skills Boost",
+  "type": "course",
+  "url": "https://www.cloudskillsboost.google/paths/118/course_templates/539",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l3-transformers",
+   "l4-llm-apps"
+  ],
+  "topics": [
+   "what LLMs are",
+   "prompt tuning",
+   "LLM use cases"
+  ],
+  "approxHours": 1,
+  "cost": "Free (free badge)",
+  "why": "A no-code 1-hour overview of LLMs and prompt tuning for founders and beginners.",
+  "caveats": "Promotes Google Cloud tools.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "deeplearning-ai-predibase-reinforcement-fine-tuning-llms",
+  "title": "Reinforcement Fine-Tuning LLMs with GRPO (short course)",
+  "creator": "DeepLearning.AI + Predibase",
+  "platform": "DeepLearning.AI",
+  "type": "course",
+  "url": "https://www.deeplearning.ai/courses/reinforcement-fine-tuning-llms-grpo",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l3-transformers",
+   "l4-rl"
+  ],
+  "topics": [
+   "RL for LLMs",
+   "GRPO",
+   "reward functions",
+   "verifiable rewards"
+  ],
+  "approxHours": 2,
+  "cost": "Free to watch with a free account",
+  "why": "Builds intuition for how RL is used to train reasoning LLMs today (GRPO), linking the RL module to LLMs.",
+  "caveats": "Uses the Predibase platform for parts of the demo.",
   "year": 2025,
   "status": "verified",
   "listId": "",
@@ -6313,36 +7990,6 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
-  "id": "stanford-online-stanford-cs25-transformers-united-semina",
-  "title": "Stanford CS25: Transformers United (seminar talks)",
-  "creator": "Stanford Online",
-  "platform": "YouTube",
-  "type": "playlist",
-  "url": "https://www.youtube.com/playlist?list=PLoROMvodv4rNiJRchCzutFw5ItR_Z27CM",
-  "firstVideoUrl": "",
-  "language": "english",
-  "level": "expert",
-  "modules": [
-   "l3-transformers",
-   "l4-llm-internals"
-  ],
-  "topics": [
-   "overview and history of transformers",
-   "transformers in language, vision and RL",
-   "scaling transformers",
-   "interpretability",
-   "current LLM research talks"
-  ],
-  "approxHours": 0,
-  "cost": "Free on YouTube",
-  "why": "Stanford's seminar where researchers from leading labs present transformer research. Once you know the basics, it is a free window onto where the field is going.",
-  "caveats": "Seminar talks, not a structured course. The playlist collects talks from several years (from 2021 on), so older talks are dated; pick recent ones first. Which versions and speakers are included was not re-checked in this session.",
-  "year": 0,
-  "status": "verified",
-  "listId": "PLoROMvodv4rNiJRchCzutFw5ItR_Z27CM",
-  "videoId": ""
- },
- {
   "id": "jay-alammar-the-illustrated-transformer-plus-the-illustr",
   "title": "The Illustrated Transformer (plus The Illustrated BERT)",
   "creator": "Jay Alammar",
@@ -6368,6 +8015,43 @@ window.AIM.resources = [
   "why": "The most widely used illustrated walkthrough of 'Attention Is All You Need'; its diagrams of Q/K/V and multi-head attention are reused in courses everywhere.",
   "caveats": "Written in 2018, so it covers the original transformer, not modern changes like RoPE or grouped-query attention. Companion posts: https://jalammar.github.io/illustrated-bert/ and, for NLP, https://jalammar.github.io/illustrated-word2vec/.",
   "year": 2018,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "maxime-labonne-the-llm-course-llm-scientist-llm-engineer",
+  "title": "The LLM Course (LLM Scientist + LLM Engineer roadmaps with notebooks)",
+  "creator": "Maxime Labonne",
+  "platform": "GitHub",
+  "type": "course",
+  "url": "https://github.com/mlabonne/llm-course",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l3-transformers",
+   "l4-llm-apps",
+   "l4-finetuning",
+   "l4-agents"
+  ],
+  "topics": [
+   "SFT, LoRA, QLoRA",
+   "preference alignment (DPO, GRPO, PPO)",
+   "LLM evaluation",
+   "quantization (GGUF, GPTQ, AWQ)",
+   "RAG and advanced RAG",
+   "vector storage",
+   "agents and MCP",
+   "inference optimization",
+   "deployment",
+   "LLM security"
+  ],
+  "approxHours": 0,
+  "cost": "Free (the companion LLM Engineer's Handbook is a paid book, optional)",
+  "why": "The best free map of the whole LLM field, linking curated articles and Colab notebooks (fine-tuning, DPO, GGUF quantization). It is ideal once you can code and want depth.",
+  "caveats": "A reading roadmap with notebooks, not a video course. Dense, assumes Python and ML basics, and some notebooks use 2023-24 models (Llama 2, Mistral-7B).",
+  "year": 2025,
   "status": "verified",
   "listId": "",
   "videoId": ""
@@ -6403,30 +8087,62 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
-  "id": "campusx-nitish-singh-campusx-fastapi-playlist-companion-",
-  "title": "CampusX FastAPI playlist: companion code (insurance premium API)",
-  "creator": "CampusX (Nitish Singh)",
-  "platform": "GitHub",
-  "type": "practice",
-  "url": "https://github.com/campusx-official/fastapi-demo-api",
+  "id": "google-cloud-transformer-models-and-bert-model-google-cl",
+  "title": "Transformer Models and BERT Model (Google Cloud Skills Boost)",
+  "creator": "Google Cloud",
+  "platform": "Google Cloud Skills Boost",
+  "type": "course",
+  "url": "https://www.cloudskillsboost.google/course_templates/538",
   "firstVideoUrl": "",
-  "language": "hinglish",
+  "language": "english",
   "level": "intermediate",
   "modules": [
-   "l3-mlops"
+   "l3-transformers"
   ],
   "topics": [
-   "FastAPI",
-   "Pydantic",
-   "ML model serving",
-   "Streamlit frontend"
+   "transformer architecture",
+   "self-attention",
+   "BERT pretraining",
+   "BERT fine-tuning tasks"
+  ],
+  "approxHours": 1,
+  "cost": "Free (free badge)",
+  "why": "A compact explanation of BERT vs the original transformer with a lab, ideal before fine-tuning BERT yourself.",
+  "caveats": "Lab uses Vertex AI/Google Cloud; you can skip the lab and use Colab instead.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "hugging-face-a-smol-course-instruction-tuning-evaluation",
+  "title": "a smol course (instruction tuning, evaluation, DPO preference alignment, VLMs)",
+  "creator": "Hugging Face",
+  "platform": "GitHub",
+  "type": "course",
+  "url": "https://github.com/huggingface/smol-course",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l3-transformers",
+   "l4-llm-apps",
+   "l4-finetuning"
+  ],
+  "topics": [
+   "instruction tuning with SmolLM3",
+   "chat templates",
+   "evaluation",
+   "DPO preference alignment",
+   "fine-tuning vision-language models",
+   "reinforcement learning (unit 5)"
   ],
   "approxHours": 0,
-  "cost": "Free (GitHub)",
-  "why": "Code for CampusX's free FastAPI playlist: an insurance-premium model served with FastAPI, plus a Streamlit frontend. CampusX is one of the most trusted Hinglish ML teachers.",
-  "caveats": "This is a code repo only. It has no README and no link to the videos, so a non-coder cannot learn from it alone. Search YouTube for 'CampusX FastAPI' to find the videos; the playlist URL could not be verified. A companion repo, github.com/campusx-official/insurance-premium-prediction-fastapi, also exists. The same account has separate 'fastapi-course' and 'fastapi-project' repos, forked from another user, that may belong to a paid course; ignore those.",
-  "year": 0,
-  "status": "partial",
+  "cost": "Free, including free certification (an optional Hugging Face Pro subscription is suggested for GPU access; small models also run on free Colab)",
+  "why": "A practical post-training course on small models that run on modest hardware, with a dedicated preference-alignment (DPO) unit and hands-on exercises.",
+  "caveats": "Code-first; best after HF LLM Course chapter 11. Assumes Python, PyTorch and transformers. The schedule and leaderboard were tied to a 2025 cohort. The README says it will be re-released on Hugging Face Learn.",
+  "year": 2025,
+  "status": "verified",
   "listId": "",
   "videoId": ""
  },
@@ -6456,35 +8172,6 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "",
   "videoId": "KF-rDqQfqz0"
- },
- {
-  "id": "krish-naik-hindi-krish-naik-hindi-channel-career-roadmap",
-  "title": "Krish Naik Hindi channel: career, roadmap and interview videos",
-  "creator": "Krish Naik Hindi",
-  "platform": "YouTube",
-  "type": "channel",
-  "url": "https://www.youtube.com/@krishnaikhindi",
-  "firstVideoUrl": "",
-  "language": "hinglish",
-  "level": "beginner",
-  "modules": [
-   "l3-mlops",
-   "l4-research-career"
-  ],
-  "topics": [
-   "AI career roadmaps",
-   "data science / AI jobs in India",
-   "interview preparation",
-   "Hindi project playlists"
-  ],
-  "approxHours": 0,
-  "cost": "Free on YouTube",
-  "why": "The largest Hinglish source of AI roadmaps and career guidance aimed at Indian job seekers, and the home of the Hindi end-to-end project playlist.",
-  "caveats": "This is a channel, not a structured course, so you have to pick the career and interview videos yourself. Some videos promote his paid programmes. There is no Hindi content on reading research papers or ML system design.",
-  "year": 0,
-  "status": "verified",
-  "listId": "",
-  "videoId": ""
  },
  {
   "id": "krish-naik-complete-dockers-in-one-shot",
@@ -6812,6 +8499,37 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "chip-huyen-machine-learning-systems-design-free-booklet",
+  "title": "Machine Learning Systems Design (free booklet)",
+  "creator": "Chip Huyen",
+  "platform": "Website (free online booklet)",
+  "type": "book",
+  "url": "https://huyenchip.com/machine-learning-systems-design/toc.html",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l3-mlops",
+   "l4-research-career"
+  ],
+  "topics": [
+   "ML system design process",
+   "project setup",
+   "data pipelines",
+   "modeling",
+   "serving",
+   "27 system design interview questions"
+  ],
+  "approxHours": 5,
+  "cost": "Free",
+  "why": "A short, free introduction to the steps of ML system design. It ends with 27 open-ended design questions to practise with.",
+  "caveats": "Marked as work in progress and dates from around 2019. The author says her 2022 O'Reilly book Designing Machine Learning Systems (paid) is 'much more comprehensive and up-to-date'. The free CS329S course notes (listed separately) are a deeper free option.",
+  "year": 2019,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "datatalksclub-alexey-grigorev-machine-learning-zoomcamp-",
   "title": "Machine Learning Zoomcamp: Deployment modules (5 Deployment, 9 Serverless, 10 Kubernetes)",
   "creator": "DataTalksClub (Alexey Grigorev)",
@@ -6854,7 +8572,8 @@ window.AIM.resources = [
   "language": "english",
   "level": "advanced",
   "modules": [
-   "l3-mlops"
+   "l3-mlops",
+   "l4-research-career"
   ],
   "topics": [
    "ML system design",
@@ -7216,6 +8935,35 @@ window.AIM.resources = [
   "videoId": "l8pRSuU81PU"
  },
  {
+  "id": "stanford-online-stanford-cs25-transformers-united-semina",
+  "title": "Stanford CS25: Transformers United (seminar talks)",
+  "creator": "Stanford Online",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLoROMvodv4rNiJRchCzutFw5ItR_Z27CM",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "expert",
+  "modules": [
+   "l4-llm-internals"
+  ],
+  "topics": [
+   "overview and history of transformers",
+   "transformers in language, vision and RL",
+   "scaling transformers",
+   "interpretability",
+   "current LLM research talks"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "Stanford's seminar where researchers from leading labs present transformer research. Once you know the basics, it is a free window onto where the field is going.",
+  "caveats": "Seminar talks, not a structured course. The playlist collects talks from several years (from 2021 on), so older talks are dated; pick recent ones first. Which versions and speakers are included was not re-checked in this session.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLoROMvodv4rNiJRchCzutFw5ItR_Z27CM",
+  "videoId": ""
+ },
+ {
   "id": "stanford-online-stanford-cs336-language-modeling-from-sc",
   "title": "Stanford CS336: Language Modeling from Scratch (Spring 2026)",
   "creator": "Stanford Online",
@@ -7488,6 +9236,36 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "anthropic-anthropic-courses-api-fundamentals-prompt-engi",
+  "title": "Anthropic courses (API fundamentals, prompt engineering, prompt evals, tool use)",
+  "creator": "Anthropic",
+  "platform": "GitHub",
+  "type": "course",
+  "url": "https://github.com/anthropics/courses/tree/master",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-llm-apps",
+   "l4-agents"
+  ],
+  "topics": [
+   "Claude API basics",
+   "prompt engineering interactive tutorial",
+   "real-world prompting",
+   "prompt evaluations",
+   "tool use / function calling"
+  ],
+  "approxHours": 15,
+  "cost": "Free course material (running the notebooks needs a paid API key; costs are small)",
+  "why": "Five notebook courses from Anthropic, including an excellent interactive prompt-engineering tutorial and a tool-use course.",
+  "caveats": "Notebooks favour the older Claude 3 Haiku model (README says so) - swap in a current model id.",
+  "year": 2024,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "anthropic-academy-building-with-the-claude-api",
   "title": "Building with the Claude API",
   "creator": "Anthropic Academy",
@@ -7521,6 +9299,35 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "gsms-b-community-upload-from-india-code-central-gst-act-",
+  "title": "Central GST Act 2017 - structured text (JSON + official PDF)",
+  "creator": "GSMS-B (community upload from India Code)",
+  "platform": "Hugging Face",
+  "type": "dataset",
+  "url": "https://huggingface.co/datasets/GSMS-B/indian-law-central-goods-and-services-tax-act-2017",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-llm-apps",
+   "l4-agents"
+  ],
+  "topics": [
+   "GST law",
+   "Indian legal text",
+   "RAG corpus",
+   "legal Q&A chatbot"
+  ],
+  "approxHours": 4,
+  "cost": "Free (CC-BY-4.0)",
+  "why": "The CGST Act as structured JSON (the card reports 190 sections extracted) plus the official PDF - a ready corpus for an Indian 'GST helper' RAG chatbot.",
+  "caveats": "Very new community upload (updated 18 Oct 2026, about 36 downloads). Acts are amended often and CBIC circulars/notifications/rate schedules are not included - always cite the official text; not legal advice.",
+  "year": 2026,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "deeplearning-ai-with-openai-andrew-ng-isa-fulford-chatgp",
   "title": "ChatGPT Prompt Engineering for Developers",
   "creator": "DeepLearning.AI with OpenAI (Andrew Ng, Isa Fulford)",
@@ -7546,6 +9353,91 @@ window.AIM.resources = [
   "why": "The classic one-hour-plus short course on writing clear prompts, with an in-browser notebook so you do not need to install anything.",
   "caveats": "Recorded in 2023 with gpt-3.5-era models and the older OpenAI Python API, so the code is dated. The prompting principles still hold.",
   "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "chroma-chroma-open-source-vector-database",
+  "title": "Chroma - open-source vector database",
+  "creator": "Chroma",
+  "platform": "Website",
+  "type": "tool",
+  "url": "https://www.trychroma.com/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-llm-apps"
+  ],
+  "topics": [
+   "vector database",
+   "embeddings storage",
+   "metadata filtering",
+   "RAG retrieval"
+  ],
+  "approxHours": 2,
+  "cost": "Free (open source; paid cloud optional)",
+  "why": "The easiest vector database to start a RAG project with in a few lines of Python.",
+  "caveats": "Hosted Chroma Cloud is paid; use the local open-source version.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "meta-ai-research-faiss-vector-similarity-search-library",
+  "title": "FAISS - vector similarity search library",
+  "creator": "Meta AI Research",
+  "platform": "Website",
+  "type": "tool",
+  "url": "https://faiss.ai/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-llm-apps"
+  ],
+  "topics": [
+   "vector search",
+   "embeddings index",
+   "nearest neighbour search"
+  ],
+  "approxHours": 2,
+  "cost": "Free (open source)",
+  "why": "The standard in-memory vector index used inside many RAG systems; teaches how semantic search works under the hood.",
+  "caveats": "Library only (no server/database features).",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "google-gemini-api-documentation-free-tier",
+  "title": "Gemini API documentation (free tier)",
+  "creator": "Google",
+  "platform": "Google AI for Developers",
+  "type": "tool",
+  "url": "https://ai.google.dev/gemini-api/docs",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-llm-apps",
+   "l4-agents"
+  ],
+  "topics": [
+   "LLM API",
+   "structured output",
+   "function calling",
+   "embeddings",
+   "long context"
+  ],
+  "approxHours": 3,
+  "cost": "Free tier available (rate-limited); paid beyond limits",
+  "why": "One of the most generous free LLM API tiers, so learners can build RAG and agents without paying.",
+  "caveats": "Free-tier limits and data-use terms change; free-tier prompts may be used to improve Google products - do not send personal data.",
+  "year": 0,
   "status": "verified",
   "listId": "",
   "videoId": ""
@@ -7583,6 +9475,63 @@ window.AIM.resources = [
   "why": "A gentle, lesson-by-lesson course with a short video per lesson and Python/TypeScript code. It has a full Hindi translation of the written lessons, which suits a non-coder moving into LLM apps. Lesson 18 is a plain-language intro to fine-tuning.",
   "caveats": "Videos are in English. The Hindi text is under translations/hi/README.md. Lessons 19-21 show 'Video Coming Soon'. The README says GitHub Models retired at the end of July 2026, so in October 2026 the 'githubmodels' code variants no longer work; use Microsoft Foundry Models, the OpenAI API or Foundry Local. Some lessons lean on Azure.",
   "year": 2026,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "deeplearning-ai-dottxt-getting-structured-llm-output-sho",
+  "title": "Getting Structured LLM Output (short course)",
+  "creator": "DeepLearning.AI + DotTxt",
+  "platform": "DeepLearning.AI",
+  "type": "course",
+  "url": "https://www.deeplearning.ai/short-courses/getting-structured-llm-output/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-llm-apps",
+   "l4-agents"
+  ],
+  "topics": [
+   "JSON mode",
+   "structured outputs",
+   "constrained decoding",
+   "Pydantic schemas"
+  ],
+  "approxHours": 1.5,
+  "cost": "Free to watch with a free account",
+  "why": "Directly covers getting reliable JSON from LLMs for real apps.",
+  "caveats": "Library-specific (Outlines/Instructor) sections may date quickly.",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "groq-groq-fast-inference-for-open-models",
+  "title": "Groq - fast inference for open models",
+  "creator": "Groq",
+  "platform": "Website",
+  "type": "tool",
+  "url": "https://groq.com/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-llm-apps",
+   "l4-agents"
+  ],
+  "topics": [
+   "LLM API",
+   "open models",
+   "low-latency inference"
+  ],
+  "approxHours": 1,
+  "cost": "Free developer tier (rate-limited)",
+  "why": "Very fast API for open models - handy for agent loops where speed matters.",
+  "caveats": "Free-tier limits change; model list rotates.",
+  "year": 0,
   "status": "verified",
   "listId": "",
   "videoId": ""
@@ -7674,6 +9623,126 @@ window.AIM.resources = [
   "why": "Evaluation is the most-skipped part of building LLM apps. This free, video-based course from an open-source evaluation-tool company teaches how to judge and test LLM outputs.",
   "caveats": "The lesson list, length and sign-up requirements were not checked. The course may promote Evidently's own tools, though the concepts are tool-neutral.",
   "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "datatalks-club-alexey-grigorev-llm-zoomcamp-datatalks-cl",
+  "title": "LLM Zoomcamp (DataTalks.Club)",
+  "creator": "DataTalks.Club (Alexey Grigorev)",
+  "platform": "GitHub",
+  "type": "course",
+  "url": "https://github.com/DataTalksClub/llm-zoomcamp",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-llm-apps",
+   "l4-agents"
+  ],
+  "topics": [
+   "RAG",
+   "vector search",
+   "evaluation",
+   "monitoring",
+   "agents",
+   "end-to-end project"
+  ],
+  "approxHours": 50,
+  "cost": "Free (free certificate in live cohort)",
+  "why": "Free bootcamp where you build a complete RAG application with evaluation and monitoring, graded by peers.",
+  "caveats": "Cohort-based deadlines for certificates; materials remain open. Needs comfortable Python.",
+  "year": 2026,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "langchain-langchain-documentation-v1",
+  "title": "LangChain documentation (v1)",
+  "creator": "LangChain",
+  "platform": "Website",
+  "type": "tool",
+  "url": "https://docs.langchain.com/oss/python/langchain/overview",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-llm-apps",
+   "l4-agents"
+  ],
+  "topics": [
+   "models and prompts",
+   "retrieval",
+   "tools",
+   "agents",
+   "structured output"
+  ],
+  "approxHours": 4,
+  "cost": "Free (open source)",
+  "why": "Current official docs - use these instead of 2023-era tutorials, because LangChain's API changed a lot.",
+  "caveats": "The framework changes fast; always check the version a tutorial uses.",
+  "year": 2026,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "deeplearning-ai-langchain-harrison-chase-andrew-ng-langc",
+  "title": "LangChain for LLM Application Development",
+  "creator": "DeepLearning.AI + LangChain (Harrison Chase, Andrew Ng)",
+  "platform": "DeepLearning.AI",
+  "type": "course",
+  "url": "https://www.deeplearning.ai/short-courses/langchain-for-llm-application-development/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-llm-apps"
+  ],
+  "topics": [
+   "models, prompts and parsers",
+   "memory",
+   "chains",
+   "question answering over documents",
+   "evaluation",
+   "agents"
+  ],
+  "approxHours": 1.5,
+  "cost": "Free to watch with a free account",
+  "why": "Quick tour of LangChain's core ideas by its creator - useful for vocabulary.",
+  "caveats": "OUTDATED API: recorded in 2023 with LangChain 0.0.x; code will not run as-is on LangChain v1 (2025+). Watch for concepts, then code from the current LangChain docs.",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "ollama-ollama-run-open-llms-locally",
+  "title": "Ollama - run open LLMs locally",
+  "creator": "Ollama",
+  "platform": "Website",
+  "type": "tool",
+  "url": "https://ollama.com/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-llm-apps",
+   "l4-agents"
+  ],
+  "topics": [
+   "local open models",
+   "OpenAI-compatible API",
+   "embeddings",
+   "tool calling"
+  ],
+  "approxHours": 2,
+  "cost": "Free (open source)",
+  "why": "Run open models (Llama, Gemma, Qwen) on your own laptop with no API bill and no data leaving your machine - great for privacy-sensitive prototypes.",
+  "caveats": "Needs a reasonably powerful laptop (8-16 GB RAM for small models).",
+  "year": 0,
   "status": "verified",
   "listId": "",
   "videoId": ""
@@ -7777,38 +9846,61 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
-  "id": "maxime-labonne-the-llm-course-llm-scientist-llm-engineer",
-  "title": "The LLM Course (LLM Scientist + LLM Engineer roadmaps with notebooks)",
-  "creator": "Maxime Labonne",
-  "platform": "GitHub",
-  "type": "course",
-  "url": "https://github.com/mlabonne/llm-course",
+  "id": "ragas-exploding-gradients-ragas-rag-evaluation-docs-quic",
+  "title": "Ragas - RAG evaluation docs (quickstart)",
+  "creator": "Ragas (Exploding Gradients)",
+  "platform": "Website",
+  "type": "tool",
+  "url": "https://docs.ragas.io/en/latest/getstarted/quickstart",
   "firstVideoUrl": "",
   "language": "english",
   "level": "advanced",
   "modules": [
    "l4-llm-apps",
-   "l4-finetuning",
    "l4-agents"
   ],
   "topics": [
-   "SFT, LoRA, QLoRA",
-   "preference alignment (DPO, GRPO, PPO)",
-   "LLM evaluation",
-   "quantization (GGUF, GPTQ, AWQ)",
-   "RAG and advanced RAG",
-   "vector storage",
-   "agents and MCP",
-   "inference optimization",
-   "deployment",
-   "LLM security"
+   "RAG evaluation",
+   "faithfulness",
+   "context precision/recall",
+   "test-set generation"
   ],
-  "approxHours": 0,
-  "cost": "Free (the companion LLM Engineer's Handbook is a paid book, optional)",
-  "why": "The best free map of the whole LLM field, linking curated articles and Colab notebooks (fine-tuning, DPO, GGUF quantization). It is ideal once you can code and want depth.",
-  "caveats": "A reading roadmap with notebooks, not a video course. Dense, assumes Python and ML basics, and some notebooks use 2023-24 models (Llama 2, Mistral-7B).",
-  "year": 2025,
+  "approxHours": 3,
+  "cost": "Free (open source)",
+  "why": "The standard open-source toolkit for scoring RAG answers (faithfulness, relevance).",
+  "caveats": "Metrics use an LLM as judge, so they cost API calls and can be noisy.",
+  "year": 0,
   "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "deeplearning-ai-zain-hasan-retrieval-augmented-generatio",
+  "title": "Retrieval Augmented Generation (RAG) course",
+  "creator": "DeepLearning.AI (Zain Hasan)",
+  "platform": "DeepLearning.AI / Coursera (audit)",
+  "type": "course",
+  "url": "https://www.deeplearning.ai/courses/retrieval-augmented-generation",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-llm-apps"
+  ],
+  "topics": [
+   "retrievers",
+   "vector databases",
+   "hybrid search and reranking",
+   "agentic RAG",
+   "RAG evaluation",
+   "production RAG"
+  ],
+  "approxHours": 20,
+  "cost": "Probably free to audit on Coursera; certificate paid (not re-checked this session)",
+  "why": "A full 2025 course dedicated to RAG, from chunking and retrieval to evaluation and production concerns.",
+  "caveats": "Hosted via Coursera; graded labs/certificate need payment and free-audit access could not be confirmed.",
+  "year": 2025,
+  "status": "partial",
   "listId": "",
   "videoId": ""
  },
@@ -8015,31 +10107,32 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
-  "id": "hugging-face-a-smol-course-instruction-tuning-evaluation",
-  "title": "a smol course (instruction tuning, evaluation, DPO preference alignment, VLMs)",
-  "creator": "Hugging Face",
+  "id": "microsoft-cloud-advocates-ai-agents-for-beginners-hindi-",
+  "title": "AI Agents for Beginners (Hindi translation)",
+  "creator": "Microsoft Cloud Advocates",
   "platform": "GitHub",
   "type": "course",
-  "url": "https://github.com/huggingface/smol-course",
+  "url": "https://github.com/microsoft/ai-agents-for-beginners/blob/main/translations/hi/README.md",
   "firstVideoUrl": "",
-  "language": "english",
-  "level": "advanced",
+  "language": "hindi",
+  "level": "beginner",
   "modules": [
-   "l4-finetuning"
+   "l4-agents"
   ],
   "topics": [
-   "instruction tuning with SmolLM3",
-   "chat templates",
-   "evaluation",
-   "DPO preference alignment",
-   "fine-tuning vision-language models",
-   "reinforcement learning (unit 5)"
+   "agent design patterns",
+   "tool use",
+   "agentic RAG",
+   "planning",
+   "multi-agent",
+   "trustworthy agents",
+   "agent evaluation"
   ],
-  "approxHours": 0,
-  "cost": "Free, including free certification (an optional Hugging Face Pro subscription is suggested for GPU access; small models also run on free Colab)",
-  "why": "A practical post-training course on small models that run on modest hardware, with a dedicated preference-alignment (DPO) unit and hands-on exercises.",
-  "caveats": "Code-first; best after HF LLM Course chapter 11. Assumes Python, PyTorch and transformers. The schedule and leaderboard were tied to a 2025 cohort. The README says it will be re-released on Hugging Face Learn.",
-  "year": 2025,
+  "approxHours": 20,
+  "cost": "Free (open source)",
+  "why": "A lesson-by-lesson agents course with Hindi text - lets Hindi-first learners grasp agent patterns before writing code.",
+  "caveats": "AI-translated Hindi; code examples use Microsoft Agent Framework/Azure tools, which you can swap for free model APIs.",
+  "year": 2026,
   "status": "verified",
   "listId": "",
   "videoId": ""
@@ -8106,6 +10199,35 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "",
   "videoId": "Qu2Lm38yoNk"
+ },
+ {
+  "id": "microsoft-mcp-for-beginners-hindi-translation",
+  "title": "MCP for Beginners (Hindi translation)",
+  "creator": "Microsoft",
+  "platform": "GitHub",
+  "type": "course",
+  "url": "https://github.com/microsoft/mcp-for-beginners/blob/main/translations/hi/README.md",
+  "firstVideoUrl": "",
+  "language": "hindi",
+  "level": "intermediate",
+  "modules": [
+   "l4-agents"
+  ],
+  "topics": [
+   "MCP architecture",
+   "servers and clients",
+   "security",
+   "multi-language samples",
+   "real-world case studies"
+  ],
+  "approxHours": 20,
+  "cost": "Free (open source)",
+  "why": "A full Model Context Protocol curriculum with Hindi lesson text, updated for the 2026-07-28 MCP specification.",
+  "caveats": "AI-translated Hindi (Co-op Translator disclaimer on the page); code in Python/TypeScript/C#/Java stays English.",
+  "year": 2026,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
  },
  {
   "id": "campusx-nitish-singh-model-context-protocol-mcp-trilogy",
@@ -8384,6 +10506,34 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "chip-huyen-agents-essay-chip-huyen",
+  "title": "Agents (essay) - Chip Huyen",
+  "creator": "Chip Huyen",
+  "platform": "Website",
+  "type": "article",
+  "url": "https://huyenchip.com/2025/01/07/agents.html",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-agents"
+  ],
+  "topics": [
+   "agent = LLM + tools + planning",
+   "tool selection",
+   "planning failures",
+   "agent evaluation"
+  ],
+  "approxHours": 1,
+  "cost": "Free",
+  "why": "A clear, practical essay on how agents plan and fail - excellent conceptual grounding before frameworks.",
+  "caveats": "Text only.",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "deeplearning-ai-with-arize-ai-evaluating-ai-agents",
   "title": "Evaluating AI Agents",
   "creator": "DeepLearning.AI with Arize AI",
@@ -8446,6 +10596,37 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "hugging-face-hugging-face-ai-agents-course-2",
+  "title": "Hugging Face AI Agents Course",
+  "creator": "Hugging Face",
+  "platform": "Hugging Face Learn",
+  "type": "course",
+  "url": "https://huggingface.co/learn/agents-course/unit0/introduction",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-agents"
+  ],
+  "topics": [
+   "what agents are (LLM + tools + loop)",
+   "tool calling",
+   "smolagents",
+   "LlamaIndex agents",
+   "LangGraph",
+   "agentic RAG",
+   "final project and certificate"
+  ],
+  "approxHours": 30,
+  "cost": "Free, including free certificates",
+  "why": "One of the best free structured agents courses: covers the agent loop and three frameworks, with a certified final project.",
+  "caveats": "Live cohort ended; self-paced still works. Free-tier inference limits can slow exercises.",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "hugging-face-with-anthropic-hugging-face-mcp-course",
   "title": "Hugging Face MCP Course",
   "creator": "Hugging Face (with Anthropic)",
@@ -8477,8 +10658,8 @@ window.AIM.resources = [
  },
  {
   "id": "langchain-academy-introduction-to-langgraph-python",
-  "title": "Introduction to LangGraph (Python)",
-  "creator": "LangChain Academy",
+  "title": "Introduction to LangGraph (LangChain Academy)",
+  "creator": "LangChain",
   "platform": "LangChain Academy",
   "type": "course",
   "url": "https://academy.langchain.com/courses/intro-to-langgraph",
@@ -8489,21 +10670,17 @@ window.AIM.resources = [
    "l4-agents"
   ],
   "topics": [
-   "state and reducers",
-   "agent loop with tools",
-   "routers",
-   "memory (short and long term)",
-   "human-in-the-loop and breakpoints",
-   "streaming",
-   "sub-graphs",
-   "map-reduce and parallelism",
+   "state graphs",
+   "tool-calling agents",
+   "memory",
+   "human-in-the-loop",
    "multi-agent",
    "deployment"
   ],
   "approxHours": 6,
-  "cost": "Free to enroll on LangChain Academy (optional paid certification). The notebooks need an OpenAI API key (paid).",
-  "why": "The official LangGraph course from its creators, with videos plus notebooks for each lesson. It is the authoritative source for the framework most agent jobs use.",
-  "caveats": "Fast-paced and code-heavy, so do a Hindi LangGraph series first if you prefer Hindi. The proposer's '55 lessons, 6 hours' was not re-checked. Some exercises use LangSmith Studio (free tier).",
+  "cost": "Free",
+  "why": "The official free LangGraph course from the team that builds it, with notebooks for every module.",
+  "caveats": "LangGraph APIs change; the langchain-academy notebooks need Python 3.11-3.13.",
   "year": 2025,
   "status": "verified",
   "listId": "",
@@ -8538,6 +10715,93 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "langchain-langgraph-documentation",
+  "title": "LangGraph documentation",
+  "creator": "LangChain",
+  "platform": "Website",
+  "type": "tool",
+  "url": "https://docs.langchain.com/oss/python/langgraph/overview",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l4-agents"
+  ],
+  "topics": [
+   "durable execution",
+   "memory",
+   "interrupts / human-in-the-loop",
+   "multi-agent graphs"
+  ],
+  "approxHours": 4,
+  "cost": "Free (open source)",
+  "why": "Current reference for building controllable, stateful agents.",
+  "caveats": "Older docs on langchain-ai.github.io are outdated after the 2025 docs move.",
+  "year": 2026,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "uc-berkeley-dawn-song-xinyun-chen-large-language-model-a",
+  "title": "Large Language Model Agents MOOC (UC Berkeley, Fall 2024)",
+  "creator": "UC Berkeley (Dawn Song, Xinyun Chen)",
+  "platform": "Website",
+  "type": "course",
+  "url": "https://llmagents-learning.org/f24",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l4-agents",
+   "l4-research-career"
+  ],
+  "topics": [
+   "agent reasoning and planning",
+   "tool use",
+   "multi-agent",
+   "agent safety",
+   "research frontiers"
+  ],
+  "approxHours": 30,
+  "cost": "Free",
+  "why": "Guest lectures from top researchers on how agents work and where research is heading.",
+  "caveats": "Lecture-style (no step-by-step coding); later editions may exist on the same site.",
+  "year": 2024,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "microsoft-mcp-for-beginners-english",
+  "title": "MCP for Beginners (English)",
+  "creator": "Microsoft",
+  "platform": "GitHub",
+  "type": "course",
+  "url": "https://github.com/microsoft/mcp-for-beginners",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-agents"
+  ],
+  "topics": [
+   "MCP core concepts",
+   "building servers",
+   "clients",
+   "security best practices",
+   "deployment"
+  ],
+  "approxHours": 20,
+  "cost": "Free (open source)",
+  "why": "One of the most current MCP courses (teaches the 2026-07-28 spec) with samples in several languages.",
+  "caveats": "Large repo; start with the study guide.",
+  "year": 2026,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "deeplearning-ai-with-anthropic-mcp-build-rich-context-ai",
   "title": "MCP: Build Rich-Context AI Apps with Anthropic",
   "creator": "DeepLearning.AI with Anthropic",
@@ -8561,6 +10825,89 @@ window.AIM.resources = [
   "why": "A short, video-based MCP course with in-browser labs. For video learners it is easier than the text-first MCP courses.",
   "caveats": "Short course, and the length was not checked. MCP evolves quickly, so check current SDK versions.",
   "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "deeplearning-ai-anthropic-mcp-build-rich-context-ai-apps",
+  "title": "MCP: Build Rich-Context AI Apps with Anthropic",
+  "creator": "DeepLearning.AI + Anthropic",
+  "platform": "DeepLearning.AI",
+  "type": "course",
+  "url": "https://www.deeplearning.ai/short-courses/mcp-build-rich-context-ai-apps-with-anthropic/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-agents"
+  ],
+  "topics": [
+   "MCP architecture",
+   "building an MCP server",
+   "connecting clients",
+   "deploying remote servers"
+  ],
+  "approxHours": 2,
+  "cost": "Free to watch with a free account",
+  "why": "Short, practical MCP build-along taught by Anthropic.",
+  "caveats": "2025 recording; the MCP spec has since been updated (2026-07-28 version).",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "model-context-protocol-project-originated-at-anthropic-m",
+  "title": "Model Context Protocol - official site and specification",
+  "creator": "Model Context Protocol project (originated at Anthropic)",
+  "platform": "Website",
+  "type": "tool",
+  "url": "https://modelcontextprotocol.io",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-agents"
+  ],
+  "topics": [
+   "MCP specification",
+   "SDKs",
+   "server examples"
+  ],
+  "approxHours": 3,
+  "cost": "Free",
+  "why": "The source of truth for MCP; always check here because courses fall behind the spec.",
+  "caveats": "Specification text is technical.",
+  "year": 2026,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "deeplearning-ai-crewai-multi-ai-agent-systems-with-crewa",
+  "title": "Multi AI Agent Systems with crewAI (short course)",
+  "creator": "DeepLearning.AI + crewAI",
+  "platform": "DeepLearning.AI",
+  "type": "course",
+  "url": "https://www.deeplearning.ai/short-courses/multi-ai-agent-systems-with-crewai/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-agents"
+  ],
+  "topics": [
+   "multi-agent systems",
+   "roles and tasks",
+   "tools",
+   "collaboration patterns"
+  ],
+  "approxHours": 2,
+  "cost": "Free to watch with a free account",
+  "why": "Fast, beginner-friendly look at multi-agent teams for business workflows.",
+  "caveats": "2024 recording; crewAI APIs have changed since, so expect to update the code.",
+  "year": 2024,
   "status": "verified",
   "listId": "",
   "videoId": ""
@@ -9242,6 +11589,36 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "nptel-iit-madras-reinforcement-learning-nptel-iit-madras",
+  "title": "Reinforcement Learning (NPTEL, IIT Madras - Prof. Balaraman Ravindran)",
+  "creator": "NPTEL / IIT Madras",
+  "platform": "NPTEL",
+  "type": "course",
+  "url": "https://nptel.ac.in/courses/106106143/",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "advanced",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "bandits",
+   "MDPs",
+   "dynamic programming",
+   "TD learning and Q-learning",
+   "function approximation",
+   "policy gradients"
+  ],
+  "approxHours": 40,
+  "cost": "Free to learn; NPTEL certificate exam paid (fee not re-verified, see caveats)",
+  "why": "A rigorous RL course from India's leading RL researcher, following Sutton and Barto closely.",
+  "caveats": "Lectures and assignments are free. The optional proctored certificate exam is paid; NPTEL has long charged about Rs 1,000 per course exam, but this fee could NOT be re-verified in this session (web-search budget exhausted, nptel.ac.in unreachable) - confirm on nptel.ac.in before registering. Older recording; little deep RL.",
+  "year": 0,
+  "status": "partial",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "prof-sergey-levine-uc-berkeley-berkeley-cs285-deep-reinf",
   "title": "Berkeley CS285: Deep Reinforcement Learning (2023)",
   "creator": "Prof. Sergey Levine, UC Berkeley",
@@ -9269,6 +11646,37 @@ window.AIM.resources = [
   "year": 2023,
   "status": "verified",
   "listId": "PL_iWQOsE6TfVYGEGiAOMaOzzv41Jfm_Ps",
+  "videoId": ""
+ },
+ {
+  "id": "uc-berkeley-sergey-levine-cs-285-deep-reinforcement-lear",
+  "title": "CS 285 Deep Reinforcement Learning (UC Berkeley)",
+  "creator": "UC Berkeley (Sergey Levine)",
+  "platform": "Website",
+  "type": "course",
+  "url": "https://rail.eecs.berkeley.edu/deeprlcourse/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "expert",
+  "modules": [
+   "l4-rl",
+   "l4-research-career"
+  ],
+  "topics": [
+   "imitation learning",
+   "policy gradients",
+   "actor-critic",
+   "Q-learning",
+   "model-based RL",
+   "offline RL"
+  ],
+  "approxHours": 80,
+  "cost": "Free (slides and homework public)",
+  "why": "The top university deep-RL course for learners heading toward research.",
+  "caveats": "Graduate-level maths and coding.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
   "videoId": ""
  },
  {
@@ -9332,6 +11740,33 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "farama-foundation-gymnasium-standard-rl-environments",
+  "title": "Gymnasium - standard RL environments",
+  "creator": "Farama Foundation",
+  "platform": "Website",
+  "type": "tool",
+  "url": "https://gymnasium.farama.org/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "RL environments",
+   "CartPole, LunarLander",
+   "environment API"
+  ],
+  "approxHours": 2,
+  "cost": "Free (open source)",
+  "why": "The maintained successor of OpenAI Gym - the environments used by almost every RL tutorial.",
+  "caveats": "Older tutorials use 'gym' with a slightly different API.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "hugging-face-thomas-simonini-omar-sanseviero-hugging-fac",
   "title": "Hugging Face Deep Reinforcement Learning Course",
   "creator": "Hugging Face (Thomas Simonini, Omar Sanseviero)",
@@ -9363,6 +11798,37 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "hugging-face-thomas-simonini-hugging-face-deep-reinforce",
+  "title": "Hugging Face Deep Reinforcement Learning Course",
+  "creator": "Hugging Face (Thomas Simonini)",
+  "platform": "Hugging Face Learn",
+  "type": "course",
+  "url": "https://huggingface.co/learn/deep-rl-course/unit0/introduction",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "agents, environments, rewards",
+   "Q-learning",
+   "deep Q-networks",
+   "policy gradients",
+   "PPO",
+   "multi-agent RL",
+   "RLHF intro"
+  ],
+  "approxHours": 40,
+  "cost": "Free (free certificate)",
+  "why": "Hands-on RL where you train agents to play games and publish them to the Hub; free certificate on completion.",
+  "caveats": "Some units rely on older library versions (Stable-Baselines3, ML-Agents); expect minor setup fixes.",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "hugging-face-blog-illustrating-reinforcement-learning-fr",
   "title": "Illustrating Reinforcement Learning from Human Feedback (RLHF)",
   "creator": "Hugging Face blog",
@@ -9386,6 +11852,33 @@ window.AIM.resources = [
   "why": "A diagram-rich explainer of the three steps of RLHF. The quickest way to get the intuition behind RL for LLMs.",
   "caveats": "Written in 2022, before DPO, GRPO and the verifiable-reward RL used in 2025-26 reasoning models. Pair it with the RLHF Book.",
   "year": 2022,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "kaggle-google-intro-to-game-ai-and-reinforcement-learnin",
+  "title": "Intro to Game AI and Reinforcement Learning (Kaggle Learn)",
+  "creator": "Kaggle (Google)",
+  "platform": "Kaggle",
+  "type": "course",
+  "url": "https://www.kaggle.com/learn/intro-to-game-ai-and-reinforcement-learning",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "game-playing agents",
+   "minimax",
+   "deep RL with ConnectX"
+  ],
+  "approxHours": 4,
+  "cost": "Free, with a free Kaggle certificate",
+  "why": "A gentle, browser-based first RL project: build an agent for Connect Four and submit it to a live competition.",
+  "caveats": "Short and older; the ConnectX environment may change.",
+  "year": 0,
   "status": "verified",
   "listId": "",
   "videoId": ""
@@ -9593,6 +12086,34 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "krish-naik-hindi-krish-naik-hindi-channel-career-roadmap",
+  "title": "Krish Naik Hindi channel: career, roadmap and interview videos",
+  "creator": "Krish Naik Hindi",
+  "platform": "YouTube",
+  "type": "channel",
+  "url": "https://www.youtube.com/@krishnaikhindi",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l4-research-career"
+  ],
+  "topics": [
+   "AI career roadmaps",
+   "data science / AI jobs in India",
+   "interview preparation",
+   "Hindi project playlists"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "The largest Hinglish source of AI roadmaps and career guidance aimed at Indian job seekers, and the home of the Hindi end-to-end project playlist.",
+  "caveats": "This is a channel, not a structured course, so you have to pick the career and interview videos yourself. Some videos promote his paid programmes. There is no Hindi content on reading research papers or ML system design.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "ineuron-krish-naik-and-team-data-science-interview-quest",
   "title": "Data Science Interview Questions: 30-day PDF series",
   "creator": "iNeuron (Krish Naik and team)",
@@ -9733,37 +12254,6 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
-  "id": "alexander-amini-and-ava-amini-mit-mit-6-s191-introductio",
-  "title": "MIT 6.S191: Introduction to Deep Learning",
-  "creator": "Alexander Amini and Ava Amini, MIT",
-  "platform": "Website + YouTube",
-  "type": "course",
-  "url": "https://introtodeeplearning.com/",
-  "firstVideoUrl": "",
-  "language": "english",
-  "level": "intermediate",
-  "modules": [
-   "l4-research-career",
-   "l4-gen-vision",
-   "l4-rl"
-  ],
-  "topics": [
-   "deep learning overview",
-   "deep generative modeling",
-   "deep reinforcement learning",
-   "LLMs",
-   "hands-on labs"
-  ],
-  "approxHours": 10,
-  "cost": "Free",
-  "why": "A short MIT bootcamp refreshed every year, with lectures on generative models, RL and LLMs. A fast, polished overview before the longer Stanford and CMU courses.",
-  "caveats": "Overview depth only; the labs need Python. A lecture playlist is https://www.youtube.com/playlist?list=PLtBw6njQRU-rwp5__7C0oIVt26ZgjG9NI, but which year's edition it holds was not verified; the website links the current year. The per-year lecture topics were not re-checked.",
-  "year": 0,
-  "status": "verified",
-  "listId": "",
-  "videoId": ""
- },
- {
   "id": "chip-huyen-machine-learning-interviews-book",
   "title": "Machine Learning Interviews Book",
   "creator": "Chip Huyen",
@@ -9787,37 +12277,6 @@ window.AIM.resources = [
   "why": "The best free guide to how ML hiring works: the different roles, what each interview round tests, and over 200 questions by difficulty.",
   "caveats": "Copyright 2021, so there is nothing on LLM, RAG or agent interviews; add AIMLInterviews for those. It is aimed at US big-tech hiring, so Indian startup interviews may be lighter.",
   "year": 2021,
-  "status": "verified",
-  "listId": "",
-  "videoId": ""
- },
- {
-  "id": "chip-huyen-machine-learning-systems-design-free-booklet",
-  "title": "Machine Learning Systems Design (free booklet)",
-  "creator": "Chip Huyen",
-  "platform": "Website (free online booklet)",
-  "type": "book",
-  "url": "https://huyenchip.com/machine-learning-systems-design/toc.html",
-  "firstVideoUrl": "",
-  "language": "english",
-  "level": "intermediate",
-  "modules": [
-   "l4-research-career",
-   "l3-mlops"
-  ],
-  "topics": [
-   "ML system design process",
-   "project setup",
-   "data pipelines",
-   "modeling",
-   "serving",
-   "27 system design interview questions"
-  ],
-  "approxHours": 5,
-  "cost": "Free",
-  "why": "A short, free introduction to the steps of ML system design. It ends with 27 open-ended design questions to practise with.",
-  "caveats": "Marked as work in progress and dates from around 2019. The author says her 2022 O'Reilly book Designing Machine Learning Systems (paid) is 'much more comprehensive and up-to-date'. The free CS329S course notes (listed separately) are a deeper free option.",
-  "year": 2019,
   "status": "verified",
   "listId": "",
   "videoId": ""

@@ -487,18 +487,26 @@
       return 'Chance when picked: ' + pct(t.p) + (t.manual ? ' (you picked it)' : t.u == null ? ' (greedy: top word)' : ' (dice roll ' + t.u.toFixed(3) + ')') +
         (t.seen ? '' : '. Never seen in this spot.');
     }
-    function sep(w) { return w === 0 ? '' : ' '; }
+    // join token pieces with spaces, gluing each full stop to the word before it so a line never starts with "."
+    function joinTokens(items) {
+      var groups = [];
+      items.forEach(function (it) {
+        if (it.w === 0 && groups.length) groups[groups.length - 1].push(it.html);
+        else groups.push([it.html]);
+      });
+      return groups.map(function (gr) { return gr.length > 1 ? '<span style="white-space:nowrap">' + gr.join('') + '</span>' : gr[0]; }).join(' ');
+    }
     function renderText() {
-      var T = readTheme(), html = '', i;
-      for (i = 0; i < S.prompt.length; i++) html += (i ? sep(S.prompt[i]) : '') + '<span style="font-weight:700">' + esc(disp(S.prompt[i])) + '</span>';
-      if (!S.prompt.length) html += '<span class="muted small">(empty prompt: a new sentence)</span>';
+      var T = readTheme(), items = [], i;
+      for (i = 0; i < S.prompt.length; i++) items.push({ w: S.prompt[i], html: '<span style="font-weight:700">' + esc(disp(S.prompt[i])) + '</span>' });
+      if (!S.prompt.length) items.push({ w: -1, html: '<span class="muted small">(empty prompt: a new sentence)</span>' });
       for (i = 0; i < S.gen.length; i++) {
         var t = S.gen[i], viewing = i === S.view;
-        html += sep(t.w) + '<button type="button" data-i="' + i + '" title="' + esc(tokenTitle(t)) + '" aria-label="' + esc(disp(t.w) + ', ' + pct(t.p) + ' chance' + (t.seen ? '' : ', never seen here')) + '"' +
-          (viewing ? ' aria-pressed="true"' : '') + ' style="' + tokenStyle(t, T) + 'cursor:pointer;' + (viewing ? 'outline:2px solid ' + rgb(T.haldi) + ';outline-offset:1px;' : '') + '">' + esc(disp(t.w)) + '</button>';
+        items.push({ w: t.w, html: '<button type="button" data-i="' + i + '" title="' + esc(tokenTitle(t)) + '" aria-label="' + esc(disp(t.w) + ', ' + pct(t.p) + ' chance' + (t.seen ? '' : ', never seen here')) + '"' +
+          (viewing ? ' aria-pressed="true"' : '') + ' style="' + tokenStyle(t, T) + 'cursor:pointer;' + (viewing ? 'outline:2px solid ' + rgb(T.haldi) + ';outline-offset:1px;' : '') + '">' + esc(disp(t.w)) + '</button>' });
       }
-      html += ' <span aria-hidden="true" style="display:inline-block;min-width:2em;padding:0 5px;border:1.5px dashed var(--muted);border-radius:4px;text-align:center;color:var(--muted);line-height:1.3">?</span>';
-      elText.innerHTML = html;
+      elText.innerHTML = joinTokens(items) +
+        ' <span aria-hidden="true" style="display:inline-block;min-width:2em;padding:0 5px;border:1.5px dashed var(--muted);border-radius:4px;text-align:center;color:var(--muted);line-height:1.3">?</span>';
       elText.scrollTop = elText.scrollHeight;
       elTCount.textContent = S.gen.length + ' of ' + MAX_GEN + ' tokens generated';
       renderPrev(T);
@@ -510,11 +518,12 @@
       var pv = S.prev;
       if (!pv || !pv.gen.length) { elPrev.innerHTML = ''; return; }
       var html = '<span class="muted">' + (pv.example ? 'Example run (seed ' + pv.seed + ', T ' + tStr(pv.s.T) + ', top-k ' + pv.s.k + ', top-p ' + pv.s.p.toFixed(2) + '):' : 'Last run:') + '</span> ';
-      html += '<span class="muted">' + esc(pv.prompt.map(disp).join(' ').replace(/ \./g, '.')) + '</span>';
+      var items = pv.prompt.map(function (w) { return { w: w, html: '<span class="muted">' + esc(disp(w)) + '</span>' }; });
       for (var i = 0; i < Math.min(pv.gen.length, PREV_SHOW); i++) {
         var t = pv.gen[i];
-        html += sep(t.w) + '<span title="' + esc(tokenTitle(t)) + '" style="' + tokenStyle(t, T, true) + '">' + esc(disp(t.w)) + '</span>';
+        items.push({ w: t.w, html: '<span title="' + esc(tokenTitle(t)) + '" style="' + tokenStyle(t, T, true) + '">' + esc(disp(t.w)) + '</span>' });
       }
+      html += joinTokens(items);
       if (pv.gen.length > PREV_SHOW) html += ' …';
       html += ' ' + compareChip();
       elPrev.innerHTML = html;
