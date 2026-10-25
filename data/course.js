@@ -2427,7 +2427,8 @@ window.AIM.modules = [
    }
   ],
   "best": "campusx-practical-deep-learning-using-pytorch",
-  "figs": true
+  "figs": true,
+  "lab": "trainloop"
  },
  {
   "id": "l3-cv",

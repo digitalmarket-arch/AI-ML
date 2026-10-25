@@ -267,6 +267,30 @@ window.AIM.labs = [
   ]
  },
  {
+  "id": "trainloop",
+  "module": "l3-pytorch",
+  "title": "The PyTorch training loop",
+  "summary": "Step through a real PyTorch training loop line by line as a tiny neural network learns Delhi’s seasons, then break it on purpose and debug it with an LR finder and the overfit-one-batch check.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Run one training step line by line: keep pressing Next line until you have run every line for one batch, from “for xb, yb in train_loader” down to optimizer.zero_grad()."
+   },
+   {
+    "id": "t2",
+    "text": "Tick “Forget optimizer.zero_grad()” and keep training. Watch .grad pile up in the gradient chart until the training loss jumps to more than double its lowest value."
+   },
+   {
+    "id": "t3",
+    "text": "Run the LR finder, set the learning rate inside the green zone it marks, then press Reset and Run: reach a validation loss below 0.15 within 20 epochs (batch size 1 or 8). With the starting settings (SGD, lr 0.01) it takes about 70."
+   },
+   {
+    "id": "t4",
+    "text": "Turn on “Overfit one batch” and train until the training loss on those 8 days is below 0.002, almost zero. (Tip: Adam gets there much faster than SGD.)"
+   }
+  ]
+ },
+ {
   "id": "convolution",
   "module": "l3-cv",
   "title": "Convolution filters & pooling",
