@@ -460,9 +460,13 @@
       if (s.kind === 'p') return { kind: 'p', i: Math.floor(ni / 2), j: Math.floor(nj / 2) };
       return { kind: 'f', i: ni, j: nj };
     }
+    // the strongest positive response (ties go to the one nearest the middle), so the first view is interesting
     function strongest() {
-      var best = 0, bi = 0;
-      for (var k = 0; k < R.out.length; k++) if (R.out[k] > best) { best = R.out[k]; bi = k; }
+      var best = 0, bi = 0, bd = Infinity, mid = (R.n - 1) / 2;
+      for (var k = 0; k < R.out.length; k++) {
+        var v = R.out[k], di = Math.floor(k / R.n) - mid, dj = k % R.n - mid, d = di * di + dj * dj;
+        if (v > best + 1e-9 || (v > 0 && Math.abs(v - best) <= 1e-9 && d < bd)) { best = v; bi = k; bd = d; }
+      }
       return { kind: 'f', i: Math.floor(bi / R.n), j: bi % R.n };
     }
 
