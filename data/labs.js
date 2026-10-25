@@ -601,5 +601,29 @@ window.AIM.labs = [
     "text": "Under the map choose “Changes it”, and put a traffic jam on a square of the rider’s greedy route. Keep training until the route changes to go round the jam."
    }
   ]
+ },
+ {
+  "id": "significance",
+  "module": "l4-research-career",
+  "title": "Is the improvement real?",
+  "summary": "Simulate two models over many random seeds and a finite test set, and learn to tell a real improvement from seed luck, test-set luck and cherry-picking.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Set the seeds to 1, then press Re-run until B scores lower than A, even though B is truly better."
+   },
+   {
+    "id": "t2",
+    "text": "Keep the true gap at 0.5 points (for example A 81.0%, B 81.5%) and raise the seeds (5 or more) until the whole 95% CI of the gap sits above 0. How many seeds did it take?"
+   },
+   {
+    "id": "t3",
+    "text": "Switch to Cherry-pick with 5 or more seeds, and find a result where showing only B’s best run inflates the gap by at least 0.5 points."
+   },
+   {
+    "id": "t4",
+    "text": "Make the test set small (1,000 or fewer), then big (50,000 or more), and watch the test-set noise shrink."
+   }
+  ]
  }
 ];

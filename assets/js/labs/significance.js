@@ -227,7 +227,7 @@
             '<div class="stat"><div class="k">Test-set luck</div><div class="v" id="' + P + 'tnoise">—</div></div>' +
           '</div>' +
           '<p class="small muted">“Spread per run” is how far one run typically lands from its model’s true accuracy (seed luck and test-set luck together). ' +
-            'The bootstrap: the computer re-picks each model’s runs at random, repeats allowed, 2,000 times, and works out the gap each time. The middle 95% of those 2,000 gaps (the teal bars) is the 95% CI of the gap.</p>' +
+            'The bootstrap: the computer re-picks each model’s runs at random, repeats allowed, 2,000 times, and works out the gap each time. The middle 95% of those 2,000 gaps (the darker teal bars) is the 95% CI of the gap. The big teal dot is the gap you actually measured.</p>' +
         '</div>' +
         '<div class="lab-controls">' +
           range('a', 'Model A: true accuracy', 700, 900, 1, DEF.a) +
@@ -264,7 +264,7 @@
           '<ul class="small stack-sm" style="padding-left:1.1em;margin:0">' +
             '<li><b>Seed:</b> the starting number for a program’s random choices. Same code and data, different seed: a slightly different model and score.</li>' +
             '<li><b>Variance:</b> how much results spread out from run to run. The SD is its square root, in the same units as the scores (here, points).</li>' +
-            '<li><b>Test-set luck:</b> a test set is only a sample. A model that is right on 81% of all possible examples might score 80.6% or 81.4% on 10,000 of them. Its SD is about √(p(1 − p) ÷ n), with p the accuracy and n the test-set size.</li>' +
+            '<li><b>Test-set luck:</b> a test set is only a sample. A model that is right on 81% of all possible examples might score 80.6% or 81.4% on 10,000 of them. Its SD is about <span style="white-space:nowrap">100 × √(p(1 − p) ÷ n)</span> points, with p the accuracy as a fraction (0.81) and n the test-set size.</li>' +
             '<li><b>95% CI:</b> a range of believable values for the true number. If it includes 0 for a gap, “no real difference” is still believable.</li>' +
             '<li><b>Cherry-picking:</b> showing only the best-looking run. The best of many runs is mostly luck, so it always flatters.</li>' +
           '</ul>' +
@@ -277,7 +277,7 @@
             '<li><b>How many seeds:</b> 1 to 3 runs is weak evidence; 5 or more is better.</li>' +
             '<li><b>Gap versus spread:</b> a 0.3-point win with ±0.5 SD on each model is probably noise.</li>' +
             '<li><b>Test-set size:</b> on 1,000 examples, ±1.2 points is pure luck.</li>' +
-            '<li><b>A fair fight:</b> same test set, same tuning effort for both models, and no picking the best seed (or best checkpoint) by peeking at the test set.</li>' +
+            '<li><b>A fair fight:</b> same test set, same tuning effort for both models, and no picking the best seed (or the best checkpoint, a copy of the model saved partway through training) by peeking at the test set.</li>' +
           '</ol>' +
         '</div>' +
       '</div>' +
@@ -596,7 +596,7 @@
       return { lo: lo, hi: hi };
     }
 
-    function wantAspect() { return wrap.getBoundingClientRect().width >= 560 ? '16 / 11' : '20 / 21'; }
+    function wantAspect() { var w = wrap.getBoundingClientRect().width; return w >= 560 ? '16 / 11' : w >= 340 ? '20 / 21' : '6 / 7'; }
     function applyAspect() {
       aspectRaf = 0;
       if (destroyed) return;
@@ -652,6 +652,11 @@
     function edgeArrow(x, y, dir, color) {
       g.fillStyle = color;
       g.beginPath(); g.moveTo(x + 7 * dir, y); g.lineTo(x - 2 * dir, y - 6); g.lineTo(x - 2 * dir, y + 6); g.closePath(); g.fill();
+    }
+    // text with a thin outline in the background colour, so it stays readable over bars and lines
+    function haloText(text, x, y, fill, halo) {
+      g.lineJoin = 'round'; g.lineWidth = 3; g.strokeStyle = halo; g.strokeText(text, x, y);
+      g.fillStyle = fill; g.fillText(text, x, y);
     }
     function ciBar(x0, x1, y, color, width) {
       g.strokeStyle = color; g.lineWidth = width; g.lineCap = 'butt';
@@ -719,7 +724,7 @@
           g.textAlign = bx > x1 - 50 ? 'right' : bx < x0 + 50 ? 'left' : 'center';
           var labY = by - r - 8;
           if (labY - 12 < rowTop) labY = by + r + 20;
-          g.fillText('best run', bx, labY);
+          haloText('best run', bx, labY, T.ink, T.surface2);
         }
         // mean + 95% CI (t-based)
         if (k > 1 && isFinite(row.lo)) {
@@ -792,12 +797,16 @@
       g.beginPath(); g.moveTo(tx, L.p2Top + 2); g.lineTo(tx, L.p2Bot); g.stroke(); g.setLineDash([]);
       g.font = font(T, 11, '600'); g.textBaseline = 'middle';
       var labelY = L.p2Top + 6, right = tg >= 0;
-      g.fillStyle = T.ink; g.textAlign = right ? 'right' : 'left';
-      g.fillText('no gap', zx + (right ? -4 : 4), labelY);
-      if (Math.abs(tx - zx) > 1) {
-        g.fillStyle = T.muted; g.textAlign = right ? 'left' : 'right';
-        g.fillText('true gap', tx + (right ? 4 : -4), labelY);
+      // a label sits on its preferred side of its line, or flips to the other side if it would leave the canvas
+      function lineLabel(text, x, toRight, fill) {
+        var w = g.measureText(text).width;
+        if (toRight && x + 4 + w > L.W - 2) toRight = false;
+        else if (!toRight && x - 4 - w < 2) toRight = true;
+        g.textAlign = toRight ? 'left' : 'right';
+        haloText(text, x + (toRight ? 4 : -4), labelY, fill, T.surface);
       }
+      lineLabel('no gap', zx, !right, T.ink);
+      if (Math.abs(tx - zx) > 1) lineLabel('true gap', tx, right, T.muted);
       // with one run there is nothing to resample: say so in a box over the grid
       if (!R.boot) {
         var lines = L.narrow ? ['No bootstrap with 1 run:', 'it needs 2 or more runs per model.'] : ['No bootstrap with 1 run: it needs 2 or more runs per model.'];
@@ -827,7 +836,7 @@
         g.fillStyle = T.haldi; g.fill(); g.lineWidth = 1.5; g.strokeStyle = T.ink; g.stroke();
         g.fillStyle = T.ink; g.font = font(T, 11, '700'); g.textBaseline = 'bottom';
         g.textAlign = ccx > x1 - 40 ? 'right' : 'center';
-        g.fillText('claimed', ccx, ciY - 10);
+        haloText('claimed', ccx, ciY - 10, T.ink, T.surface);
         if (cx > x1) edgeArrow(x1 + 1, ciY, 1, T.ink);
       }
       var ocx = clamp(ox, x0 + 6, x1 - 6);
@@ -860,6 +869,8 @@
       var isBest = d.model === 'b' && d.i === R.B.bestIdx && R.k > 1;
       setText(elReadout, 'ro', name + ', run ' + (d.i + 1) + ' of ' + R.k + ': ' + pct(d.score) + ' (true accuracy ' + mu.toFixed(1) + '%, so this run was ' + sgn(d.score - mu, 2) + ' points lucky)' + (isBest ? '. This is B’s best run.' : '.'));
     }
+    // the runs just changed: drop any score being read out, so it never shows an old run
+    function clearDot() { hoverKey = null; showDot(null); }
     on(canvas, 'pointermove', function (e) {
       if (e.pointerType !== 'mouse') return;
       var d = nearest(localPt(e), 12);
@@ -884,13 +895,13 @@
         if (field === 'nIdx') {
           var n = testN();
           if (n <= SMALL_TEST) visited.small = true;
-          if (n >= BIG_TEST) visited.big = true;
+          if (n >= BIG_TEST && visited.small) visited.big = true;   // small first, then big: the noise must shrink
           var after = testSd((muA() + muB()) / 2);
           extra = 'Test set: ' + fmtIN(n) + ' examples. Test-set luck per run is now about ±' + after.toFixed(2) + ' points (it was ±' + before.toFixed(2) + ').';
         } else if (field === 'k') {
           extra = S.k === 1 ? 'One run per model: nothing to measure the spread with.' : '';
         }
-        hoverKey = '';
+        clearDot();
         refresh('input', extra);
       });
     }
@@ -906,16 +917,14 @@
     on(btnRerun, 'click', function () {
       S.exp++;
       draws = makeDraws(S.exp);
-      hoverKey = '';
-      showDot(null);
+      clearDot();
       refresh('rerun', '');
     });
     on(btnReset, 'click', function () {
       S.a = DEF.a; S.b = DEF.b; S.sd = DEF.sd; S.k = DEF.k; S.nIdx = DEF.nIdx; S.mode = 'honest'; S.exp = 1;
       elA.value = DEF.a; elB.value = DEF.b; elSd.value = DEF.sd; elK.value = DEF.k; elN.value = DEF.nIdx;
       draws = makeDraws(S.exp);
-      hoverKey = '';
-      showDot(null);
+      clearDot();
       refresh('reset', 'Back to the starting settings and experiment #1.');
     });
 

@@ -903,7 +903,7 @@
       }
       if (stage === 2) {
         var nanKept = res.kept.filter(function (i) { return ROWS[i][cfg.agg] === null; }).length;
-        var t = name + FN_WORD[cfg.fn] + ' turns each group’s ' + cfg.agg + ' values into one number.';
+        var t = name + FN_WORD[cfg.fn] + (res.scalar ? ' turns all the kept ' : ' turns each group’s ') + cfg.agg + ' values into one number.';
         if (nanKept && cfg.missing === 'skip') t += ' The dashed NaN bar' + (nanKept > 1 ? 's are' : ' is') + ' skipped: ' + (cfg.fn === 'count' ? 'not counted.' : 'left out.');
         else if (nanKept) t += ' The missing sales were filled with 0, so ' + (nanKept > 1 ? 'they count' : 'it counts') + ' as ₹0.';
         return t;
@@ -945,7 +945,8 @@
     function renderCode() {
       var lines = pyLines(cfg, res, selGroup());
       elCode.innerHTML = lines.map(function (ln) {
-        var h = esc(ln).replace(/\.(?=[a-z_])/g, '\u0001.');
+        // allowed line breaks: before a .method, after an opening bracket and after a comma (never inside a word)
+        var h = esc(ln).replace(/\.(?=[a-z_])/g, '\u0001.').replace(/\((?=[^)])/g, '(\u0001').replace(/, /g, ', \u0001');
         h = h.replace(/'[^']*'/g, function (m) { return '<span style="color:var(--indigo)">' + m + '</span>'; });
         return '<span style="display:block;padding-left:4ch;text-indent:-4ch">' + h.replace(/\u0001/g, '<wbr>') + '</span>';
       }).join('');
@@ -1090,7 +1091,8 @@
         if (cfg.fn !== 'sum') return 'Tip: this is the ' + cfg.fn + ', not the total. Choose sum to add up every sale.';
         if (!all) return 'Tip: your filter keeps only ' + res.kept.length + ' of 24 rows. Set the filter column to (no filter) to add up all three months.';
         var top = res.groups.reduce(function (b, x) { return !b || x.value > b.value ? x : b; }, null);
-        if (g !== top) return 'Tip: not the highest. Sort the result descending to put the biggest total on top.';
+        if (g !== top) return cfg.sort === 'desc' ? 'Tip: not the highest. With Descending sort, the top row of the result is the biggest total.' :
+          'Tip: not the highest. Sort the result descending to put the biggest total on top.';
       }
       if (!done.t3 && cityProduct()) {
         if (cfg.agg !== 'sales_rs' || cfg.fn !== 'sum') return 'Tip: choose the sum of sales_rs.';

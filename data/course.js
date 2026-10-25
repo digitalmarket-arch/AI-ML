@@ -3958,6 +3958,7 @@ window.AIM.modules = [
    }
   ],
   "best": "raj-dandekar-3-ways-to-read-an-ml-research-paper",
-  "figs": true
+  "figs": true,
+  "lab": "significance"
  }
 ];
