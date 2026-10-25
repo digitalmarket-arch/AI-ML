@@ -9,7 +9,8 @@
   /* ---------- constants ---------- */
   var K_MAX = 25;          // the slider runs 1, 3, 5 ... 25
   var K_COUNT = 13;        // how many odd K values that is
-  var NB = K_MAX + 1;      // neighbours remembered per map spot (one spare, for the exact boundary at K = 25)
+  var NB = K_MAX + 1;      // neighbours each map spot must know (one spare, for the exact boundary at K = 25)
+  var CAP = NB + 4;        // list room per map spot: the spares mean removing a loan rarely forces a full recount
   var EXAMPLE_KS = [1, 5, 25];  // already plotted on the accuracy chart at the start
   var START_K = 5;
   var MAX_POINTS = 200;
@@ -221,8 +222,8 @@
     var done = {};
     // M = the model's view of the training data (rebuilt when loans or the distance change)
     var M = { n: 0, present: [], counts: [0, 0, 0], nb: new Uint8Array(0), train: [], loo: [], wrong: new Uint8Array(0), pred: new Uint8Array(0) };
-    // G = the background map: the NB nearest classes (and distances) for every grid node, then the vote for the current K
-    var G = { nx: 0, ny: 0, KM: 0, cls: null, dst: null, cnt: null, pred: null, conf: null, predCount: [0, 0, 0], segs: [] };
+    // G = the background map: for every grid node its nearest loans (class, index, distance), then the vote for the current K
+    var G = { nx: 0, ny: 0, ready: false, len: null, cls: null, idx: null, dst: null, cnt: null, pred: null, conf: null, predCount: [0, 0, 0], segs: [] };
     var dirty = { nbrs: true, votes: true, colours: true, base: true, chart: true };
     var dims = { w: 1, h: 1, dpr: 1, cw: 1, ch: 1 };
     var rafId = 0, aspectRaf = 0, lastTheme = null, lastReadout = '';
@@ -352,44 +353,76 @@
       while ((nx + 1) * (ny + 1) > MAX_NODES) { nx = Math.round(nx * 0.92); ny = Math.round(ny * 0.92); }
       if (nx !== G.nx || ny !== G.ny) { G.nx = nx; G.ny = ny; dirty.nbrs = true; }
     }
-    // For every grid node, the classes (and distances) of its NB nearest loans, nearest first.
-    // Changing K later only re-counts votes.
+    // For every grid node: its nearest loans (at least NB of them, up to CAP), nearest first, ties by order added.
+    // Changing K only re-counts votes; adding or removing a loan only patches these lists.
+    function gridDist(man, x, y, px, py) {
+      var dx = x - px, dy = y - py;
+      return Math.fround(man ? (dx < 0 ? -dx : dx) + (dy < 0 ? -dy : dy) : Math.sqrt(dx * dx + dy * dy));
+    }
+    function fillNode(node, x, y) {
+      var pts = S.pts, n = pts.length, cap = Math.min(CAP, n), o = node * CAP, L = 0, man = S.man;
+      var dst = G.dst, idx = G.idx, cls = G.cls;
+      for (var p = 0; p < n; p++) {
+        var d = gridDist(man, x, y, pts[p].x, pts[p].y), q;
+        if (L < cap) q = L++;
+        else if (d < dst[o + cap - 1]) q = cap - 1;
+        else continue;
+        while (q > 0 && dst[o + q - 1] > d) { dst[o + q] = dst[o + q - 1]; idx[o + q] = idx[o + q - 1]; cls[o + q] = cls[o + q - 1]; q--; }
+        dst[o + q] = d; idx[o + q] = p; cls[o + q] = pts[p].c;
+      }
+      G.len[node] = L;
+    }
     function computeGridNeighbours() {
-      var pts = S.pts, n = pts.length, KM = Math.min(NB, n), nx = G.nx, ny = G.ny, W = nx + 1;
-      var nodes = W * (ny + 1);
-      G.KM = KM;
-      if (!G.cls || G.cls.length !== nodes * NB) { G.cls = new Uint8Array(nodes * NB); G.dst = new Float32Array(nodes * NB); }
-      if (!KM) return;
-      var px = new Float64Array(n), py = new Float64Array(n), pc = new Uint8Array(n), p;
-      for (p = 0; p < n; p++) { px[p] = pts[p].x; py[p] = pts[p].y; pc[p] = pts[p].c; }
-      var bd = new Float64Array(KM), bc = new Uint8Array(KM), man = S.man, cls = G.cls, dst = G.dst;
+      var nx = G.nx, ny = G.ny, nodes = (nx + 1) * (ny + 1), node = 0;
+      if (!G.len || G.len.length !== nodes) {
+        G.len = new Uint8Array(nodes); G.cls = new Uint8Array(nodes * CAP);
+        G.idx = new Uint16Array(nodes * CAP); G.dst = new Float32Array(nodes * CAP);
+      }
+      for (var j = 0; j <= ny; j++) for (var i = 0; i <= nx; i++) fillNode(node++, i / nx, j / ny);
+      G.ready = true;
+    }
+    // A loan was just appended (it has the highest index, so it goes after any equal distance).
+    function gridAddLast() {
+      var pts = S.pts, n = pts.length, P = pts[n - 1], nOld = n - 1, man = S.man;
+      var nx = G.nx, ny = G.ny, dst = G.dst, idx = G.idx, cls = G.cls, len = G.len, node = 0;
       for (var j = 0; j <= ny; j++) {
-        var y = j / ny;
-        for (var i = 0; i <= nx; i++) {
-          var x = i / nx, filled = 0, q;
-          for (p = 0; p < n; p++) {
-            var dx = x - px[p], dy = y - py[p];
-            var d = man ? (dx < 0 ? -dx : dx) + (dy < 0 ? -dy : dy) : dx * dx + dy * dy;
-            if (filled < KM) q = filled++;
-            else if (d < bd[KM - 1]) q = KM - 1;
-            else continue;
-            while (q > 0 && bd[q - 1] > d) { bd[q] = bd[q - 1]; bc[q] = bc[q - 1]; q--; }
-            bd[q] = d; bc[q] = pc[p];
+        for (var i = 0; i <= nx; i++, node++) {
+          var o = node * CAP, L = len[node], d = gridDist(man, i / nx, j / ny, P.x, P.y), q;
+          if (L < CAP && L === nOld) q = L++;                              // the list held every loan: just join it
+          else if (L > 0 && d < dst[o + L - 1]) { if (L < CAP) q = L++; else q = CAP - 1; }
+          else continue;
+          while (q > 0 && dst[o + q - 1] > d) { dst[o + q] = dst[o + q - 1]; idx[o + q] = idx[o + q - 1]; cls[o + q] = cls[o + q - 1]; q--; }
+          dst[o + q] = d; idx[o + q] = nOld; cls[o + q] = P.c;
+          len[node] = L;
+        }
+      }
+    }
+    // Loan r was just spliced out: drop it from every list and shift later indices down by one.
+    // The rest of each list is still the nearest loans in order; only a list that gets too short is recounted.
+    function gridRemoved(r) {
+      var n = S.pts.length, need = Math.min(NB, n), nx = G.nx, ny = G.ny, dst = G.dst, idx = G.idx, cls = G.cls, len = G.len, node = 0;
+      for (var j = 0; j <= ny; j++) {
+        for (var i = 0; i <= nx; i++, node++) {
+          var o = node * CAP, L = len[node], w = 0;
+          for (var q = 0; q < L; q++) {
+            var id = idx[o + q];
+            if (id === r) continue;
+            idx[o + w] = id > r ? id - 1 : id; cls[o + w] = cls[o + q]; dst[o + w] = dst[o + q]; w++;
           }
-          var o = (j * W + i) * NB;
-          for (q = 0; q < KM; q++) { cls[o + q] = bc[q]; dst[o + q] = man ? bd[q] : Math.sqrt(bd[q]); }
+          len[node] = w;
+          if (w < need) fillNode(node, i / nx, j / ny);
         }
       }
     }
     function computeGridVotes() {
-      var nx = G.nx, ny = G.ny, nodes = (nx + 1) * (ny + 1), Ke = Math.min(S.K, G.KM, S.pts.length);
+      var nx = G.nx, ny = G.ny, nodes = (nx + 1) * (ny + 1), Ke = Math.min(S.K, S.pts.length);
       if (!G.pred || G.pred.length !== nodes) { G.pred = new Uint8Array(nodes); G.cnt = new Uint8Array(nodes * 3); G.conf = new Float32Array(nodes); }
       G.predCount = [0, 0, 0];
       G.Ke = Ke;
       if (!Ke) return;
       var C = Math.max(1, M.present.length), cls = G.cls;
       for (var node = 0; node < nodes; node++) {
-        var o = node * NB, best = voteList(cls, o, Ke), share = cnt3[best] / Ke;
+        var o = node * CAP, best = voteList(cls, o, Ke), share = cnt3[best] / Ke;
         G.pred[node] = best;
         G.cnt[node * 3] = cnt3[0]; G.cnt[node * 3 + 1] = cnt3[1]; G.cnt[node * 3 + 2] = cnt3[2];
         // confidence: 0 when the vote is as split as it can be, 1 when every neighbour agrees
@@ -412,9 +445,9 @@
       trace.forEach(function (c) {
         var i, j;
         if (exact) {
-          var a = pres[0], b = pres[1], m = (S.K + 1) / 2, KM = G.KM, cls = G.cls, dst = G.dst;
+          var a = pres[0], b = pres[1], m = (S.K + 1) / 2, cls = G.cls, dst = G.dst;
           for (node = 0; node < nodes; node++) {
-            var o = node * NB, ca = 0, cb = 0, da = -1, db = -1;
+            var o = node * CAP, KM = G.len[node], ca = 0, cb = 0, da = -1, db = -1;
             for (var q = 0; q < KM && (da < 0 || db < 0); q++) {
               var cq = cls[o + q];
               if (cq === a) { if (++ca === m) da = dst[o + q]; }
@@ -838,9 +871,14 @@
         if (M.loo[ki] === best) completeTask('t2');
       }
     }
-    function dataChanged() {
+    // how: 'add' (a loan was appended), a number (that loan index was removed), or nothing (rebuild everything)
+    function dataChanged(how) {
       computeModel(); computeAtK();
-      dirty.nbrs = true; dirty.chart = true;
+      var gridOk = G.ready && !dirty.nbrs && G.len && G.len.length === (G.nx + 1) * (G.ny + 1);
+      if (gridOk && how === 'add') gridAddLast();
+      else if (gridOk && typeof how === 'number') gridRemoved(how);
+      else dirty.nbrs = true;
+      dirty.votes = true; dirty.chart = true;
       updateStats(); checkTasks(true); requestDraw();
     }
     function setK(K, settled) {
@@ -871,14 +909,14 @@
       if (S.pts.length >= MAX_POINTS) { announce('That is the limit of ' + MAX_POINTS + ' loans. Remove some first.'); elReadout.innerHTML = lastReadout = 'That is the limit of ' + MAX_POINTS + ' loans. Remove some first.'; return; }
       S.pts.push({ x: clamp(x, 0, 1), y: clamp(y, 0, 1), c: S.cls, user: true });
       announce('Added a ' + CLASSES[S.cls].name + ' loan. ' + S.pts.length + ' loans on the map.');
-      dataChanged();
+      dataChanged('add');
     }
     function removePoint(i) {
       var p = S.pts[i];
       S.pts.splice(i, 1);
       S.hover = -1;
       announce('Removed a ' + CLASSES[p.c].name + ' loan. ' + S.pts.length + ' loans on the map.');
-      dataChanged();
+      dataChanged(i);
     }
 
     /* ---------- pointer + keyboard ---------- */
