@@ -17,7 +17,8 @@ window.AIM.exercises = [
    "The average of a list `xs` is `sum(xs) / len(xs)`.",
    "In `is_heavy_rain`, compare `today` with `1.5 * average` using `>`.",
    "`return today > 1.5 * average` already gives back `True` or `False`."
-  ]
+  ],
+  "optional": true
  },
  {
   "id": "ex-l1-python-1",

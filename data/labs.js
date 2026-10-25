@@ -186,7 +186,7 @@ window.AIM.labs = [
    },
    {
     "id": "t3",
-    "text": "With Random starting centres, Re-initialise and Run until K-Means gets stuck with an inertia well above “Best for this K”. Then switch to k-means++ and beat it."
+    "text": "With Random starting centres, Run (and “Run again”) until K-Means gets stuck with an inertia well above “Best for this K” (tip: “5 groups” with K = 5). Then switch to k-means++ and beat it."
    },
    {
     "id": "t4",

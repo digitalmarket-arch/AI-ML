@@ -544,7 +544,7 @@
       } else if (S.initUsed === 'kpp' && S.stuck && S.stuck.key === key && I < S.stuck.inertia * 0.95 && I <= best * 1.1) {
         notes.push('<b>Fixed!</b> k-means++ spread the starting centres out and reached inertia ' + f3(I) + ' instead of the stuck ' + f3(S.stuck.inertia) + '.');
         completeTask('t3');
-      } else if (S.initUsed === 'random' && k >= 2 && !done.t3 && !S.stuck) {
+      } else if (S.initUsed === 'random' && k >= 2 && !done.t3 && !(S.stuck && S.stuck.key === key)) {
         // hunting for a stuck start: after a couple of good runs, say how to find one faster
         S.misses = S.missKey === key ? S.misses + 1 : 1;
         S.missKey = key;

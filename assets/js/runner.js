@@ -18,6 +18,8 @@
     '    _results.append({"name": name, "ok": ok, "hint": hint, "error": err})',
     '',
     'def close(a, b, tol=1e-6):',
+    '    if a is None:',
+    '        raise TypeError("your function returned None. Did you forget to write return?")',
     '    try:',
     '        import numpy as _np',
     '        return bool(_np.allclose(_np.asarray(a, dtype=float), _np.asarray(b, dtype=float), atol=tol, rtol=0))',
@@ -59,7 +61,7 @@
     'self.onmessage = async function (e) {',
     '  var m = e.data;',
     '  try {',
-    '    self.postMessage({ id: m.id, type: "status", text: "Starting Python (first run downloads about 10 MB)…" });',
+    '    self.postMessage({ id: m.id, type: "status", text: "Starting Python (the first run downloads about 12 MB)…" });',
     '    await ready;',
     '    var need = (m.packages || []).filter(function (p) { return !loaded[p]; });',
     '    if (need.length) {',
@@ -76,7 +78,7 @@
     '    fn.destroy();',
     '    self.postMessage({ id: m.id, type: "done", result: JSON.parse(out) });',
     '  } catch (err) {',
-    '    self.postMessage({ id: m.id, type: "fatal", text: String(err && err.message || err) });',
+    '    self.postMessage({ id: m.id, type: "fatal", boot: !py, text: String(err && err.message || err) });',
     '  }',
     '};'
   ].join('\n');
@@ -93,7 +95,11 @@
       if (m.type === 'stdout' || m.type === 'stderr') { if (p.onStdout) p.onStdout(m.text, m.type); }
       else if (m.type === 'status') { if (p.onStatus) p.onStatus(m.text); }
       else if (m.type === 'done') { delete pending[m.id]; status = 'ready'; p.resolve(m.result); }
-      else if (m.type === 'fatal') { delete pending[m.id]; status = 'error'; p.reject(new Error(m.text)); }
+      else if (m.type === 'fatal') {
+        delete pending[m.id]; status = 'error';
+        if (m.boot) { try { worker.terminate(); } catch (e) {} worker = null; }
+        p.reject(new Error(m.boot ? 'Python could not be downloaded. Check your internet connection and press Run again. (It loads from cdn.jsdelivr.net, which some office networks block.)' : m.text));
+      }
     };
     worker.onerror = function (e) {
       Object.keys(pending).forEach(function (k) { pending[k].reject(new Error('Python could not start. Check your internet connection (Pyodide loads from cdn.jsdelivr.net). ' + (e.message || ''))); delete pending[k]; });
