@@ -280,7 +280,7 @@
     var curF = C.fert0, ghostF = null, ghostK = 0;
     var selTok = null, cursor = -1, hover = -1, focused = false;
     var justTok = null; // token made by the latest single merge step (drawn with a yellow fill)
-    var anim = null, raf = 0, needLayout = true, pendingScroll = false;
+    var anim = null, raf = 0, needLayout = true, pendingScroll = 0; // 1 = list needs scrolling, 2 = do it next frame
     var tryEdited = false, corpusTimer = 0, shownK = 0;
     var theme = null;
 
@@ -742,7 +742,7 @@
         setHtml(nextLi, M ? 'Done: no pair appears twice any more.' : 'Nothing to merge yet: no pair appears twice.');
       }
       mergeCount.textContent = k + ' of ' + M;
-      if (k > shownK) { pendingScroll = true; requestDraw(); }
+      if (k > shownK) { pendingScroll = 1; requestDraw(); }
       shownK = k;
       markRows(false);
     }
@@ -987,6 +987,8 @@
     function frame(ts) {
       raf = 0;
       if (!alive) return;
+      // scroll the merge list here, before any DOM writes, while the layout from the last frame is still valid
+      if (pendingScroll === 2) { pendingScroll = 0; mlist.scrollTop = mlist.scrollHeight; }
       if (anim && (!anim.last || ts - anim.last >= STEP_MS)) {
         anim.last = ts;
         if (k < anim.target && k < C.merges.length) setK(k + 1, true);
@@ -994,8 +996,8 @@
       }
       if (needLayout) layoutAll();
       draw();
-      if (pendingScroll) { pendingScroll = false; mlist.scrollTop = mlist.scrollHeight; }
-      if (anim) requestDraw();
+      if (pendingScroll === 1) pendingScroll = 2;
+      if (anim || pendingScroll) requestDraw();
     }
     function requestDraw() { if (!raf && alive) raf = requestAnimationFrame(frame); }
     function relayout() { needLayout = true; requestDraw(); }
