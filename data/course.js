@@ -326,6 +326,10 @@ window.AIM.modules = [
     "note": "For this module watch only the short opening videos (what ML is, AI vs ML vs DL, types of ML such as supervised, unsupervised and reinforcement, applications and challenges of ML, the ML development life cycle) and stop before Day 15 ('working with CSV files', per CampusX's own GitHub repo), where the coding starts."
    },
    {
+    "id": "krish-naik-what-is-generative-ai-in-hindi",
+    "note": "Watch after the AI-vs-ML basics to understand in Hinglish what generative AI is and how it differs from older machine learning."
+   },
+   {
     "id": "krish-naik-hindi-ai-engineers-vs-ml-engineers-vs-data-sc",
     "note": "Watch at the end of the module (confirmed title 'AI Engineers Vs ML Engineers Vs Data Scientist- Krish Naik Hindi') to pick the career path this course will lead you towards."
    },
@@ -725,6 +729,10 @@ window.AIM.modules = [
     "note": "Main course: follow its numbered 'Tutorial' videos in order for descriptive stats, distributions, probability and hypothesis testing (titles seen include 'Tutorial 14-What Is Hypothesis Testing Explained In Hindi' and 'Tutorial 21- Chi Square test'), and leave 'Tutorial 15 - Statistics Practical Implementation With Python' until after l1-python."
    },
    {
+    "id": "codebasics-hindi-simple-explanation-of-ab-testing",
+    "note": "Watch right after hypothesis testing to see, in Hindi, how an A/B test decides whether a product change really worked or was just luck."
+   },
+   {
     "id": "prof-abhay-gopal-bhatt-indian-statistical-institute-delh",
     "note": "Second pass for proper probability theory in Hindi (conditional probability, Bayes, distributions, limit theorems); check NPTEL for the next run or watch the lectures without enrolling, and expect some calculus."
    },
@@ -856,8 +864,20 @@ window.AIM.modules = [
     "note": "Start here for Hinglish ML maths: the video list was not checked, so pick the videos whose titles match this module (vectors, dot product, matrices, matrix multiplication, eigenvectors, derivatives, gradients) and watch them alongside 3Blue1Brown."
    },
    {
+    "id": "digital-daru-linear-algebra-for-ml-hindi-2021",
+    "note": "Use it as a second Hindi explanation of vectors, the dot product, matrix multiplication and norms whenever an idea has not clicked yet; skip videos that go beyond this module's topic list."
+   },
+   {
+    "id": "digital-daru-calculus-full-course-hindi-ml",
+    "note": "Watch the parts on derivatives, partial derivatives, the chain rule and gradients in Hindi, and skip any integration sections, which this module does not need."
+   },
+   {
     "id": "campusx-nitish-singh-gradient-descent-from-scratch-100-d",
     "note": "Day 51 of CampusX's 100 Days of ML ('Gradient Descent From Scratch'): watch the intuition chapter (from about 07:25) and the maths chapter (from about 28:45) to see derivatives become downhill steps, and leave the code demo until you have met linear regression."
+   },
+   {
+    "id": "krish-naik-hindi-chain-rule-backpropagation-tutorial-5",
+    "note": "Watch after you have learned the chain rule to hear in Hindi why it is the tool neural networks use to update their weights; do not worry about the neural-network terms yet."
    },
    {
     "id": "prof-sarang-sane-iit-madras-b-s-degree-programme-mathema",
@@ -987,12 +1007,24 @@ window.AIM.modules = [
     "note": "Use only Day 15 (working with CSV files), Day 16 (JSON and SQL), Day 17 (API to DataFrame), Day 34 (handling date and time) and Days 35-40 (missing data: complete-case analysis, imputation, missing indicator, KNN and iterative imputers); the other days belong to later modules."
    },
    {
+    "id": "campusx-dsmp-session-13-numpy-fundamentals",
+    "note": "A direct link to the Hinglish NumPy class: watch it before any Pandas video, then continue with 'Session 15 - Numpy Tricks'."
+   },
+   {
+    "id": "campusx-dsmp-session-16-pandas-series",
+    "note": "A direct link to the first Hinglish CampusX Pandas class (Series); continue with the DataFrame and GroupBy sessions in the DSMP playlist."
+   },
+   {
     "id": "codewithharry-python-data-science-and-big-data-tutorials",
     "note": "An optional gentle Hindi warm-up if the CampusX classes feel too long; expect some older pandas syntax and skip any 'Big Data' parts."
    },
    {
     "id": "codebasics-dhaval-patel-codebasics-pandas-tutorial-serie",
     "note": "Short Indian English videos, one concept each: use the ones on missing data, groupby, merge/concat, pivot/reshape and dates as a second explanation, remembering that DataFrame.append was removed in pandas 2."
+   },
+   {
+    "id": "codebasics-python-numpy-tutorial-playlist",
+    "note": "Short Indian English NumPy videos (array basics, operations, slicing, boolean indexing) for a quick second explanation after the CampusX NumPy class."
    },
    {
     "id": "kaggle-kaggle-learn-pandas",
@@ -1107,6 +1139,10 @@ window.AIM.modules = [
    {
     "id": "campusx-nitish-singh-campusx-data-science-mentorship-pro",
     "note": "For Hinglish visualisation, find 'Session 24 - Advanced Matplotlib', 'Session 25 - Plotting using Seaborn', 'Session 26 - Plotting using Seaborn Part 2' and 'Session 29 - Exploratory Data Analysis' in this playlist."
+   },
+   {
+    "id": "campusx-dsmp-session-25-plotting-using-seaborn",
+    "note": "A direct link to the Hinglish Seaborn class: follow it with Part 2 and recreate each chart on a dataset of your own."
    },
    {
     "id": "krish-naik-exploratory-data-analysis-eda-detailed-playli",
@@ -1232,6 +1268,10 @@ window.AIM.modules = [
    {
     "id": "campusx-end-to-end-toy-project",
     "note": "Watch this single CampusX video right after the life-cycle videos to see one complete scikit-learn project (load data, split, fit, predict, check accuracy) from start to finish in Hinglish."
+   },
+   {
+    "id": "sheryians-ai-school-ml-course-part-1-foundation",
+    "note": "A newer (around 2025) Hinglish alternative: watch Part 1 'Foundation' of Sheryians AI School's ML course for a fresh walk-through of the real-world ML workflow, and check the first few minutes to confirm the language suits you."
    },
    {
     "id": "codebasics-hindi-dhaval-patel-machine-learning-in-hindi",
@@ -1361,6 +1401,10 @@ window.AIM.modules = [
    {
     "id": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
     "note": "Watch the regression block whose code sits in CampusX's GitHub folders day48 to day57: simple linear regression (Day 48), regression metrics (Day 49), multiple linear regression (Day 50), gradient descent (Day 51), types of gradient descent (Day 52), polynomial regression (Day 53), ridge/regularised linear models (Day 55), lasso (Day 56) and ElasticNet (Day 57)."
+   },
+   {
+    "id": "sheryians-ai-school-ml-course-part-2-supervised-learning",
+    "note": "A newer (around 2025) Hinglish one-shot on supervised learning with a focus on regression; use it as a quick revision after CampusX or as a faster first pass."
    },
    {
     "id": "codebasics-hindi-dhaval-patel-machine-learning-in-hindi",
@@ -1493,6 +1537,10 @@ window.AIM.modules = [
    {
     "id": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
     "note": "Watch the logistic regression block (code folders day58-logistic-regression and day60-logistic-regression-contd in CampusX's GitHub repo, covering the sigmoid, loss function and the softmax/multiclass part); the free 100 Days repo has no folders for KNN, Naive Bayes or SVM, so take those from the next entries."
+   },
+   {
+    "id": "sheryians-ai-school-ml-course-part-3-classification",
+    "note": "A newer (around 2025) Hinglish one-shot on classification algorithms for beginners; use it to see all the main classifiers side by side."
    },
    {
     "id": "krish-naik-krish-naik-hindi-channel-machine-learning-pla",
@@ -1631,6 +1679,10 @@ window.AIM.modules = [
     "note": "Watch this CampusX video to learn GridSearchCV and RandomizedSearchCV in Hinglish on a random forest; the same ideas apply to any model."
    },
    {
+    "id": "sheryians-ai-school-ml-course-part-4-model-tuning",
+    "note": "A newer (around 2025) Hinglish one-shot on model tuning and ensembles; watch the tuning part and skip the unsupervised part for now."
+   },
+   {
     "id": "krish-naik-krish-naik-hindi-channel-machine-learning-pla",
     "note": "Scan the playlist for performance-metric, cross-validation and imbalanced-data videos; their coverage was not confirmed, so skip it if nothing matches."
    },
@@ -1641,6 +1693,10 @@ window.AIM.modules = [
    {
     "id": "krish-naik-complete-machine-learning-in-python-detailed-",
     "note": "Look up the classification performance metrics, ROC-AUC, handling imbalanced datasets and hyperparameter tuning videos for Indian-English explanations."
+   },
+   {
+    "id": "abhishek-thakur-kaggle-30-days-of-ml-part-4-optuna",
+    "note": "Watch this Kaggle Grandmaster live session to see Optuna tuning an XGBoost model, then check the current Optuna docs because the API has changed since 2021."
    },
    {
     "id": "abhishek-thakur-kaggle-grandmaster-approaching-almost-an",
@@ -1752,6 +1808,14 @@ window.AIM.modules = [
    {
     "id": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
     "note": "For this module skip to the ensemble part of the same 100 Days playlist: the official CampusX GitHub notebooks are labelled day65-random-forest, day66-adaboost, day68-stacking-and-blending and gradient-boosting, and the videos to look for include 'Decision Trees - Introduction and Geometric Intuition' and 'Random Forest Intuition'."
+   },
+   {
+    "id": "campusx-xgboost-series-hindi",
+    "note": "After the CampusX gradient boosting lesson, watch 'Introduction to XGBOOST', then 'XGBoost for Regression' and 'The Maths Behind XGBoost' to understand XGBoost in Hindi."
+   },
+   {
+    "id": "krish-naik-hindi-gradient-boosting-indepth",
+    "note": "Watch this as a second Hindi explanation of gradient boosting, together with its companion videos 'What Is Boosting Technique In Machine Learning' and 'Adaboost ML Algorithm Indepth Intuition' on the same channel."
    },
    {
     "id": "krish-naik-krish-naik-hindi-channel-machine-learning-pla",
@@ -1882,6 +1946,10 @@ window.AIM.modules = [
    {
     "id": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
     "note": "Watch the PCA lesson (the official CampusX notebooks label it day47-pca) and the K-Means videos from the later part of the playlist (notebook folder 'kmeans'), and look there for hierarchical clustering and DBSCAN too."
+   },
+   {
+    "id": "krish-naik-hindi-complete-unsupervised-ml",
+    "note": "Watch this long Hindi session to cover K-Means, hierarchical clustering and DBSCAN in one sitting, ideally after the CampusX K-Means lesson."
    },
    {
     "id": "krish-naik-krish-naik-hindi-channel-machine-learning-pla",
@@ -2016,6 +2084,10 @@ window.AIM.modules = [
    {
     "id": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
     "note": "Watch Days 24-33 in order (the official CampusX notebooks are day24-standardization, day25-normalization, day26-ordinal-encoding, day27-one-hot-encoding, day28-column-transformer, day29-sklearn-pipelines, day30-function-transformer, day31-power-transformer, day32-binning-and-binarization, day33-handling-mixed-variables), then Day 34 (date and time) and Day 45 (feature construction and splitting)."
+   },
+   {
+    "id": "campusx-session-54-feature-selection-part-1",
+    "note": "Watch this recorded CampusX session for filter-based feature selection in Hindi, then use Krish Naik's feature selection playlist for the other methods."
    },
    {
     "id": "krish-naik-hindi-end-to-end-ml-projects-playlist-hindi",
@@ -2165,8 +2237,16 @@ window.AIM.modules = [
     "note": "The gentlest Indian-English walkthrough: watch the early videos on neurons, activation functions, loss functions, gradient descent and the 'neural network from scratch in Python' coding videos, then the dropout video; skip the later CNN/RNN parts for now."
    },
    {
+    "id": "vizuara-building-neural-networks-from-scratch",
+    "note": "Code along with these Indian-English lectures to build neurons, layers, the forward pass and backpropagation by hand, which is exactly the from-scratch build this module asks for."
+   },
+   {
     "id": "prof-mitesh-m-khapra-iit-madras-cs7015-deep-learning-wor",
     "note": "For a rigorous IIT treatment, watch the lectures on perceptrons and feedforward networks, backpropagation, the gradient-descent variants (momentum, Nesterov, AdaGrad, RMSProp, Adam), regularisation and dropout, and batch normalisation; skip the word-vector and RNN lectures until the NLP module."
+   },
+   {
+    "id": "krish-naik-deep-learning-indepth-5-hours",
+    "note": "A one-sitting Indian-English revision of the whole module (perceptron, chain rule, vanishing gradients, activation and loss functions, optimisers, a hands-on ANN); use its chapter list to jump to the part you need before the module quiz."
    },
    {
     "id": "3blue1brown-grant-sanderson-neural-networks-deep-learnin",
@@ -2277,6 +2357,10 @@ window.AIM.modules = [
   "indiaExample": "AI4Bharat, a research lab at IIT Madras, trained IndicTrans2, an open-source translation model for all 22 scheduled Indian languages, using fairseq, a toolkit built on PyTorch. The models are also published on Hugging Face, so you can load one in a Colab notebook and translate English to Hindi or Tamil with the skills from this module: tensors, a device, `model.eval()` and batches.",
   "tip": "Keep one clean training-template notebook (load data → build model → train loop → evaluate → save) and copy it for every new project. Most beginner bugs come from rewriting the training loop from scratch each time.",
   "watch": [
+   {
+    "id": "campusx-practical-deep-learning-using-pytorch",
+    "note": "Your main Hindi PyTorch course: watch it in order from 'PyTorch for Beginners' (tensors and autograd) through the 'PyTorch Training Pipeline' video and the Dataset/DataLoader, nn.Module and GPU videos, coding along in Colab."
+   },
    {
     "id": "microsoft-ai-for-beginners-12-week-curriculum-hindi-tran",
     "note": "Read the Hindi text of the Frameworks lesson, which shows the same small network in PyTorch and in TensorFlow/Keras, so you get the Keras overview side by side (notebook code is in English)."
@@ -2441,6 +2525,10 @@ window.AIM.modules = [
     "note": "Watch Part 1 ('What is U-net?') for the architecture, then the following parts of the same numbered series (up to Part 6, 'Running the code and understanding results') to build a U-Net segmentation model."
    },
    {
+    "id": "vizuara-build-vision-transformer-vit-from-scratch",
+    "note": "Watch this free lecture for the ViT intro: how an image is cut into patches, turned into tokens and fed to a transformer; the full course it advertises is optional."
+   },
+   {
     "id": "polo-club-of-data-science-georgia-tech-cnn-explainer-int",
     "note": "Open it alongside the CampusX CNN videos and click through each convolution, ReLU and pooling step on a real image."
    },
@@ -2551,6 +2639,10 @@ window.AIM.modules = [
    {
     "id": "campusx-nitish-singh-100-days-of-deep-learning-ann-to-rn",
     "note": "For the second half of the module, skip the ANN and CNN parts and start at the RNN section (RNN, problems with RNNs, LSTM, GRU), then continue to the encoder-decoder (seq2seq) and attention videos; day numbers were not confirmed, so go by the video titles."
+   },
+   {
+    "id": "krish-naik-hindi-nlp-playlist-hindi",
+    "note": "Use this as a second Hindi explanation of turning text into numbers, especially the confirmed videos 'Tutorial 5- Plan Of Learning Text Embedding In NLP', 'Tutorial 8- Ngrams', 'Tutorial 9-TF-IDF Word Embedding' and 'Tutorial 10-Introduction To Word Embeddings'."
    },
    {
     "id": "krish-naik-nlp-live-series-classical-nlp-to-rnn-lstm-enc",
@@ -2685,6 +2777,10 @@ window.AIM.modules = [
     "note": "Watch this first as a gentle Hinglish introduction to why transformers need self-attention; a search in this pass confirmed it is a CampusX video, possibly a recorded live session."
    },
    {
+    "id": "campusx-transformer-architecture-part-1-encoder",
+    "note": "After self-attention, watch this Hinglish video to see how multi-head self-attention and feed-forward layers stack into the transformer encoder."
+   },
+   {
     "id": "hugging-face-hindi-translation-by-pandyaved98-hugging-fa",
     "note": "Read the Hindi chapters on what transformer models do, encoder vs decoder models and fine-tuning a pretrained model, then switch to the English LLM Course for the chapters that are not yet translated."
    },
@@ -2815,6 +2911,14 @@ window.AIM.modules = [
     "note": "Start here: follow one project in Hinglish from notebook to modular code, pipelines and deployment; the episode list was not seen, so use the video titles to find the deployment parts."
    },
    {
+    "id": "campusx-fastapi-for-machine-learning-playlist",
+    "note": "Watch in order to learn what an API is, the basics of FastAPI and how to serve a trained model (an insurance-premium example with a Streamlit front end); the code is at github.com/campusx-official/fastapi-demo-api."
+   },
+   {
+    "id": "m-prashant-docker-course-for-beginners-hindi",
+    "note": "Learn Docker basics in Hindi (images, containers, Dockerfiles), then use them to package your FastAPI model app."
+   },
+   {
     "id": "krish-naik-end-to-end-ml-projects-playlist-english",
     "note": "Use the project videos that add DVC and MLflow, for example 'End To End Deep Learning Project Using MLOPS DVC Pipeline With Deployments Azure And AWS', for data versioning and tracking in Indian English; skip the paid-cloud steps if you have no card."
    },
@@ -2825,6 +2929,10 @@ window.AIM.modules = [
    {
     "id": "krish-naik-complete-dockers-in-one-shot",
     "note": "After the Hindi Docker basics, watch this Indian-English one-shot for the data-science angle: Dockerising an ML app so it runs the same everywhere."
+   },
+   {
+    "id": "abhishek-veeramalla-cicd-playlist",
+    "note": "Watch the CI/CD introduction and the GitHub Actions videos, then add a workflow to your ML repo that runs tests and builds the Docker image on every push."
    },
    {
     "id": "krish-naik-evidently-ai-monitoring-tutorial",
@@ -3072,6 +3180,10 @@ window.AIM.modules = [
     "note": "This is your main Hindi course: go in order, focusing on Video 3 'LangChain Models', Video 4 'Prompts in LangChain', Video 5 'Structured Output in LangChain', Video 10 'Document Loaders in LangChain', Video 12 'Vector Stores in LangChain' and Video 15 'YouTube Chatbot using LangChain' (your first full RAG app), and check imports against the LangChain 1.x docs because it was recorded on 0.3."
    },
    {
+    "id": "campusx-what-is-rag-retrieval-augmented-generation",
+    "note": "Watch this focused Hindi explainer of what RAG is and how retrieval and generation fit together before you build the RAG chatbot in the playlist."
+   },
+   {
     "id": "krish-naik-hindi-generative-ai-crash-course-with-langcha",
     "note": "Use this one-sitting Hindi crash course as a quicker, more recent LangChain refresher, and compare its code with the CampusX playlist."
    },
@@ -3086,6 +3198,10 @@ window.AIM.modules = [
    {
     "id": "krish-naik-llamaindex-playlist",
     "note": "Watch a few videos to see how LlamaIndex builds the same RAG pipeline differently from LangChain, and update the imports to the current llama-index-core packages."
+   },
+   {
+    "id": "krish-naik-complete-agentic-ai-course-10-hours",
+    "note": "Use its RAG, vectorless RAG and evals sections as a recent (2026) Indian-English refresher, and leave the agent sections for the AI Agents module."
    },
    {
     "id": "microsoft-generative-ai-for-beginners-21-lessons-version",
@@ -3343,12 +3459,20 @@ window.AIM.modules = [
     "note": "Watch this after LangGraph to see, in Hindi, that the same LLM + tools + loop idea works in a lighter framework (Pydantic AI)."
    },
    {
+    "id": "krish-naik-complete-agentic-ai-course-10-hours",
+    "note": "Use this as a recent (2026) one-stop Indian-English build-along, especially the LangGraph, guardrails and evals sections."
+   },
+   {
     "id": "krish-naik-agentic-ai-tutorials",
     "note": "Pick the end-to-end LangGraph project videos for extra practice after the CampusX playlist."
    },
    {
     "id": "krish-naik-mcp-model-context-protocol-playlist",
     "note": "Start with 'All You Need To Know About Model Context Protocol(MCP)', then follow the videos that build MCP servers and connect them to agents, checking the current Streamable HTTP transport in the MCP docs."
+   },
+   {
+    "id": "krish-naik-guardrails-with-langchain-crash-course",
+    "note": "Watch this to add guardrails to an agent, meaning checks on what goes in and out and limits on risky actions, using the companion code."
    },
    {
     "id": "microsoft-ai-agents-for-beginners-18-lessons",
@@ -3593,6 +3717,10 @@ window.AIM.modules = [
   "tip": "Before writing RL code for a real problem, test your algorithm on a tiny version whose best answer you can work out by hand, such as a 3-armed bandit or a 4×4 grid. If it can't solve that, it won't solve the real one.",
   "watch": [
    {
+    "id": "ersahilkagyan-markov-decision-process-hindi",
+    "note": "Watch this first as a short Hindi warm-up on states, actions, rewards and the MDP idea. It is exam-style, so do not expect depth."
+   },
+   {
     "id": "prof-balaraman-ravindran-iit-madras-nptel-nptel-reinforc",
     "note": "Your main course. Start with the multi-armed bandit lectures (epsilon-greedy, UCB), then MDPs and Bellman equations, Q-learning and finally policy gradients; find them by title, since lecture numbers were not confirmed. DQN and PPO are covered only thinly."
    },
@@ -3603,6 +3731,10 @@ window.AIM.modules = [
    {
     "id": "iit-kanpur-ee675-introduction-to-reinforcement-learning-",
     "note": "A 2024 IIT course for cross-checking value functions, Q-learning and policy gradients. Skim the lecture titles first, because its syllabus was not verified."
+   },
+   {
+    "id": "vizuara-intro-reinforcement-learning-and-ppo-for-robotics",
+    "note": "Watch it after the NPTEL policy-gradient lectures for an applied Indian-English explanation of PPO."
    },
    {
     "id": "vizuara-reasoning-llms-from-scratch",
@@ -3727,8 +3859,16 @@ window.AIM.modules = [
     "note": "Search the channel for 'roadmap' and 'interview' to find advice on the Indian job market in Hinglish, and skip the promotional videos."
    },
    {
+    "id": "krish-naik-hindi-600-python-interview-questions",
+    "note": "Practise the Python coding round in Hinglish: use the questions in the linked GitHub repo and time yourself."
+   },
+   {
     "id": "nptel-iit-madras-introduction-to-machine-learning-nptel-",
     "note": "Take this as your IIT-level theory course and revise from it before interviews. Consider the NPTEL certificate exam (it has a fee), which Indian employers recognise."
+   },
+   {
+    "id": "raj-dandekar-3-ways-to-read-an-ml-research-paper",
+    "note": "Watch this before your first paper, then practise his three reading modes on one paper picked from Hugging Face Papers."
    },
    {
     "id": "ineuron-krish-naik-and-team-data-science-interview-quest",

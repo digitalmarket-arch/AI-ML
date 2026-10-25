@@ -66,7 +66,7 @@ window.AIM.labs = [
    },
    {
     "id": "t3",
-    "text": "Cure overfitting with more data: at degree 10 or more, first see “Overfitting”, then add training points until the verdict says “Good fit”."
+    "text": "Cure overfitting with more data: at degree 10 or more, first see “Overfitting”. Then, without lowering the degree, add training points until the verdict says “Good fit”."
    },
    {
     "id": "t4",

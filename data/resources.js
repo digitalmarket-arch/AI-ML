@@ -176,6 +176,32 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "krish-naik-what-is-generative-ai-in-hindi",
+  "title": "What Is Generative AI In Hindi",
+  "creator": "Krish Naik (Hindi video)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=LFs2z7UUDJU",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=LFs2z7UUDJU",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics"
+  ],
+  "topics": [
+   "AI vs ML vs Deep Learning vs Generative AI",
+   "what generative AI and LLMs are"
+  ],
+  "approxHours": 0,
+  "cost": "free",
+  "why": "A Hinglish explainer from one of India's best-known AI teachers on what generative AI is (models that create new text, images, audio and more), filling the module's gap for a Hindi GenAI intro for non-coders.",
+  "caveats": "Upload year and length not confirmed (probably 2023-24, so tool and model names may be dated, but the concepts hold). The search result shows 'Krish Naik' in the title but not which of his channels uploaded it. Hours set to 0 (unknown).",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "LFs2z7UUDJU"
+ },
+ {
   "id": "krish-naik-uploader-not-confirmed-ai-learning-path-for-2",
   "title": "AI Learning Path For 2026 - Data Science, Generative and Agentic AI Roadmap",
   "creator": "Krish Naik (uploader not confirmed)",
@@ -1845,6 +1871,31 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "codebasics-hindi-simple-explanation-of-ab-testing",
+  "title": "Simple explanation of A/B Testing In Hindi",
+  "creator": "codebasics Hindi",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=Vif1U1FLUeQ",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=Vif1U1FLUeQ",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-stats"
+  ],
+  "topics": [
+   "hypothesis testing, p-values, A/B testing"
+  ],
+  "approxHours": 0,
+  "cost": "free",
+  "why": "codebasics explains A/B testing 'such that even a high school student can understand it', in Hindi, filling the module's gap for a Hindi A/B-testing resource with a business-style example a founder can relate to.",
+  "caveats": "Concept-level: it probably does not cover sample size, power or the danger of peeking at results early (use Evan Miller's A/B tools for that). Year and length not confirmed (hours set to 0). An English version with the same description exists ('Simple explanation of A/B Testing', https://www.youtube.com/watch?v=eiIhTbFP0ls).",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "Vif1U1FLUeQ"
+ },
+ {
   "id": "dr-gajendra-purohit-mathscare-statistics-and-probability",
   "title": "Statistics And Probability (Dr. Gajendra Purohit)",
   "creator": "Dr. Gajendra Purohit (MathsCare)",
@@ -2543,6 +2594,63 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "digital-daru-calculus-full-course-hindi-ml",
+  "title": "Calculus Full Course in Hindi - Machine Learning (Digital Daru)",
+  "creator": "Digital Daru",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=4c12ll5y1QE",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=4c12ll5y1QE",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-linalg-calc"
+  ],
+  "topics": [
+   "derivatives for machine learning",
+   "partial derivatives",
+   "chain rule",
+   "gradients"
+  ],
+  "approxHours": 3,
+  "cost": "Free",
+  "why": "The only Hindi calculus course found that is framed for machine learning rather than GATE. It fills the module's top gap: no Hindi resource for derivatives and gradients.",
+  "caveats": "The chapter list, length and upload year were not checked. The topics are what an ML calculus course normally covers and are not confirmed. A small channel whose quality has not been reviewed independently; pair it with 3Blue1Brown's Essence of Calculus. The year and hours are estimates.",
+  "year": 2021,
+  "status": "verified",
+  "listId": "",
+  "videoId": "4c12ll5y1QE"
+ },
+ {
+  "id": "digital-daru-linear-algebra-for-ml-hindi-2021",
+  "title": "Complete - Linear Algebra For Machine learning Mathematics in Hindi 2021",
+  "creator": "Digital Daru",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLPzjifo9TUNWV8VNjq4MYuNUxuqk3pq11",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-linalg-calc"
+  ],
+  "topics": [
+   "vectors and matrices",
+   "dot product and matrix multiplication",
+   "vector and matrix norms",
+   "covariance matrix",
+   "column standardisation"
+  ],
+  "approxHours": 4,
+  "cost": "Free",
+  "why": "A linear algebra series in Hindi aimed at machine learning rather than exams. Same-style videos in search covered the dot product, matrix multiplication, norms and the covariance matrix, which is a much better fit for this module than the GATE/B.Sc courses.",
+  "caveats": "A small channel, and the series dates from 2021. The playlist's video list was not opened: the topic list comes from same-style video titles in search, whose uploader was not shown. Eigenvector coverage is not confirmed. Teaching quality has not been reviewed independently; use it alongside 3Blue1Brown. The hours figure is an estimate.",
+  "year": 2021,
+  "status": "verified",
+  "listId": "PLPzjifo9TUNWV8VNjq4MYuNUxuqk3pq11",
+  "videoId": ""
+ },
+ {
   "id": "campusx-nitish-singh-gradient-descent-from-scratch-100-d",
   "title": "Gradient Descent From Scratch (100 Days of ML, Day 51)",
   "creator": "CampusX (Nitish Singh)",
@@ -2596,6 +2704,33 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "PLKnIA16_RmvbYFaaeLY28cWeqV-3vADST",
   "videoId": ""
+ },
+ {
+  "id": "krish-naik-hindi-chain-rule-backpropagation-tutorial-5",
+  "title": "Tutorial 5 - Chain Rule Of Derivative In Backward Propagation (Krish Naik Hindi)",
+  "creator": "Krish Naik (Krish Naik Hindi channel)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=k3B8ZoxTpOk",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=k3B8ZoxTpOk",
+  "language": "hinglish",
+  "level": "intermediate",
+  "modules": [
+   "l1-linalg-calc"
+  ],
+  "topics": [
+   "chain rule",
+   "derivative of a composite function",
+   "why the chain rule drives weight updates (backpropagation)"
+  ],
+  "approxHours": 0.3,
+  "cost": "Free",
+  "why": "A short Hindi explanation from Krish Naik of the chain rule, the module's single most important calculus idea. It shows directly that this rule is what lets neural networks update their weights in the right direction.",
+  "caveats": "Part of his Hindi deep-learning series, so it uses neural-network terms (weights, backpropagation) before this course teaches them. Learn the chain rule itself first (3Blue1Brown or Digital Daru). The length and year are estimates.",
+  "year": 2022,
+  "status": "verified",
+  "listId": "",
+  "videoId": "k3B8ZoxTpOk"
  },
  {
   "id": "prof-sarang-sane-iit-madras-b-s-degree-programme-mathema",
@@ -3090,6 +3225,60 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "campusx-dsmp-session-13-numpy-fundamentals",
+  "title": "Session 13 - Numpy Fundamentals (CampusX DSMP 2022-23, free session)",
+  "creator": "CampusX (Nitish Singh)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=XF6DCrNTzug",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=XF6DCrNTzug",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-numpy-pandas"
+  ],
+  "topics": [
+   "NumPy arrays from first principles",
+   "creating, indexing and slicing arrays",
+   "vectorised operations on arrays"
+  ],
+  "approxHours": 2.5,
+  "cost": "Free",
+  "why": "Fills the missing Hindi NumPy slot: a full Hinglish class on NumPy fundamentals by Nitish Singh, the clearest Hindi data-science teacher. The follow-up 'Session 15 - Numpy Tricks' (https://www.youtube.com/watch?v=jFBpnd0G09o) continues the topic.",
+  "caveats": "A live-class recording from the paid DSMP 2022-23 cohort, released free on YouTube. Its length was not checked (DSMP sessions are often about 2 hours), and the sub-topics are inferred from the title. Session 14 (between 13 and 15) did not show up in search. The year is approximate.",
+  "year": 2022,
+  "status": "verified",
+  "listId": "",
+  "videoId": "XF6DCrNTzug"
+ },
+ {
+  "id": "campusx-dsmp-session-16-pandas-series",
+  "title": "Session 16 - Pandas Series (CampusX DSMP 2022-23, free session)",
+  "creator": "CampusX (Nitish Singh)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=zCDVUyq8lkw",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=zCDVUyq8lkw",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-numpy-pandas"
+  ],
+  "topics": [
+   "Pandas Series",
+   "creating and indexing a Series",
+   "Series methods and operations"
+  ],
+  "approxHours": 2.5,
+  "cost": "Free",
+  "why": "A direct link to the first CampusX Pandas class in Hinglish, so learners do not have to dig through the long DSMP playlist. Later free sessions in the same run include 'Session 19 - GroupBy Object in Pandas' (https://www.youtube.com/watch?v=LPBjF4_gZnI) and 'Session 21 - MultiIndex Series and DataFrames' (https://www.youtube.com/watch?v=QzoRUwz8DoM).",
+  "caveats": "A long live-class recording; its length was not checked. The DataFrame, merge/join and date-time sessions between 16 and 21 did not show up in search, so look for them in the DSMP playlist. The year is approximate.",
+  "year": 2022,
+  "status": "verified",
+  "listId": "",
+  "videoId": "zCDVUyq8lkw"
+ },
+ {
   "id": "codebasics-dhaval-patel-bengaluru-house-prices-dataset-e",
   "title": "Bengaluru House Prices dataset + end-to-end project (Codebasics)",
   "creator": "Codebasics (Dhaval Patel)",
@@ -3184,6 +3373,34 @@ window.AIM.resources = [
   "year": 0,
   "status": "verified",
   "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "codebasics-python-numpy-tutorial-playlist",
+  "title": "Python numpy tutorial playlist (Codebasics)",
+  "creator": "Codebasics (Dhaval Patel); attribution inferred from the playlist ID",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLeo1K3hjS3uset9zIVzJWqplaWBiacTEU",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l1-numpy-pandas"
+  ],
+  "topics": [
+   "NumPy array basics",
+   "basic array operations",
+   "slicing and stacking arrays",
+   "indexing with boolean arrays"
+  ],
+  "approxHours": 1.5,
+  "cost": "Free",
+  "why": "Short Indian English NumPy videos, one concept each, in the same style as the Codebasics Pandas series already listed. It gives the module an Indian English NumPy option, which it lacked.",
+  "caveats": "The search result did not show the uploader. The attribution rests on the playlist ID, which starts with the same prefix (PLeo1K3hjS3u) as Codebasics' verified Pandas playlist; on YouTube a shared prefix normally means the same channel. The video list was not opened, and the topics come from a same-style Codebasics video title in search. The series is older (year estimated) and short, and it may not cover broadcasting.",
+  "year": 2017,
+  "status": "verified",
+  "listId": "PLeo1K3hjS3uset9zIVzJWqplaWBiacTEU",
   "videoId": ""
  },
  {
@@ -3521,6 +3738,33 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "PLdOKnrf8EcP1y_LPEv7uBpzoRmlATjCVr",
   "videoId": ""
+ },
+ {
+  "id": "campusx-dsmp-session-25-plotting-using-seaborn",
+  "title": "Session 25 - Plotting using Seaborn (CampusX DSMP 2022-23, free session)",
+  "creator": "CampusX (Nitish Singh)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=DWVLRhnuGqI",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=DWVLRhnuGqI",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "Seaborn plots for univariate and bivariate analysis",
+   "choosing a chart for the data type",
+   "Matplotlib customisation (Session 24)"
+  ],
+  "approxHours": 2.5,
+  "cost": "Free",
+  "why": "The first confirmed Hindi/Hinglish video class on Seaborn, filling the module's biggest Hindi gap. It sits between 'Session 24 - Advanced Matplotlib' (https://www.youtube.com/watch?v=7YDc5xU9CQQ) and 'Session 26 - Plotting using Seaborn Part 2' (https://www.youtube.com/watch?v=kLWeKeqc9Ms), and 'Session 29 - Exploratory Data Analysis' (https://www.youtube.com/watch?v=PPEHpg2RixQ) applies it all.",
+  "caveats": "A long live-class recording; its length and exact sub-topics were not checked. The basic Matplotlib session before Session 24 did not show up in search, and Plotly is not covered. The year is approximate (CampusX posted a January 2023 schedule for this cohort).",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": "DWVLRhnuGqI"
  },
  {
   "id": "krish-naik-exploratory-data-analysis-eda-detailed-playli",
@@ -4018,6 +4262,33 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "",
   "videoId": ""
+ },
+ {
+  "id": "sheryians-ai-school-ml-course-part-1-foundation",
+  "title": "Complete Machine Learning Course for Beginners | Part 1- Foundation",
+  "creator": "Sheryians AI School (instructor Akarsh Vyas)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=1L420xXpDTg",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=1L420xXpDTg",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l2-ml-foundations"
+  ],
+  "topics": [
+   "the ML project lifecycle",
+   "features, labels, train/validation/test split",
+   "scikit-learn workflow: fit/predict/transform"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "A recent (around mid-2025) beginner ML course from an Indian coding school, taught by Akarsh Vyas, whose first part walks through the foundations of a real-world ML workflow. It is a fresher alternative to the 2021-22 CampusX recordings.",
+  "caveats": "Search results did not state the spoken language (Sheryians normally teaches in Hindi-English) or the video length, so check the first few minutes. Sheryians also sells paid courses; this video is free.",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": "1L420xXpDTg"
  },
  {
   "id": "campusx-end-to-end-toy-project",
@@ -4836,6 +5107,32 @@ window.AIM.resources = [
   "videoId": "-1hTcS5ZE4w"
  },
  {
+  "id": "sheryians-ai-school-ml-course-part-2-supervised-learning",
+  "title": "Complete Machine Learning Course for Beginners | Part 2 - Supervised Learning (Regression)",
+  "creator": "Sheryians AI School (instructor Akarsh Vyas)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=Lb0JzFtTmBs",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=Lb0JzFtTmBs",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l2-regression"
+  ],
+  "topics": [
+   "simple and multiple linear regression",
+   "regression metrics: MAE, RMSE, R²"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "Part 2 of the same recent Sheryians course focuses on supervised learning with regression, giving a newer Hinglish one-shot to pair with CampusX's day-by-day regression videos.",
+  "caveats": "Exact sub-topics (e.g. whether gradient descent variants and Ridge/Lasso are covered), length, year and spoken language were not confirmed; assumed to be from the same 2025 series as Part 1.",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": "Lb0JzFtTmBs"
+ },
+ {
   "id": "codebasics-hindi-dhaval-patel-machine-learning-in-hindi",
   "title": "Machine Learning in Hindi",
   "creator": "Codebasics Hindi (Dhaval Patel)",
@@ -4969,6 +5266,34 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "PLoROMvodv4rPP6braWoRt5UCXYZ71GZIQ",
   "videoId": ""
+ },
+ {
+  "id": "sheryians-ai-school-ml-course-part-3-classification",
+  "title": "Complete Machine Learning Course for Beginners | Part 3 - Supervised Learning: Classification Algorithms for Beginners",
+  "creator": "Sheryians AI School (instructor Akarsh Vyas)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=omGvjpmPDoY",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=omGvjpmPDoY",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l2-classification"
+  ],
+  "topics": [
+   "logistic regression and the sigmoid",
+   "K-Nearest Neighbours",
+   "Naive Bayes",
+   "Support Vector Machines and kernels"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "A recent Hinglish one-shot on classification algorithms, useful because CampusX's free 100 Days series has no dedicated KNN, Naive Bayes or SVM videos.",
+  "caveats": "Which algorithms are covered, the length, year and spoken language were not confirmed; assumed to be from the same 2025 series as Part 1.",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": "omGvjpmPDoY"
  },
  {
   "id": "5-minutes-engineering-machine-learning-hindi",
@@ -5120,6 +5445,32 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "sheryians-ai-school-ml-course-part-4-model-tuning",
+  "title": "Complete Machine Learning Course for Beginners | Part 4 - Model Tuning, Ensemble & Unsupervised Learning",
+  "creator": "Sheryians AI School (instructor Akarsh Vyas)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=UFAHXZW2hU8",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=UFAHXZW2hU8",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l2-metrics-tuning"
+  ],
+  "topics": [
+   "hyperparameter tuning: grid, random, Optuna",
+   "cross-validation (k-fold, stratified)"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "The only recent Hinglish video found whose title covers model tuning, a topic where the knownGaps noted no Hindi option.",
+  "caveats": "Also covers ensembles and unsupervised learning (later modules). Whether it covers cross-validation, Optuna or imbalanced data, plus its length, year and language, were not confirmed.",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": "UFAHXZW2hU8"
+ },
+ {
   "id": "campusx-hyperparameter-tuning-random-forest-gridsearchcv-randomizedsearchcv",
   "title": "Hyperparameter Tuning Random Forest using GridSearchCV and RandomizedSearchCV",
   "creator": "CampusX (Nitish Singh)",
@@ -5144,6 +5495,32 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "",
   "videoId": "4Im0CT43QxY"
+ },
+ {
+  "id": "abhishek-thakur-kaggle-30-days-of-ml-part-4-optuna",
+  "title": "Kaggle's 30 Days Of ML (Competition Part-4): Hyperparameter tuning using Optuna",
+  "creator": "Abhishek Thakur (Kaggle Grandmaster)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=m5YSKPMjkrk",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=m5YSKPMjkrk",
+  "language": "indian-english",
+  "level": "intermediate",
+  "modules": [
+   "l2-metrics-tuning"
+  ],
+  "topics": [
+   "hyperparameter tuning: grid, random, Optuna",
+   "cross-validation (k-fold, stratified)"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "An Indian Kaggle Grandmaster tunes an XGBoost model with Optuna on a real Kaggle competition, the only Indian-English Optuna walkthrough found.",
+  "caveats": "Recorded for Kaggle's 30 Days of ML in 2021, so Optuna's API has changed (v5 released Sep 2026); follow the current docs when coding. The search result did not name the presenter; the title matches Abhishek Thakur's 30 Days of ML live series. Uses XGBoost, taught in a later module.",
+  "year": 2021,
+  "status": "verified",
+  "listId": "",
+  "videoId": "m5YSKPMjkrk"
  },
  {
   "id": "andreas-mueller-columbia-university-applied-machine-lear",
@@ -5343,6 +5720,61 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "krish-naik-hindi-gradient-boosting-indepth",
+  "title": "Gradient Boosting Algorithms Indepth Intuition- Krish Naik Hindi",
+  "creator": "Krish Naik (Krish Naik Hindi channel)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=eEtEPdw2dck",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=eEtEPdw2dck",
+  "language": "hinglish",
+  "level": "intermediate",
+  "modules": [
+   "l2-trees-ensembles"
+  ],
+  "topics": [
+   "boosting",
+   "gradient boosting",
+   "AdaBoost"
+  ],
+  "approxHours": 1,
+  "cost": "Free",
+  "why": "A focused Hindi whiteboard explanation of how gradient boosting builds trees one after another on the previous trees' errors, a second voice next to CampusX for the hardest idea in this module.",
+  "caveats": "Companion videos on the same channel: 'What Is Boosting Technique In Machine Learning- Krish Naik Hindi' (youtube.com/watch?v=-7mILjsok34) and 'Adaboost ML Algorithm Indepth Intuition- Krish Naik Hindi' (youtube.com/watch?v=UgxHn8W4usI). These may already be inside the Krish Naik Hindi ML playlist (not checked). Length and recording year not checked; hours are an estimate. Mostly whiteboard intuition.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "eEtEPdw2dck"
+ },
+ {
+  "id": "campusx-xgboost-series-hindi",
+  "title": "Introduction to XGBOOST | Machine Learning | CampusX (XGBoost video series)",
+  "creator": "CampusX (Nitish Singh)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=C6aDw4y8qJ0",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=C6aDw4y8qJ0",
+  "language": "hinglish",
+  "level": "intermediate",
+  "modules": [
+   "l2-trees-ensembles"
+  ],
+  "topics": [
+   "XGBoost",
+   "gradient boosting",
+   "boosting maths",
+   "XGBoost for regression"
+  ],
+  "approxHours": 3,
+  "cost": "Free",
+  "why": "Fills the missing Hindi/Hinglish XGBoost coverage: CampusX explains where XGBoost came from, how it works for regression, and the maths behind it, in the same style as the 100 Days of ML series.",
+  "caveats": "A short series of separate videos rather than a confirmed playlist: 'XGBoost for Regression' is at youtube.com/watch?v=gmp2tS2joaA and 'The Maths Behind XGBoost' at youtube.com/watch?v=0Eo-_5bfers; the introduction's description also lists a classification video. Lengths and recording year were not checked (hours are an estimate). Does not cover LightGBM or CatBoost.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "C6aDw4y8qJ0"
+ },
+ {
   "id": "christoph-molnar-interpretable-machine-learning-book",
   "title": "Interpretable Machine Learning (book)",
   "creator": "Christoph Molnar",
@@ -5403,6 +5835,33 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "",
   "videoId": "DrohHdQa8u8"
+ },
+ {
+  "id": "krish-naik-hindi-complete-unsupervised-ml",
+  "title": "Complete Unsupervised Machine Learning Tutorials In Hindi- K Means, DBSCAN, Hierarchical Clustering",
+  "creator": "Krish Naik (Krish Naik Hindi channel)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=Aa4MACKaDC0",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=Aa4MACKaDC0",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l2-unsupervised"
+  ],
+  "topics": [
+   "K-Means and the elbow method",
+   "hierarchical clustering",
+   "DBSCAN"
+  ],
+  "approxHours": 3,
+  "cost": "Free",
+  "why": "One Hindi session that covers the three clustering methods of this module (K-Means, hierarchical clustering and DBSCAN), which saves hunting through separate playlist videos.",
+  "caveats": "Video length and recording year were not confirmed (hours are an estimate). The channel was identified from the search for Krish Naik's Hindi content and the title style; the page itself was not opened. Covers clustering only, not PCA, t-SNE/UMAP, anomaly detection or RFM.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "Aa4MACKaDC0"
  },
  {
   "id": "kaggle-ryan-holbrook-kaggle-learn-feature-engineering",
@@ -5467,6 +5926,32 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "PLTDARY42LDV7jzL_f68SY-eOQ9tY2lYvR",
   "videoId": "NuwUnRpxq2c"
+ },
+ {
+  "id": "campusx-session-54-feature-selection-part-1",
+  "title": "Session 54 - Feature Selection Part 1",
+  "creator": "CampusX (Nitish Singh)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=hRTe7tSkR2k",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=hRTe7tSkR2k",
+  "language": "hinglish",
+  "level": "intermediate",
+  "modules": [
+   "l2-feature-eng"
+  ],
+  "topics": [
+   "feature selection",
+   "filter methods"
+  ],
+  "approxHours": 2,
+  "cost": "Free",
+  "why": "Gives the feature selection topic a Hindi/Hinglish option from CampusX, with a linked Kaggle notebook on filter-based feature selection to code along with.",
+  "caveats": "A recorded live mentorship session, so it is long and less edited than the 100 Days videos; hours are an estimate. Only Part 1 (filter methods) was confirmed; whether later parts cover wrapper and embedded methods was not checked. Hindi delivery is assumed from CampusX's usual teaching language, not confirmed from this video's page.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "hRTe7tSkR2k"
  },
  {
   "id": "analytics-vidhya-analytics-vidhya-datahack-indian-hackat",
@@ -5741,6 +6226,36 @@ window.AIM.resources = [
   "videoId": "SlbbvhO3jKY"
  },
  {
+  "id": "vizuara-building-neural-networks-from-scratch",
+  "title": "Building Neural Networks from Scratch",
+  "creator": "Vizuara",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLPTV0NXA_ZSj6tNyn_UadmUeU3Q3oR-hu",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l3-nn-basics"
+  ],
+  "topics": [
+   "coding neurons and layers",
+   "forward pass",
+   "activation functions",
+   "loss functions",
+   "backpropagation",
+   "optimisers"
+  ],
+  "approxHours": 0,
+  "cost": "free",
+  "why": "An Indian-English lecture series that builds a neural network from the ground up in code, so the learner writes the forward pass and backpropagation by hand before using PyTorch.",
+  "caveats": "The playlist page snippet did not name the channel; Vizuara is inferred from the playlist ID prefix (PLPTV0NXA_ZS, the same as Vizuara's LLM, DeepSeek, Reasoning and Diffusion playlists listed in the Developer-Y/cs-video-courses README) and from a related 'Lecture 1 - Neural Network from Scratch: Coding Neurons and Layers' video promoting live courses 'taught by MIT and Purdue PhDs'. The lecture list was not checked, so the topics are indicative. Videos promote Vizuara's paid courses.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLPTV0NXA_ZSj6tNyn_UadmUeU3Q3oR-hu",
+  "videoId": ""
+ },
+ {
   "id": "krish-naik-complete-deep-learning-playlist-english",
   "title": "Complete Deep Learning Playlist (English)",
   "creator": "Krish Naik",
@@ -5809,6 +6324,38 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "PLyqSpQzTE6M9gCgajvQbc68Hk_JKGBAYT",
   "videoId": ""
+ },
+ {
+  "id": "krish-naik-deep-learning-indepth-5-hours",
+  "title": "Deep Learning Indepth Tutorials In 5 Hours With Krish Naik",
+  "creator": "Krish Naik",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=d2kxUVwWWwU",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=d2kxUVwWWwU",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l3-nn-basics"
+  ],
+  "topics": [
+   "perceptron",
+   "chain rule and backpropagation",
+   "vanishing gradients",
+   "activation functions",
+   "loss functions",
+   "optimisers",
+   "ANN implementation",
+   "CNN intro"
+  ],
+  "approxHours": 5,
+  "cost": "free",
+  "why": "A single, chaptered Indian-English video that covers almost every topic of this module in one sitting, from the perceptron and chain rule to vanishing gradients and optimisers, with a hands-on ANN build. Good for revision before the quiz.",
+  "caveats": "One long video, so use its chapters. The code is probably Keras/TensorFlow (not confirmed). Its CNN part is only an intro. Upload year not confirmed. Free materials are linked from his GitHub in the description.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "d2kxUVwWWwU"
  },
  {
   "id": "codebasics-dhaval-patel-deep-learning-with-tensorflow-2-",
@@ -6359,6 +6906,35 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "campusx-practical-deep-learning-using-pytorch",
+  "title": "Practical Deep Learning using PyTorch",
+  "creator": "CampusX (Nitish Singh)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLKnIA16_Rmvboy8bmDCjwNHgTaYH2puK7",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=QZsguRbcOBM",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l3-pytorch"
+  ],
+  "topics": [
+   "tensors and autograd",
+   "PyTorch training pipeline",
+   "Dataset and DataLoader",
+   "nn.Module",
+   "GPU training"
+  ],
+  "approxHours": 0,
+  "cost": "free",
+  "why": "CampusX's own PyTorch series, in the same careful Hindi whiteboard-plus-Colab style as its 100 Days of Deep Learning. It is the Hindi route from neural-network theory to real PyTorch code that this module was missing.",
+  "caveats": "Found by search; only two video titles were seen ('PyTorch for Beginners' and 'PyTorch Training Pipeline', both linking CampusX notes on learnwith.campusx.in), so the full topic list, number of videos and length were not checked. The topics listed are those of a standard PyTorch course plus the two confirmed videos. Code is in English.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLKnIA16_Rmvboy8bmDCjwNHgTaYH2puK7",
+  "videoId": "QZsguRbcOBM"
+ },
+ {
   "id": "aakash-n-s-jovian-published-by-freecodecamp-org-deep-lea",
   "title": "Deep Learning with PyTorch: Zero to GANs",
   "creator": "Aakash N S (Jovian), published by freeCodeCamp.org",
@@ -6551,6 +7127,33 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "PLjVLYmrlmjGelmHXLZ0ukHdb-jjvG6rRm",
   "videoId": ""
+ },
+ {
+  "id": "vizuara-build-vision-transformer-vit-from-scratch",
+  "title": "Build Vision Transformer ViT From Scratch - Intuition and coding",
+  "creator": "Vizuara",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=ZRo74xnN2SI",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=ZRo74xnN2SI",
+  "language": "indian-english",
+  "level": "intermediate",
+  "modules": [
+   "l3-cv"
+  ],
+  "topics": [
+   "Vision Transformers (intro)",
+   "image patches as tokens",
+   "ViT coding"
+  ],
+  "approxHours": 1,
+  "cost": "free",
+  "why": "Fills the Indian-English gap for the Vision Transformer topic: one free lecture that explains the intuition behind ViT and codes it, from an Indian team.",
+  "caveats": "A single lecture whose description advertises a paid full ViT course on vizuara.ai; the free video is enough for this module's intro. The presenter and exact length were not confirmed (hours approximate). Assumes you know CNNs and basic attention.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "ZRo74xnN2SI"
  },
  {
   "id": "aarohi-singla-code-with-aarohi-code-with-aarohi-yolo-and",
@@ -6957,6 +7560,35 @@ window.AIM.resources = [
   "year": 0,
   "status": "verified",
   "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "krish-naik-hindi-nlp-playlist-hindi",
+  "title": "NLP Playlist in Hindi (text preprocessing, n-grams, TF-IDF, word embeddings)",
+  "creator": "Krish Naik (Krish Naik Hindi channel)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLTDARY42LDV67aWThoZxflLYGnD3Rh3VG",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l3-nlp"
+  ],
+  "topics": [
+   "text preprocessing, tokenisation",
+   "one-hot encoding",
+   "n-grams",
+   "bag of words, TF-IDF",
+   "word embeddings"
+  ],
+  "approxHours": 5,
+  "cost": "Free",
+  "why": "Krish Naik's numbered Hindi NLP tutorials explain each way of turning text into numbers (one-hot, n-grams, TF-IDF, word embeddings) slowly, in Hindi with English terms. It is a second Hindi voice next to CampusX, and it replaces the earlier channel-only link.",
+  "caveats": "The playlist URL was taken from a video description in the search results; the full episode list, total length and upload year were not seen (hours is an estimate). Titles seen and tagged 'Krish Naik Hindi': Tutorial 5 (Plan Of Learning Text Embedding In NLP), Tutorial 8 (Ngrams), Tutorial 9 (TF-IDF Word Embedding), Tutorial 10 (Introduction To Word Embeddings). Coverage of RNN/LSTM was not confirmed, so use CampusX 100 Days of Deep Learning for that part. Uses Python/NLTK.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLTDARY42LDV67aWThoZxflLYGnD3Rh3VG",
   "videoId": ""
  },
  {
@@ -7745,6 +8377,33 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "campusx-transformer-architecture-part-1-encoder",
+  "title": "Transformer Architecture | Part 1 Encoder Architecture",
+  "creator": "CampusX (Nitish Singh)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=Vs87qcdm8l0",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=Vs87qcdm8l0",
+  "language": "hinglish",
+  "level": "intermediate",
+  "modules": [
+   "l3-transformers"
+  ],
+  "topics": [
+   "self-attention and multi-head attention",
+   "encoder vs decoder (BERT vs GPT)",
+   "transformer encoder architecture"
+  ],
+  "approxHours": 1,
+  "cost": "Free",
+  "why": "A focused Hinglish whiteboard video that shows how the transformer encoder is built from multi-head self-attention and feed-forward layers. The module had almost no confirmed Hindi transformer videos, so this fills a key gap.",
+  "caveats": "Hinglish is inferred from the CampusX channel; the length (estimated) and upload year were not confirmed. It probably overlaps the transformer videos in CampusX's 100 Days of Deep Learning. Watch 'What is Self Attention' first. A 'Transformer Decoder Architecture' video (https://www.youtube.com/watch?v=DI2_hrAulYo) appeared in the same CampusX search, but its channel was not confirmed.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "Vs87qcdm8l0"
+ },
+ {
   "id": "campusx-nitish-singh-what-is-self-attention-campusx",
   "title": "What is Self Attention (CampusX)",
   "creator": "CampusX (Nitish Singh)",
@@ -8229,6 +8888,58 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "m-prashant-docker-course-for-beginners-hindi",
+  "title": "Docker Course For Beginners 2024: Basic to Advance Tutorial [HINDI]",
+  "creator": "M Prashant",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=OhnTMWmfTBE",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=OhnTMWmfTBE",
+  "language": "hindi",
+  "level": "beginner",
+  "modules": [
+   "l3-mlops"
+  ],
+  "topics": [
+   "Docker"
+  ],
+  "approxHours": 2,
+  "cost": "Free",
+  "why": "A single beginner-to-advanced Docker course in Hindi. It fills the Hindi Docker gap, since Krish Naik's Hindi Docker one-shot is still listed as 'Coming soon'.",
+  "caveats": "General DevOps, not ML-specific: apply it to your own FastAPI model app, or follow Krish Naik's Docker one-shot for the ML angle. The length was not confirmed (hours is an estimate). It is roughly three years old (uploaded around late 2023), so Docker Desktop install screens may differ; follow the official installer.",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": "OhnTMWmfTBE"
+ },
+ {
+  "id": "campusx-fastapi-for-machine-learning-playlist",
+  "title": "FastAPI for Machine Learning",
+  "creator": "CampusX (Nitish Singh)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLKnIA16_RmvZ41tjbKB2ZnwchfniNsMuQ",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=WJKsPchji0Q",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l3-mlops"
+  ],
+  "topics": [
+   "serving models with FastAPI/Flask",
+   "what an API is",
+   "Streamlit and Gradio demos"
+  ],
+  "approxHours": 6,
+  "cost": "Free",
+  "why": "CampusX's free Hinglish series on deploying ML models as production-ready APIs with FastAPI, the standard way to serve models in 2026. It fills the missing Hindi FastAPI link, and its code (an insurance-premium API with a Streamlit front end) is at github.com/campusx-official/fastapi-demo-api.",
+  "caveats": "Hinglish is inferred from the CampusX channel; the search results did not state the language. The episode list, length (hours is an estimate) and year were not checked. The same search also showed 'What is an API?', 'FastAPI Philosophy', 'Serving ML Models with FastAPI' and 'How to Integrate an ML Model in FastAPI', but their channel was not confirmed one by one. Needs basic Python.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLKnIA16_RmvZ41tjbKB2ZnwchfniNsMuQ",
+  "videoId": "WJKsPchji0Q"
+ },
+ {
   "id": "krish-naik-hindi-flask-one-shot-hindi",
   "title": "Flask One Shot (Hindi)",
   "creator": "Krish Naik Hindi",
@@ -8254,6 +8965,31 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "",
   "videoId": "KF-rDqQfqz0"
+ },
+ {
+  "id": "abhishek-veeramalla-cicd-playlist",
+  "title": "CICD playlist (CI/CD concepts and GitHub Actions)",
+  "creator": "Abhishek Veeramalla",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLdpzxOOAlwvLUH6ww022l7OZGakJYP9WY",
+  "firstVideoUrl": "https://www.youtube.com/playlist?list=PLdpzxOOAlwvLUH6ww022l7OZGakJYP9WY",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l3-mlops"
+  ],
+  "topics": [
+   "CI/CD with GitHub Actions"
+  ],
+  "approxHours": 4,
+  "cost": "Free",
+  "why": "Abhishek Veeramalla is one of India's most-followed DevOps teachers. His CI/CD playlist explains pipelines and GitHub Actions (including self-hosted runners) in clear Indian English, filling the module's GitHub Actions gap with an Indian teacher.",
+  "caveats": "DevOps-focused, not ML-specific: apply it to your ML repo (for example, run tests and build a Docker image on every push). It also covers other CI tools such as Jenkins; the episode list and years were not checked, and hours is an estimate. His 'Day-18' class (https://www.youtube.com/watch?v=CmVxoNkkACQ) is an introduction to CI/CD from his free DevOps course.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLdpzxOOAlwvLUH6ww022l7OZGakJYP9WY",
+  "videoId": ""
  },
  {
   "id": "krish-naik-complete-dockers-in-one-shot",
@@ -9247,6 +9983,32 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "PLTDARY42LDV6flFgQLJCcVSXXa58mZ9Ty",
   "videoId": ""
+ },
+ {
+  "id": "campusx-what-is-rag-retrieval-augmented-generation",
+  "title": "Retrieval Augmented Generation | What is RAG | How does RAG Work | RAG Explained",
+  "creator": "CampusX (Nitish Singh)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=X0btK9X0Xnk",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=X0btK9X0Xnk",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l4-llm-apps"
+  ],
+  "topics": [
+   "retrieval-augmented generation (RAG)",
+   "embeddings and vector databases"
+  ],
+  "approxHours": 0.75,
+  "cost": "Free",
+  "why": "A focused Hindi-medium explainer of what RAG is and how retrieval plus generation works, from the clearest Hindi teacher in this track, so the idea is clear before you build a RAG chatbot.",
+  "caveats": "The CampusX attribution and full title come from the search-result summary. Whether it is part of the 'Generative AI using LangChain' playlist, its length and its year were not confirmed. Concept-level; the coding happens in the playlist.",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": "X0btK9X0Xnk"
  },
  {
   "id": "krish-naik-llamaindex-playlist",
@@ -10451,6 +11213,63 @@ window.AIM.resources = [
   "videoId": "vVGXPRjtAJE"
  },
  {
+  "id": "krish-naik-complete-agentic-ai-course-10-hours",
+  "title": "Complete Agentic AI Course In 10 Hours - LangChain, LangGraph, RAG, Vectorless RAG, Guardrails, Evals",
+  "creator": "Krish Naik",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=rV3HJ4LEZ7k",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=rV3HJ4LEZ7k",
+  "language": "indian-english",
+  "level": "intermediate",
+  "modules": [
+   "l4-agents",
+   "l4-llm-apps"
+  ],
+  "topics": [
+   "LangChain",
+   "LangGraph agents",
+   "retrieval-augmented generation (RAG)",
+   "vectorless RAG",
+   "guardrails, safety",
+   "agent evaluation"
+  ],
+  "approxHours": 10,
+  "cost": "Free",
+  "why": "A recent (about May 2026) one-stop Indian-English course that covers LangChain, LangGraph, RAG, guardrails and evals in one place, so it is far more current than the 2024 Krish Naik playlists.",
+  "caveats": "It is one very long video. The chapter list was not checked, so how deeply it covers guardrails and evals is unconfirmed. Some demos may need paid API keys (for example OpenAI). Krish Naik also promotes paid bootcamps, but this video is free.",
+  "year": 2026,
+  "status": "verified",
+  "listId": "",
+  "videoId": "rV3HJ4LEZ7k"
+ },
+ {
+  "id": "krish-naik-guardrails-with-langchain-crash-course",
+  "title": "Guardrails with LangChain: A Complete Crash Course for Building Safe AI Agents",
+  "creator": "Krish Naik",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=ruiLq0OzjkI",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=ruiLq0OzjkI",
+  "language": "indian-english",
+  "level": "intermediate",
+  "modules": [
+   "l4-agents"
+  ],
+  "topics": [
+   "guardrails, safety and agent evaluation",
+   "safe tool use in agents"
+  ],
+  "approxHours": 1,
+  "cost": "Free",
+  "why": "A focused Indian-English crash course on adding guardrails to LangChain agents, the module's most important safety topic, which the big playlists cover poorly.",
+  "caveats": "The length was not checked. The code is in a companion post on Krish Naik's Substack. LangChain guardrail and middleware APIs change quickly, so compare with the current docs.",
+  "year": 2026,
+  "status": "verified",
+  "listId": "",
+  "videoId": "ruiLq0OzjkI"
+ },
+ {
   "id": "krish-naik-mcp-model-context-protocol-playlist",
   "title": "MCP (Model Context Protocol) Playlist",
   "creator": "Krish Naik",
@@ -11546,6 +12365,31 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "ersahilkagyan-markov-decision-process-hindi",
+  "title": "Markov decision process in machine learning | Reinforcement learning (Hindi)",
+  "creator": "ersahilkagyan (YouTube channel)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=zC8jkmlCDCU",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=zC8jkmlCDCU",
+  "language": "hindi",
+  "level": "beginner",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "agents, environments, rewards, MDPs"
+  ],
+  "approxHours": 0.2,
+  "cost": "Free",
+  "why": "A short Hindi explanation of the Markov decision process (states, actions, rewards, transitions), the basic framework that all of RL is built on. It is part of a Hindi machine-learning tutorial series.",
+  "caveats": "Exam-style teaching aimed at engineering students, covering MDP basics only. Length and upload date were not confirmed, and the length is an estimate. The search snippet's title was cut off ('Machine Learning Tutorial (Hin...').",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "zC8jkmlCDCU"
+ },
+ {
   "id": "iit-kanpur-ee675-introduction-to-reinforcement-learning-",
   "title": "EE675 Introduction to Reinforcement Learning (IIT Kanpur, 2024)",
   "creator": "IIT Kanpur",
@@ -11600,6 +12444,32 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "PLcNLn_ApooUzGJW60RcD2HRrL7sm0HG-w",
   "videoId": ""
+ },
+ {
+  "id": "vizuara-intro-reinforcement-learning-and-ppo-for-robotics",
+  "title": "Introduction to Reinforcement Learning and PPO for robotics",
+  "creator": "Vizuara",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=tyip9W10pzc",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=tyip9W10pzc",
+  "language": "indian-english",
+  "level": "intermediate",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "agents, environments, rewards, MDPs",
+   "policy gradients, PPO"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "One Vizuara lecture that introduces RL and then PPO, the algorithm behind classic RLHF, in an applied robotics and self-driving setting. It is an Indian-English explanation of PPO, which the NPTEL course covers only thinly.",
+  "caveats": "It is part of Vizuara's 'VLA for Autonomous Driving' series, so the examples are about robots and driving. The length, date and lecturer were not confirmed in the search results.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "tyip9W10pzc"
  },
  {
   "id": "prof-balaraman-ravindran-iit-madras-nptel-nptel-reinforc",
@@ -12157,6 +13027,31 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "krish-naik-hindi-600-python-interview-questions",
+  "title": "600+ Python Interview Questions And Usecases With Solution - Krish Naik Hindi",
+  "creator": "Krish Naik Hindi",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=vh9qVvpTT34",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=vh9qVvpTT34",
+  "language": "hinglish",
+  "level": "intermediate",
+  "modules": [
+   "l4-research-career"
+  ],
+  "topics": [
+   "ML interview preparation"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "Hinglish practice for the Python coding round that most Indian data-science and ML interviews begin with. The description links a GitHub repo of questions and solutions.",
+  "caveats": "Python only: no ML theory, system design or LLM questions. The length and date were not confirmed. Some Krish Naik videos also promote his paid programmes.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "vh9qVvpTT34"
+ },
+ {
   "id": "krish-naik-hindi-krish-naik-hindi-channel-career-roadmap",
   "title": "Krish Naik Hindi (career, roadmap and interview videos)",
   "creator": "Krish Naik Hindi",
@@ -12183,6 +13078,31 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "",
   "videoId": ""
+ },
+ {
+  "id": "raj-dandekar-3-ways-to-read-an-ml-research-paper",
+  "title": "3 ways to read an ML research paper",
+  "creator": "Dr. Raj Dandekar (MIT PhD)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=RjG689EwG5g",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=RjG689EwG5g",
+  "language": "indian-english",
+  "level": "intermediate",
+  "modules": [
+   "l4-research-career"
+  ],
+  "topics": [
+   "how to read ML papers"
+  ],
+  "approxHours": 0.3,
+  "cost": "Free",
+  "why": "An Indian teacher explains three ways he reads ML papers: a quick 'birds-eye' skim, a lighter 'podcast' mode and an in-depth read. It is the three-pass idea in practice, and the only Indian-taught paper-reading video found.",
+  "caveats": "The search results did not show the uploading channel or the length (he co-founded Vizuara, so it is probably on a Vizuara-related channel). It covers reading papers, not reproducing them. The length is an estimate.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "RjG689EwG5g"
  },
  {
   "id": "ineuron-krish-naik-and-team-data-science-interview-quest",
