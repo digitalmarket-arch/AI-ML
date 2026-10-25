@@ -521,7 +521,7 @@
       elbowDirty = true;
       if (!quiet) {
         var empty = [];
-        res.counts.forEach(function (c, g) { if (!c) empty.push(g + 1); });
+        res.counts.forEach(function (c, ci) { if (!c) empty.push(ci + 1); });
         setMsg('Update (round ' + S.iter + '): each centre moved to the middle of its customers. Inertia fell to ' + f3(S.inertia) + '. <b>Next: Assign again</b>: some customers may now be nearer a different centre.' +
           (empty.length ? ' Centre ' + empty.join(', ') + ' has no customers, so it stays put.' : ''));
       }

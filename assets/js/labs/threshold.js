@@ -344,7 +344,10 @@
         fpr: fp / M.Ng, f1: 2 * tp / (2 * tp + fp + fn), cost: M.cost[i]
       };
     }
-    function atCheapest(i) { var m = M.cost[M.best]; return M.cost[i] <= m + Math.max(0.5, m * 0.001); }
+    // costs are whole rupees, so this is an exact match (several thresholds can tie for cheapest)
+    function atCheapest(i) { return M.cost[i] <= M.cost[M.best] + 0.5; }
+    // a flat cost curve (e.g. both costs set to ₹0) has no real cheapest point to find
+    function costIsFlat() { var lo = Infinity, hi = -Infinity; for (var i = 0; i <= STEPS; i++) { if (M.cost[i] < lo) lo = M.cost[i]; if (M.cost[i] > hi) hi = M.cost[i]; } return hi - lo < 0.5; }
 
     /* ---------- text ---------- */
     function messageHTML(c) {
@@ -382,8 +385,8 @@
         'what this batch of mistakes costs. Correct answers cost nothing here.');
       row('AUC', '<b>' + M.auc.toFixed(3) + '</b>',
         'area under the ROC curve: the chance that a random fraud gets a higher score than a random genuine payment. 0.5 = coin toss, 1 = perfect.');
-      lines.push('<p class="muted">How the scores are made: each payment gets a raw model output (its log-odds) from a bell curve with spread 1, centred at −' +
-        (S.sep / 2).toFixed(2) + ' for genuine payments and +' + (S.sep / 2).toFixed(2) + ' for frauds. The sigmoid function squashes it into a score between 0 and 1. ' +
+      lines.push('<p class="muted">How the scores are made: each payment gets a raw model output (its log-odds) from a bell curve with spread 1, centred at ' +
+        (S.sep > 0 ? '−' + (S.sep / 2).toFixed(2) + ' for genuine payments and +' + (S.sep / 2).toFixed(2) + ' for frauds' : '0 for both kinds of payment') + '. The sigmoid function squashes it into a score between 0 and 1. ' +
         'For this kind of model AUC = Φ(separation ÷ √2), where Φ is the bell-curve area function. The counts are the expected numbers out of 10,000, rounded.</p>');
       return lines.join('');
     }
@@ -444,7 +447,7 @@
       if (kind === 'sweep') return;
       var c = cur(S.ti);
       if (S.rate === 1 && c.flagged === 0) completeTask('t1');
-      if (kind === 't' && atCheapest(S.ti)) completeTask('t2');
+      if (kind === 't' && atCheapest(S.ti) && !costIsFlat()) completeTask('t2');
       if (kind === 't' && S.ti > 0 && c.rec >= RECALL_GOAL) completeTask('t3');
       if (M.auc >= AUC_GOAL) completeTask('t4');
     }
@@ -464,6 +467,7 @@
       sweep = { t0: performance.now(), back: S.ti };
       sweepNote = '';
       btnSweep.textContent = 'Stop';
+      elMsg.setAttribute('aria-busy', 'true');   // screen readers hear the end result, not 100 updates
       requestDraw();
     }
     function stopSweep(finished) {
@@ -471,9 +475,10 @@
       var back = sweep.back;
       sweep = null;
       btnSweep.textContent = 'Sweep 1 → 0';
+      elMsg.removeAttribute('aria-busy');
       if (finished) {
         S.ti = back;
-        sweepNote = 'Sweep done: the yellow dot traced the whole ROC curve, from flagging nothing to flagging everything. The threshold is back at ' + fmtT(back) + '.';
+        sweepNote = 'Sweep done: the yellow dot traced the whole ' + (S.curve === 'pr' ? 'precision–recall' : 'ROC') + ' curve, from flagging nothing to flagging everything. The threshold is back at ' + fmtT(back) + '.';
         syncUI(); requestDraw();
       }
     }
@@ -505,7 +510,7 @@
       }
       var T = readTheme();
       drawDist(T); drawCurve(T); drawCost(T);
-      if (sweep) rafId = requestAnimationFrame(frame);
+      if (sweep) requestDraw();
     }
     function begin(c, T) {
       var g = c.g;
