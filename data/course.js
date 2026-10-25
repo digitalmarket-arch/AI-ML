@@ -1177,7 +1177,8 @@ window.AIM.modules = [
    }
   ],
   "best": "campusx-nitish-singh-campusx-data-science-mentorship-pro",
-  "figs": true
+  "figs": true,
+  "lab": "sql"
  },
  {
   "id": "l2-ml-foundations",
@@ -3541,7 +3542,8 @@ window.AIM.modules = [
    }
   ],
   "best": "campusx-nitish-singh-agentic-ai-using-langgraph-full-pla",
-  "figs": true
+  "figs": true,
+  "lab": "agent"
  },
  {
   "id": "l4-gen-vision",

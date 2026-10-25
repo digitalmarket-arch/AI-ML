@@ -123,6 +123,30 @@ window.AIM.labs = [
   ]
  },
  {
+  "id": "sql",
+  "module": "l1-eda-viz-sql",
+  "title": "SQL JOINs and GROUP BY",
+  "summary": "Join a small customers table to an orders table with INNER, LEFT, RIGHT and FULL OUTER JOIN, then filter, group and sort, while lines show which rows match and NULLs show what is missing.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Find the customers who never ordered: use a LEFT JOIN with WHERE orders.order_id IS NULL, so only those customers are left in the result."
+   },
+   {
+    "id": "t2",
+    "text": "Find the order whose customer is missing: use a RIGHT JOIN plus a WHERE filter, so the result shows only that one order."
+   },
+   {
+    "id": "t3",
+    "text": "Count the orders in every city with GROUP BY customers.city, so that every city, Jaipur included, shows its true number of orders (Jaipur has 0)."
+   },
+   {
+    "id": "t4",
+    "text": "After a LEFT JOIN grouped by city, tick both COUNT(*) and COUNT(orders.order_id) and find the cities where the two counts differ."
+   }
+  ]
+ },
+ {
   "id": "overfit",
   "module": "l2-ml-foundations",
   "title": "Underfitting vs overfitting",
@@ -455,6 +479,30 @@ window.AIM.labs = [
    {
     "id": "t4",
     "text": "Plan a QLoRA fine-tune on a free Colab T4: choose a 7B model, “Fine-tune with LoRA”, the T4 and 4-bit, and see it fit."
+   }
+  ]
+ },
+ {
+  "id": "agent",
+  "module": "l4-agents",
+  "title": "AI agent loop simulator",
+  "summary": "Watch a pretend AI agent think, call tools and loop towards a goal, and see how tools, a step limit and a human-approval guardrail change what it does.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Switch on “First tool call times out”, then run the train goal. Watch the agent retry the failed search and still book the ticket."
+   },
+   {
+    "id": "t2",
+    "text": "Switch off the calculator and run the GST or cricket goal. Catch the agent’s mental-maths mistake: the lab check puts its guess next to the true value."
+   },
+   {
+    "id": "t3",
+    "text": "Set Max steps too low (try 2) and run the train goal, so the loop stops the agent before it can finish."
+   },
+   {
+    "id": "t4",
+    "text": "Lower the approval limit to ₹1,000, run the train goal so the guardrail pauses the ₹1,245 payment, then approve it."
    }
   ]
  },
