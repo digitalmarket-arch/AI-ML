@@ -476,7 +476,7 @@
       var rt = route(), av = avgLast();
       var msg = 'Trained ' + plural(n, 'episode', 'episodes') + ' (' + fmtInt(S.episodes) + ' in total). Average reward of the last ' + Math.min(AVG_WIN, S.hist.length) + ': ' + fmtS(av, 1) + '. The greedy route now ' + routeWords(rt) + '.';
       say(msg, rt.end === 'goal' ? 'good' : '');
-      afterLearning(true);
+      afterLearning('train');
     }
 
     function setRunning(v) {
@@ -492,21 +492,42 @@
       for (var k in S.armed) if (Object.prototype.hasOwnProperty.call(S.armed, k) && S.map.types[+k] === JAM && +k !== S.map.start && +k !== S.map.goal) out.push(+k);
       return out;
     }
-    function checkTasks(afterTrain) {
-      var rt = route();
+    function isDefaultMap() {
+      var D = parseMap(DEFAULT_ROWS), M = S.map;
+      if (D.start !== M.start || D.goal !== M.goal) return false;
+      for (var s = 0; s < NS; s++) if (D.types[s] !== M.types[s]) return false;
+      return true;
+    }
+    // kind: 'train' (Train button), 'learn' (Step or Run episode) or 'edit' (map edits, Reset Q).
+    // Only learning can complete a task; editing the map alone never does.
+    function checkTasks(kind) {
+      var rt = route(), learning = kind !== 'edit';
+      if (S.gamma === 0 && rt.end === 'goal') S.g0wasGood = true;
+      if (!learning) return;
       if (!done.t1 && S.episodes >= 1 && S.gamma > 0 && rt.end === 'goal') {
         if (complete('t1')) say('Delivered! After ' + plural(S.episodes, 'episode', 'episodes') + ' the greedy route ' + routeWords(rt) + '. Look at the map: blue spreads back from the customer, because each Q-value learns from the best Q-value of the square after it.', 'good');
       }
-      if (!done.t2 && S.gamma === 0 && S.g0eps >= TASK_MIN_EPISODES && rt.end !== 'goal') {
-        if (complete('t2')) say('With γ = 0 the rider only counts the very next reward. Only squares right next to the customer still look good; everywhere else every move looks about the same, so its route ' + routeWords(rt) + '. Set γ back to 0.9 and train again to bring the far-away reward back into view.', 'good');
+      if (!done.t2 && S.gamma === 0 && S.g0eps >= TASK_MIN_EPISODES) {
+        if (S.g0wasGood && rt.end !== 'goal') {
+          if (complete('t2')) say('With γ = 0 the rider only counts the very next reward. Only squares right next to the customer still look good; everywhere else every move looks about the same (−0.1), so its route ' + routeWords(rt) + '. Set γ back to 0.9 and train again to bring the far-away reward back into view.', 'good');
+        } else if (!S.g0wasGood && !S.g0Note) {
+          S.g0Note = true;
+          say('The greedy route was not reaching the customer even before you set γ to 0, so there is nothing for γ = 0 to break yet. Set γ back to 0.9, train until the route reaches the customer, then set γ to 0 and train again.');
+        } else if (kind === 'train' && rt.end === 'goal') {
+          say('The route still reaches the customer: old Q-values learned with a higher γ take a while to fade. Keep training with γ = 0.');
+        }
       }
       if (!done.t3 && !S.explored && S.episodes >= TASK_MIN_EPISODES) {
-        var op = optimal();
+        var op = optimal(), lane = isDefaultMap();
         if (op.end === 'goal' && (rt.end !== 'goal' || rt.G < op.G - 1e-6)) {
-          if (complete('t3')) say('With ε = 0 the rider never tries a random move. Going out through the jam (−1) looked worse than staying in its lane, so it stopped trying, and it never found out that the customer (+10) is on the other side. Its route ' + routeWords(rt) + '. That is why agents need exploration.', 'good');
+          var why = lane && rt.end !== 'goal'
+            ? 'Leaving its lane means driving through the jam (−1), which came to look worse than circling inside the lane, so it stopped trying and never found the customer (+10) on the other side. Its route ' + routeWords(rt) + '.'
+            : 'It only repeats moves that already look best, so it never finds out what the streets it has not tried are worth. Its route ' + routeWords(rt) + (rt.end === 'goal' ? ', but the best possible route earns ' + fmtS(op.R, 1) : '') + '.';
+          if (complete('t3')) say('With ε = 0 the rider never tries a random move. ' + why + ' That is why agents need exploration.', 'good');
         } else if (op.end === 'goal' && !S.t3Note) {
           S.t3Note = true;
-          say('This time the rider found the best route even without exploring: with γ = ' + fmt(S.gamma, 2) + ', staying in its lane for ever looks worse than one jam, so it pushed through. Set γ to 0.9, press Reset Q and try ε = 0 again.');
+          if (lane && S.gamma > 0.9) say('This time the rider found the best route even without exploring: with γ = ' + fmt(S.gamma, 2) + ', circling in its lane for ever looks worse than one jam, so it pushed through. Set γ to 0.9, press Reset Q and try ε = 0 again.');
+          else say('This time the rider found the best route even without exploring. Press Reset map, set γ to 0.9 and α to 0.8, press Reset Q and try ε = 0 again.');
         }
       }
       var jams = armedJams();
@@ -514,8 +535,8 @@
         var avoided = -1;
         if (rt.end === 'goal') for (var i = 0; i < jams.length; i++) if (rt.path.indexOf(jams[i]) < 0) { avoided = jams[i]; break; }
         if (avoided >= 0) {
-          if (complete('t4')) say('The route changed! The jam at ' + cellName(avoided) + ' now costs −1, so after more practice the rider goes round it: its route ' + routeWords(rt) + '.', 'good');
-        } else if (afterTrain && rt.end === 'goal') {
+          if (complete('t4')) say('The route changed! The jam at ' + cellName(avoided) + ' costs −1, so after more practice the rider goes round it: its route ' + routeWords(rt) + '.', 'good');
+        } else if (kind === 'train' && rt.end === 'goal') {
           say('The greedy route still goes through your jam. The other streets are not learned well yet: keep training, or raise ε for a while so the rider explores more.');
         }
       }
@@ -538,7 +559,7 @@
       if (msg) say(msg);
       chartDirty = true;
       updateUI();
-      checkTasks(false);
+      checkTasks('edit');
       requestDraw();
     }
     function cycleCell(s) {
@@ -653,9 +674,9 @@
         (av === null ? ' No episodes yet.' : ' Average of the last ' + Math.min(AVG_WIN, S.hist.length) + ': ' + fmtS(av, 1) + '.') +
         (op.end === 'goal' ? ' Best possible route: ' + fmtS(op.R, 1) + '.' : ''));
     }
-    function afterLearning(afterTrain) {
+    function afterLearning(kind) {
       updateUI();
-      checkTasks(afterTrain);
+      checkTasks(kind);
       requestDraw();
     }
 
@@ -1001,7 +1022,7 @@
             say(episodeWords(S.ep, S.episodes), S.ep.end === 'goal' ? 'good' : S.ep.end === 'pit' ? 'warn' : '');
           }
           updateUI();
-          checkTasks(false);
+          checkTasks('learn');
         }
       }
       if (anim && now >= anim.t0 + anim.dur) anim = null;

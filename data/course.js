@@ -1305,7 +1305,8 @@ window.AIM.modules = [
     "note": "Scroll through the bias-variance and train/test/validation essays to see overfitting and underfitting change visually without any maths."
    }
   ],
-  "best": "campusx-nitish-singh-100-days-of-machine-learning-days-1"
+  "best": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
+  "figs": true
  },
  {
   "id": "l2-regression",
@@ -1443,7 +1444,8 @@ window.AIM.modules = [
     "note": "Do the linear regression, loss and gradient descent modules and play with the interactive widgets to watch the loss go down."
    }
   ],
-  "best": "campusx-nitish-singh-100-days-of-machine-learning-days-1"
+  "best": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
+  "figs": true
  },
  {
   "id": "l2-classification",

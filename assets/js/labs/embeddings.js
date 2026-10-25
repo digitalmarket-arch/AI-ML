@@ -100,7 +100,7 @@
   var START_COMPARE = ['prince', 'woman'];
   var PRESETS = [['prince', 'boy', 'girl'], ['Kolkata', 'West Bengal', 'Karnataka'], ['chef', 'biryani', 'kabaddi']];
   var START_SENTENCES = [
-    'The cricket match in Mumbai was a thriller',
+    'The cricket match in Mumbai was exciting',
     'The biryani in Hyderabad was very spicy',
     'The kabaddi match in Pune was a draw'
   ];
@@ -401,9 +401,11 @@
         '<p class="small" style="padding:10px 12px;border-radius:var(--radius-sm);background:var(--surface-2)">TF-IDF = count × idf, where <span class="mono">idf = ln((1 + n) ÷ (1 + df)) + 1</span>. ' +
           'Here n = number of sentences (3), df = how many sentences contain the word, and ln is the natural logarithm. This is the formula scikit-learn uses by default (<code>smooth_idf=True</code>). ' +
           'Words are lower-cased and punctuation is dropped (scikit-learn would also drop one-letter words such as “a”).</p>' +
-        '<div style="display:grid;gap:8px 10px;grid-template-columns:auto minmax(0,1fr);align-items:center;max-width:720px">' +
+        '<div class="stack-sm" style="max-width:720px">' +
           [0, 1, 2].map(function (k) {
-            return '<label for="' + P + 's' + k + '" style="font-size:.92rem;font-weight:600;white-space:nowrap">Sentence ' + (k + 1) + '</label><input type="text" id="' + P + 's' + k + '" maxlength="90" spellcheck="false" autocomplete="off" value="' + esc(START_SENTENCES[k]) + '" style="width:100%;min-width:0">';
+            return '<div style="display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center">' +
+              '<label for="' + P + 's' + k + '" style="flex:0 0 5.6em;font-size:.92rem;font-weight:600">Sentence ' + (k + 1) + '</label>' +
+              '<input type="text" id="' + P + 's' + k + '" maxlength="90" spellcheck="false" autocomplete="off" value="' + esc(START_SENTENCES[k]) + '" style="flex:1 1 240px;min-width:0;font-size:1rem"></div>';
           }).join('') +
         '</div>' +
         '<div class="row" style="gap:14px">' +
@@ -632,7 +634,7 @@
             '<span class="mono num"' + (x ? '' : ' style="color:var(--muted)"') + '>' + (x ? fx(x, dec) : '0') + '</span>' +
             '<div aria-hidden="true" style="height:4px;margin-top:2px;border-radius:2px;background:var(--surface-2)"><div style="height:100%;width:' + (maxV > 0 ? x / maxV * 100 : 0).toFixed(1) + '%;border-radius:2px;background:var(--indigo)"></div></div></td>';
         }
-        return '<tr><th scope="row" style="text-align:left;padding:3px 6px 3px 0;border-bottom:1px solid var(--line);font-weight:600;word-break:break-all">' + esc(v.word) + '</th>' +
+        return '<tr><th scope="row" style="text-align:left;padding:3px 6px 3px 0;border-bottom:1px solid var(--line);font-weight:600;white-space:nowrap">' + esc(v.word) + '</th>' +
           '<td class="mono num" style="text-align:right;padding:3px 6px;border-bottom:1px solid var(--line);white-space:nowrap">' +
             (all ? '<span aria-hidden="true" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--haldi);margin-right:4px"></span><span class="visually-hidden">in every sentence: </span>' : '') + v.df + '</td>' +
           '<td class="mono num" style="text-align:right;padding:3px 6px;border-bottom:1px solid var(--line)">' + fx(v.idf, 2) + '</td>' + cells + '</tr>';
@@ -642,7 +644,7 @@
         '<table style="width:100%;border-collapse:collapse;font-size:.88rem;line-height:1.3">' +
         '<caption class="visually-hidden">' + what + ' for each word in each sentence</caption>' +
         '<thead><tr><th scope="col" ' + th.replace('text-align:right', 'text-align:left') + '>Word</th><th scope="col" ' + th + '>df</th><th scope="col" ' + th + '>idf</th>' +
-        [0, 1, 2].map(function (j) { return '<th scope="col" ' + th.replace('white-space:nowrap', 'white-space:normal') + '>Sentence ' + (j + 1) + '</th>'; }).join('') + '</tr></thead><tbody>' + rows + '</tbody></table></div>';
+        [0, 1, 2].map(function (j) { return '<th scope="col" ' + th + '><span aria-hidden="true">S' + (j + 1) + '</span><span class="visually-hidden">Sentence ' + (j + 1) + '</span></th>'; }).join('') + '</tr></thead><tbody>' + rows + '</tbody></table></div>';
       // the words that matter most in each sentence
       var topLines = [];
       for (d = 0; d < n; d++) {
@@ -665,7 +667,7 @@
         common.join(', ') + (common.length > 1 ? ' are' : ' is') + ' in all ' + n + ' sentences, so ' + (common.length > 1 ? 'their' : 'its') + ' idf is the smallest possible, ln(4 ÷ 4) + 1 = 1.00. A word found in just one sentence gets ln(4 ÷ 2) + 1 = ' + fx(idfOf(n, 1), 2) + '. So TF-IDF turns common words down and lets the words that make each sentence different stand out.' :
         'No word is in all ' + n + ' sentences right now. Add the same word (for example “the”) to every sentence and watch its idf drop to the smallest possible value, 1.00.';
       elTBody.innerHTML =
-        '<p class="small"><b>' + what + '.</b> df = how many sentences contain the word (<span aria-hidden="true" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--haldi);margin:0 3px"></span>marks words found in every sentence).</p>' + table +
+        '<p class="small"><b>' + what + '.</b> S1, S2, S3 = sentences 1 to 3. df = how many sentences contain the word (<span aria-hidden="true" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--haldi);margin:0 3px"></span>marks words found in every sentence).</p>' + table +
         '<p class="small">' + explain + '</p>' +
         '<ul class="small" style="padding-left:1.1em">' + topLines.join('') + '</ul>' +
         '<h2 class="lab-h" style="margin-top:6px">How alike are the sentences? (cosine similarity)</h2>' +
