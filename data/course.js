@@ -631,7 +631,8 @@ window.AIM.modules = [
    }
   ],
   "best": "apna-college-shradha-khapra-complete-git-and-github-tuto",
-  "figs": true
+  "figs": true,
+  "lab": "git"
  },
  {
   "id": "l1-stats",
@@ -2147,7 +2148,8 @@ window.AIM.modules = [
    }
   ],
   "best": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
-  "figs": true
+  "figs": true,
+  "lab": "scaling"
  },
  {
   "id": "l3-nn-basics",
@@ -3811,7 +3813,8 @@ window.AIM.modules = [
    }
   ],
   "best": "prof-balaraman-ravindran-iit-madras-nptel-nptel-reinforc",
-  "figs": true
+  "figs": true,
+  "lab": "qlearn"
  },
  {
   "id": "l4-research-career",

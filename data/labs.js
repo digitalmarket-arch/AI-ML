@@ -51,6 +51,30 @@ window.AIM.labs = [
   ]
  },
  {
+  "id": "git",
+  "module": "l1-tools",
+  "title": "Git branching",
+  "summary": "Run real Git commands as buttons and watch commits, branches and HEAD move on a live graph, from fast-forward merges to merge commits, a README conflict you resolve yourself, and a safe undo with revert.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Fast-forward: create a branch called feature, switch to it, make 2 commits, then switch back to main and merge feature."
+   },
+   {
+    "id": "t2",
+    "text": "Merge commit: make two branches diverge (a new commit on each), then merge one into the other so Git makes a commit with two parents."
+   },
+   {
+    "id": "t3",
+    "text": "Conflict: press “Load the conflict story”, run git merge feature, then fix README.md by keeping ours, theirs or both."
+   },
+   {
+    "id": "t4",
+    "text": "Undo safely: make an Oops commit (it deletes prices.csv), then undo it with git revert HEAD, so the history keeps both commits."
+   }
+  ]
+ },
+ {
   "id": "clt",
   "module": "l1-stats",
   "title": "Sample means & the bell curve",
@@ -243,6 +267,30 @@ window.AIM.labs = [
   ]
  },
  {
+  "id": "scaling",
+  "module": "l2-feature-eng",
+  "title": "Scaling, encoding and leakage",
+  "summary": "See why features need a common scale before measuring distance, why city names need one-hot encoding, and why a scaler must learn only from the training rows.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Part 1: switch from No scaling to Min-max or Standard scaling and watch the 5 nearest neighbours change."
+   },
+   {
+    "id": "t2",
+    "text": "Part 1: find out which feature decides the distance when nothing is scaled, then answer the quick check under the table."
+   },
+   {
+    "id": "t3",
+    "text": "Part 2: spot the fake order. With label encoding, measure Mumbai to Chennai (3 steps apart, as if they were the most different cities), then measure the same pair with one-hot."
+   },
+   {
+    "id": "t4",
+    "text": "Part 3: let the scaler learn from all rows (the leak) and see the 2025 test score look better than the honest Pipeline score."
+   }
+  ]
+ },
+ {
   "id": "neuralnet",
   "module": "l3-nn-basics",
   "title": "Neural network playground",
@@ -431,6 +479,30 @@ window.AIM.labs = [
    {
     "id": "t4",
     "text": "Part 2: tick “Show score arrows” and sample from pure noise down to t = 100 or lower with the arrows showing. Watch where they point early on, and near the end."
+   }
+  ]
+ },
+ {
+  "id": "qlearn",
+  "module": "l4-rl",
+  "title": "Q-learning: the delivery rider",
+  "summary": "Train a delivery rider to find the best route to a customer by trial and error, and see how the learning rate, the discount γ and exploration ε change what it learns.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Train the rider until its greedy route (always taking the move with the highest Q-value) reaches the customer."
+   },
+   {
+    "id": "t2",
+    "text": "Once the route reaches the customer, set γ (gamma) to 0 and train at least 50 more episodes. The rider stops caring about the far-away +10, and its route no longer reaches the customer."
+   },
+   {
+    "id": "t3",
+    "text": "Set ε (epsilon) to 0, press Reset Q, then train at least 50 episodes. With no exploring, the rider never learns the way out of its lane to the customer."
+   },
+   {
+    "id": "t4",
+    "text": "Under the map choose “Changes it”, and put a traffic jam on a square of the rider’s greedy route. Keep training until the route changes to go round the jam."
    }
   ]
  }
