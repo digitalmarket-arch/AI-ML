@@ -373,7 +373,7 @@
       'Every button is a real Git command: press one and the command appears in the terminal, while the graph and the files change just as they would on your own computer.</p>' +
       '<div class="lab-body">' +
         '<div class="stack-sm" id="' + P + 'left">' +
-          '<div class="lab-canvas-wrap" id="' + P + 'wrap" role="region" tabindex="0" aria-label="Commit graph. It scrolls sideways when it gets long." style="aspect-ratio:auto;overflow-x:auto;overflow-y:hidden">' +
+          '<div class="lab-canvas-wrap" id="' + P + 'wrap" role="region" tabindex="0" aria-label="Commit graph. Use the Left and Right arrow keys to step through the commits. It scrolls sideways when it gets long." style="aspect-ratio:auto;overflow-x:auto;overflow-y:hidden">' +
             '<svg id="' + P + 'svg" xmlns="' + SVGNS + '" role="img" aria-label="Commit graph" style="position:static;display:block;max-width:none;touch-action:pan-x pan-y"></svg>' +
           '</div>' +
           '<div class="lab-legend">' +
@@ -384,6 +384,8 @@
           '</div>' +
           '<p class="small" id="' + P + 'detail" style="min-height:3em"></p>' +
           '<p class="small muted">Tap or click a circle to see what that commit changed. A double ring means a merge commit (two parents). When the graph gets long, scroll it sideways.</p>' +
+          '<p class="kbd-hint">Keyboard: focus the graph, then press the Left and Right arrow keys (or Home and End) to step through the commits. Esc goes back to HEAD.</p>' +
+          '<p class="visually-hidden" id="' + P + 'kbdlive" aria-live="polite"></p>' +
           '<div class="lab-stats" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">' + stat('On branch', 'sbranch') + stat('HEAD commit', 'shead') + stat('Commits', 'scount') + stat('Last merge', 'smerge') + '</div>' +
           '<div class="stack-sm" id="' + P + 'files" style="margin-top:8px">' +
             '<h2 class="lab-h">Files at HEAD</h2>' +
@@ -467,7 +469,7 @@
 
     function $(id) { return top.querySelector('#' + P + id); }
     var wrap = $('wrap'), svg = $('svg'), left = $('left'), filesPanel = $('files'), wordsEl = $('words'), whyEl = $('why');
-    var elDetail = $('detail'), elMsg = $('msg'), termEl = $('term');
+    var elDetail = $('detail'), elMsg = $('msg'), termEl = $('term'), elKbdLive = $('kbdlive');
     var elSBranch = $('sbranch'), elSHead = $('shead'), elSCount = $('scount'), elSMerge = $('smerge'), elOnb = $('onb');
     var btnCommit = $('commit'), btnOops = $('oops'), elOopsHelp = $('oopshelp'), elNext = $('next');
     var bform = $('bform'), bname = $('bname');
@@ -488,7 +490,7 @@
 
     /* ---------- state ---------- */
     var R = null;
-    var ui = { target: '', sel: null, lastMerge: '—', scroll: true, boxW: 0 };
+    var ui = { target: '', sel: null, lastMerge: '—', scroll: true, scrollTo: null, boxW: 0 };
     var done = {};
     function markLi(id) {
       var li = taskEls[id];
@@ -1109,7 +1111,9 @@
 
       if (ui.scroll) {
         ui.scroll = false;
-        var focusX = ghost ? X(n) : X(R.commits[headId].seq);
+        var focusId = ui.scrollTo && ui.scrollTo in R.commits ? ui.scrollTo : null;
+        ui.scrollTo = null;
+        var focusX = focusId ? X(R.commits[focusId].seq) : ghost ? X(n) : X(R.commits[headId].seq);
         var vw = wrap.clientWidth;
         if (W > vw && (focusX + 60 > wrap.scrollLeft + vw || focusX - 60 < wrap.scrollLeft)) wrap.scrollLeft = clamp(focusX - vw * 0.65, 0, W - vw);
       }
@@ -1159,6 +1163,23 @@
       ui.sel = id && id !== ui.sel ? id : null;
       renderDetail();
       renderGraph();
+    });
+    // keyboard: step through the commits in time order (the graph box is focusable)
+    on(wrap, 'keydown', function (e) {
+      if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || !R) return;
+      var ids = R.order, i = ids.indexOf(ui.sel || R.branches[R.head]), j;
+      if (e.key === 'ArrowLeft') j = i - 1;
+      else if (e.key === 'ArrowRight') j = i + 1;
+      else if (e.key === 'Home') j = 0;
+      else if (e.key === 'End') j = ids.length - 1;
+      else if (e.key === 'Escape') { if (!ui.sel) return; j = null; }
+      else return;
+      e.preventDefault();
+      ui.sel = j === null ? null : ids[clamp(j, 0, ids.length - 1)];
+      ui.scroll = true; ui.scrollTo = ui.sel || R.branches[R.head];
+      renderDetail();
+      renderGraph();
+      elKbdLive.textContent = elDetail.textContent;
     });
 
     function onTheme() { renderGraph(); }

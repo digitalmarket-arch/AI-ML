@@ -2271,7 +2271,8 @@ window.AIM.modules = [
     "note": "Spend 30 minutes changing layers, activation functions, learning rate and regularisation here to see overfitting and vanishing gradients happen in front of you, with no code."
    }
   ],
-  "best": "campusx-nitish-singh-100-days-of-deep-learning-ann-to-rn"
+  "best": "campusx-nitish-singh-100-days-of-deep-learning-ann-to-rn",
+  "figs": true
  },
  {
   "id": "l3-pytorch",
@@ -2409,7 +2410,8 @@ window.AIM.modules = [
     "note": "Keep open as a reference with the PyTorch tab selected; its preliminaries and 'builders' guide' chapters explain tensors, autograd, custom layers, GPUs and saving models."
    }
   ],
-  "best": "campusx-practical-deep-learning-using-pytorch"
+  "best": "campusx-practical-deep-learning-using-pytorch",
+  "figs": true
  },
  {
   "id": "l3-cv",
@@ -2549,7 +2551,8 @@ window.AIM.modules = [
     "note": "Optional depth: use the 2025 lectures on CNN architectures, detection and segmentation, and vision transformers when you want the global standard treatment."
    }
   ],
-  "best": "campusx-nitish-singh-100-days-of-deep-learning-ann-to-rn"
+  "best": "campusx-nitish-singh-100-days-of-deep-learning-ann-to-rn",
+  "figs": true
  },
  {
   "id": "l3-nlp",
@@ -2686,7 +2689,8 @@ window.AIM.modules = [
     "note": "Read the word-embeddings, text-classification and seq2seq-with-attention lectures alongside the videos, and try the small interactive exercises to check your understanding."
    }
   ],
-  "best": "krish-naik-nlp-live-series-classical-nlp-to-rnn-lstm-enc"
+  "best": "krish-naik-nlp-live-series-classical-nlp-to-rnn-lstm-enc",
+  "figs": true
  },
  {
   "id": "l3-transformers",
@@ -3372,7 +3376,8 @@ window.AIM.modules = [
     "note": "After Chapter 11, do Unit 2 'Evaluation' and Unit 3 'Preference Alignment' (DPO) to evaluate and align your own small fine-tuned model."
    }
   ],
-  "best": "krish-naik-finetuning-llm-playlist"
+  "best": "krish-naik-finetuning-llm-playlist",
+  "figs": true
  },
  {
   "id": "l4-agents",
@@ -3510,7 +3515,8 @@ window.AIM.modules = [
     "note": "Take this short course to learn how to test an agent's tool choices and final answers systematically before anyone relies on it."
    }
   ],
-  "best": "campusx-nitish-singh-agentic-ai-using-langgraph-full-pla"
+  "best": "campusx-nitish-singh-agentic-ai-using-langgraph-full-pla",
+  "figs": true
  },
  {
   "id": "l4-gen-vision",

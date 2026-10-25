@@ -212,10 +212,11 @@
                 stat('eps', 'Episodes') + stat('moves', 'Trip moves') + stat('rew', 'Trip reward') +
                 stat('avg', 'Avg of last ' + AVG_WIN) + stat('epsnow', 'Epsilon now') + stat('route', 'Greedy route') +
               '</div>' +
-              '<p class="small muted">Tap or point at any square to see its Q-values in the table below. Choose <b>Changes it</b> to edit the city: each tap cycles a square road → building → traffic jam → pothole → road. Drag the restaurant (Start) or the customer to move them. Editing keeps the Q-table, so you can watch the rider adapt; a trip under way is cancelled.</p>' +
+              '<p class="small muted">Tap or point at any square to see its four Q-values in the Q-values table. Choose <b>Changes it</b> to edit the city: each tap cycles a square road → building → traffic jam → pothole → road. Drag the restaurant (Start) or the customer to move them. Editing keeps the Q-table, so you can watch the rider adapt; a trip under way is cancelled.</p>' +
               '<p class="kbd-hint" id="' + P + 'kbd">Keyboard: Tab to the map, pick a square with the arrow keys, press Enter to tap it, S to move the start there and C to move the customer there.</p>' +
             '</div>' +
           '</div>' +
+          '<div class="stack" id="' + P + 'extras">' +
           '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px;align-items:start">' +
             '<div class="stack-sm">' +
               '<h2 class="lab-h">Total reward per episode</h2>' +
@@ -237,6 +238,7 @@
             '<p class="small" id="' + P + 'lastdesc"></p>' +
             '<pre class="small" id="' + P + 'lastpre" tabindex="0" role="region" aria-label="The last Q-learning update, with its numbers"></pre>' +
             '<p class="small muted">done is 1 only when the trip really ends (customer or pothole). When a trip is cut short after ' + MAX_MOVES + ' moves, done stays 0, because the street itself did not end.</p>' +
+          '</div>' +
           '</div>' +
         '</div>' +
         '<div class="lab-controls">' +
@@ -275,7 +277,7 @@
           '</ul></div>' +
         '</div>' +
       '</div>' +
-      '<p class="small muted"><strong style="color:var(--ink)">Why it matters in real ML:</strong> this same update rule, with a neural network in place of the table, is the deep Q-network (DQN) that learned to play Atari games from the screen alone, and the explore-or-exploit choice decides which offers, videos or routes real apps try out; real problems have far too many states for a table, but the idea of learning from rewards is the same.</p>';
+      '<p class="small muted" id="' + P + 'why"><strong style="color:var(--ink)">Why it matters in real ML:</strong> this same update rule, with a neural network in place of the table, is the deep Q-network (DQN) that learned to play Atari games from the screen alone, and the explore-or-exploit choice decides which offers, videos or routes real apps try out; real problems have far too many states for a table, but the idea of learning from rewards is the same.</p>';
     root.appendChild(top);
 
     function $(id) { return top.querySelector('#' + P + id); }
@@ -291,6 +293,18 @@
     var perBtns = top.querySelectorAll('[data-per]'), viewBtns = top.querySelectorAll('[data-view]'), tapBtns = top.querySelectorAll('[data-tap]');
     var taskEls = {};
     Array.prototype.forEach.call(top.querySelectorAll('[data-task]'), function (li) { taskEls[li.getAttribute('data-task')] = li; });
+
+    // On a phone (one column) the chart, Q table and formula move below the controls,
+    // so the Train buttons sit right under the map instead of a long scroll away.
+    var elExtras = $('extras'), elWhy = $('why'), leftStack = top.querySelector('.lab-body > .stack');
+    var narrowMql = window.matchMedia ? window.matchMedia('(max-width: 820px)') : null;
+    function placeExtras() {
+      if (destroyed) return;
+      var narrow = !!(narrowMql && narrowMql.matches);
+      if (narrow && elExtras.parentNode !== top) top.insertBefore(elExtras, elWhy);
+      else if (!narrow && elExtras.parentNode !== leftStack) leftStack.appendChild(elExtras);
+    }
+    placeExtras();
 
     /* ---------- state ---------- */
     var rng = mulberry32(SEED);

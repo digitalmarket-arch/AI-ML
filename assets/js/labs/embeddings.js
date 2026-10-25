@@ -11,14 +11,14 @@
   /* ---------- the 10 named numbers (dimensions) ---------- */
   var DIMS = [
     { name: 'place', desc: '1 for a city, a state or a country.' },
-    { name: 'size', desc: 'How big. For places: how many people live there, on a “times ten” scale (every 10 times more people adds 0.25, so 1 million is 0.25 and 1 billion is 1). For people: grown-up 0.6, child 0.3. For sports: players in a team (0.05 each). For food: portion size.' },
+    { name: 'size', desc: 'How big. For places: how many people live there, on a “times ten” scale (every 10 times more people adds 0.25, so 1 million is 0.25 and 1 billion is 1). For people: grown-up 0.6, young (boy, girl, prince, princess) 0.3. For sports: players in a team (0.05 each). For food: portion size.' },
     { name: 'capital', desc: '1 for the capital city of a country, 0.5 for the capital of an Indian state.' },
     { name: 'food', desc: '1 for a food.' },
     { name: 'sport', desc: '1 for a sport (0.8 for chess, a “mind sport”).' },
     { name: 'person', desc: '1 for a word about a person.' },
     { name: 'royal', desc: '1 for kings, queens, princes and princesses; 0.3 for places famous for royal palaces.' },
     { name: 'female', desc: '1 for a female person.' },
-    { name: 'south', desc: 'How far south in India a place is, or where in India a food comes from: 0 = far north, 1 = far south. 0 for everything else.' },
+    { name: 'south', desc: 'Roughly how far south in India a state is (a city gets the number of its state), or where in India a food comes from: 0 = far north, 1 = far south. 0 for everything else.' },
     { name: 'Indian', desc: 'How strongly the word is linked with India: 1 = completely.' }
   ];
   var ND = DIMS.length;
@@ -32,7 +32,7 @@
     ['Chennai', 'icity',      [1, 0.51, 0.5, 0, 0, 0, 0, 0, 0.95, 1]],
     ['Kolkata', 'icity',      [1, 0.54, 0.5, 0, 0, 0, 0, 0, 0.2, 1]],
     ['Hyderabad', 'icity',    [1, 0.5, 0.5, 0, 0, 0, 0, 0, 0.7, 1]],
-    ['Pune', 'icity',         [1, 0.46, 0, 0, 0, 0, 0, 0, 0.55, 1]],
+    ['Pune', 'icity',         [1, 0.46, 0, 0, 0, 0, 0, 0, 0.5, 1]],
     ['Jaipur', 'icity',       [1, 0.4, 0.5, 0, 0, 0, 0.3, 0, 0.1, 1]],
     ['Kochi', 'icity',        [1, 0.33, 0, 0, 0, 0, 0, 0, 1, 1]],
     ['Paris', 'city',         [1, 0.51, 1, 0, 0, 0, 0, 0, 0, 0]],
@@ -111,10 +111,10 @@
   var LABEL_FIRST = ['Mumbai', 'Delhi', 'India', 'Paris', 'France', 'London', 'king', 'queen', 'man', 'woman', 'Chennai', 'Tamil Nadu', 'Maharashtra', 'dosa', 'cricket', 'kabaddi'];
 
   var TASKS = [
-    { id: 't1', text: 'Find the 3 nearest neighbours of Mumbai: pick Mumbai on the map (or in the word list) and read the top of its list.' },
+    { id: 't1', text: 'Find the 3 nearest neighbours of Mumbai by cosine similarity: pick Mumbai on the map or in the “Selected word” list.' },
     { id: 't2', text: 'Solve king − man + woman in the analogy builder. Which word does the sum land on?' },
     { id: 't3', text: 'Solve Paris − France + India. Swapping the country should keep the “capital city” part.' },
-    { id: 't4', text: 'Catch the map bending the truth: under “Compare two words”, find a pair with a cosine similarity of 0.8 or more that sits more than a quarter of the map’s width apart. Hint: compare an Indian place with a similar place abroad.' }
+    { id: 't4', text: 'Catch the map bending the truth: in “Compare two words”, find a pair with cosine similarity 0.8 or more that sits over a quarter of the map’s width apart. Hint: an Indian place and a similar place abroad.' }
   ];
 
   /* ---------- small helpers ---------- */
@@ -222,7 +222,8 @@
     var list = [];
     for (var i = 0; i < NW; i++) if (exclude.indexOf(i) < 0) list.push({ i: i, cos: cosine(v, vecOf(i)), eu: euclid(v, vecOf(i)) });
     list.sort(function (a, b) {
-      var d = by === 'euc' ? a.eu - b.eu : (b.cos || -2) - (a.cos || -2);
+      var ca = isNaN(a.cos) ? -2 : a.cos, cb = isNaN(b.cos) ? -2 : b.cos;
+      var d = by === 'euc' ? a.eu - b.eu : cb - ca;
       return d || a.i - b.i;
     });
     return list;
@@ -353,13 +354,20 @@
           '<p class="small muted">Click or tap a dot to pick a word. Where dots overlap, tap the same spot again to move to the next word there. Some labels are hidden where words crowd together; picking a word always shows its label.</p>' +
           '<p class="kbd-hint" id="' + P + 'kbd">Keyboard: focus the map and use the arrow keys to jump to the nearest word in that direction.</p>' +
           '<p class="visually-hidden" role="status" aria-live="polite" id="' + P + 'live"></p>' +
-          '<div class="lab-stats">' +
+          '<div class="lab-stats" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">' +
             '<div class="stat"><div class="k">Map keeps</div><div class="v">' + pctAll + '%</div></div>' +
             '<div class="stat"><div class="k">Across (PC1)</div><div class="v">' + pct1 + '%</div></div>' +
             '<div class="stat"><div class="k">Up (PC2)</div><div class="v">' + pct2 + '%</div></div>' +
             '<div class="stat"><div class="k">Numbers per word</div><div class="v">' + ND + '</div></div>' +
           '</div>' +
-          '<p class="small muted">“Map keeps ' + pctAll + '%” means the two map directions (PC1 and PC2, the first two <em>principal components</em>) hold ' + pctAll + '% of the <em>variance</em> (spread) of all 10 numbers. The other ' + (100 - pctAll) + '% is lost in the squash.</p>' +
+          '<section class="card stack-sm" aria-labelledby="' + P + 'nh" style="margin-top:8px"><h2 class="lab-h" id="' + P + 'nh">Nearest words</h2>' +
+            '<div class="control"><span class="control-label" id="' + P + 'ranklbl">Rank by</span>' +
+              '<div class="seg" role="group" aria-labelledby="' + P + 'ranklbl">' +
+                '<button type="button" data-rank="cos" aria-pressed="true">Cosine similarity</button>' +
+                '<button type="button" data-rank="euc" aria-pressed="false">Euclidean distance</button>' +
+              '</div></div>' +
+            '<div id="' + P + 'nbody"></div>' +
+          '</section>' +
         '</div>' +
         '<div class="lab-controls">' +
           selectHtml('word', 'Selected word', iStart) +
@@ -381,15 +389,7 @@
           '<div class="stack-sm"><h2 class="lab-h">Your tasks</h2><ul class="lab-tasks" id="' + P + 'tasks">' + tasksHtml + '</ul></div>' +
         '</div>' +
       '</div>' +
-      '<div style="display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));align-items:start">' +
-        '<section class="card stack-sm" aria-labelledby="' + P + 'nh"><h2 class="lab-h" id="' + P + 'nh">Nearest words</h2>' +
-          '<div class="control"><span class="control-label" id="' + P + 'ranklbl">Rank by</span>' +
-            '<div class="seg" role="group" aria-labelledby="' + P + 'ranklbl">' +
-              '<button type="button" data-rank="cos" aria-pressed="true">Cosine similarity</button>' +
-              '<button type="button" data-rank="euc" aria-pressed="false">Euclidean distance</button>' +
-            '</div></div>' +
-          '<div id="' + P + 'nbody"></div>' +
-        '</section>' +
+      '<div style="display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));align-items:start">' +
         '<section class="card stack-sm" aria-labelledby="' + P + 'ah"><h2 class="lab-h" id="' + P + 'ah">Analogy result</h2><div id="' + P + 'abody"></div></section>' +
         '<section class="card stack-sm" aria-labelledby="' + P + 'ch"><h2 class="lab-h" id="' + P + 'ch">Cosine similarity vs Euclidean distance</h2><div id="' + P + 'cbody"></div></section>' +
       '</div>' +
@@ -401,9 +401,9 @@
         '<p class="small" style="padding:10px 12px;border-radius:var(--radius-sm);background:var(--surface-2)">TF-IDF = count × idf, where <span class="mono">idf = ln((1 + n) ÷ (1 + df)) + 1</span>. ' +
           'Here n = number of sentences (3), df = how many sentences contain the word, and ln is the natural logarithm. This is the formula scikit-learn uses by default (<code>smooth_idf=True</code>). ' +
           'Words are lower-cased and punctuation is dropped (scikit-learn would also drop one-letter words such as “a”).</p>' +
-        '<div style="display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))">' +
+        '<div style="display:grid;gap:8px 10px;grid-template-columns:auto minmax(0,1fr);align-items:center;max-width:720px">' +
           [0, 1, 2].map(function (k) {
-            return '<div class="control"><label for="' + P + 's' + k + '">Sentence ' + (k + 1) + '</label><input type="text" id="' + P + 's' + k + '" maxlength="90" spellcheck="false" autocomplete="off" value="' + esc(START_SENTENCES[k]) + '" style="width:100%"></div>';
+            return '<label for="' + P + 's' + k + '" style="font-size:.92rem;font-weight:600;white-space:nowrap">Sentence ' + (k + 1) + '</label><input type="text" id="' + P + 's' + k + '" maxlength="90" spellcheck="false" autocomplete="off" value="' + esc(START_SENTENCES[k]) + '" style="width:100%;min-width:0">';
           }).join('') +
         '</div>' +
         '<div class="row" style="gap:14px">' +
@@ -518,16 +518,15 @@
           '<span class="mono small num">' + val + '</span></div>' +
           '<div aria-hidden="true" style="height:5px;border-radius:3px;background:var(--surface-2);margin-top:3px"><div style="height:100%;width:' + (share * 100).toFixed(1) + '%;border-radius:3px;background:var(--indigo)"></div></div></li>';
       }).join('');
-      var fv = vecOf(first.i), worked;
+      var fv = vecOf(first.i), worked, pair = esc(nameOf(i)) + ' and ' + esc(nameOf(first.i));
       if (S.rank === 'euc') {
         worked = '<p class="small"><strong>Euclidean distance</strong> = √(sum of (a − b)²): the straight-line gap between the tips of the two arrows. Smaller means closer. ' +
-          'Worked example, ' + esc(nameOf(i)) + ' and ' + esc(nameOf(first.i)) + ': √(' + diffSum(v, fv) + ') = <b class="num">' + fx(first.eu, 2) + '</b>. ' +
-          'It counts differences in <em>length</em> too, so short vectors (words with few big numbers, such as chess) tend to be close to each other. Try chess under both rankings.</p>';
+          'It counts differences in <em>length</em> too, so short vectors (words with few big numbers, such as chess) tend to be close to each other. Try chess under both rankings.</p>' +
+          '<details class="fold"><summary>Worked example: ' + pair + '</summary><div><p class="small">√(' + diffSum(v, fv) + ') = <b class="num">' + fx(first.eu, 2) + '</b></p></div></details>';
       } else {
-        worked = '<p class="small"><strong>Cosine similarity</strong> = (A · B) ÷ (|A| × |B|). Multiply the matching numbers of the two words and add them up (the <em>dot product</em>, A · B), then divide by both lengths (|A| = √(sum of the squares)). ' +
-          'It measures the angle between the two arrows: 1 = pointing the same way, 0 = nothing in common (at right angles). All our numbers are 0 or more, so between two words it stays between 0 and 1.</p>' +
-          '<p class="small">Worked example, ' + esc(nameOf(i)) + ' and ' + esc(nameOf(first.i)) + ': A · B = ' + dotSum(v, fv) + ' = <span class="num">' + fx(dot(v, fv), 2) + '</span>. ' +
-          'Lengths: ' + fx(len(v), 3) + ' and ' + fx(len(fv), 3) + '. Cosine = ' + fx(dot(v, fv), 2) + ' ÷ (' + fx(len(v), 3) + ' × ' + fx(len(fv), 3) + ') ≈ <b class="num">' + fx(first.cos, 3) + '</b>.</p>';
+        worked = '<p class="small"><strong>Cosine similarity</strong> = (A · B) ÷ (|A| × |B|). It measures the angle between the two word arrows: 1 = pointing the same way, 0 = nothing in common (at right angles). All our numbers are 0 or more, so between two words it stays between 0 and 1.</p>' +
+          '<details class="fold"><summary>Worked example: ' + pair + '</summary><div><p class="small">Multiply the matching numbers of the two words and add them up (the <em>dot product</em>, A · B): ' + dotSum(v, fv) + ' = <span class="num">' + fx(dot(v, fv), 2) + '</span>. ' +
+          'Then divide by both lengths (|A| = √(sum of the squares)): ' + fx(len(v), 3) + ' and ' + fx(len(fv), 3) + '. Cosine = ' + fx(dot(v, fv), 2) + ' ÷ (' + fx(len(v), 3) + ' × ' + fx(len(fv), 3) + ') ≈ <b class="num">' + fx(first.cos, 3) + '</b>.</p></div></details>';
       }
       var defs = '<details class="fold"><summary>What the 10 numbers mean</summary><div><ul class="small" style="padding-left:1.1em">' +
         DIMS.map(function (d) { return '<li><b>' + d.name + ':</b> ' + d.desc + '</li>'; }).join('') + '</ul></div></details>';
@@ -594,7 +593,7 @@
       var verdict;
       if (same) verdict = 'Both boxes hold the same word, so cosine is 1 and both distances are 0.';
       else if (c.cos >= HIGH_COS && c.share >= FAR_SHARE) verdict = '<b>The map is misleading here.</b> ' + np + ' and ' + nq + ' point almost the same way (cosine ' + fx(c.cos, 2) + '), yet they sit ' + pctW + '% of the map’s width apart. The map shows straight-line gaps, which also count the numbers where the two words differ, while cosine looks only at direction across all 10 numbers.';
-      else if (c.cos < 0.4 && c.share < 0.06) verdict = '<b>The map is misleading here.</b> ' + np + ' and ' + nq + ' sit almost on top of each other on the map, yet their cosine similarity is only ' + fx(c.cos, 2) + '. The numbers that tell them apart were lost when 10 numbers were squashed into 2.';
+      else if (c.cos < 0.7 && c.share < 0.06) verdict = '<b>The map is misleading here.</b> ' + np + ' and ' + nq + ' sit almost on top of each other on the map, yet their cosine similarity is only ' + fx(c.cos, 2) + '. The numbers that tell them apart were lost when 10 numbers were squashed into 2.';
       else if (c.cos >= HIGH_COS) verdict = np + ' and ' + nq + ' point almost the same way (cosine ' + fx(c.cos, 2) + ') and are fairly close on the map too.';
       else if (c.cos < 0.3) verdict = np + ' and ' + nq + ' have little in common (cosine ' + fx(c.cos, 2) + ').';
       else verdict = np + ' and ' + nq + ' are partly alike (cosine ' + fx(c.cos, 2) + ').';
@@ -610,7 +609,7 @@
         '<p class="small"><strong>Cosine</strong> compares only the <em>direction</em> of the two arrows: a long and a short arrow pointing the same way score 1. ' +
           '<strong>Euclidean distance</strong> is the straight-line gap between the arrow tips, so it grows when one arrow is longer than the other. ' +
           'The <strong>gap on the map</strong> is the Euclidean distance after the squash to 2-D (given in map units, and as a share of the map’s width). It can only shrink in the squash, never grow, so it is never bigger than the 10-number Euclidean distance.</p>' +
-        '<p class="small muted">A 2-D picture of high-dimensional vectors always distorts: here it keeps ' + pctAll + '% of the spread, and 2-D pictures of real embeddings with hundreds of numbers usually lose far more. Trust the numbers, not the picture.</p>' +
+        '<p class="small muted">A 2-D picture of high-dimensional vectors always distorts. The two map directions (PC1 and PC2, the first two <em>principal components</em>) hold ' + pctAll + '% of the <em>variance</em> (spread) of all 10 numbers; the other ' + (100 - pctAll) + '% is lost in the squash. 2-D pictures of real embeddings with hundreds of numbers usually lose far more. Trust the numbers, not the picture.</p>' +
         vecTable([{ name: nameOf(c.p), vec: vecOf(c.p), cssVar: '--series-1' }, { name: nameOf(c.q), vec: vecOf(c.q), cssVar: '--series-4' }]);
       return c;
     }
@@ -669,11 +668,12 @@
         '<p class="small"><b>' + what + '.</b> df = how many sentences contain the word (<span aria-hidden="true" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--haldi);margin:0 3px"></span>marks words found in every sentence).</p>' + table +
         '<p class="small">' + explain + '</p>' +
         '<ul class="small" style="padding-left:1.1em">' + topLines.join('') + '</ul>' +
-        '<h2 class="lab-h">How alike are the sentences? (cosine similarity)</h2>' +
+        '<h2 class="lab-h" style="margin-top:6px">How alike are the sentences? (cosine similarity)</h2>' +
         '<div class="table-wrap" style="width:0;min-width:100%"><table style="border-collapse:collapse;font-size:.9rem"><caption class="visually-hidden">Cosine similarity between sentences with counts and with TF-IDF</caption>' +
           '<thead><tr><th scope="col" style="text-align:left;padding:3px 8px 3px 0;font-size:.78rem;color:var(--muted)">Sentences</th><th scope="col" style="text-align:right;padding:3px 8px;font-size:.78rem;color:var(--muted)">Counts</th><th scope="col" style="text-align:right;padding:3px 0 3px 8px;font-size:.78rem;color:var(--muted)">TF-IDF</th></tr></thead>' +
           '<tbody>' + simRow(0, 1) + simRow(0, 2) + simRow(1, 2) + '</tbody></table></div>' +
         '<p class="small muted">With counts, shared filler words such as “the” make every pair of sentences look alike. TF-IDF shrinks them, so similarity depends more on the words that carry the meaning. (Scaling to length 1 does not change cosine similarity.)</p>';
+      markScrollers();
     }
 
     /* ---------- the map: geometry ---------- */
@@ -957,6 +957,21 @@
       }
       elReadout.innerHTML = s;
       canvas.setAttribute('aria-label', label);
+      markScrollers();
+    }
+    // a table box that scrolls must be reachable by keyboard; one that fits needs no extra tab stop
+    function markScrollers() {
+      if (destroyed) return;
+      Array.prototype.forEach.call(top.querySelectorAll('.table-wrap'), function (el) {
+        var scrolls = el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1;
+        if (scrolls && !el.hasAttribute('tabindex')) {
+          var cap = el.querySelector('caption');
+          el.setAttribute('tabindex', '0'); el.setAttribute('role', 'region');
+          el.setAttribute('aria-label', (cap ? cap.textContent : 'Table') + ' (scrollable)');
+        } else if (!scrolls && el.hasAttribute('tabindex')) {
+          el.removeAttribute('tabindex'); el.removeAttribute('role'); el.removeAttribute('aria-label');
+        }
+      });
     }
 
     /* ---------- changes ---------- */
@@ -974,7 +989,7 @@
       if (selWord.value !== String(i)) selWord.value = String(i);
       S.mode = 'nbrs'; setModeBtns();
       renderNbrs(); updateText(); requestDraw();
-      if (how !== 'init' && nameOf(i) === 'Mumbai') completeTask('t1');
+      if (how !== 'init' && nameOf(i) === 'Mumbai' && S.rank === 'cos') completeTask('t1');
       if (how !== 'init' && (changed || how === 'select')) {
         announce(nameOf(i) + ' selected. Nearest by ' + (S.rank === 'euc' ? 'Euclidean distance' : 'cosine similarity') + ': ' + listText(nearest(i, S.rank), S.rank) + '.', how !== 'key');
       }
@@ -1008,6 +1023,7 @@
       renderNbrs();
       S.mode = 'nbrs'; setModeBtns();
       updateText(); requestDraw();
+      if (by === 'cos' && nameOf(S.sel) === 'Mumbai') completeTask('t1');
       announce('Ranked by ' + (by === 'euc' ? 'Euclidean distance' : 'cosine similarity') + ': ' + listText(nearest(S.sel, by), by) + '.', true);
     }
     function setTf(mode) {
@@ -1125,6 +1141,7 @@
         // resizing clears the canvas: repaint now so there is no blank frame
         if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
         draw();
+        markScrollers();
       }
     }
     var ro = null;
