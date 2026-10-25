@@ -823,6 +823,9 @@
       var w = tok.charAt(0) === SP ? textW(SP) + (tok.length > 1 ? textW(tok.slice(1)) : 0) : textW(tok);
       return Math.max(Math.ceil(w) + 2 * m.px, Math.round(m.h * 0.6));
     }
+    function glued(L, ci) { // chunk ci follows the previous one with no space (e.g. the "." after a word)
+      return ci > 0 && ci < L.chunks.length && C.types[L.chunks[ci]].s.charAt(0) !== SP;
+    }
     function layout(sg, width, rec) {
       var m = metrics(width);
       var f = fontStr(m.fs);
@@ -840,9 +843,16 @@
         paras.push({ top: top, bottom: 0, lang: L.lang, tagX: x, tagW: tw });
         x += tw + 6;
         for (var ci = 0; ci < L.chunks.length; ci++) {
-          var toks = sg[L.chunks[ci]], ws = [], gw = 0, j;
+          var toks = sg[L.chunks[ci]], ws = [], gw = 0, j, cj;
           for (j = 0; j < toks.length; j++) { ws.push(tokW(toks[j], m)); gw += ws[j] + (j ? m.gap : 0); }
-          if (x > x0 && x + gw > maxX) { x = x0; y += m.h + m.rgap; }
+          if (!glued(L, ci)) {
+            // a word and the punctuation stuck to it (no space between) wrap together, so "." never starts a row
+            var need = gw;
+            for (cj = ci + 1; cj < L.chunks.length && glued(L, cj); cj++) {
+              sg[L.chunks[cj]].forEach(function (t) { need += m.gap + tokW(t, m); });
+            }
+            if (x > x0 && x + need > maxX) { x = x0; y += m.h + m.rgap; }
+          }
           var start = out.length;
           for (j = 0; j < toks.length; j++) {
             if (x > x0 && x + ws[j] > maxX) { x = x0; y += m.h + m.rgap; }
@@ -850,7 +860,7 @@
             x += ws[j] + m.gap;
           }
           if (nm) for (j = 0; j < toks.length - 1; j++) if (toks[j] === nm.a && toks[j + 1] === nm.b) { prs.push(start + j); j++; }
-          x += m.wgap - m.gap;
+          if (!glued(L, ci + 1)) x += m.wgap - m.gap; // a wider gap only where the text has a space
         }
         paras[paras.length - 1].bottom = y + m.h;
         y += m.h + m.pgap;

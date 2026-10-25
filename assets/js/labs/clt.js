@@ -163,7 +163,9 @@
       '<div class="lab">' +
         '<p class="lab-note"><strong>What you are seeing:</strong> the top chart is a whole <em>population</em> (every household, every student, or every possible die roll). ' +
         'Each time you draw a <em>sample</em> (a random handful of <i>n</i> values, shown as yellow dots), we work out its <em>mean</em> (average) and drop it into the bottom chart. ' +
-        'Collect many sample means and look at their shape. <em>SD</em> means standard deviation: how far values typically sit from the average.</p>' +
+        '<em>SD</em> means standard deviation: how far values typically sit from the average. ' +
+        'The <strong>Central Limit Theorem</strong> (CLT) predicts that, once <i>n</i> is big enough, the sample means pile up into a bell shape (a <em>normal</em> curve) centred on the population mean \u03BC, with an SD of only \u03C3/\u221An (\u03C3 is the population SD). ' +
+        'The red curve, written N(\u03BC,\u00A0\u03C3/\u221An), draws that prediction. Collect many means and see if they agree.</p>' +
         '<div class="lab-body">' +
           '<div class="stack-sm">' +
             '<div class="lab-canvas-wrap"><canvas role="img" tabindex="0" aria-label="Central Limit Theorem lab chart" aria-describedby="' + P + 'hint" style="outline-offset:-3px"></canvas></div>' +
@@ -228,7 +230,7 @@
             '</div>' +
           '</div>' +
         '</div>' +
-        '<p class="small muted"><strong>Why it matters in real ML:</strong> when you report a model\u2019s accuracy on 1,000 test examples, or average the loss over a mini-batch, the CLT says that average wobbles by about \u03C3/\u221An, which is where error bars and A/B tests come from.</p>' +
+        '<p class="small muted"><strong>Why it matters in real ML:</strong> a model\u2019s accuracy on 1,000 test examples is also an average, so it wobbles from one test set to the next by about \u03C3/\u221An. That is why bigger test sets give steadier scores, and where error bars (the \u00B1 range shown around a result) come from.</p>' +
       '</div>';
 
     function q(sel) { return root.querySelector(sel); }
@@ -284,6 +286,7 @@
     function endRun() {
       finishAnim();
       pending = 0;
+      batchSize = 0;
       var r = st.run, list = st.runs[st.popId];
       if (!r) return;
       r.lattice = null;
@@ -331,15 +334,16 @@
       if (destroyed) return;
       finishAnim();
       if (reduced()) {
-        var s = null;
-        for (var i = 0; i < k + pending; i++) {
-          s = drawOne(i === k + pending - 1);
-          if (i === k + pending - 1) st.last = lastFrom(s);
+        var total = k + pending, s = null;
+        for (var i = 0; i < total; i++) {
+          s = drawOne(i === total - 1);
+          if (i === total - 1) st.last = lastFrom(s);
           commit(s.sum);
         }
         pending = 0;
+        batchSize = 0;
         afterCommit();
-        announceBatch(k);
+        announceBatch(total);
       } else if (k === 1 && pending === 0) {
         var one = drawOne(true);
         st.last = lastFrom(one);
@@ -419,7 +423,7 @@
         b.setAttribute('aria-pressed', on ? 'true' : 'false');
       });
       if (+slider.value !== st.n) slider.value = String(st.n);
-      setText(el.nout, 'nout', 'n = ' + st.n + (st.n === 1 ? ' value' : ' values') + ' per sample');
+      setText(el.nout, 'nout', st.n + (st.n === 1 ? ' value' : ' values'));
       setHTML(el.popdesc, 'popdesc', p.desc);
       curveBox.checked = st.showCurve;
       syncStats();
@@ -486,6 +490,7 @@
     function clearMeans() {
       finishAnim();
       pending = 0;
+      batchSize = 0;
       var r = st.run;
       r.count = 0; r.sumD = 0; r.sumD2 = 0;
       r.lattice.fill(0);
@@ -548,9 +553,9 @@
       }
       var leftOut = 0, rightOut = 0;
       if (st.zoom && r.count) {
-        var iL = Math.ceil((view.lo - p.lo) * n - 1e-9), iR = Math.floor((view.hi - p.lo) * n + 1e-9);
-        for (i = 0; i < Math.min(size, iL); i++) leftOut += lat[i];
-        for (i = Math.max(0, iR + 1); i < size; i++) rightOut += lat[i];
+        // means that fall in no drawn bar (a bar cut by the edge still counts as on the chart)
+        for (i = 0; i < Math.min(size, j0 * k); i++) leftOut += lat[i];
+        for (i = Math.max(0, (j1 + 1) * k); i < size; i++) rightOut += lat[i];
       }
       return { view: view, k: k, w: k / n, bins: counts, maxH: maxH, leftOut: leftOut, rightOut: rightOut };
     }
@@ -665,12 +670,18 @@
         g.fillText(fit(['Your sample appears here: ' + n + ' random ' + (n === 1 ? p.one : p.noun) + ' picked from the population.',
           'Your sample of ' + n + ' ' + (n === 1 ? p.one : p.noun) + ' appears here.', 'Your sample appears here.'], plotW - 8), plotL + 4, labelY);
       } else {
-        var head = 'Sample #' + group(last.no) + ': ' + n + ' ' + (n === 1 ? p.one : p.noun);
+        var meanTxt = '  \u00B7  mean ' + p.fmtMean(last.mean);
+        g.font = fontB;
+        var meanW = g.measureText(meanTxt).width;
+        g.font = fontN;
+        var heads = ['Sample #' + group(last.no) + ': ' + n + ' ' + (n === 1 ? p.one : p.noun), 'Sample #' + group(last.no), '#' + group(last.no)];
+        var head = heads[heads.length - 1];
+        for (i = 0; i < heads.length; i++) if (g.measureText(heads[i]).width + meanW <= plotW - 4) { head = heads[i]; break; }
         g.fillText(head, plotL + 4, labelY);
         var hw = g.measureText(head).width;
         if (t >= SINGLE_MS * 0.55) {
           g.font = fontB; g.fillStyle = C.ink;
-          g.fillText('  \u00B7  mean ' + p.fmtMean(last.mean), plotL + 4 + hw, labelY);
+          g.fillText(meanTxt, plotL + 4 + hw, labelY);
         }
         var dotTop = labelY + 5, dotBot = sT + sH - 6;
         var rad = (n <= 10 ? 4.5 : n <= 25 ? 3.8 : 3.2) * (W < 480 ? 0.85 : 1);
@@ -772,12 +783,28 @@
       g.beginPath(); g.moveTo(plotL, mBase + 0.5); g.lineTo(plotR, mBase + 0.5); g.stroke();
       drawMu(xM(p.mu), mTop, mBase, C, fontN, false);
       if (showCurve) {
-        g.font = fontB; g.textAlign = 'left';
-        var lblTxt = 'bell curve (theory)';
-        var sPx = s / (mv.hi - mv.lo) * plotW;
-        var lx = peakX + Math.max(10, sPx * 0.6), ly = Math.max(mTop + fs + 2, peakY - 6);
-        if (lx + g.measureText(lblTxt).width > plotR - 2) { g.textAlign = 'right'; lx = peakX - Math.max(10, sPx * 0.6); }
-        halo(lblTxt, lx, ly, C.s2, C.surface);
+        g.font = fontB;
+        var lblTxt = 'bell curve (theory)', tw = g.measureText(lblTxt).width;
+        var sPx = s / (mv.hi - mv.lo) * plotW, off = Math.max(10, sPx * 0.6);
+        var lx0 = peakX + off;                                  // left edge of the label
+        if (lx0 + tw > plotR - 2) lx0 = peakX - off - tw;
+        lx0 = clamp(lx0, plotL + 2, plotR - 2 - tw);
+        // highest point (smallest y) of any bar or of the curve under the label
+        var topY = mBase;
+        for (i = 0; i < mb.bins.length; i++) {
+          var lb = mb.bins[i];
+          if (!lb.c) continue;
+          var lbx0 = xM(p.lo + (lb.a - 0.5) / n), lbx1 = xM(p.lo + (lb.b + 0.5) / n);
+          if (lbx1 < lx0 - 3 || lbx0 > lx0 + tw + 3) continue;
+          topY = Math.min(topY, mBase - lb.h * yScale);
+        }
+        for (var cx = lx0 - 3; cx <= lx0 + tw + 3; cx += 3) {
+          var cv = mv.lo + (cx - plotL) / plotW * (mv.hi - mv.lo);
+          topY = Math.min(topY, mBase - N * mb.w * normalPdf(cv, mu, s) * yScale);
+        }
+        var ly = Math.max(mTop + fs + 2, topY - 6);
+        g.textAlign = 'left';
+        halo(lblTxt, lx0, ly, C.s2, C.surface);
       }
       // overflow markers (zoom only)
       g.font = fontN; g.fillStyle = C.muted;
@@ -827,7 +854,8 @@
     function drawAxis(view, xf, base, labelY, C, fontN) {
       var p = pop(), span = view.hi - view.lo;
       var maxT = Math.max(3, Math.floor(lay.plotW / (p.id === 'income' ? 58 : 46)));
-      var step = (p.id === 'die' && span <= 7) ? 1 : niceStep(span, maxT);
+      var step = niceStep(span, maxT);
+      if (p.id === 'die' && span > 5) step = 1;   // full view: label whole faces only
       var d = decimalsOf(step);
       g.font = fontN; g.fillStyle = C.muted; g.textAlign = 'center'; g.strokeStyle = C.line; g.lineWidth = 1;
       var lastR = -Infinity;
@@ -966,6 +994,7 @@
       if (!sameHover(h, hover)) { hover = h; kick(); }
     }
     function onDown(e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
       var pt = local(e), reg = regionAt(pt);
       if (reg === 'pop') { request(1); }
       var h = reg ? hitBin(pt, reg) : null;

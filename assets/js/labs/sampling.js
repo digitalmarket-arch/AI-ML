@@ -120,7 +120,8 @@
   function pct(p) {
     if (!(p > 0)) return '0%';
     if (p < 0.001) return '<0.1%';
-    if (p < 1 && p > 0.9995) return '>99.9%';
+    if (p >= 1 - 1e-12) return '100%';
+    if (p > 0.9995) return '>99.9%';
     return (p * 100).toFixed(1) + '%';
   }
   function fcount(c) {  // whole counts as integers, stand-in counts with enough decimals to read
@@ -299,7 +300,7 @@
             '<div id="' + P + 'text" style="background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;font-size:1.08rem;line-height:2;min-height:4.6em;max-height:15em;overflow-y:auto"></div>' +
             '<div class="lab-legend" aria-label="Colour of a generated word: the chance it had when it was picked"><i style="font-style:normal;font-weight:600">Chance when picked:</i>' + legendHtml + '</div>' +
             '<p class="small" id="' + P + 'prev"></p>' +
-            '<p class="small" id="' + P + 'note" style="min-height:1.5em"></p>' +
+            '<p class="small" id="' + P + 'note" style="display:none"></p>' +
             '<div class="row">' +
               '<button type="button" class="btn btn-primary" id="' + P + 'sample">Sample next token</button>' +
               '<button type="button" class="btn" id="' + P + 'gen">Generate 15 tokens</button>' +
@@ -314,7 +315,7 @@
             '</div>' +
             '<p class="small" id="' + P + 'readout" style="min-height:4.8em"></p>' +
             '<div class="row"><button type="button" class="btn btn-sm" id="' + P + 'use">Use this word</button>' +
-              '<button type="button" class="btn btn-sm" id="' + P + 'back" hidden>Back to the next token</button></div>' +
+              '<button type="button" class="btn btn-sm" id="' + P + 'back" style="display:none">Back to the next token</button></div>' +
             '<p class="visually-hidden" role="status" aria-live="polite" id="' + P + 'live"></p>' +
             '<div class="lab-stats" style="margin-top:6px">' +
               '<div class="stat"><div class="k">Words possible</div><div class="v" id="' + P + 'snk">—</div></div>' +
@@ -386,11 +387,18 @@
       for (var i = 0; i < nGen; i++) h.push(S.gen[i].w);
       return h;
     }
+    // the words the model looked at, in plain words ("." at the front means the start of a sentence)
     function ctxLabel(D) {
       if (D.type === 'uni') return 'no earlier words';
-      if (D.type === 'bi' && D.ctxW[0] === 0) return 'the start of a sentence';
+      if (D.ctxW[0] === 0) return D.ctxW.length === 1 ? 'the start of a sentence' : '“' + disp(D.ctxW[1]) + '” at the start of a sentence';
       return '“' + D.ctxW.map(disp).join(' ') + '”';
     }
+    function ctxStat(D) {
+      if (D.type === 'uni') return 'nothing';
+      if (D.ctxW[0] === 0) return D.ctxW.length === 1 ? 'sentence start' : '“' + disp(D.ctxW[1]) + '” (sentence start)';
+      return '“' + D.ctxW.map(disp).join(' ') + '”';
+    }
+    function niceWord(w) { return w === 0 ? '“.” (full stop)' : '“' + disp(w) + '”'; }
     function recompute() {
       S.dist = nextDist(M, histFor(S.gen.length), settings());
       if (S.sel >= 0 && S.dist.rank[S.sel] >= ROWS) S.sel = -1;
@@ -416,7 +424,7 @@
       if (ctx && ctx.onTaskDone) ctx.onTaskDone(id);
     }
     function announce(s) { elLive.textContent = s; }
-    function setNote(html) { elNote.innerHTML = html || ''; }
+    function setNote(html) { elNote.innerHTML = html || ''; elNote.style.display = html ? '' : 'none'; }
 
     // greedy continuation of n tokens from a history (used to check top-k = 1 against greedy)
     function greedyRun(hist, n, mem) {
@@ -533,16 +541,21 @@
     }
     function renderReadout() {
       var V = view(), D = V.D, w = selWord(V), s = D.s, html = '';
-      var name = '<strong>“' + esc(chartWord(w)) + '”</strong>', cl = ctxLabel(D);
+      var name = '<strong>' + esc(niceWord(w)) + '</strong>', cl = ctxLabel(D);
       if (V.mode === 'hist') {
         var t = V.t;
         html += 'Word ' + (S.view + 1) + ', “' + esc(disp(t.w)) + '”, was picked ' + (t.manual ? 'by you' : t.u == null ? 'greedily (top word)' : 'by a dice roll of ' + t.u.toFixed(3)) +
           ' with a chance of ' + pct(t.p) + ' (settings then: T ' + tStr(s.T) + ', top-k ' + s.k + ', top-p ' + s.p.toFixed(2) + '). ';
       }
+      if (D.missed && D.type === 'bi') {
+        html += (D.missed[0] === 0 ? 'No training sentence starts with “' + esc(disp(D.missed[1])) + '”' : 'It never saw “' + esc(D.missed.map(disp).join(' ')) + '” together') +
+          ', so it falls back to ' + cl + ' alone. ';
+      }
+      var startOnly = D.type === 'bi' && D.ctxW[0] === 0;
       if (D.seen[w]) {
-        html += name + ' came after ' + cl + ' ' + fcount(D.cnt[w]) + (D.cnt[w] === 1 ? ' time' : ' times') + ' in the training sentences, so its logit (score) is ln(' + fcount(D.cnt[w]) + ') = ' + f2(D.logit[w]) + '. ';
+        html += name + (startOnly ? ' started a sentence ' : ' came after ' + cl + ' ') + fcount(D.cnt[w]) + (D.cnt[w] === 1 ? ' time' : ' times') + ' in the training sentences, so its logit (score) is ln(' + fcount(D.cnt[w]) + ') = ' + f2(D.logit[w]) + '. ';
       } else {
-        html += name + ' never came after ' + cl + '. It gets a tiny stand-in count of ' + fcount(D.cnt[w]) + ' (called <em>smoothing</em>: based on how common it is overall, so nothing is impossible), giving a logit of ln(' + fcount(D.cnt[w]) + ') = ' + f2(D.logit[w]) + '. ';
+        html += name + (startOnly ? ' never started a sentence' : ' never came after ' + cl) + '. It gets a tiny stand-in count of ' + fcount(D.cnt[w]) + ' (called <em>smoothing</em>: based on how common it is overall, so nothing is impossible), giving a logit of ln(' + fcount(D.cnt[w]) + ') = ' + f2(D.logit[w]) + '. ';
       }
       if (D.greedy) {
         html += 'T = 0 means greedy: no dice, the highest logit simply wins. ' + (D.order[0] === w ? 'This is the top word, so it gets 100%.' : 'It is not the top word, so it gets 0%.');
@@ -555,17 +568,17 @@
       elReadout.innerHTML = html;
       // the "use this word" button
       var canUse = V.mode === 'next' && !D.cut[w] && S.gen.length < MAX_GEN && !S.generating;
-      btnUse.hidden = V.mode === 'hist';
+      btnUse.style.display = V.mode === 'hist' ? 'none' : '';
       btnUse.disabled = !canUse;
-      btnUse.textContent = 'Use “' + chartWord(w) + '” as the next token';
+      btnUse.textContent = 'Use “' + disp(w) + '” as the next token';
       btnUse.title = D.cut[w] ? 'Crossed out by a filter: the model cannot pick it' : '';
-      btnBack.hidden = V.mode !== 'hist';
+      btnBack.style.display = V.mode === 'hist' ? '' : 'none';
     }
     function renderStats() {
       var D = S.dist;
       elSNK.textContent = D.nK + ' of ' + M.V;
       elSTop.textContent = pct(D.pf[D.order[0]]);
-      elSCtx.textContent = D.type === 'uni' ? 'nothing' : D.type === 'bi' && D.ctxW[0] === 0 ? 'sentence start' : '“' + D.ctxW.map(disp).join(' ') + '”';
+      elSCtx.textContent = ctxStat(D);
       elSNS.textContent = String(S.gen.filter(function (t) { return !t.seen; }).length);
       var nPrompt = S.prompt.length;
       elPCount.textContent = nPrompt + ' token' + (nPrompt === 1 ? '' : 's');
@@ -756,8 +769,10 @@
     function ctxShort(hist) {
       var h = hist.length > 1 ? hist.slice(1) : [];
       if (!h.length) return 'the start';
-      var tail = h.slice(-3), s = tail.map(disp).join(' ').replace(/ \./g, '.');
-      return (h.length > 3 ? '… ' : '') + s;
+      var tail = h.slice(-3), cutFront = h.length > 3;
+      while (tail.length > 1 && tail[0] === 0) { tail.shift(); cutFront = true; }
+      var s = tail.map(disp).join(' ').replace(/ \./g, '.');
+      return (cutFront ? '… ' : '') + s;
     }
     function draw(now) {
       if (dims.w < 2) return;
@@ -995,7 +1010,7 @@
       var h = layout(w).h;
       // changing the wrapper's own height inside the ResizeObserver callback would loop, so defer it
       if (h !== wantH) { wantH = h; if (!sizeRaf) sizeRaf = requestAnimationFrame(applyHeight); }
-      var dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+      var dpr = Math.min(window.devicePixelRatio || 1, 3);
       var rc = canvas.getBoundingClientRect(), cw = Math.max(1, Math.round(rc.width)), ch = Math.max(1, Math.round(rc.height));
       if (cw !== dims.w || ch !== dims.h || dpr !== dims.dpr) {
         dims.w = cw; dims.h = ch; dims.dpr = dpr;

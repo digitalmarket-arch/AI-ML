@@ -288,12 +288,15 @@
       if (E.kind === 'complex') {
         parts.push('No real eigenvectors (this matrix rotates every direction).');
       } else if (E.kind === 'all') {
-        parts.push(E.l1 < 0
-          ? 'Every direction is an eigenvector with λ = ' + f2(E.l1) + ': every arrow is scaled by ' + f2(-E.l1) + ' and flipped to point the opposite way (a half turn).'
-          : 'Every direction is an eigenvector: every arrow is only scaled by λ = ' + f2(E.l1) + ', never turned.');
+        parts.push(Math.abs(E.l1 - 1) < 1e-6
+          ? 'This is the identity: nothing moves, so every direction is an eigenvector with λ = 1.00.'
+          : E.l1 < 0
+            ? 'Every direction is an eigenvector with λ = ' + f2(E.l1) + ': every arrow is scaled by ' + f2(-E.l1) + ' and flipped to point the opposite way (a half turn).'
+            : 'Every direction is an eigenvector: every arrow is only scaled by λ = ' + f2(E.l1) + ', never turned.');
       } else if (E.kind === 'repeated') {
         var fate = Math.abs(E.l1) < 1e-6 ? 'arrows on it are crushed to (0, 0)'
           : E.l1 < 0 ? 'arrows on it are scaled by ' + f2(-E.l1) + ' and flipped to point backwards'
+          : Math.abs(E.l1 - 1) < 1e-6 ? 'arrows on it do not change at all'
           : 'arrows on it keep their direction and are scaled by ' + f2(E.l1);
         parts.push('Only one eigenvector line (dashed), with λ = ' + f2(E.l1) + ' counted twice: ' + fate + ', while every other arrow gets turned.');
       } else {
