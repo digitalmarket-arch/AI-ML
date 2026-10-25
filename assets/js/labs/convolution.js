@@ -702,9 +702,9 @@
         }
         kern += cellBox(minus(kText[a * 3 + b]), tintFor(w, maxW, 38) || 'var(--surface)', 'var(--ink)');
       }
-      prods.forEach(function (p) {
-        if (needsRounding(p)) rounded = true;
-        prod += cellBox(fmt(p), tintFor(p, maxP, 40) || 'var(--surface)', 'var(--ink)');
+      prods.forEach(function (pv) {
+        if (needsRounding(pv)) rounded = true;
+        prod += cellBox(fmt(pv), tintFor(pv, maxP, 40) || 'var(--surface)', 'var(--ink)');
       });
       var v = R.out[i * R.n + j];
       calcHead.innerHTML = 'Feature-map pixel: row ' + (i + 1) + ', column ' + (j + 1) +

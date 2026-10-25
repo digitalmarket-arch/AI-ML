@@ -4655,16 +4655,16 @@ window.AIM.quizzes = {
   },
   {
    "id": "l4-research-career-q09",
-   "q": "You ran your new method and the baseline with 5 random seeds each. The code prints the mean and standard deviation of each. What is the honest conclusion?",
-   "code": "import numpy as np\n\nnew = np.array([0.812, 0.794, 0.836, 0.801, 0.807])    # 5 seeds\nbase = np.array([0.805, 0.799, 0.821, 0.790, 0.810])   # 5 seeds\nprint(new.mean().round(3), new.std().round(3))\nprint(base.mean().round(3), base.std().round(3))",
+   "q": "You ran your new method and the baseline with 5 random seeds each (a seed fixes the random starting point of training). The code prints each method's mean accuracy and standard deviation. What is the honest conclusion?",
+   "code": "import numpy as np\n\nnew = np.array([0.812, 0.794, 0.836, 0.801, 0.807])    # 5 seeds\nbase = np.array([0.805, 0.799, 0.821, 0.790, 0.810])   # 5 seeds\n# .std() here is NumPy's default (ddof=0)\nprint(new.mean().round(3), new.std().round(3))\nprint(base.mean().round(3), base.std().round(3))",
    "options": [
     "The new method is clearly better, because its mean accuracy is higher than the baseline's",
     "Report the best seed of each (0.836 vs 0.821), as many papers do, to show the method's potential",
-    "The 0.005 gap in means is smaller than the seed-to-seed spread (0.01 to 0.014), so no claim yet",
+    "The 0.005 gap in means is smaller than the printed seed-to-seed spread (0.01 to 0.014), so no claim yet",
     "The baseline is better, because its smaller standard deviation makes it the more reliable method"
    ],
    "answer": 2,
-   "explain": "The new method's mean (0.81) is only 0.005 above the baseline's (0.805), while the standard deviation (the typical run-to-run spread) is 0.010 to 0.014, so the difference could easily be luck of the random seed. Honest reporting gives mean ± standard deviation over several seeds and, before claiming an improvement, more runs or a significance test. Reporting only the best seed cherry-picks results and is a common reason papers fail to reproduce.",
+   "explain": "The code prints 0.81 0.014 and 0.805 0.01. The new method's mean is only 0.005 higher, while the standard deviation (how much accuracy usually moves from one seed to the next) is 0.010 to 0.014, so the gap could just be seed luck. A higher mean on its own (the tempting first option) is not enough evidence: report mean ± standard deviation, then run more seeds or a significance test (a check of whether a gap is bigger than chance would produce) before claiming a win. Showing only the best seed is cherry-picking, and a smaller spread does not make the baseline better. Note that np.std uses ddof=0 by default; the sample version (ddof=1) gives a slightly larger spread of about 0.012 to 0.016, which supports 'no claim yet' even more.",
    "difficulty": "hard"
   },
   {
