@@ -807,7 +807,7 @@
     function syncForestControls() {
       treesC.input.disabled = !st.forest;
       btnReroll.disabled = !st.forest;
-      treesC.block.style.opacity = st.forest ? '' : '0.6';
+      treesC.input.style.opacity = st.forest ? '' : '0.5';
       treesC.hint.textContent = st.forest ? 'Each tree learns from a random re-sample of the farms, then they vote.' : 'Switch on "Forest of trees" to use this.';
     }
 

@@ -717,8 +717,9 @@
         if (Math.abs(p) > maxP) maxP = Math.abs(p);
         if (!inside) padded = true;
         if (inside) {
-          var pct = Math.round(x * 85);
-          patch += cellBox(fmt(x), pct ? 'color-mix(in srgb, var(--ink) ' + pct + '%, var(--surface))' : 'var(--surface)', x >= 0.6 ? 'var(--surface)' : 'var(--ink)');
+          // pale cells (up to 35% ink) carry dark text and deep cells (62% or more) carry light text, so every number stays readable in both themes
+          var pct = x < 0.5 ? Math.round(x / 0.5 * 35) : Math.round(62 + (x - 0.5) / 0.5 * 38);
+          patch += cellBox(fmt(x), pct ? 'color-mix(in srgb, var(--ink) ' + pct + '%, var(--surface))' : 'var(--surface)', x >= 0.5 ? 'var(--surface)' : 'var(--ink)');
           pTexts.push(fmt(x));
         } else {
           patch += cellBox('0', 'transparent', 'var(--muted)', 'border:1px dashed var(--muted);');

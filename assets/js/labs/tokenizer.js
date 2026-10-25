@@ -464,7 +464,7 @@
     function tagHtml(lang) {
       var l = LANG[lang];
       return '<span style="font-size:.7rem;font-weight:700;letter-spacing:.04em;padding:0 6px;border-radius:999px;margin-right:6px;line-height:1.7;color:' +
-        (l ? theme.lang[lang] : theme.muted) + ';background:' + (l ? theme.langSoft[lang] : theme.surface2) + '">' + (l ? l.tag : '··') + '</span>';
+        (l ? theme.ink : theme.muted) + ';border:1px solid ' + (l ? theme.lang[lang] : theme.line) + ';background:' + (l ? theme.langSoft[lang] : theme.surface2) + '">' + (l ? l.tag : '··') + '</span>';
     }
     theme = readTheme();
 

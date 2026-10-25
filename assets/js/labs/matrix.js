@@ -171,7 +171,7 @@
     var bracketL = el('span', { 'aria-hidden': 'true', style: 'width:7px;border:2px solid var(--ink);border-right:0;border-radius:3px 0 0 3px' });
     var bracketR = el('span', { 'aria-hidden': 'true', style: 'width:7px;border:2px solid var(--ink);border-left:0;border-radius:0 3px 3px 0' });
     var mxGrid = el('div', { style: 'display:grid;grid-template-columns:auto auto;column-gap:14px;padding:2px 7px;font-variant-numeric:tabular-nums' }, [
-      cell('a', 'var(--ok)'), cell('b', 'var(--sindoor)'), cell('c', 'var(--ok)'), cell('d', 'var(--sindoor)')
+      cell('a', 'var(--ok)'), cell('b', 'var(--bad)'), cell('c', 'var(--ok)'), cell('d', 'var(--bad)')
     ]);
     var mxView = el('div', { role: 'group', 'aria-label': 'Matrix M', style: 'display:flex;align-items:stretch;font-family:var(--font-mono);font-size:1.15rem;line-height:1.55' }, [bracketL, mxGrid, bracketR]);
     var detFormula = el('div', { class: 'mono small', style: 'color:var(--muted);line-height:1.5' });
@@ -181,7 +181,7 @@
         mxView,
         el('div', { class: 'small', style: 'line-height:1.35;color:var(--muted)', html:
           '<span style="color:var(--ok);font-weight:700">column 1</span> = where î lands<br>' +
-          '<span style="color:var(--sindoor);font-weight:700">column 2</span> = where ĵ lands' })
+          '<span style="color:var(--bad);font-weight:700">column 2</span> = where ĵ lands' })
       ]),
       detFormula
     ]));
@@ -222,7 +222,7 @@
       el('div', { class: 'small', style: 'font-weight:700;color:var(--ok);margin-bottom:-8px', text: 'Where î lands (column 1)' }),
       slider('a', '<span class="mono">a</span> — across (x)'),
       slider('c', '<span class="mono">c</span> — up (y)'),
-      el('div', { class: 'small', style: 'font-weight:700;color:var(--sindoor);margin-bottom:-8px', text: 'Where ĵ lands (column 2)' }),
+      el('div', { class: 'small', style: 'font-weight:700;color:var(--bad);margin-bottom:-8px', text: 'Where ĵ lands (column 2)' }),
       slider('b', '<span class="mono">b</span> — across (x)'),
       slider('d', '<span class="mono">d</span> — up (y)')
     ]);
@@ -337,7 +337,7 @@
       var mx = m.a * tv.x + m.b * tv.y, my = m.c * tv.x + m.d * tv.y;
       tvLine.innerHTML = 'Test vector <b>x</b> = (' + fN(tv.x) + ', ' + fN(tv.y) + ') lands at <b>Mx</b> = ' +
         fN(tv.x) + '·<b style="color:var(--ok)">î</b> ' + (tv.y < -1e-9 ? '− ' + fN(-tv.y) : '+ ' + fN(tv.y)) +
-        '·<b style="color:var(--sindoor)">ĵ</b> = (' + f2(mx) + ', ' + f2(my) + ')' +
+        '·<b style="color:var(--bad)">ĵ</b> = (' + f2(mx) + ', ' + f2(my) + ')' +
         (Math.abs(mx) > L.ox / L.u + 1e-9 || Math.abs(my) > L.oy / L.u + 1e-9 ? ', off the edge of the picture.' : '');
       presetBtns.forEach(function (b, i) { b.setAttribute('aria-pressed', same(m, PRESETS[i].m) ? 'true' : 'false'); });
       canvas.setAttribute('aria-label', 'Grid transformed by the matrix with rows (' + fN(m.a) + ', ' + fN(m.b) + ') and (' + fN(m.c) + ', ' + fN(m.d) +
