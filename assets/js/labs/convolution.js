@@ -808,14 +808,15 @@
 
     function resize() {
       if (!alive) return;
-      var r = wrap.getBoundingClientRect();
-      var Wd = Math.max(200, Math.floor(r.width));
+      // the canvas fills the wrapper's inside (the wrapper has a 1px border)
+      var Wd = Math.max(200, Math.floor(canvas.getBoundingClientRect().width));
       dpr = Math.min(window.devicePixelRatio || 1, 3);
       var key = Wd + 'x' + dpr;
       if (key !== layoutKey) {
         layoutKey = key;
         L = computeLayout(Wd);
-        wrap.style.height = L.H + 'px';
+        var border = Math.max(0, wrap.offsetHeight - wrap.clientHeight);
+        wrap.style.height = (L.H + border) + 'px';
         var bw = Math.round(L.W * dpr), bh = Math.round(L.H * dpr);
         if (canvas.width !== bw) canvas.width = bw;
         if (canvas.height !== bh) canvas.height = bh;
