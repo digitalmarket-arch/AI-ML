@@ -308,8 +308,8 @@
     labEl.innerHTML =
       '<p class="lab-note"><strong>What you are seeing:</strong> a tiny model layer: a 16 × 16 grid of <em>weights</em> W (the numbers a model learned during pre-training). ' +
         '<em>Fine-tuning</em> (extra training for a new job, say answering questions about UPI payments in your bank’s style) wants to add a change ΔW (say “delta W”) to them. ' +
-        '<em>LoRA</em> (Low-Rank Adaptation) keeps W frozen and learns the change as two thin matrices multiplied together: B (16 × r) times A (r × 16). ' +
-        'The <em>rank</em> r sets how thin they are. Blue squares are below zero, gold squares above zero, pale ones close to zero.</p>' +
+        '<em>LoRA</em> (Low-Rank Adaptation) keeps W frozen and learns the change as two thin <em>matrices</em> (grids of numbers) multiplied together: B (16 × r) times A (r × 16). ' +
+        'The <em>rank</em> r sets how thin they are. Blue squares are below zero, gold squares above zero, and squares close to zero fade into the background.</p>' +
 
       '<h2 class="lab-h">Part 1: LoRA, a thin patch for a big grid</h2>' +
       '<div class="lab-body" id="' + P + 'body1">' +
@@ -318,7 +318,8 @@
           '<p class="small" id="' + P + 'cell" style="min-height:3em">Hover over or tap a square to read its numbers.</p>' +
           '<div id="' + P + 'leftmore1" class="stack-sm">' +
             legend([['--series-1', 'Below zero'], ['--series-3', 'Above zero']]) +
-            '<p class="small muted">Paler means closer to zero. ΔW, B·A and the leftover share one colour scale, so a pale leftover grid means LoRA copied the change well. W has its own scale.</p>' +
+            '<p class="small muted">The fainter a square, the closer it is to zero. ΔW, B·A and the leftover share one colour scale, so a leftover grid that fades into the background means LoRA copied the change well. W has its own scale. ' +
+              '<b>Error left</b> = size of the leftover ÷ size of ΔW, where the size of a grid is the square root of the sum of all its numbers squared.</p>' +
             '<div class="lab-stats" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">' +
               stat('srank', 'Rank r') + stat('strain', 'LoRA trains') + stat('serr', 'Error left') + stat('svs', 'vs full ΔW') +
             '</div>' +
@@ -406,7 +407,7 @@
       '</div>' +
 
       '<h2 class="lab-h" style="margin-top:12px">Quantisation up close: rounding 16 weights</h2>' +
-      '<p class="small muted">With 4 bits you can write only 2⁴ = 16 different values (<em>levels</em>). Quantisation spreads the levels evenly from the smallest weight to the biggest, then rounds every weight to its nearest level. ' +
+      '<p class="small muted">With 4 bits you can write only 2⁴ = 16 different values (<em>levels</em>). The simplest kind of quantisation spreads the levels evenly from the smallest weight to the biggest, then rounds every weight to its nearest level. ' +
         'The model stores just the level number (0 to 15) for each weight, plus one shared scale and offset to turn levels back into values.</p>' +
       '<div class="lab-body">' +
         '<div class="stack-sm">' +
@@ -422,7 +423,7 @@
         '</div>' +
         '<div class="lab-controls">' +
           segHtml('qbitslbl', 'Bits per weight', 'data-qbits', QBITS.map(function (b) { return [b, b + '-bit']; }), 4) +
-          '<div class="row"><button type="button" class="btn btn-sm" id="' + P + 'outlier" aria-pressed="false">Add an outlier weight</button>' +
+          '<div class="row"><button type="button" class="btn btn-sm" id="' + P + 'outlier">Add an outlier weight</button>' +
             '<button type="button" class="btn btn-sm" id="' + P + 'qnew">New weights</button></div>' +
           '<div class="callout callout-indigo small" id="' + P + 'qmsg" role="status" aria-live="polite" style="min-height:3.2em"></div>' +
           '<p class="small muted">Hover over or tap a weight to read its numbers. Rounding is why a 4-bit model is slightly less accurate than the 16-bit original, usually only a little.</p>' +
@@ -569,10 +570,11 @@
       g.textAlign = 'left'; g.textBaseline = 'alphabetic';
       for (k = 0; k < 4; k++) {
         var it = info[k], pos = G.list[k];
-        g.fillStyle = T.ink; fitFont(g, it.title, G.pw + G.gap - 4, 13, '700', 10);
+        var tmax = Math.min(G.pw + G.gap - 4, G.w - pos.x - 4);
+        g.fillStyle = T.ink; fitFont(g, it.title, tmax, 13, '700', 10);
         g.fillText(it.title, pos.x, pos.y - G.labH + 14);
         g.fillStyle = k === 3 && S1.errs[S1.r - 1] < 0.05 && S1.kind === 'low' ? T.ok : T.muted;
-        fitFont(g, it.sub, G.pw + G.gap - 4, 12, k === 3 ? '600' : '', 9.5);
+        fitFont(g, it.sub, tmax, 12, k === 3 ? '600' : '', 9.5);
         g.fillText(it.sub, pos.x, pos.y - G.labH + 30);
         drawCells(p, it.M, pos.x, pos.y, G.c, it.scale, T);
       }
@@ -874,7 +876,7 @@
       var r = S1.r, e = S1.errs[r - 1], n = 32 * r;
       if (S1.kind === 'noise') {
         if (r < S1.rMin) {
-          return '<b>Pure noise has no few strong patterns:</b> its strength bars shrink slowly instead of dropping after 3. Rank ' + r + ' still leaves ' + fmtErr(e) + ' of it. ' +
+          return '<b>Pure noise has no small set of strong patterns:</b> its strength bars shrink slowly instead of dropping after 3. Rank ' + r + ' still leaves ' + fmtErr(e) + ' of it. ' +
             'Getting below 5% needs rank ' + S1.rMin + ', which trains ' + 32 * S1.rMin + ' numbers, more than the 256 in ΔW itself. There is no shortcut.';
         }
         return '<b>Rank ' + r + ':</b> ' + fmtErr(e) + ' left, but only because B and A now hold ' + n + ' numbers, more than the 256 in ΔW itself. Pure noise has no shortcut.';
@@ -883,7 +885,10 @@
         return '<b>Rank ' + r + ':</b> B·A copies only ' + (r === 1 ? 'the strongest pattern' : 'the ' + r + ' strongest patterns') + ', so ' + fmtErr(e) +
           ' of the change is left over. Look at the leftover grid: clear stripes remain.';
       }
-      if (r === S1.rMin) return '<b>Rank ' + r + ':</b> only ' + fmtErr(e) + ' is left over, and it is just faint noise. LoRA trains ' + n + ' numbers instead of 256.';
+      if (r === S1.rMin) {
+        var check = r > 1 && !done.t1 && !S1.visited[r - 1] ? ' Is it the smallest rank under 5%? Try rank ' + (r - 1) + ' too, then come back.' : '';
+        return '<b>Rank ' + r + ':</b> only ' + fmtErr(e) + ' is left over, and it is just faint noise. LoRA trains ' + n + ' numbers instead of 256.' + check;
+      }
       if (n < 256) return '<b>Rank ' + r + ':</b> ' + fmtErr(e) + ' left over. The extra patterns only copy tiny noise, while LoRA now trains ' + n + ' numbers.';
       return '<b>Rank ' + r + ':</b> ' + fmtErr(e) + ' left over, but B and A now hold ' + n + ' numbers, ' + (n === 256 ? 'as many as' : 'more than') +
         ' the 256 in ΔW. On a tiny 16 × 16 grid LoRA saves numbers only when r is below 8. On real layers (below) the saving is huge.';
@@ -973,7 +978,7 @@
         'Storage for these 16 weights: 16 × ' + Q.bits + ' = ' + 16 * Q.bits + ' bits, plus 32 bits for the shared scale and offset, against 256 bits at 16-bit.';
       if (S4.outlier) {
         var Q0 = quantise(S4.base, S4.bits);
-        m = '<b>One outlier stretched the range:</b> weight ' + (OUTLIER_IDX + 1) + ' is ' + fmtW(OUTLIER_VALUE, 1) + ', so the same ' + fmtIN(Q.L, 0) + ' levels now spread over a range ' +
+        m = '<b>One outlier (a weight far bigger than the rest) stretched the range:</b> weight ' + (OUTLIER_IDX + 1) + ' is ' + fmtW(OUTLIER_VALUE, 1) + ', so the same ' + fmtIN(Q.L, 0) + ' levels now spread over a range ' +
           fmtTimes(Math.round(10 * (Q.hi - Q.lo) / (Q0.hi - Q0.lo)) / 10) + '× as wide, and the average error grew from ' + fmtW(Q0.avg, 4) + ' to ' + fmtW(Q.avg, 4) + '. ' +
           'Real 4-bit methods round small blocks of weights separately, or keep rare big weights aside, to avoid this.';
       }
@@ -1009,7 +1014,7 @@
     });
     var Q_FEEDBACK = {
       a: '<span aria-hidden="true" style="color:var(--bad);font-weight:700">✗</span> Not that: rank 1 trains just 32 numbers, far fewer than 256. Look at the strength bars instead.',
-      b: '<span aria-hidden="true" style="color:var(--ok);font-weight:700">✓</span> <b>Right.</b> B·A is a sum of r simple patterns (each column of B times a row of A), so rank r can hold r patterns. This ΔW has 3 tall bars, so it needs rank 3; the other bars are tiny noise.',
+      b: '<span aria-hidden="true" style="color:var(--ok);font-weight:700">✓</span> <b>Right.</b> B·A is a sum of r simple patterns (each column of B times a row of A), so rank r can hold r patterns. The low-rank ΔW always has 3 tall bars, so it needs rank 3; the other bars are tiny noise.',
       c: '<span aria-hidden="true" style="color:var(--bad);font-weight:700">✗</span> Not quite: with “Low-rank + noise”, the noise bars (4 to 16) are tiny. Rank 1 misses two of the three tall bars, and those are real patterns, not noise.'
     };
     Array.prototype.forEach.call(labEl.querySelectorAll('[data-q]'), function (b) {
@@ -1043,7 +1048,7 @@
       e.preventDefault();
       var raw = String(el.ans.value || '').replace(/[,\s×x]/gi, ''), v = parseFloat(raw), C = scaleCounts();
       if (!raw || !isFinite(v)) { el.ansfb.textContent = 'Type a number first, for example 12.'; return; }
-      var right = Math.abs(v - C.ratio) <= Math.max(0.05, 0.005 * C.ratio);
+      var right = Math.abs(v - C.ratio) <= 0.05;  // every ratio here is a whole number or ends in .5, so 255 or 257 is not right
       if (right) {
         S2.solved = true; updateScale();
         if (C.d === 4096 && C.r === 8) {
@@ -1060,7 +1065,8 @@
 
     /* ===== events: memory ===== */
     function checkT4() { if (S3.n === 7 && S3.mode === 'ft' && S3.gpu === 1 && S3.bits === 4 && memData()[2].fits) completeTask('t4'); }
-    on(el.n, 'input', function () { S3.n = clamp(Math.round(+el.n.value), 1, 70); updateMem(true); checkT4(); });
+    on(el.n, 'input', function () { S3.n = clamp(Math.round(+el.n.value), 1, 70); updateMem(true); });
+    on(el.n, 'change', function () { S3.n = clamp(Math.round(+el.n.value), 1, 70); checkT4(); });  // on release, so dragging past 7B does not count
     function segGroup(attr, apply) {
       var btns = labEl.querySelectorAll('[' + attr + ']');
       Array.prototype.forEach.call(btns, function (b) {
@@ -1079,7 +1085,6 @@
     segGroup('data-qbits', function (v) { S4.bits = +v; updateQuant(false); });
     on(el.outlier, 'click', function () {
       S4.outlier = !S4.outlier;
-      el.outlier.setAttribute('aria-pressed', String(S4.outlier));
       el.outlier.textContent = S4.outlier ? 'Remove the outlier' : 'Add an outlier weight';
       updateQuant(false);
     });

@@ -491,7 +491,8 @@ window.AIM.modules = [
    }
   ],
   "best": "codewithharry-haris-ali-khan-python-tutorial-for-absolut",
-  "figs": true
+  "figs": true,
+  "lab": "pytrace"
  },
  {
   "id": "l1-tools",
@@ -3395,7 +3396,8 @@ window.AIM.modules = [
    }
   ],
   "best": "krish-naik-finetuning-llm-playlist",
-  "figs": true
+  "figs": true,
+  "lab": "lora"
  },
  {
   "id": "l4-agents",

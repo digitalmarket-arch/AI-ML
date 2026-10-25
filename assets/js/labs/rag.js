@@ -334,8 +334,9 @@
               '<button type="button" data-method="bm25" aria-pressed="true">BM25</button>' +
               '<button type="button" data-method="tfidf" aria-pressed="false">TF-IDF cosine</button>' +
             '</div>' +
-            '<p class="small muted" id="' + P + 'mdesc"></p>' +
-            '<p class="small muted">Both are keyword methods: they only see words that match exactly (we do fold plurals, so “invoices” matches “invoice”, and skip very common words such as “the” or “when”). Real RAG apps often use <em>embeddings</em> instead (lists of numbers that capture meaning, so “deadline” could match “due date”), but the idea is the same: score every chunk, rank them, keep the top k.</p></div>' +
+            '<p class="small muted">Both are <em>keyword</em> methods: a chunk only scores for words that match your question exactly. Real RAG apps often use <em>embeddings</em> instead (lists of numbers that capture meaning, so “deadline” could match “due date”), but the idea is the same: score every chunk, rank them, keep the top k.</p>' +
+            '<details class="fold"><summary class="small" id="' + P + 'msum">How BM25 scores a chunk</summary><div><p class="small muted" id="' + P + 'mdesc"></p>' +
+              '<p class="small muted">Both methods skip very common words such as “the”, “is” or “when” (<em>stop words</em>), and fold plurals, so “invoices” matches “invoice”.</p></div></details></div>' +
           '<div class="control"><label for="' + P + 'size">Chunk size (words) <output id="' + P + 'sizeo" for="' + P + 'size"></output></label>' +
             '<input type="range" id="' + P + 'size" min="' + SIZE_MIN + '" max="' + SIZE_MAX + '" step="' + SIZE_STEP + '" value="' + DEF.size + '"></div>' +
           '<div class="control"><label for="' + P + 'ov">Overlap (words shared with the next chunk) <output id="' + P + 'ovo" for="' + P + 'ov"></output></label>' +
@@ -359,7 +360,7 @@
     var leftCol = $('left'), more = $('more'), body = top.querySelector('.lab-body');
     var elInsp = $('insp'), elSN = $('sn'), elSA = $('sa'), elST = $('st'), elSS = $('ss');
     var elList = $('list'), elRH = $('rh'), elMeter = $('meter'), elPrompt = $('prompt');
-    var elPreset = $('preset'), elQ = $('q'), elKw = $('kw'), elCheck = $('check'), elMDesc = $('mdesc');
+    var elPreset = $('preset'), elQ = $('q'), elKw = $('kw'), elCheck = $('check'), elMDesc = $('mdesc'), elMSum = $('msum');
     var elSize = $('size'), elSizeO = $('sizeo'), elOv = $('ov'), elOvO = $('ovo'), elOvNote = $('ovnote');
     var elK = $('k'), elKO = $('ko'), elLim = $('lim'), elLimO = $('limo'), btnReset = $('reset'), elLive = $('live');
     var methodBtns = top.querySelectorAll('[data-method]');
@@ -371,7 +372,7 @@
       size: DEF.size, overlap: DEF.overlap, k: DEF.k, method: DEF.method, limit: DEF.limit,
       target: DEF.preset, text: presetById(DEF.preset).q,
       insp: -1, inspPicked: false, hover: -1,
-      chunkTouched: false, lastChange: '', notWhole: {}, vagueWrong: {}
+      chunkTouched: false, lastChange: '', notWhole: {}, vagueWrong: {}, expanded: {}
     };
     var R = null;            // the latest retrieval result
     var prevEval = null;     // the evaluation before the latest change (for task 2)
@@ -405,7 +406,7 @@
     /* ---------- retrieval ---------- */
     function getIndex() {
       var key = S.size + '|' + S.overlap;
-      if (idxCache.key !== key) idxCache = { key: key, idx: buildIndex(doc, makeChunks(doc.N, S.size, S.overlap)) };
+      if (idxCache.key !== key) { idxCache = { key: key, idx: buildIndex(doc, makeChunks(doc.N, S.size, S.overlap)) }; S.expanded = {}; }
       return idxCache.idx;
     }
     function overlapOf(c, span) { return Math.max(0, Math.min(c.end, span[1]) - Math.max(c.start, span[0])); }
@@ -484,12 +485,22 @@
       return out;
     }
     function isMatch(W) { for (var j = 0; j < W.terms.length; j++) if (R.qset[W.terms[j]]) return true; return false; }
-    function chunkHTML(c, maxWords) {
+    var EXCERPT = 60, LONG = 80;   // chunks longer than LONG words show a 60-word excerpt until expanded
+    // where a short excerpt of a long chunk should start: a little before the answer, or before the first matching word
+    function excerptStart(c) {
+      var span = R.A ? R.A.span : null, s = c.start, w;
+      if (span && span[1] > c.start && span[0] < c.end) s = span[0] - 10;
+      else for (w = c.start; w < c.end; w++) if (isMatch(doc.words[w])) { s = w - 10; break; }
+      return clamp(s, c.start, Math.max(c.start, c.end - EXCERPT));
+    }
+    // a chunk as HTML: question words marked, the known answer underlined, headings in bold
+    function chunkHTML(c, short) {
       var span = R.A ? R.A.span : null, html = '', inAns = false;
-      var end = maxWords ? Math.min(c.end, c.start + maxWords) : c.end;
-      for (var w = c.start; w < end; w++) {
+      var from = short ? excerptStart(c) : c.start, end = short ? Math.min(c.end, from + EXCERPT) : c.end;
+      if (from > c.start) html += '<span class="muted">…</span> ';
+      for (var w = from; w < end; w++) {
         var W = doc.words[w], isAns = !!span && w >= span[0] && w < span[1], sep = '';
-        if (w > c.start) { var pv = doc.words[w - 1]; sep = pv.headEnd || (W.head && !pv.head) ? '<br>' : ' '; }
+        if (w > from) { var pv = doc.words[w - 1]; sep = pv.headEnd || (W.head && !pv.head) ? '<br>' : ' '; }
         if (inAns && (!isAns || sep === '<br>')) { html += '</span>'; inAns = false; }
         html += sep;
         if (isAns && !inAns) { html += '<span style="text-decoration:underline;text-decoration-color:var(--ok);text-decoration-thickness:2px;text-underline-offset:3px">'; inAns = true; }
@@ -499,7 +510,7 @@
         html += piece;
       }
       if (inAns) html += '</span>';
-      if (end < c.end) html += ' <span class="muted">… (' + (c.end - end) + ' more words)</span>';
+      if (end < c.end) html += ' <span class="muted">…</span>';
       return html;
     }
     function sectionOf(c) { return doc.words[c.start].sec; }
@@ -539,11 +550,11 @@
         short = 'Whole ✓';
       } else if (A.status === 'split') {
         var parts = A.holders.filter(function (h) { return R.gotSet[h.ci]; }).map(function (h) { return chunkLabel(h.ci); });
-        html = '<strong>◐ Answer retrieved, but cut into pieces</strong> across ' + listAnd(parts) + '. The LLM has to stitch it back together.';
+        html = '<strong>Answer retrieved, but cut into pieces</strong> across ' + listAnd(parts) + '. The LLM has to stitch it back together.';
         short = 'Split';
       } else if (A.status === 'part') {
         var miss = A.holders.filter(function (h) { return !R.gotSet[h.ci]; }).map(function (h) { return where(h.ci); });
-        html = '<strong>◔ Only part of the answer retrieved</strong> (' + A.covered + ' of ' + A.len + ' words). The rest is in ' + listAnd(miss) + '.';
+        html = '<strong>Only part of the answer retrieved</strong> (' + A.covered + ' of ' + A.len + ' words). The rest is in ' + listAnd(miss) + '.';
         short = 'Part';
       } else {
         var m0 = homes[0];
@@ -562,6 +573,7 @@
       elLimO.textContent = fmtInt(S.limit);
       elOvNote.textContent = S.overlap ? 'Each chunk starts ' + (S.size - S.overlap) + ' words after the one before. At most half the chunk size.' : 'No overlap: each chunk starts where the last one ended. At most half the chunk size.';
       elMDesc.textContent = METHOD_TEXT[S.method];
+      elMSum.textContent = 'How ' + METHOD_NAME[S.method] + ' scores a chunk';
       // keywords
       elKw.innerHTML = R.qterms.length ? 'Words searched: ' + R.qterms.map(function (t) { return '<strong style="color:var(--ink)">' + esc(R.forms[t]) + '</strong>'; }).join(', ') + '. Common words are skipped.'
         : 'No words to search: every word is a common word that the search skips.';
@@ -577,18 +589,20 @@
       // retrieved list
       elRH.textContent = 'Retrieved chunks: top ' + S.k + ' by ' + METHOD_NAME[S.method];
       var items = R.got.map(function (ci, j) {
-        var c = chunks[ci], A = R.A, tag = '';
+        var c = chunks[ci], A = R.A, tag = '', isLong = c.end - c.start > LONG, open = !!S.expanded[ci];
         if (A) {
           var ow = overlapOf(c, A.span);
           if (ow === A.len) tag = '<span class="chip" style="background:transparent;color:var(--ink);border:1px solid var(--ok)">✓ holds the whole answer</span>';
-          else if (ow) tag = '<span class="chip" style="background:transparent;color:var(--ink);border:1px solid var(--haldi)">◐ holds ' + ow + ' of ' + A.len + ' answer words</span>';
+          else if (ow) tag = '<span class="chip" style="background:transparent;color:var(--ink);border:1px solid var(--haldi)">holds ' + ow + ' of ' + A.len + ' answer words</span>';
         }
         return '<li class="card" style="padding:12px 14px">' +
           '<div class="row-between"><strong>#' + (j + 1) + ' · Chunk ' + (ci + 1) + ' of ' + n + '</strong><span class="mono small">score ' + fmtScore(R.scores[ci], S.method) + '</span></div>' +
           '<p class="small muted" style="margin-top:2px">Section ' + (sectionOf(c) + 1) + ': ' + esc(SECTIONS[sectionOf(c)].title) + ' · words ' + fmtInt(c.start + 1) + '–' + fmtInt(c.end) + '</p>' +
           '<p class="small muted" style="margin-top:2px">' + whyScore(ci) + '</p>' +
           (tag ? '<div class="row" style="margin-top:6px">' + tag + '</div>' : '') +
-          '<p style="margin-top:8px;font-size:.95rem">' + chunkHTML(c) + '</p></li>';
+          '<p style="margin-top:8px;font-size:.95rem">' + chunkHTML(c, isLong && !open) + '</p>' +
+          (isLong ? '<button type="button" class="btn btn-sm" style="margin-top:8px" data-expand="' + ci + '" aria-expanded="' + open + '">' +
+            (open ? 'Show less' : 'Show all ' + (c.end - c.start) + ' words') + '</button>' : '') + '</li>';
       });
       if (R.got.length < S.k) {
         items.push('<li class="small muted" style="padding:4px 2px">' + (R.order.length ? 'Only ' + R.order.length + (R.order.length === 1 ? ' chunk shares' : ' chunks share') + ' a word with your question, so k = ' + S.k + ' finds no more.' : 'No chunk shares a word with your question, so nothing is retrieved.') + '</li>');
@@ -598,7 +612,7 @@
       var pct = Math.min(100, 100 * R.tokens / S.limit);
       elMeter.innerHTML =
         '<p class="small" style="margin-bottom:4px"><strong>≈ ' + fmtInt(R.tokens) + ' tokens</strong> (' + fmtInt(R.prompt.length) + ' characters ÷ 4) of a ' + fmtInt(S.limit) + '-token limit' +
-          (R.over ? ': <strong>' + fmtInt(R.tokens - S.limit) + ' tokens too many.</strong> A real API would refuse the request, or the app would have to drop chunks.' : ' (' + Math.round(pct) + '% used).') + '</p>' +
+          (R.over ? ': <strong>' + fmtInt(R.tokens - S.limit) + ' tokens too many.</strong> The LLM service would refuse the request, so the app would have to drop chunks. If the text were simply cut at the limit, even your question (which comes last) would be lost.' : ' (' + Math.round(pct) + '% used).') + '</p>' +
         '<div class="bar" role="presentation" style="height:10px"><span style="width:' + pct.toFixed(1) + '%;background:' + (R.over ? 'var(--bad)' : 'var(--haldi)') + '"></span></div>';
       var cut = S.limit * CHARS_PER_TOKEN;
       if (R.over) {
@@ -613,11 +627,15 @@
       var c = R.chunks[S.insp];
       if (!c) { elInsp.innerHTML = ''; return; }
       var note = '';
-      if (!S.inspPicked) note = R.A && S.insp === R.A.main ? ' This is the chunk that holds the answer.' : ' This is the top-ranked chunk.';
+      if (!S.inspPicked) {
+        if (R.A && S.insp === R.A.main) note = ' This is the chunk that holds the answer.';
+        else if (R.got.length && S.insp === R.got[0]) note = ' This is the top-ranked chunk.';
+      }
       elInsp.innerHTML =
         '<p class="small"><strong>Chunk ' + (S.insp + 1) + ' of ' + R.chunks.length + '</strong> · ' + rankText(S.insp) + (R.rank[S.insp] ? ' · score ' + fmtScore(R.scores[S.insp], S.method) : '') + '.' + esc(note) + '</p>' +
         '<p class="small muted" style="margin-top:2px">Section ' + (sectionOf(c) + 1) + ': ' + esc(SECTIONS[sectionOf(c)].title) + ' · words ' + fmtInt(c.start + 1) + '–' + fmtInt(c.end) + '</p>' +
-        '<p style="margin-top:6px;font-size:.92rem">' + chunkHTML(c, 80) + '</p>';
+        '<p style="margin-top:6px;font-size:.92rem">' + chunkHTML(c, c.end - c.start > LONG) + '</p>' +
+        (c.end - c.start > LONG ? '<p class="small muted" style="margin-top:4px">Showing ' + EXCERPT + ' of its ' + (c.end - c.start) + ' words.</p>' : '');
     }
     function stripLabel() {
       var s = 'The guide cut into ' + R.chunks.length + ' chunks of ' + S.size + ' words, ' + (S.overlap ? 'overlapping by ' + S.overlap + ' words' : 'with no overlap') + '. ';
@@ -628,7 +646,7 @@
     }
     function summary() {
       var ck = checkText(), s = 'Top ' + R.got.length + ' chunks by ' + METHOD_NAME[S.method] + '. ';
-      s += R.A ? ck.main.replace(/<[^>]+>/g, '').replace(/[✓✗◐◔]\s*/g, '') + ' ' : '';
+      s += R.A ? ck.main.replace(/<[^>]+>/g, '').replace(/[✓✗]\s*/g, '') + ' ' : '';
       s += 'Prompt about ' + fmtInt(R.tokens) + ' of ' + fmtInt(S.limit) + ' tokens' + (R.over ? ', over the limit.' : '.');
       return s;
     }
@@ -670,7 +688,7 @@
     /* ---------- the strip (canvas) ---------- */
     function geom() {
       var w = dims.w, small = w < 480;
-      var padX = 10, padTop = 6, labelH = 12, laneH = small ? 10 : 12, laneGap = 2, ansGap = 3, ansH = 4, rowGap = small ? 7 : 9;
+      var padX = 10, padTop = 6, labelH = 13, laneH = small ? 10 : 15, laneGap = 2, ansGap = 3, ansH = small ? 4 : 5, rowGap = small ? 7 : 11;
       var innerW = Math.max(40, w - 2 * padX);
       var rows = clamp(Math.ceil(doc.N * 2 / innerW), 3, 7);
       var wpr = Math.ceil(doc.N / rows), ppw = innerW / wpr;
@@ -911,6 +929,15 @@
       S.text = elQ.value;
       S.inspPicked = false;
       update('question', 1200);
+    });
+    on(elList, 'click', function (e) {
+      var b = e.target && e.target.closest ? e.target.closest('[data-expand]') : null;
+      if (!b) return;
+      var ci = +b.getAttribute('data-expand');
+      S.expanded[ci] = !S.expanded[ci];
+      renderText();
+      var nb = elList.querySelector('[data-expand="' + ci + '"]');
+      if (nb) nb.focus();
     });
     Array.prototype.forEach.call(methodBtns, function (b) {
       on(b, 'click', function () {

@@ -32,7 +32,7 @@
   var LABEL = ['Not ripe', 'Ripe'];
 
   var TASKS = [
-    { id: 't1', text: 'Write your own rule: drag the handles until your line gets at least 85% of the 30 example mangoes right.' },
+    { id: 't1', text: 'Write your own rule: drag the handles until your line gets at least 85% of the example mangoes right (with all 30 in use).' },
     { id: 't2', text: 'Switch to “Machine learns it” and let it learn from all 30 examples until its line settles. See it match or beat your rule on the new (hollow) mangoes.' },
     { id: 't3', text: 'Make 3 labelling mistakes (tap example mangoes to flip their labels, or add mangoes with the wrong label), let the machine learn again until it settles, and watch its line tilt away from the correct-labels line.' },
     { id: 't4', text: 'Set the slider to just 4 example mangoes and let the machine learn until it settles, then do the same with all 30. See that 4 examples give a worse score on the new mangoes.' }
@@ -218,7 +218,8 @@
   var SW_NEW_UNRIPE = swatch('diamond', 'var(--surface)', 'var(--series-4)', 2.2);
   var SW_WRONG = swatch('ring', 'none', 'var(--ink)', 1.5);
   var SW_CROSS = swatch('cross', 'none', 'var(--ink)', 1.8);
-  var SW_FADED = '<span aria-hidden="true" style="display:inline-flex;opacity:.35">' + swatch('circle', 'var(--series-3)', 'none', 0) + '</span>';
+  // not a <span>: style.css draws an extra coloured dot before every span inside .lab-legend
+  var SW_FADED = '<b aria-hidden="true" style="display:inline-flex;opacity:.35">' + swatch('circle', 'var(--series-3)', 'none', 0) + '</b>';
   function legendItem(svg, text) { return '<i style="font-style:normal;display:inline-flex;align-items:center;gap:6px">' + svg + text + '</i>'; }
 
   /* ================================================================ */
@@ -378,11 +379,14 @@
       announce('Task done: ' + why);
       if (ctx && ctx.onTaskDone) ctx.onTaskDone(id);
     }
+    var pendingMsg = '';
     function announce(s) {
-      // clear first so the same sentence twice is still read out
+      // clear first so the same sentence twice is still read out; messages sent in the same moment are joined,
+      // so a "Task done" message is not wiped by the message that follows it
+      pendingMsg = pendingMsg ? pendingMsg + ' ' + s : s;
       elLive.textContent = '';
       if (liveTimer) clearTimeout(liveTimer);
-      liveTimer = setTimeout(function () { liveTimer = 0; if (!destroyed) elLive.textContent = s; }, 30);
+      liveTimer = setTimeout(function () { liveTimer = 0; var m = pendingMsg; pendingMsg = ''; if (!destroyed) elLive.textContent = m; }, 30);
     }
 
     /* ---------- derived numbers ---------- */
@@ -429,7 +433,7 @@
       if (gradNorm(S.m, D.used) < TOL) settle();
       else if (S.passesSince >= MAX_PASSES) {
         S.running = false; S.capped = true;
-        announce('The machine paused after ' + plural(S.passesSince, 'pass', 'passes') + ' without settling. Press “Let the machine learn” to keep going.');
+        announce(oneLabel() ? ONE_LABEL_MSG : 'The machine paused after ' + plural(S.passesSince, 'pass', 'passes') + ' without settling. Press “Let the machine learn” to keep going.');
       }
     }
     function settle() {
@@ -455,19 +459,27 @@
       if (D.mistakes >= 3) {
         var withMistakes = ruleOfMachine(exactFit(D.used));
         if (D.clean && areaDiff(withMistakes, D.clean) >= TILT_AREA) completeTask('t3', 'the wrong labels pulled the learned line away from the correct-labels line.');
-        else setNotice('The line hardly moved. Mistakes far from the line pull harder: try flipping mangoes deep inside a group.');
+        else if (!done.t3) setNotice('The line hardly moved. Mistakes far from the line pull harder: try flipping mangoes deep inside a group.');
       }
       var rec = S.rec[S.version];
-      if (rec && rec[N_MIN] != null && rec[N_TRAIN] != null && rec[N_MIN] < rec[N_TRAIN]) {
-        completeTask('t4', 'with 4 examples the machine got ' + rec[N_MIN] + ' new mangoes right, with all 30 it got ' + rec[N_TRAIN] + '.');
+      if (rec && rec[N_MIN] != null && rec[N_TRAIN] != null) {
+        if (rec[N_MIN] < rec[N_TRAIN]) completeTask('t4', 'with 4 examples the machine got ' + rec[N_MIN] + ' new mangoes right, with all 30 it got ' + rec[N_TRAIN] + '.');
+        else if (!done.t4 && (S.nUse === N_MIN || S.nUse === N_TRAIN)) {
+          setNotice('This time 4 examples did at least as well as 30 on the new mangoes (' + rec[N_MIN] + ' and ' + rec[N_TRAIN] + ' of ' + N_TEST +
+            '), because of the mangoes you flipped or added. Press “Reset the mangoes”, then let it learn with 4 and with 30 again.');
+        }
       }
     }
     function checkRuleTasks() {
       if (!S.ruleTouched) return;
       var tr = score(D.userRule, D.used);
-      if (S.nUse === N_TRAIN && tr.right * 100 >= 85 * tr.n) completeTask('t1', 'your rule gets ' + tr.right + ' of ' + tr.n + ' examples right (' + pctOf(tr.right, tr.n) + ').');
+      // judged on the same rounded percentage the scoreboard shows, so "85%" on screen always counts
+      if (S.nUse === N_TRAIN && tr.n && Math.round(100 * tr.right / tr.n) >= 85) completeTask('t1', 'your rule gets ' + tr.right + ' of ' + tr.n + ' examples right (' + pctOf(tr.right, tr.n) + ').');
       checkCompare();
     }
+    // with only one label in use there is no border to learn: the best line drifts off the map for ever
+    function oneLabel() { for (var i = 1; i < D.used.length; i++) if (D.used[i].y !== D.used[0].y) return false; return D.used.length > 0; }
+    var ONE_LABEL_MSG = 'Every example in use has the same label, so there is no border between ripe and not ripe to learn: the line just keeps drifting off the map. Flip a label back or press “Reset the mangoes”.';
 
     /* ---------- changes ---------- */
     function setNotice(s) { S.notice = s; }
@@ -477,6 +489,7 @@
       S.since = 0; S.passesSince = 0; S.order = null; S.pos = 0;
       S.settled = false; S.capped = false; S.last = null; S.prevM = null; S.hover = null;
       recompute();
+      checkRuleTasks();   // e.g. a good rule drawn with the slider at 4 counts once the slider is back at 30
       requestRender();
     }
     function flip(i) {
@@ -891,13 +904,13 @@
       setText(elNout, 'nout', S.nUse + ' of ' + N_TRAIN);
       setText(elRuleYou, 'ruleyou', '<strong>Your rule:</strong> ' + ruleWords(D.userRule) + '.' + (segment(D.userRule) ? '' : ' (The line is off the map.)'));
       setText(elRuleMac, 'rulemac', '<strong>Machine’s rule' + (S.seen ? '' : ' (first guess)') + ':</strong> ' + ruleWords(D.macRule) + '.' +
-        (segment(D.macRule) ? '' : ' Its line is off the map, so it gives every mango the same answer.'));
+        (segment(D.macRule) ? '' : ' Its line is off the map, so it calls every mango ' + LABEL[predict(D.macRule, { c: 5, s: 5 })].toLowerCase() + '.'));
       var passes = Math.floor(S.since / Math.max(1, D.used.length));
       var st;
       if (!S.seen) st = 'First guess: the machine has not seen any examples yet.';
       else if (S.running) st = 'Learning… ' + plural(S.seen, 'example', 'examples') + ' seen so far.';
       else if (S.settled) st = 'Settled: more passes would hardly move the line now (' + plural(S.seen, 'example', 'examples') + ' seen in all).';
-      else if (S.capped) st = 'Paused after ' + plural(S.passesSince, 'pass', 'passes') + ' without settling.';
+      else if (S.capped) st = 'Paused after ' + plural(S.passesSince, 'pass', 'passes') + ' without settling.' + (oneLabel() ? ' ' + ONE_LABEL_MSG : '');
       else if (S.since === 0) st = 'The examples have changed. Let the machine learn again to update its line.';
       else st = 'Paused after ' + plural(S.seen, 'example', 'examples') + ' (' + plural(passes, 'full pass', 'full passes') + ' over the current examples).';
       setText(elStatus, 'status', st);
@@ -929,12 +942,13 @@
       } else if (S.mode === 'machine' && S.settled) {
         var mtr = score(D.macRule, D.used), mte = score(D.macRule, S.test);
         s = 'The line has settled. It gets ' + mtr.right + ' of ' + mtr.n + ' examples and ' + mte.right + ' of ' + mte.n + ' new mangoes right.' +
-          (S.ruleTouched ? '' : ' Now switch to “You write it” and drag your own line: can you beat it on the new mangoes?');
+          (S.ruleTouched ? '' : ' Now switch to “You write it” and drag your own line: can you ' + (mte.right === mte.n ? 'match' : 'beat') + ' it on the new mangoes?');
       } else if (S.mode === 'machine') s = S.seen ? 'Press “Let the machine learn” to carry on, or “Learn from 1 example” to watch one nudge at a time.' : 'Press “Let the machine learn” and watch its line move as it looks at the examples.';
       else {
         var tr = score(D.userRule, D.used);
         s = 'Your rule gets ' + tr.right + ' of ' + tr.n + ' example mangoes right (' + pctOf(tr.right, tr.n) + '). ' +
-          (S.ruleTouched ? 'A ring marks each mango it gets wrong.' : 'Drag the round handles to do better; a ring marks each mango it gets wrong.');
+          (S.ruleTouched ? 'A ring marks each mango it gets wrong.' : 'Drag the round handles to do better; a ring marks each mango it gets wrong.') +
+          (S.nUse < N_TRAIN && !done.t1 ? ' Only the first ' + S.nUse + ' examples are in use: move the slider back to 30 for the first task.' : '');
       }
       setText(elReadout, 'readout', s);
     }

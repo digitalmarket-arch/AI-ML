@@ -110,8 +110,8 @@
     },
     {
       id: 'grade',
-      title: '3. Grading marks (if, elif, else)',
-      desc: 'Python checks each test from the top and runs only the first branch whose test is True.',
+      title: '3. Grades (if, elif, else)',
+      desc: 'Grading marks. Python checks each test from the top and runs only the first branch (the indented lines under an if, elif or else) whose test is True. elif is short for “else if”.',
       code: [
         'class_marks = [92, 67, 28]',
         'for marks in class_marks:',
@@ -156,8 +156,8 @@
     },
     {
       id: 'func',
-      title: '4. GST calculator (a function call)',
-      desc: 'A function that adds GST (a tax) to a price. Each call gets a fresh frame, which is thrown away when the function returns.',
+      title: '4. GST bill (a function call)',
+      desc: 'A function (a named set of steps you can run again and again) that adds GST (a tax) to a price. Each call (each time the function is run) gets a fresh frame, which is thrown away when the function returns (finishes and hands back its answer).',
       code: [
         'def add_gst(price, rate):',
         '    tax = price * rate / 100',
@@ -421,6 +421,7 @@
     var S = { prog: 0, step: 1, ask: true };
     var pos = PROGRAMS.map(function (p, i) { return i === 0 ? 1 : 0; });   // where each program was left
     var visited = PROGRAMS.map(function () { return {}; });
+    var walked = PROGRAMS.map(function () { return {}; });                  // steps reached by one step forward
     var maxSeen = PROGRAMS.map(function () { return -1; });                 // a question only counts before its result was seen
     var answers = {}, nudged = {}, score = { right: 0, answered: 0 };
     var spotText = '', done = {};
@@ -448,11 +449,15 @@
       taskNote = 'Task done: ' + TASKS.filter(function (t) { return t.id === id; })[0].text;
       if (ctx && ctx.onTaskDone) ctx.onTaskDone(id);
     }
-    function countVisited(p) { return Object.keys(visited[p]).length; }
-    function checkStepTasks(old, n) {
+    function countWalked(p) { return Object.keys(walked[p]).length; }
+    // dragged: the step came from dragging (or clicking) the step slider with a mouse or finger. Scrubbing past
+    // the steps like that is not "one line at a time", so it never counts for t1 or t2.
+    function checkStepTasks(old, n, dragged) {
       var prog = PROGRAMS[S.prog], states = STATES[S.prog], last = states.length - 1;
-      // t1: the loop program walked to its end without skipping more than a step or two
-      if (prog.id === 'loop' && n === last && countVisited(S.prog) >= states.length - 2) completeTask('t1');
+      if (dragged) return;
+      // t1: the loop program walked to its end one step at a time (Next, the → key or the slider's arrow keys),
+      // allowing a couple of steps reached some other way
+      if (prog.id === 'loop' && n === last && countWalked(S.prog) >= states.length - 3) completeTask('t1');
       // t2: one step forward that throws a call frame away, after the step that created that frame was seen
       if (prog.id === 'func' && n === old + 1 && states[n].frames.length < states[old].frames.length) {
         var c = old;
@@ -499,12 +504,12 @@
       if (taskNote) { s += ' ' + taskNote; taskNote = ''; }
       announce(s);
       // the answer buttons have just been replaced by the result, so put the focus somewhere useful
-      try { btnNext.focus({ preventScroll: true }); } catch (e) { btnNext.focus(); }
+      focusQuiet(btnNext);
     }
 
     /* ---------- moving through the steps ---------- */
     function cur() { return STATES[S.prog][S.step]; }
-    function setStep(n) {
+    function setStep(n, dragged) {
       var last = STATES[S.prog].length - 1;
       n = clamp(Math.round(n), 0, last);
       var old = S.step;
@@ -512,8 +517,9 @@
       S.step = n;
       pos[S.prog] = n;
       markVisited(S.prog, n);
+      if (n === old + 1 && !dragged) walked[S.prog][n] = true;
       spotText = '';
-      checkStepTasks(old, n);
+      checkStepTasks(old, n, dragged);
       render();
       sayLater();
     }
@@ -851,7 +857,19 @@
     function renderSay(st) {
       elSay.innerHTML = '<p><strong>Step ' + (S.step + 1) + ' of ' + STATES[S.prog].length + '.</strong> ' + rich(st.note) + '</p>';
     }
+    function focusQuiet(el) { try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); } }
     function renderQuestion() {
+      // the box is rebuilt below, which would drop the keyboard focus if it was on an answer button (for example
+      // after pressing → or ← there), so remember it and put it back: on the same answer, or else on Next
+      var ae = document.activeElement, hadFocus = !!(ae && ae !== elQ && elQ.contains(ae));
+      var focusOpt = hadFocus && ae.getAttribute ? ae.getAttribute('data-opt') : null;
+      buildQuestion();
+      if (hadFocus && !elQ.contains(document.activeElement)) {
+        var t = focusOpt != null && !elQ.hidden ? elQ.querySelector('[data-opt="' + focusOpt + '"]') : null;
+        focusQuiet(t || btnNext);
+      }
+    }
+    function buildQuestion() {
       var q = questionState(S.prog, S.step);
       if (!q) { if (!elQ.hidden) { elQ.hidden = true; elQ.innerHTML = ''; } return; }
       var d = q.def, tid = P + 'qt';
@@ -916,7 +934,12 @@
     on(btnNext, 'click', goNext);
     on(btnBack, 'click', goBack);
     on(btnRestart, 'click', function () { setStep(0); });
-    on(elStep, 'input', function () { setStep(+elStep.value - 1); });
+    // the slider moves either by keyboard (one step per arrow press, which counts as stepping) or by a mouse or
+    // finger (a drag or a click on the track, which does not)
+    var sliderPointer = false;
+    on(elStep, 'pointerdown', function () { sliderPointer = true; });
+    on(elStep, 'keydown', function () { sliderPointer = false; });
+    on(elStep, 'input', function () { setStep(+elStep.value - 1, sliderPointer); });
     on(elProg, 'change', function () { switchProgram(+elProg.value); });
     on(elAsk, 'change', function () { S.ask = elAsk.checked; renderQuestion(); });
     on(btnSpot, 'click', spot);

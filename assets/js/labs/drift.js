@@ -18,9 +18,9 @@
   var G_DAY_MU = 2.75, G_DAY_SD = 0.40;          // genuine daytime payments: middle about ₹560
   var G_NIGHT_MU = 2.40, G_NIGHT_SD = 0.36;      // genuine night payments: middle about ₹250
   var G_NIGHT_SHARE = 0.10;
-  var F_OLD_MU = 3.90, F_OLD_SD = 0.30, F_OLD_NIGHT = 0.40;   // usual fraud: big payments, middle about ₹7,900
+  var F_OLD_MU = 4.20, F_OLD_SD = 0.30, F_OLD_NIGHT = 0.40;   // usual fraud: big payments, middle about ₹15,800
   var F_NEW_MU = 3.00, F_NEW_SD = 0.14, F_NEW_NIGHT = 0.92;   // new trick: small night payments near ₹1,000
-  var FEST_SHIFT = 0.55;      // at 100% strength, daytime genuine amounts grow 10^0.55, about 3.5 times
+  var FEST_SHIFT = 0.45;      // at 100% strength, daytime genuine amounts grow 10^0.45, about 2.8 times
   var SALARY_SHIFT = 0.10;    // first week of each month: rent, fees and bills
   var SALARY_WEEKS = [1, 5, 9];
   var WOBBLE_SD = 0.01;
@@ -41,7 +41,7 @@
     both: 'Both'
   };
   var TASKS = [
-    { id: 't1', text: 'Find the first week whose PSI goes above 0.25 (major drift): tap it on the weekly chart, or pick it with the “Week shown” slider.' },
+    { id: 't1', text: 'Find the first week whose PSI goes above 0.25 (major drift): click or tap it on the weekly chart, or pick it with the “Week shown” slider.' },
     { id: 't2', text: 'Set an alert threshold that makes the drift alarm ring in a drift week, with zero false alarms in the calm weeks before the drift.' },
     { id: 't3', text: 'Once labels show recall below 70%, press “Retrain on recent data”, then step on until labels show the new model’s recall at 80% or more.' },
     { id: 't4', text: 'Keep labels 2 or more weeks late and step on until the accuracy alarm rings. It rings weeks after the drift alarm, because it has to wait for labels.' }
@@ -123,6 +123,16 @@
     }
     return s;
   }
+  // one week's summary depends only on (week, festival strength, trick strength), so keep recent ones
+  var CACHE = {}, cacheSize = 0;
+  function weekSum(w, kf, kt) {
+    var key = w + '|' + kf.toFixed(4) + '|' + kt.toFixed(4);
+    if (CACHE[key]) return CACHE[key];
+    if (cacheSize > 600) { CACHE = {}; cacheSize = 0; }
+    var B = getBase();
+    cacheSize++;
+    return (CACHE[key] = realise(B.weeks[w - 1], w, kf, kt, B.wob));
+  }
   function addSum(dst, src) {
     dst.n += src.n;
     for (var i = 0; i < NB; i++) dst.bins[i] += src.bins[i];
@@ -202,14 +212,25 @@
     g.lineTo(x, y + r); g.quadraticCurveTo(x, y, x + r, y); g.closePath();
   }
   // text on a small rounded background so it stays readable over bars and lines
-  function pill(g, T, text, x, y, align, color, weight) {
+  function pillBox(g, T, text, x, y, align, weight) {
     g.font = (weight || '600') + ' 11px ' + T.font;
     var w = g.measureText(text).width, px = align === 'right' ? x - w : align === 'center' ? x - w / 2 : x;
+    return { x: px - 3, y: y - 10, w: w + 6, h: 14, tx: px, ty: y };
+  }
+  function pill(g, T, text, x, y, align, color, weight) {
+    var b = pillBox(g, T, text, x, y, align, weight);
     g.fillStyle = T.surface;
-    rr(g, px - 3, y - 10, w + 6, 14, 3); g.fill();
+    rr(g, b.x, b.y, b.w, b.h, 3); g.fill();
     g.fillStyle = color; g.textAlign = 'left'; g.textBaseline = 'alphabetic';
-    g.fillText(text, px, y);
-    return { x: px - 3, w: w + 6 };
+    g.fillText(text, b.tx, b.ty);
+    return b;
+  }
+  function overlaps(a, list) {
+    for (var i = 0; i < list.length; i++) {
+      var b = list[i];
+      if (a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y) return true;
+    }
+    return false;
   }
 
   /* ---------- mount ---------- */
@@ -244,7 +265,7 @@
           '<span class="eyebrow">Week by week since launch</span>' +
           '<div class="lab-canvas-wrap" id="' + P + 'twrap" style="aspect-ratio:auto;height:clamp(360px,36vw,440px)"><canvas id="' + P + 'tl" role="img" style="touch-action:manipulation" aria-label="Weekly monitoring chart"></canvas></div>' +
           legend([['--series-1', 'PSI'], ['--haldi', 'PSI at or over the alert line'], ['--ink', 'Accuracy'], ['--series-2', 'Recall']]) +
-          '<p class="small muted">Tap a week to see its payments in the bar chart further down. The dashed lines in the lower panel are the accuracy alarm levels (accuracy under 95% or recall under 70%), and ? marks weeks whose labels are not in yet. In the alarm rows, ◆ is a drift alarm, ◇ is a false alarm before the drift started, and ■ is an accuracy alarm.</p>' +
+          '<p class="small muted">Click or tap a week to see its payments in the bar chart further down. The dashed lines in the lower panel are the accuracy alarm levels (accuracy under 95% or recall under 70%), and ? marks weeks whose labels are not in yet. In the alarm rows, ◆ is a drift alarm, ◇ is a false alarm before the drift started, and ■ is an accuracy alarm.</p>' +
           '<div class="row" style="gap:8px 12px">' +
             '<span style="font-weight:700">Today: week <span id="' + P + 'today">5</span> of 12</span>' +
             '<span class="row">' +
@@ -256,7 +277,7 @@
           '</div>' +
           '<div class="callout callout-indigo small" id="' + P + 'msg" style="min-height:4.4em"></div>' +
           '<div class="visually-hidden" role="status" aria-live="polite" id="' + P + 'live"></div>' +
-          '<div class="lab-stats" style="grid-template-columns:repeat(3,minmax(0,1fr))">' +
+          '<div class="lab-stats" id="' + P + 'stats" style="grid-template-columns:repeat(3,minmax(0,1fr))">' +
             statHtml('spsi', 'PSI') + statHtml('sacc', 'Accuracy') + statHtml('srec', 'Recall') +
             statHtml('sdrift', 'Drift alarm') + statHtml('sfalse', 'False alarms') + statHtml('sacca', 'Accuracy alarm') +
           '</div>' +
@@ -297,7 +318,7 @@
     function $(id) { return top.querySelector('#' + P + id); }
     var twrap = $('twrap'), tcan = $('tl'), hwrap = $('hwrap'), hcan = $('hist');
     var tg = tcan.getContext('2d'), hg = hcan.getContext('2d');
-    var elMsg = $('msg'), elLive = $('live'), elToday = $('today');
+    var elMsg = $('msg'), elLive = $('live'), elToday = $('today'), elStats = $('stats');
     var btnBack = $('back'), btnNext = $('next'), btnPlay = $('play'), btnOver = $('over'), btnRetrain = $('retrain');
     var inSel = $('sel'), inStart = $('start'), inStr = $('str'), inThr = $('thr'), inDelay = $('delay'), inWin = $('win');
     var elHTitle = $('htitle'), elHLeg = $('hleg'), elModel = $('model'), elTbody = $('tbody'), elTha = $('tha'), elRNote = $('rnote'), elModeHelp = $('modehelp');
@@ -351,13 +372,13 @@
         data.key = key; data.weeks = [null];
         for (var w = 1; w <= WEEKS; w++) {
           var k = kOf(w);
-          data.weeks.push(realise(B.weeks[w - 1], w, S.mode !== 'trick' ? k : 0, S.mode !== 'fest' ? k : 0, B.wob));
+          data.weeks.push(weekSum(w, S.mode !== 'trick' ? k : 0, S.mode !== 'fest' ? k : 0));
         }
       }
       models = [{ v: 1, at: 0, lo: 0, hi: 0, cut: trainCut, ref: trainSum }];
       S.retrains.slice().sort(function (a, b) { return a.at - b.at; }).forEach(function (r) {
         var sum = newSum();
-        for (var w = r.lo; w <= r.hi; w++) addSum(sum, data.weeks[w]);
+        for (var wk = r.lo; wk <= r.hi; wk++) addSum(sum, data.weeks[wk]);
         models.push({ v: models.length + 1, at: r.at, lo: r.lo, hi: r.hi, cut: fitCut(sum), ref: sum });
       });
       R = [null];
@@ -435,11 +456,13 @@
         var t2 = 'Labels for week ' + lw + ' just arrived: accuracy ' + pct(L.acc, 1) + ', recall ' + pct(L.rec, 0) + '.';
         if (L.bad) {
           t2 += ' <strong>The accuracy alarm rings.</strong>';
-          if (A.accFirst === t && !prevA.accFirst && A.trueFirst) {
-            var lead = t - A.trueFirst;
-            t2 += ' The drift alarm rang in week ' + A.trueFirst + (lead > 0 ? ', ' + lead + (lead === 1 ? ' week' : ' weeks') + ' earlier, without waiting for any labels.' : '.');
-          } else if (A.accFirst === t && !prevA.accFirst && isDriftWeek(lw) && R[lw].psi < MODERATE) {
-            t2 += ' Yet PSI stayed low: the new trick is a small slice of all payments, so the amounts as a whole barely changed. Only the labels could reveal it.';
+          if (A.accFirst === t && !prevA.accFirst) {
+            if (A.trueFirst && A.trueFirst < t) {
+              var lead = t - A.trueFirst;
+              t2 += ' The drift alarm rang in week ' + A.trueFirst + ', ' + lead + (lead === 1 ? ' week' : ' weeks') + ' earlier, without waiting for any labels.';
+            } else if (isDriftWeek(lw) && R[lw].psi < MODERATE) {
+              t2 += ' Yet PSI stayed low in week ' + lw + ': the new trick is a small slice of all payments, so the amounts as a whole barely changed. Only the labels could reveal it.';
+            }
           }
         }
         parts.push(t2);
@@ -635,51 +658,53 @@
       function vline(x, color, dash, text) {
         g.strokeStyle = color; g.lineWidth = 1.5; g.setLineDash(dash);
         g.beginPath(); g.moveTo(x, psiTop); g.lineTo(x, perfBot); g.stroke(); g.setLineDash([]);
-        labels.push({ x: x + 3, text: text, color: color });
+        labels.push({ x: x + 6, text: text, color: color });
       }
       if (S.strength > 0 && S.start <= WEEKS) vline(Math.round(Lm + (S.start - 1) * slot) + 0.5, T.muted, [2, 3], 'drift starts');
       for (var mi = 1; mi < models.length; mi++) vline(Math.round(Lm + models[mi].at * slot) + 0.5, T.indigo, [6, 3], 'v' + models[mi].v);
 
       // PSI bars
-      var bw = Math.min(slot * 0.56, 26);
+      var bw = Math.min(slot * 0.56, 26), barRects = [];
       for (w = 1; w <= today; w++) {
         var p = R[w].psi, y0 = yp(p), alarm = p >= S.thr;
+        barRects.push({ x: xc(w) - bw / 2, y: y0, w: bw, h: psiBot - y0 });
         g.fillStyle = alarm ? T.haldi : T.s1;
         g.fillRect(xc(w) - bw / 2, y0, bw, psiBot - y0);
         if (alarm) { g.strokeStyle = T.ink; g.lineWidth = 1; g.strokeRect(xc(w) - bw / 2 + 0.5, y0 + 0.5, bw - 1, psiBot - y0 - 1); }
         if (p > ymax) { g.fillStyle = T.surface; g.fillRect(xc(w) - bw / 2, psiTop + 6, bw, 3); }
       }
-      // value labels
-      for (w = 1; w <= today; w++) {
-        var vy = Math.max(psiTop + 11, yp(R[w].psi) - 4);
-        if (w === S.sel) continue;
-        if (slot >= 44) pill(g, T, R[w].psi.toFixed(2), xc(w), vy, 'center', T.muted, '500');
-      }
-
       // alert line
       var ya = Math.round(yp(S.thr)) + 0.5;
       g.strokeStyle = T.ink; g.lineWidth = 1.5; g.setLineDash([7, 4]);
       g.beginPath(); g.moveTo(Lm, ya); g.lineTo(W - Rm, ya); g.stroke(); g.setLineDash([]);
-      pill(g, T, 'alert ' + S.thr.toFixed(2), W - Rm - 3, ya - 4, 'right', T.ink, '700');
 
-      // selected value on top
-      if (S.sel <= today) {
-        var sy = Math.max(psiTop + 11, yp(R[S.sel].psi) - 4);
-        pill(g, T, fmtPsi(R[S.sel].psi), xc(S.sel), sy, 'center', T.ink, '700');
+      // value labels (all weeks on wide charts, the chosen week always), then markers and the alert label around them
+      var taken = [];
+      for (w = 1; w <= today; w++) {
+        if (w === S.sel || slot < 44) continue;
+        taken.push(pill(g, T, R[w].psi.toFixed(2), xc(w), Math.max(psiTop + 11, yp(R[w].psi) - 4), 'center', T.muted, '500'));
       }
-      // marker labels along the top of the PSI panel, nudged down when they would overlap
-      var used = [];
-      g.font = '600 11px ' + T.font;
+      if (S.sel <= today) taken.push(pill(g, T, fmtPsi(R[S.sel].psi), xc(S.sel), Math.max(psiTop + 11, yp(R[S.sel].psi) - 4), 'center', T.ink, '700'));
       labels.forEach(function (lb) {
-        var w2 = g.measureText(lb.text).width + 6, x = Math.min(lb.x, W - Rm - w2), y = psiTop + 12;
-        for (var tries = 0; tries < 4; tries++) {
-          var hit = used.some(function (u) { return u.y === y && x < u.x + u.w && x + w2 > u.x; });
-          if (!hit) break;
+        var b = pillBox(g, T, lb.text, lb.x, psiTop + 12, 'left', '600');
+        var x = Math.min(lb.x, W - Rm - b.w + 3), y = psiTop + 12;
+        for (var tries = 0; tries < 5; tries++) {
+          b = pillBox(g, T, lb.text, x, y, 'left', '600');
+          if (!overlaps(b, taken)) break;
           y += 15;
         }
-        used.push({ x: x, w: w2, y: y });
-        pill(g, T, lb.text, x + 3, y, 'left', lb.color === T.muted ? T.ink : lb.color, '600');
+        taken.push(pill(g, T, lb.text, x, y, 'left', lb.color === T.muted ? T.ink : lb.color, '600'));
       });
+      var alertText = 'alert ' + S.thr.toFixed(2);
+      // try the right end, the left end, then over each week, above or below the line; avoid bars and other labels
+      var spots = [[W - Rm - 3, ya - 4, 'right'], [W - Rm - 3, ya + 14, 'right'], [Lm + 3, ya - 4, 'left'], [Lm + 3, ya + 14, 'left']];
+      for (var sw = WEEKS; sw >= 1; sw--) { spots.push([Lm + sw * slot, ya - 4, 'right']); spots.push([Lm + sw * slot, ya + 14, 'right']); }
+      var avoid = taken.concat(barRects), spot = spots[0];
+      for (var si = 0; si < spots.length; si++) {
+        var sb = pillBox(g, T, alertText, spots[si][0], spots[si][1], spots[si][2], '700');
+        if (sb.y >= psiTop && sb.y + sb.h <= psiBot && sb.x >= Lm && !overlaps(sb, avoid)) { spot = spots[si]; break; }
+      }
+      pill(g, T, alertText, spot[0], spot[1], spot[2], T.ink, '700');
 
       // accuracy and recall lines (only weeks with labels)
       var lab = today - D;
@@ -743,9 +768,9 @@
       g.clearRect(0, 0, W, H);
       g.fillStyle = T.surface; g.fillRect(0, 0, W, H);
       var narrow = W < 480;
-      var L = narrow ? 38 : 46, Rr = 10, top = 28, bot = H - 40;
+      var L = narrow ? 38 : 46, Rr = 10, pt = 28, bot = H - 40;
       var r = R[S.sel], M = models[r.m];
-      var slot = (W - L - Rr) / NB, ph = bot - top;
+      var slot = (W - L - Rr) / NB, ph = bot - pt;
       var maxS = 0;
       for (var i = 0; i < NB; i++) maxS = Math.max(maxS, r.ps.e[i], r.ps.a[i]);
       var step = maxS > 0.25 ? 0.1 : 0.05, ymax = Math.max(step * 2, Math.ceil(maxS * 1.08 / step) * step);
@@ -777,9 +802,9 @@
       // model cutoffs
       var xd = amountX(GRID[M.cut[0]], L, slot), xn = amountX(GRID[M.cut[1]], L, slot);
       g.strokeStyle = T.ink; g.lineWidth = 2;
-      g.beginPath(); g.moveTo(Math.round(xd) + 0.5, top - 4); g.lineTo(Math.round(xd) + 0.5, bot); g.stroke();
+      g.beginPath(); g.moveTo(Math.round(xd) + 0.5, pt - 4); g.lineTo(Math.round(xd) + 0.5, bot); g.stroke();
       g.setLineDash([5, 4]);
-      g.beginPath(); g.moveTo(Math.round(xn) + 0.5, top - 4); g.lineTo(Math.round(xn) + 0.5, bot); g.stroke();
+      g.beginPath(); g.moveTo(Math.round(xn) + 0.5, pt - 4); g.lineTo(Math.round(xn) + 0.5, bot); g.stroke();
       g.setLineDash([]);
       var dl = 'day ' + inr(GRID[M.cut[0]]), nl = 'night ' + inr(GRID[M.cut[1]]);
       g.font = '700 11px ' + T.font;
@@ -811,6 +836,8 @@
       var hw = Math.max(1, Math.round(r2.width)), hh = Math.max(1, Math.round(r2.height));
       if (tw === dims.tw && th === dims.th && hw === dims.hw && hh === dims.hh && dpr === dims.dpr && tcan.width > 1) return;
       dims.tw = tw; dims.th = th; dims.hw = hw; dims.hh = hh; dims.dpr = dpr;
+      // three stat boxes per row, or two on the narrowest phones so their labels are not split mid-word
+      elStats.style.gridTemplateColumns = 'repeat(' + (tw < 330 ? 2 : 3) + ',minmax(0,1fr))';
       tcan.width = Math.round(tw * dpr); tcan.height = Math.round(th * dpr);
       hcan.width = Math.round(hw * dpr); hcan.height = Math.round(hh * dpr);
       // setting the size wipes the canvas, so repaint in the same callback

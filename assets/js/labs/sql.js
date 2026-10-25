@@ -801,7 +801,7 @@
     }
     function renderDiagram() {
       if (!lay) return;
-      var L = lay, M = L.M, spot = computeSpot();
+      var L = lay, spot = computeSpot();
       var cRows = CUSTOMERS.map(function (c, ci) { return { key: 'c' + ci, idx: ci, ghost: false, unmatched: !ORD_OF[ci].length }; });
       var oRows = ORDERS.map(function (o, oi) { return { key: 'o' + oi, idx: oi, ghost: false, unmatched: !CUST_OF[oi].length }; });
       Q.pairs.forEach(function (p, pi) {

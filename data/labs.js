@@ -3,6 +3,30 @@
 window.AIM = window.AIM || {};
 window.AIM.labs = [
  {
+  "id": "pytrace",
+  "module": "l1-python",
+  "title": "Step through Python",
+  "summary": "Replay five short Python programs one line at a time and watch names, lists and function frames change, exactly as real Python runs them.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Step through program 2 (the for loop) one line at a time, all the way to the final bill."
+   },
+   {
+    "id": "t2",
+    "text": "In program 4, watch a function frame appear when add_gst is called, then step on until it is thrown away when the function returns."
+   },
+   {
+    "id": "t3",
+    "text": "Spot aliasing: in program 5, find the step where changing same also changes cart, and press “cart changed on this step”."
+   },
+   {
+    "id": "t4",
+    "text": "Predict before you step: answer 3 prediction questions correctly."
+   }
+  ]
+ },
+ {
   "id": "clt",
   "module": "l1-stats",
   "title": "Sample means & the bell curve",
@@ -287,6 +311,30 @@ window.AIM.labs = [
    {
     "id": "t4",
     "text": "With top-k at 4 or more and temperature above 0, find a top-p value that leaves exactly 3 words possible for the next token."
+   }
+  ]
+ },
+ {
+  "id": "lora",
+  "module": "l4-finetuning",
+  "title": "LoRA and quantisation",
+  "summary": "See how LoRA copies a fine-tuning change with two thin matrices, how few numbers it trains on real layers, and how 4-bit quantisation squeezes a 7B model onto a free GPU.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Find the smallest rank r whose patch B·A copies the change ΔW with less than 5% error (keep “Low-rank + noise” selected)."
+   },
+   {
+    "id": "t2",
+    "text": "Work out why rank 1 is not enough for this change: compare the pattern-strength bars, then answer the question under them."
+   },
+   {
+    "id": "t3",
+    "text": "In the scale-up calculator, set d = 4,096 and r = 8, then type how many times fewer numbers LoRA trains than full fine-tuning."
+   },
+   {
+    "id": "t4",
+    "text": "Plan a QLoRA fine-tune on a free Colab T4: choose a 7B model, “Fine-tune with LoRA”, the T4 and 4-bit, and see it fit."
    }
   ]
  }
