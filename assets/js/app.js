@@ -101,7 +101,7 @@
       '<h4><a href="' + esc(r.url) + '" target="_blank" rel="noopener">' + esc(r.title) + '</a></h4>' +
       '<div class="small muted">' + esc(r.creator || '') + (r.year ? ' · ' + esc(r.year) : '') + (r.cost ? ' · ' + esc(r.cost) : '') + '</div>' +
       note + (r.why ? '<p class="res-why">' + inline(r.why) + '</p>' : '') +
-      (r.caveats ? '<p class="res-caveat">Heads-up: ' + inline(r.caveats) + '</p>' : '') +
+      (r.caveats ? '<details class="res-caveat"><summary>Heads-up</summary><p>' + inline(r.caveats) + '</p></details>' : '') +
       '<div class="res-actions"><label class="watched-toggle"><input type="checkbox" data-action="watched" data-id="' + esc(r.id) + '"' + (watched ? ' checked' : '') + '> I finished this</label>' +
       '<a class="btn btn-sm" href="' + esc(r.url) + '" target="_blank" rel="noopener">Open ' + (isYT ? 'on YouTube' : 'site') + ' ↗</a>' +
       (isYT && r.status !== 'verified' ? '<a class="btn btn-sm btn-ghost" href="' + esc(searchUrl) + '" target="_blank" rel="noopener">Search YouTube</a>' : '') +
@@ -343,7 +343,17 @@
         (location.protocol === 'file:' ? '<div class="callout small">Opened as a file: YouTube may refuse to play embedded videos here. Use "Open on YouTube", or publish the site on GitHub Pages (see README).</div>' : '') +
         (mainPick ? '<section class="stack"><h3>Main pick · ' + GROUP_LABEL[group(mainPick)] + '</h3>' + resCard(mainPick, { player: true, featured: true, note: noteFor(m, mainPick) }) + '</section>' : '<div class="empty">Resources for this module are being added.</div>') +
         (otherLangPick ? '<section class="stack"><h3>Main pick in ' + GROUP_LABEL[group(otherLangPick)] + '</h3>' + resCard(otherLangPick, { player: true, note: noteFor(m, otherLangPick) }) + '</section>' : '') +
-        (rest.length ? '<section class="stack"><h3>More options</h3><div class="grid">' + rest.map(function (r) { return resCard(r, { note: noteFor(m, r) }); }).join('') + '</div></section>' : '') + '</div>';
+        (rest.length ? '<section class="stack"><h3>More options</h3>' + ['hi', 'in', 'en'].map(function (g) {
+          var items = rest.filter(function (r) { return group(r) === g; });
+          if (!items.length) return '';
+          var gid = 'more-' + g, shown = 4;
+          return '<div class="lang-group"><h4>' + esc(g === 'en' ? 'Global English (extras)' : GROUP_LABEL[g]) + ' <span class="chip num">' + items.length + '</span></h4><div class="grid" id="' + gid + '">' +
+            items.map(function (r, i) { return '<div' + (i >= shown ? ' hidden' : '') + '>' + resCard(r, { note: noteFor(m, r) }) + '</div>'; }).join('') + '</div>' +
+            (items.length > shown ? '<div><button class="btn btn-sm" type="button" data-more="' + gid + '">Show ' + (items.length - shown) + ' more</button></div>' : '') + '</div>';
+        }).join('') + '</section>' : '') + '</div>';
+      el.querySelectorAll('[data-more]').forEach(function (b) {
+        b.addEventListener('click', function () { document.querySelectorAll('#' + b.getAttribute('data-more') + ' > [hidden]').forEach(function (x) { x.hidden = false; }); b.remove(); });
+      });
     } else if (tab === 'lab') {
       var lab = labOf(m);
       el.innerHTML = '<div class="stack"><div class="stack-sm"><h2>' + esc(lab.title) + '</h2><p class="muted">' + esc(lab.summary || '') + '</p></div><div id="labroot"></div></div>';

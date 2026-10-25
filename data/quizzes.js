@@ -2553,5 +2553,1139 @@ window.AIM.quizzes = {
    "explain": "gamma controls how far each training point's influence reaches in an RBF kernel: a very high gamma gives each point a tiny island of influence, so the boundary wraps tightly around individual points (overfitting). Lowering gamma, and lowering C (which sets how strongly training mistakes are penalised), gives a smoother, more general boundary. Increasing gamma would make the overfitting worse.",
    "difficulty": "hard"
   }
+ ],
+ "l3-nn-basics": [
+  {
+   "id": "l3-nn-basics-q01",
+   "q": "A friend builds a neural network with five hidden layers but forgets to add any activation function, so every layer only computes weights × inputs + bias. What is the problem?",
+   "code": "",
+   "options": [
+    "The network will train more slowly, but in the end it will be just as powerful",
+    "The network will not be able to produce any output at all",
+    "All the layers together still behave like one single linear layer, so the network cannot learn curved (non-linear) patterns",
+    "The network will overfit because it has too many non-linear layers"
+   ],
+   "answer": 2,
+   "explain": "A linear function of a linear function is still linear, so five stacked layers without activations collapse into the same thing as one linear layer. Activation functions such as ReLU (which outputs max(0, x)) add the non-linearity that lets a network learn curved decision boundaries. The network still trains and gives outputs, so 'slower but equally powerful' is the tempting wrong idea: no amount of training adds power that the maths does not allow.",
+   "difficulty": "easy"
+  },
+  {
+   "id": "l3-nn-basics-q02",
+   "q": "Why can a single perceptron (one neuron with a step activation) NOT learn the XOR pattern, where the output is 1 only when exactly one of the two inputs is 1?",
+   "code": "",
+   "options": [
+    "XOR is not linearly separable: no single straight line can separate the 1s from the 0s",
+    "XOR needs more than four training examples before anything can learn it",
+    "A perceptron can only accept inputs that are exactly 0 or 1",
+    "The learning rate of a perceptron cannot be changed"
+   ],
+   "answer": 0,
+   "explain": "A single perceptron draws one straight line (a linear decision boundary) and puts each side into a class. For XOR, the points (0,1) and (1,0) are 1 while (0,0) and (1,1) are 0, and no single line can split them that way. Adding a hidden layer (making a multilayer perceptron, or MLP) fixes this, because hidden neurons can combine two lines into a non-linear boundary; more data does not help, since the four points already define the whole pattern.",
+   "difficulty": "easy"
+  },
+  {
+   "id": "l3-nn-basics-q03",
+   "q": "What does weight decay (also called L2 regularisation) do while training a neural network?",
+   "code": "",
+   "options": [
+    "It slowly reduces the learning rate after every epoch",
+    "It adds a small penalty for large weights, pushing them towards smaller values so the model is less likely to overfit",
+    "It deletes neurons whose weights are close to zero",
+    "It makes the weights grow over time so the network learns faster"
+   ],
+   "answer": 1,
+   "explain": "Weight decay adds a penalty based on the squared size of the weights, so on every update the weights shrink a little unless the data really needs them to be large. Smaller weights give a smoother, simpler function that generalises better (works better on unseen data). It is easy to confuse with learning-rate decay, which changes the step size over time and does not penalise the weights at all.",
+   "difficulty": "easy"
+  },
+  {
+   "id": "l3-nn-basics-q04",
+   "q": "An agritech startup wants a neural network that predicts tomorrow's rainfall in millimetres for Mumbai, a number such as 0, 12.5 or 87. Which output layer and loss function fit best?",
+   "code": "",
+   "options": [
+    "One neuron with sigmoid activation, trained with binary cross-entropy",
+    "Ten neurons with softmax activation, trained with categorical cross-entropy",
+    "One neuron with a step activation, trained with accuracy as the loss",
+    "One neuron with no activation (a linear output), trained with mean squared error"
+   ],
+   "answer": 3,
+   "explain": "Rainfall in mm is a continuous quantity, so this is regression: one output neuron with a linear output and a regression loss such as mean squared error (MSE, the average of squared differences). Sigmoid squeezes outputs into the range 0 to 1, and binary cross-entropy is meant for yes/no questions like 'will it rain?', not 'how much?'. Softmax is for picking one class out of several, and accuracy cannot be used as a loss because it has no useful gradient.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-nn-basics-q05",
+   "q": "Meera trains a network with a learning rate of 1.0. After a few batches the printed loss becomes 'nan' (not a number). What is the most likely cause and fix?",
+   "code": "",
+   "options": [
+    "The model has too few layers, so she should add more hidden layers",
+    "The updates are far too large, so the weights and gradients blow up (explode); she should lower the learning rate and consider gradient clipping",
+    "The dataset has too many rows, so she should train on a smaller sample",
+    "She scaled the input features to similar ranges, so she should remove the scaling"
+   ],
+   "answer": 1,
+   "explain": "With a very large learning rate each step overshoots the minimum, the loss and weights grow bigger with every step, and soon the numbers overflow into 'nan'. Lowering the learning rate (for example to 0.001 with Adam) and using gradient clipping (capping the size of gradients before each update) are the standard fixes. Adding layers usually makes exploding values worse, and scaling the inputs actually helps prevent this problem rather than causing it.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-nn-basics-q06",
+   "q": "Arjun trains with plain SGD and sees the loss zig-zag from side to side down a narrow valley instead of moving smoothly downhill. Which change is designed for exactly this problem?",
+   "code": "",
+   "options": [
+    "Add momentum, so each update also carries a running average of past gradients that cancels the zig-zag and speeds up progress along the valley",
+    "Remove the bias terms from every layer",
+    "Compute the loss on a larger batch of test data",
+    "Switch the activation function from ReLU to sigmoid"
+   ],
+   "answer": 0,
+   "explain": "Momentum keeps a moving average of recent gradients, like a ball rolling downhill that keeps its speed. The side-to-side parts of the zig-zag point in opposite directions and cancel out, while the steady downhill part adds up, so training becomes smoother and faster. Adam combines this momentum idea with a separate adaptive step size for each weight, which is why it is a popular default; switching to sigmoid would not fix the path and can cause vanishing gradients.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-nn-basics-q07",
+   "q": "A 25-layer network uses sigmoid activations everywhere. During training, the last few layers change, but the weights in the first layers barely move at all. What is happening, and what is a common fix?",
+   "code": "",
+   "options": [
+    "Exploding gradients; increase the learning rate of the first layers",
+    "Overfitting; add dropout to the first layers",
+    "Vanishing gradients; switch to ReLU-type activations and use good initialisation, batch normalisation or residual (skip) connections",
+    "The first layers have already learned perfectly, so nothing needs to change"
+   ],
+   "answer": 2,
+   "explain": "During backpropagation the gradient is multiplied by the sigmoid's slope at every layer, and that slope is at most 0.25, so after 25 layers the signal reaching the first layers is tiny (vanishing gradients). ReLU has a slope of 1 for positive inputs, and He initialisation (starting weights at a suitable scale), batch normalisation and residual connections all keep gradients healthy. Exploding gradients show the opposite symptom: huge, unstable updates or 'nan' losses.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-nn-basics-q08",
+   "q": "A multilayer perceptron has 10 input features, one hidden layer of 32 neurons and an output layer of 3 neurons. The layers are fully connected and every neuron has its own bias. How many trainable parameters (weights + biases) does it have?",
+   "code": "",
+   "options": [
+    "416",
+    "45",
+    "960",
+    "451"
+   ],
+   "answer": 3,
+   "explain": "Input to hidden has 10 × 32 = 320 weights plus 32 biases, which is 352. Hidden to output has 32 × 3 = 96 weights plus 3 biases, which is 99. The total is 352 + 99 = 451; the tempting 416 forgets the 35 biases, and 45 just counts the neurons.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "l3-nn-basics-q09",
+   "q": "What does this forward pass through a tiny two-layer network print?",
+   "code": "import numpy as np\nx = np.array([1.0, 2.0])            # 2 input features\nW1 = np.array([[1.0, -1.0],\n               [0.5,  1.0]])        # 2 inputs -> 2 hidden neurons\nb1 = np.array([0.0, -2.0])\nh = np.maximum(0, x @ W1 + b1)      # ReLU activation\nW2 = np.array([2.0, 3.0])           # 2 hidden -> 1 output\nb2 = 0.5\nprint(h, h @ W2 + b2)",
+   "options": [
+    "[2. 0.] 4.5",
+    "[ 2. -1.] 1.5",
+    "[2. 0.] 4.0",
+    "[2. 1.] 7.5"
+   ],
+   "answer": 0,
+   "explain": "x @ W1 = [1×1 + 2×0.5, 1×(−1) + 2×1] = [2, 1], and adding b1 gives [2, −1]. ReLU turns the negative −1 into 0, so h = [2, 0], and the output is 2×2 + 0×3 + 0.5 = 4.5. Forgetting the ReLU gives the tempting 1.5, forgetting the bias b1 gives 7.5, and forgetting b2 gives 4.0.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "l3-nn-basics-q10",
+   "q": "A single neuron computes y = w·x + b and the loss is L = (y − t)². With x = 2, w = 3, b = 1 and target t = 5, use the chain rule to find dL/dw, and then the new value of w after one gradient-descent step with learning rate 0.1.",
+   "code": "",
+   "options": [
+    "dL/dw = 4, new w = 2.6",
+    "dL/dw = 8, new w = 2.2",
+    "dL/dw = 8, new w = 3.8",
+    "dL/dw = 2, new w = 2.8"
+   ],
+   "answer": 1,
+   "explain": "First, y = 3×2 + 1 = 7. By the chain rule, dL/dw = dL/dy × dy/dw = 2(y − t) × x = 2×2×2 = 8. Gradient descent moves against the gradient, so w = 3 − 0.1×8 = 2.2. Adding the step instead (3.8) is the tempting sign mistake, and 4 forgets to multiply by dy/dw = x.",
+   "difficulty": "hard"
+  }
+ ],
+ "l3-pytorch": [
+  {
+   "id": "l3-pytorch-q01",
+   "q": "In PyTorch, what does autograd do for you?",
+   "code": "",
+   "options": [
+    "It automatically chooses the best learning rate for your model",
+    "It records the operations done on tensors that have requires_grad=True and computes their gradients automatically when you call backward()",
+    "It converts your NumPy arrays into tensors",
+    "It moves your model to the GPU whenever one is available"
+   ],
+   "answer": 1,
+   "explain": "Autograd (automatic differentiation) builds a graph of every operation as you compute the loss; calling backward() then walks that graph in reverse using the chain rule and stores each gradient in the tensor's .grad attribute. This saves you from working out gradients by hand for millions of weights. Choosing the learning rate and moving data or models to the GPU are still your job.",
+   "difficulty": "easy"
+  },
+  {
+   "id": "l3-pytorch-q02",
+   "q": "You have a PyTorch Dataset of 10,000 photos of handwritten Hindi characters. What does wrapping it in a DataLoader give you?",
+   "code": "",
+   "options": [
+    "It trains the model on the photos automatically",
+    "It splits the data into training and test sets for you",
+    "It labels any photos that do not have labels yet",
+    "It serves the data in mini-batches, can shuffle the order every epoch, and can load batches in parallel"
+   ],
+   "answer": 3,
+   "explain": "A Dataset knows how to return one sample (through its __len__ and __getitem__ methods), while a DataLoader groups samples into mini-batches, reshuffles them each epoch when shuffle=True, and can use several worker processes to prepare data while the GPU trains. It does not split data: you create the training and validation sets yourself (for example with random_split) and give each its own DataLoader. The training itself still happens in your own loop.",
+   "difficulty": "easy"
+  },
+  {
+   "id": "l3-pytorch-q03",
+   "q": "In Keras (TensorFlow's high-level API), you build a model and call model.compile(optimizer='adam', loss='sparse_categorical_crossentropy'). Which call then actually runs the training loop over your data for several epochs?",
+   "code": "",
+   "options": [
+    "model.fit(X_train, y_train, epochs=10)",
+    "None; model.compile() has already trained the model",
+    "model.predict(X_train)",
+    "model.evaluate(X_train, y_train)"
+   ],
+   "answer": 0,
+   "explain": "compile() only sets up the optimiser, loss and metrics, while fit() runs the forward pass, loss, backpropagation and weight updates for every batch and epoch, which is the loop you write yourself in PyTorch. predict() only makes predictions and evaluate() only reports the loss and metrics, so neither of them changes the weights.",
+   "difficulty": "easy"
+  },
+  {
+   "id": "l3-pytorch-q04",
+   "q": "On a Colab GPU you call model.to('cuda'), but the first training step crashes with: 'Expected all tensors to be on the same device, but found at least two devices, cuda:0 and cpu!'. What is the fix?",
+   "code": "",
+   "options": [
+    "Reduce the batch size, because the GPU has run out of memory",
+    "Restart the runtime and reinstall PyTorch",
+    "Inside the loop, move every batch to the same device as the model, for example images = images.to(device) and labels = labels.to(device)",
+    "Move the model back to the CPU, because Colab GPUs cannot train models"
+   ],
+   "answer": 2,
+   "explain": "The model's weights are on the GPU, but the batches coming out of the DataLoader are still on the CPU, and PyTorch will not mix devices in one operation. The usual pattern is to set device = 'cuda' if torch.cuda.is_available() else 'cpu' and send both the model and every batch to that device. Running out of memory gives a different error ('CUDA out of memory'), so reducing the batch size will not help here.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-pytorch-q05",
+   "q": "Ankit's training loop does this for every batch: compute the outputs, compute the loss, call loss.backward(), then call optimizer.step(). He never calls optimizer.zero_grad(). What happens?",
+   "code": "",
+   "options": [
+    "Gradients from every batch keep adding up in .grad, so each update uses a growing sum of old gradients and training becomes unstable",
+    "Nothing, because optimizer.step() resets the gradients automatically",
+    "PyTorch raises an error on the second batch",
+    "The gradients become zero, so the model stops learning"
+   ],
+   "answer": 0,
+   "explain": "In PyTorch, backward() adds new gradients to whatever is already stored in each parameter's .grad instead of replacing it. Without zero_grad() at the start of every iteration, the update on batch 10 uses the sum of the gradients from batches 1 to 10, so the steps become wrong and often blow up. step() only reads the gradients and does not clear them, which is why the tempting 'nothing happens' answer is wrong.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-pytorch-q06",
+   "q": "Yesterday you saved your crop-disease model to Google Drive with torch.save(model.state_dict(), 'crop_model.pt'). Today, in a fresh Colab session, what is the correct way to use it for predictions?",
+   "code": "",
+   "options": [
+    "Run model = torch.load('crop_model.pt') and then call model(images) directly",
+    "Open the file with numpy.load, because PyTorch saves weights as NumPy arrays",
+    "Retrain the model, because a state_dict stores only the training settings, not the weights",
+    "Create the model from the same class (same architecture), call model.load_state_dict(torch.load('crop_model.pt')), then call model.eval() before predicting"
+   ],
+   "answer": 3,
+   "explain": "A state_dict is a dictionary of tensors holding the learned weights, not the model's code. So you first rebuild an identical model object, load the saved weights into it with load_state_dict, and switch to evaluation mode with eval() so that dropout and batch norm behave correctly. torch.load on this file gives back only that dictionary, not a ready model, which is why calling model = torch.load(...) and predicting straight away fails.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-pytorch-q07",
+   "q": "Before training on 50,000 images, Kavya trains her new model on just one batch of 8 images for 300 steps as a sanity check. The loss stays around 2.0 and never gets close to 0. What should she conclude?",
+   "code": "",
+   "options": [
+    "The model needs more data, so she should start training on all 50,000 images",
+    "Something is broken in the pipeline (for example labels not matching images, a wrong loss, or weights not updating), so she should fix it before full training",
+    "The model is overfitting, so she should add dropout",
+    "This is normal, because a model can never memorise a single small batch"
+   ],
+   "answer": 1,
+   "explain": "A healthy model should easily memorise 8 examples and drive the loss close to zero, so this 'overfit one batch' test is a quick bug detector. If it fails, the problem is usually in the code: mismatched labels, a wrong loss or output shape, a missing optimizer.step(), or a learning rate that is far off. More data will not help, because the model cannot even learn the few examples it already has.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-pytorch-q08",
+   "q": "x is a PyTorch tensor with value 2.0 and requires_grad=True. You compute y = x² + 3x and call y.backward(). Then, without zeroing the gradient, you compute y = x² + 3x again and call y.backward() once more. What is x.grad now?",
+   "code": "",
+   "options": [
+    "7",
+    "4",
+    "14",
+    "0, because the second call overwrites the first"
+   ],
+   "answer": 2,
+   "explain": "The derivative of x² + 3x is 2x + 3, which equals 7 at x = 2, so the first backward() stores 7 in x.grad. PyTorch accumulates (adds up) gradients, so the second backward() adds another 7, giving 14. That is exactly why training loops call zero_grad() every iteration; answering 7 assumes gradients are overwritten, which they are not.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "l3-pytorch-q09",
+   "q": "This NumPy code imitates a PyTorch DataLoader with shuffle=True and batch_size=100 on a dataset of 1,050 samples. What does it print?",
+   "code": "import numpy as np\nrng = np.random.default_rng(0)\nidx = rng.permutation(1050)          # shuffled sample indices\nbatch_size = 100\nbatches = [idx[i:i + batch_size] for i in range(0, len(idx), batch_size)]\nprint(len(batches), len(batches[-1]))",
+   "options": [
+    "11 50",
+    "10 100",
+    "11 100",
+    "10 50"
+   ],
+   "answer": 0,
+   "explain": "Slicing in steps of 100 gives 10 full batches (1,000 samples) plus one last batch with the remaining 50, so there are 11 batches and the last one has 50 samples. A PyTorch DataLoader behaves the same way by default (drop_last=False); with drop_last=True you would get 10 batches and those 50 samples would be skipped in that epoch. Shuffling changes which samples land in each batch, not how many batches there are.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "l3-pytorch-q10",
+   "q": "You run a learning-rate finder: the learning rate grows from 1e-5 to 1 over a few hundred mini-batches while you record the loss. Results: 1e-5 → 2.30, 1e-4 → 2.28, 1e-3 → 1.90, 1e-2 → 1.20 (the lowest), 1e-1 → 1.45, 1 → 9.80. Which learning rate is the best choice for training?",
+   "code": "",
+   "options": [
+    "1e-5",
+    "1e-1",
+    "1",
+    "1e-3"
+   ],
+   "answer": 3,
+   "explain": "The loss barely moves at 1e-5 and 1e-4 (steps too small), falls fastest between 1e-3 and 1e-2, and blows up after that. The usual rule is to pick a value where the loss is still falling steeply, roughly ten times below the lowest point, so 1e-3 is the safe and fast choice. 1e-1 is tempting because larger steps sound faster, but it is already past the minimum, where the loss is rising and training becomes unstable.",
+   "difficulty": "hard"
+  }
+ ],
+ "l3-cv": [
+  {
+   "id": "l3-cv-q01",
+   "q": "Why do convolutional neural networks (CNNs) usually work much better on images than plain fully connected networks fed with raw pixels?",
+   "code": "",
+   "options": [
+    "Small filters slide across the image and reuse the same weights everywhere, so they detect local patterns like edges anywhere in the picture with far fewer parameters",
+    "CNNs do not need any labelled training data",
+    "CNNs first turn the image into a text description, which is easier to classify",
+    "CNNs give every pixel its own separate weight in every neuron, so they have more parameters to capture detail"
+   ],
+   "answer": 0,
+   "explain": "A convolution filter (a small grid of weights, such as 3×3) slides over the whole image, so the same edge or texture detector is reused at every position; this is called weight sharing. That keeps the number of parameters small and lets the network recognise a pattern wherever it appears. Giving each pixel its own weight in every neuron is what a fully connected layer does, which explodes the parameter count and ignores the image's 2-D structure.",
+   "difficulty": "easy"
+  },
+  {
+   "id": "l3-cv-q02",
+   "q": "The Bengaluru traffic police want a system that finds every two-wheeler in a CCTV frame and draws a box around each one, fast enough for live video. Which type of computer-vision task is this?",
+   "code": "",
+   "options": [
+    "Image classification: one label for the whole image",
+    "Image segmentation with a U-Net: a label for every single pixel",
+    "Object detection, for example with a YOLO model",
+    "Optical character recognition (OCR)"
+   ],
+   "answer": 2,
+   "explain": "Object detection finds where each object is (a bounding box) and what it is (a class), and YOLO ('You Only Look Once') is a popular family of fast detectors for real-time video. Classification gives only one label for the whole frame, so it cannot locate or count the bikes. Segmentation labels every pixel, which is more detail than needed here and is usually slower.",
+   "difficulty": "easy"
+  },
+  {
+   "id": "l3-cv-q03",
+   "q": "How does a Vision Transformer (ViT) turn an image into something a transformer can process?",
+   "code": "",
+   "options": [
+    "It first writes a text caption for the image and feeds the words to the transformer",
+    "It cuts the image into small fixed-size patches (for example 16×16 pixels), turns each patch into a vector, adds position information and treats the patches like a sequence of tokens",
+    "It feeds the pixels one by one into an RNN",
+    "It uses only convolution and pooling layers, with no attention at all"
+   ],
+   "answer": 1,
+   "explain": "A ViT splits the image into a grid of patches, flattens and projects each patch into an embedding (a vector of numbers), adds position embeddings so the model knows where each patch came from, and then runs self-attention over the patches just like words in a sentence. Using only convolution and pooling describes a CNN, not a transformer. ViTs usually need a lot of data or pretraining to beat CNNs, which is why pretrained ViTs are normally fine-tuned rather than trained from scratch.",
+   "difficulty": "easy"
+  },
+  {
+   "id": "l3-cv-q04",
+   "q": "A Nashik agritech startup has only 900 labelled photos of grape leaves across 4 disease classes and one free Colab GPU. What is the best way to build an accurate classifier?",
+   "code": "",
+   "options": [
+    "Train a large VGG network from scratch for 200 epochs",
+    "Use an ImageNet-pretrained model exactly as it is, since it has already seen plants",
+    "Run K-Means clustering on the raw pixels to find the 4 diseases",
+    "Take an ImageNet-pretrained CNN such as ResNet, replace its final layer with a 4-class layer, train that new layer first and then optionally fine-tune deeper layers with a small learning rate"
+   ],
+   "answer": 3,
+   "explain": "Transfer learning reuses features (edges, textures, shapes) that a network already learned from millions of ImageNet photos, so a few hundred images are enough to train a new final layer, called the head. Fine-tuning later layers with a small learning rate adapts those features further without destroying them. Using the pretrained model unchanged fails because its output layer predicts ImageNet's 1,000 classes, not your 4 diseases, and training from scratch on 900 photos would overfit badly.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-cv-q05",
+   "q": "You are training a classifier for Indian traffic signs, including 'No Left Turn' and 'No Right Turn'. Which data augmentation would actually harm this model?",
+   "code": "",
+   "options": [
+    "Random horizontal flips",
+    "Small random rotations of about ±10 degrees",
+    "Random brightness and contrast changes, to imitate sun, shade and monsoon clouds",
+    "Small random crops and zooms"
+   ],
+   "answer": 0,
+   "explain": "Data augmentation creates extra training images by applying changes that should not alter the label, which helps the model generalise. A horizontal flip turns a 'No Left Turn' sign into something that looks like 'No Right Turn', so it creates wrongly labelled examples. Small rotations, lighting changes and crops are realistic variations of the same sign and usually help.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-cv-q06",
+   "q": "A team stacks 56 plain convolutional layers (no shortcuts) and finds that its training error is higher than their 20-layer network's training error. What explains this, and which design fixes it?",
+   "code": "",
+   "options": [
+    "It is overfitting, so they should add dropout and more data augmentation",
+    "The kernels are too small, so they should change every 3×3 filter to 11×11",
+    "Very deep plain networks are hard to optimise because gradients fade through many layers; ResNet's skip connections, which add a block's input to its output, fix this",
+    "The pooling layers are the problem, so they should remove all pooling"
+   ],
+   "answer": 2,
+   "explain": "If the deeper network is worse even on the training data, it is not overfitting (overfitting means low training error but high test error); it is failing to optimise. ResNet adds shortcut connections so each block outputs F(x) + x, which makes it easy to learn an identity mapping and gives gradients a direct path back to the early layers. That is why ResNets with 50 or more layers train well, while plain stacks of layers, like an ever-deeper VGG, get worse as depth grows.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-cv-q07",
+   "q": "You load a Holi festival photo with cv2.imread('holi.jpg') and show it with matplotlib's plt.imshow(img). The red and pink colours appear blue. What went wrong?",
+   "code": "",
+   "options": [
+    "The JPEG file is corrupted",
+    "matplotlib needs pixel values between 0 and 1, so you must divide by 255 first",
+    "OpenCV can only read grayscale images",
+    "OpenCV stores colour channels in BGR order while matplotlib expects RGB, so convert with cv2.cvtColor(img, cv2.COLOR_BGR2RGB)"
+   ],
+   "answer": 3,
+   "explain": "OpenCV loads images as NumPy arrays with channels in Blue-Green-Red order, but matplotlib assumes Red-Green-Blue, so red and blue are swapped on screen. Converting with cvtColor fixes the display without changing the file. Dividing by 255 only changes the brightness scale, not the channel order, and matplotlib already handles 0–255 integer images correctly.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-cv-q08",
+   "q": "In a LeNet-style network, a 32×32 grayscale image passes through a convolution layer with 6 filters of size 5×5 (stride 1, no padding), and then through 2×2 max pooling with stride 2. What is the output shape (height × width × channels)?",
+   "code": "",
+   "options": [
+    "28×28×6",
+    "14×14×6",
+    "16×16×6",
+    "14×14×1"
+   ],
+   "answer": 1,
+   "explain": "With no padding, the output size is (input − filter) / stride + 1 = (32 − 5)/1 + 1 = 28, and 6 filters give 6 channels, so the convolution outputs 28×28×6. The 2×2 pooling with stride 2 halves the height and width to 14×14 and keeps all 6 channels. The tempting 28×28×6 stops before the pooling step, and 16×16 comes from halving 32 while skipping the convolution.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "l3-cv-q09",
+   "q": "This code slides a 3×3 vertical-edge filter across a small grayscale image (valid convolution, stride 1). What does it print?",
+   "code": "import numpy as np\nimg = np.array([[10, 10, 10, 80, 80],\n                [10, 10, 10, 80, 80],\n                [10, 10, 10, 80, 80]])   # dark on the left, bright on the right\nk = np.array([[-1, 0, 1],\n              [-1, 0, 1],\n              [-1, 0, 1]])               # vertical-edge filter\nout = [int((img[:, j:j+3] * k).sum()) for j in range(3)]\nprint(out)",
+   "options": [
+    "[0, 210, 210]",
+    "[0, 70, 70]",
+    "[210, 210, 0]",
+    "[0, 210, 210, 0, 0]"
+   ],
+   "answer": 0,
+   "explain": "At each position the filter multiplies the 3×3 patch element by element and adds everything up: at the first position each row gives −10 + 0 + 10 = 0, while the next two positions straddle the jump from 10 to 80, giving −10 + 80 = 70 per row and 3 × 70 = 210. A 5-wide image with a 3-wide filter and no padding gives 5 − 3 + 1 = 3 outputs, and the large values mark where the dark-to-bright edge is. The tempting [0, 70, 70] forgets to add up all three rows.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "l3-cv-q10",
+   "q": "Object detectors such as YOLO use IoU (Intersection over Union) to measure how well a predicted box matches the true box. Boxes are written as (x1, y1, x2, y2). What does this code print?",
+   "code": "def iou(a, b):\n    x1, y1 = max(a[0], b[0]), max(a[1], b[1])\n    x2, y2 = min(a[2], b[2]), min(a[3], b[3])\n    inter = max(0, x2 - x1) * max(0, y2 - y1)\n    area = lambda r: (r[2] - r[0]) * (r[3] - r[1])\n    return inter / (area(a) + area(b) - inter)\n\nprint(round(iou((0, 0, 4, 4), (2, 2, 6, 6)), 3))",
+   "options": [
+    "0.25",
+    "0.125",
+    "0.5",
+    "0.143"
+   ],
+   "answer": 3,
+   "explain": "The overlap is the square from (2, 2) to (4, 4), with area 2 × 2 = 4, and each box has area 4 × 4 = 16. The union is 16 + 16 − 4 = 28, so IoU = 4/28 ≈ 0.143. The tempting 0.25 divides the overlap by only one box's area, and 0.125 forgets to subtract the overlap, which would otherwise be counted twice.",
+   "difficulty": "hard"
+  }
+ ],
+ "l3-nlp": [
+  {
+   "id": "l3-nlp-q01",
+   "q": "Splitting the sentence 'UPI payment failed again!' into ['UPI', 'payment', 'failed', 'again', '!'] is called what?",
+   "code": "",
+   "options": [
+    "Stemming",
+    "Lemmatisation",
+    "Vectorisation",
+    "Tokenisation"
+   ],
+   "answer": 3,
+   "explain": "Tokenisation breaks text into smaller units called tokens (words, sub-words, characters or punctuation), and it is usually the first step of any NLP pipeline. Stemming and lemmatisation come later and reduce words to a root form, such as 'failed' to 'fail'. Vectorisation turns the tokens into numbers, for example with bag of words or TF-IDF.",
+   "difficulty": "easy"
+  },
+  {
+   "id": "l3-nlp-q02",
+   "q": "You apply TF-IDF to 50,000 restaurant reviews from a food-delivery app. The word 'food' appears in almost every review. Why does it get a very low TF-IDF weight?",
+   "code": "",
+   "options": [
+    "Because 'food' is a short word",
+    "Because its inverse document frequency (IDF) is tiny: a word found in nearly every document does not help tell documents apart",
+    "Because TF-IDF automatically deletes all nouns",
+    "Because its term frequency (TF) inside each review is always zero"
+   ],
+   "answer": 1,
+   "explain": "TF-IDF multiplies term frequency (how often a word appears in this document) by inverse document frequency (high for rare words, low for words that appear in most documents). 'food' appears everywhere, so its IDF, and therefore its weight, is low, while specific words such as 'soggy' or 'biryani' get higher weights. Its TF is not zero; it actually appears often, but the IDF part pulls the weight down.",
+   "difficulty": "easy"
+  },
+  {
+   "id": "l3-nlp-q03",
+   "q": "What is the main advantage of word embeddings such as Word2Vec or GloVe over one-hot vectors?",
+   "code": "",
+   "options": [
+    "Each word becomes a short, dense vector, and words with similar meanings (like 'doctor' and 'nurse') end up close together",
+    "Each word gets a very long vector with a single 1 and all other values 0, which keeps every word perfectly separate",
+    "They translate words correctly between any two languages",
+    "They remove the need to tokenise text"
+   ],
+   "answer": 0,
+   "explain": "Embeddings map each word to a dense vector (for example 100 to 300 numbers) learned from how words appear together in huge amounts of text, so words used in similar ways get similar vectors. The long vector with a single 1 describes one-hot encoding, where every word is equally far from every other word and the vector is as long as the whole vocabulary. Embeddings still need tokenised text as input.",
+   "difficulty": "easy"
+  },
+  {
+   "id": "l3-nlp-q04",
+   "q": "You build a sentiment model for product reviews on an e-commerce site. While cleaning the text you remove all stopwords using a standard English list, which includes 'not'. Which problem does this cause?",
+   "code": "",
+   "options": [
+    "None, because stopwords never carry meaning",
+    "The vocabulary becomes larger, so training becomes slower",
+    "Reviews like 'not good' turn into 'good', flipping their sentiment, so the model misreads negative reviews",
+    "The model can no longer handle reviews that contain numbers"
+   ],
+   "answer": 2,
+   "explain": "Stopwords are very common words (such as 'the', 'is' and 'not') that are often removed to reduce noise, but for sentiment, words like 'not', 'no' and 'never' change the meaning completely. Removing them makes 'not good' look identical to 'good'. Preprocessing should match the task: keep negations, or use bigrams (two-word features like 'not good') so the model can see them.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-nlp-q05",
+   "q": "A simple RNN that predicts the next word works on short sentences but fails on long ones. In 'The cricketer who scored a century at Eden Gardens last winter, after months of injury, ... is from Mumbai', it has forgotten the subject by the end. Which change is designed for this problem?",
+   "code": "",
+   "options": [
+    "Use a bag-of-words model, which keeps every word",
+    "Remove all punctuation from the sentences",
+    "Use a bigger learning rate so that early words have more influence",
+    "Replace the simple RNN with an LSTM or GRU, whose gates let the network keep important information over many time steps"
+   ],
+   "answer": 3,
+   "explain": "In a simple RNN the gradient is multiplied again at every time step, so information from early words fades (vanishing gradients) and long-range links are lost. LSTMs (Long Short-Term Memory networks) and GRUs (Gated Recurrent Units) add gates, small learned switches that decide what to remember, forget and output, so important context can travel much further. Bag of words throws away word order completely, so it cannot track who did what.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-nlp-q06",
+   "q": "A basic encoder-decoder (seq2seq) model translates Hindi to English. It is good on short sentences, but quality drops sharply on long ones. Its encoder squeezes the whole sentence into one fixed-size vector. What is the standard fix?",
+   "code": "",
+   "options": [
+    "Add attention, so at each output step the decoder can look back at all the encoder's hidden states and focus on the relevant words",
+    "Make the fixed-size vector smaller, so it is easier to learn",
+    "Translate the sentence word by word with a dictionary",
+    "Train only on short sentences and ignore the long ones"
+   ],
+   "answer": 0,
+   "explain": "Forcing a long sentence into one fixed-size vector is a bottleneck, so details from the beginning get lost. Attention computes, for each output word, a weighted mix of all encoder states (the weights show which input words matter right now), so nothing has to be crammed into a single vector. This idea was the stepping stone to the Transformer, which is built entirely on attention.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-nlp-q07",
+   "q": "A Pune startup wants to classify the sentiment of Marathi tweets and has 5,000 labelled examples. Which approach is most likely to work best?",
+   "code": "",
+   "options": [
+    "Apply an English stemmer and an English stopword list to the Marathi text, then use TF-IDF",
+    "Fine-tune a model pretrained on Indian languages, such as AI4Bharat's IndicBERT, on the labelled Marathi tweets",
+    "Translate each word into English with a dictionary, then use an English sentiment model",
+    "Train Word2Vec from scratch on just the 5,000 tweets and use those vectors as features"
+   ],
+   "answer": 1,
+   "explain": "Models from groups such as AI4Bharat (based at IIT Madras) are pretrained on large amounts of text in Indian languages, so they already understand Marathi script, grammar and vocabulary; fine-tuning (further training on your labelled data) adapts that knowledge to your task. English stemmers and stopword lists do not work on Marathi. Word-by-word dictionary translation loses grammar and idioms, and 5,000 tweets is far too little text to learn good embeddings from scratch.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-nlp-q08",
+   "q": "This code builds a bag-of-words matrix for two sentences. What does the second printed row of the matrix (for 'coffee is hot hot') look like?",
+   "code": "from sklearn.feature_extraction.text import CountVectorizer\ndocs = [\"chai is hot\", \"coffee is hot hot\"]\ncv = CountVectorizer()\nX = cv.fit_transform(docs)\nprint(cv.get_feature_names_out())\nprint(X.toarray())",
+   "options": [
+    "[0 1 1 1]",
+    "[1 1 2 1]",
+    "[0 1 2 1]",
+    "[1 0 1 1]"
+   ],
+   "answer": 2,
+   "explain": "CountVectorizer sorts its vocabulary alphabetically: ['chai', 'coffee', 'hot', 'is']. The second sentence has no 'chai' (0), one 'coffee' (1), two 'hot' (2) and one 'is' (1), giving [0 1 2 1]. The tempting [0 1 1 1] records only whether a word is present instead of how many times, which is what the binary=True option would do.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "l3-nlp-q09",
+   "q": "Which word does this code print as the highest-weighted TF-IDF word in the second sentence?",
+   "code": "from sklearn.feature_extraction.text import TfidfVectorizer\ndocs = [\"the train is late\",\n        \"the train is very very late\",\n        \"the flight is late\"]\ntf = TfidfVectorizer()\nX = tf.fit_transform(docs).toarray()\nwords = tf.get_feature_names_out()\nprint(words[X[1].argmax()])",
+   "options": [
+    "the",
+    "train",
+    "late",
+    "very"
+   ],
+   "answer": 3,
+   "explain": "'very' appears twice in the second sentence (high term frequency) and in no other sentence (high inverse document frequency), so it gets the largest weight, about 0.84. 'train' appears in two sentences, so its IDF is lower, and 'the', 'is' and 'late' appear in all three, which gives them the smallest weights. Words that are frequent everywhere, like 'the', are tempting, but TF-IDF deliberately pushes them down.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "l3-nlp-q10",
+   "q": "Using these tiny made-up word vectors, the code computes raja − aadmi + aurat (king − man + woman) and prints the word whose vector is most similar to the result by cosine similarity. What does it print?",
+   "code": "import numpy as np\nv = {\"raja\":  np.array([0.9,  0.9,  0.0]),    # dims: royal, male, fruit\n     \"aadmi\": np.array([0.1,  0.9,  0.0]),\n     \"aurat\": np.array([0.1, -0.9,  0.0]),\n     \"rani\":  np.array([0.9, -0.85, 0.05]),\n     \"aam\":   np.array([0.0,  0.0,  1.0])}\ntarget = v[\"raja\"] - v[\"aadmi\"] + v[\"aurat\"]\ndef cos(a, b):\n    return a @ b / (np.linalg.norm(a) * np.linalg.norm(b))\nprint(max(v, key=lambda w: cos(v[w], target)))",
+   "options": [
+    "rani",
+    "aurat",
+    "raja",
+    "aam"
+   ],
+   "answer": 0,
+   "explain": "raja − aadmi + aurat = [0.9, −0.9, 0.0], which keeps the 'royal' part and flips the 'male' part to 'female'. Its cosine similarity (how closely two vectors point in the same direction, from −1 to 1) is about 0.999 with rani but only about 0.78 with aurat, 0 with raja and 0 with aam. This is the famous analogy property of word embeddings, and aurat is the tempting wrong answer because it was added into the sum.",
+   "difficulty": "hard"
+  }
+ ],
+ "l3-transformers": [
+  {
+   "id": "l3-transformers-q01",
+   "q": "Self-attention on its own treats a sentence like an unordered bag of tokens. Why do transformers add positional encodings to the token embeddings?",
+   "code": "",
+   "options": [
+    "To make the model run faster on GPUs",
+    "So the model can tell word order apart, for example 'Kohli hit the ball' versus 'the ball hit Kohli'",
+    "To remove punctuation from the input",
+    "To translate the tokens into English"
+   ],
+   "answer": 1,
+   "explain": "Self-attention compares every token with every other token, but the calculation gives the same result if you shuffle the tokens, so word order would be invisible. Positional encodings (fixed sine/cosine patterns or learned vectors, one per position) are added to each token's embedding so the model knows which word came where. They do not change speed; the speed advantage of transformers comes from processing all tokens in parallel.",
+   "difficulty": "easy"
+  },
+  {
+   "id": "l3-transformers-q02",
+   "q": "Which statement correctly compares BERT and GPT?",
+   "code": "",
+   "options": [
+    "BERT generates text one word at a time from left to right, while GPT reads the whole sentence in both directions",
+    "They are the same architecture; GPT is simply a bigger BERT",
+    "BERT is built from LSTMs, while GPT is built from transformers",
+    "BERT is an encoder that reads the whole sentence in both directions and suits understanding tasks like classification; GPT is a decoder that predicts the next token from left to right and suits text generation"
+   ],
+   "answer": 3,
+   "explain": "BERT is trained by hiding (masking) some words and predicting them from both sides, which gives rich two-way understanding for tasks like classification, named-entity recognition and search. GPT-style decoders use a causal mask (each token can see only earlier tokens) and are trained to predict the next token, which is exactly what generation needs. The most common mix-up is to swap the two: it is GPT, not BERT, that generates text left to right.",
+   "difficulty": "easy"
+  },
+  {
+   "id": "l3-transformers-q03",
+   "q": "What does a Hugging Face pipeline, such as pipeline('sentiment-analysis'), do for you?",
+   "code": "",
+   "options": [
+    "It bundles a pretrained model with its matching tokenizer and the pre- and post-processing, so you can get predictions from raw text in a couple of lines",
+    "It trains a brand-new model from scratch on your laptop",
+    "It downloads a dataset but cannot make predictions",
+    "It only splits text into tokens and returns their token IDs"
+   ],
+   "answer": 0,
+   "explain": "A pipeline handles the full journey: tokenising your text, running the model, and turning the raw outputs (logits, the raw scores before softmax) into readable labels and probabilities. It is the fastest way to try a pretrained model before fine-tuning your own. Turning text into token IDs is only the tokenizer's part of that job, and loading data is the job of the separate datasets library.",
+   "difficulty": "easy"
+  },
+  {
+   "id": "l3-transformers-q04",
+   "q": "A Hyderabad e-commerce company has 20,000 English customer-support tickets, each labelled with one of 6 categories such as refund, delivery and payment. What is the most sensible approach?",
+   "code": "",
+   "options": [
+    "Train a GPT-style model from scratch on the 20,000 tickets",
+    "Use pipeline('sentiment-analysis') as it is, since it already understands customer text",
+    "Fine-tune a pretrained BERT-style encoder with a 6-class classification head (for example AutoModelForSequenceClassification with num_labels=6)",
+    "Cluster the tickets with K-Means on word embeddings and ignore the labels"
+   ],
+   "answer": 2,
+   "explain": "Fine-tuning a pretrained encoder reuses its general language understanding and needs only your labelled tickets to learn the 6 categories; the classification head is a small layer on top that outputs one score per class. A sentiment pipeline predicts only positive or negative, not your 6 categories. Training from scratch would need far more data and compute, and clustering throws away the labels you already have.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-transformers-q05",
+   "q": "Sneha loads the tokenizer from the 'bert-base-uncased' checkpoint but the model from 'roberta-base'. The code runs without errors, but the predictions look like nonsense. What is wrong?",
+   "code": "",
+   "options": [
+    "She needs a GPU, because on a CPU transformer predictions are random",
+    "Each checkpoint has its own vocabulary, so the token IDs mean different things to the two models; the tokenizer and the model must come from the same checkpoint",
+    "Her batch size is too small",
+    "She forgot to lowercase the text herself before tokenising"
+   ],
+   "answer": 1,
+   "explain": "A tokenizer turns text into ID numbers using its own vocabulary, and a model learned what each ID means during pretraining. With a BERT tokenizer feeding a RoBERTa model, an ID that means one word to the tokenizer means something unrelated to the model, so the input is gibberish to it. Always load both with from_pretrained using the same checkpoint name; lowercasing is already handled by the 'uncased' tokenizer.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-transformers-q06",
+   "q": "A WordPiece or BPE tokenizer meets a rare word like 'unbelievably', or a brand-new app name, that never appeared in its training text. What usually happens?",
+   "code": "",
+   "options": [
+    "It breaks the word into smaller known pieces (sub-words or characters), so it can still represent the word without an unknown token",
+    "It crashes, because every word must already be in the vocabulary",
+    "It silently deletes the word from the sentence",
+    "It adds the new word to its vocabulary while the model is running"
+   ],
+   "answer": 0,
+   "explain": "Sub-word tokenizers build a vocabulary of frequent pieces, so a rare word is split into parts that are in the vocabulary; WordPiece marks a piece that continues a word with ##, so a split might look like 'un', '##believ', '##ably'. Because single characters (or bytes) are also in the vocabulary, almost any word can be represented, which avoids the out-of-vocabulary problem of word-level tokenizers. The vocabulary is fixed after training, so the tokenizer does not learn new words while running.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-transformers-q07",
+   "q": "In the sentence 'Rohit told Virat that he would open the batting', a transformer must link 'he' to the right person while also tracking grammar, such as which verb goes with which subject. Why do transformers use multi-head attention instead of a single attention head?",
+   "code": "",
+   "options": [
+    "Each head handles a different sentence in the batch",
+    "Using several heads makes the input sequence shorter",
+    "Each head belongs to a different layer of the network",
+    "Several heads run in parallel, each with its own learned projections, so different heads can focus on different relationships at the same time before their outputs are combined"
+   ],
+   "answer": 3,
+   "explain": "Each head has its own query, key and value projections (learned weight matrices), so one head might learn to link pronouns to names while another tracks subject–verb pairs. The heads' outputs are concatenated and mixed by a final linear layer. Batches, layers and sequence length are separate things: every layer has its own set of heads, and all heads see the same full sentence.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-transformers-q08",
+   "q": "This code computes scaled dot-product attention weights for one query over three keys. What does it print?",
+   "code": "import numpy as np\nQ = np.array([[1.0, 0.0]])          # query for one token (d = 2)\nK = np.array([[1.0, 0.0],\n              [0.0, 1.0],\n              [1.0, 1.0]])          # keys for 3 tokens\nscores = Q @ K.T / np.sqrt(2)\nw = np.exp(scores) / np.exp(scores).sum()\nprint(np.round(w, 2))",
+   "options": [
+    "[[0.5 0.  0.5]]",
+    "[[0.33 0.33 0.33]]",
+    "[[0.4 0.2 0.4]]",
+    "[[0.42 0.16 0.42]]"
+   ],
+   "answer": 2,
+   "explain": "The dot products are [1, 0, 1], and dividing by √2 (the square root of the key size) gives about [0.71, 0, 0.71]. Softmax turns these into weights that sum to 1: e^0.71 ≈ 2.03 and e^0 = 1, so the weights are 2.03/5.06, 1/5.06 and 2.03/5.06 ≈ [0.4, 0.2, 0.4]. The tempting [0.42 0.16 0.42] is what you get if you forget to divide by √d, and softmax never gives exactly 0 to a finite score.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "l3-transformers-q09",
+   "q": "BERT-base has a hidden size of 768 and 12 attention heads in each layer. For an input of 128 tokens, what is the size of each head's query vectors, and what is the shape of each head's attention-score matrix?",
+   "code": "",
+   "options": [
+    "64-dimensional query vectors; a 128 × 128 score matrix",
+    "768-dimensional query vectors; a 128 × 128 score matrix",
+    "64-dimensional query vectors; a 128 × 768 score matrix",
+    "9,216-dimensional query vectors; a 12 × 12 score matrix"
+   ],
+   "answer": 0,
+   "explain": "Multi-head attention splits the hidden size across the heads: 768 / 12 = 64 dimensions per head. Each head compares every token with every token, so its score matrix is sequence length × sequence length = 128 × 128. Giving every head the full 768 dimensions is the tempting mistake; that would make the 12 heads cost 12 times more than needed.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "l3-transformers-q10",
+   "q": "This code performs the counting step of Byte-Pair Encoding (BPE) on a tiny corpus of words and their frequencies. Which pair will BPE merge first, as printed?",
+   "code": "from collections import Counter\ncorpus = {\"c h a i\": 6, \"c h a a t\": 4, \"b h a t\": 3, \"a a m\": 2}   # word: frequency\npairs = Counter()\nfor word, freq in corpus.items():\n    s = word.split()\n    for a, b in zip(s, s[1:]):\n        pairs[(a, b)] += freq\nprint(pairs.most_common(1))",
+   "options": [
+    "[(('c', 'h'), 10)]",
+    "[(('h', 'a'), 13)]",
+    "[(('a', 't'), 7)]",
+    "[(('c', 'h'), 6)]"
+   ],
+   "answer": 1,
+   "explain": "BPE counts how often each pair of neighbouring symbols appears, weighted by word frequency, and merges the most frequent pair into a new token. 'h a' occurs in chai (6), chaat (4) and bhat (3), so its count is 13, beating 'c h' at 6 + 4 = 10. 'c h' is tempting because 'chai' is the most common word, but BPE counts pairs across all words, not just the top word.",
+   "difficulty": "hard"
+  }
+ ],
+ "l3-mlops": [
+  {
+   "id": "l3-mlops-q01",
+   "q": "Your model API works on your laptop but crashes on a teammate's machine because of different Python and library versions. What problem does Docker solve here?",
+   "code": "",
+   "options": [
+    "It makes the model more accurate",
+    "It automatically writes unit tests for your code",
+    "It packages your code, libraries and system settings into an image that runs the same way on any machine with Docker",
+    "It removes the need for a GPU"
+   ],
+   "answer": 2,
+   "explain": "A Docker image is a snapshot of everything your app needs (an operating-system layer, the Python version, libraries and your code), built from a recipe file called a Dockerfile; a running copy of an image is called a container. Because the environment travels with the app, 'it works on my machine' problems disappear. Docker does not change accuracy or replace hardware; it only makes the environment reproducible.",
+   "difficulty": "easy"
+  },
+  {
+   "id": "l3-mlops-q02",
+   "q": "You are trying many models for a loan-default project, changing learning rates, tree depths and features. Which tool is built to log each run's parameters, metrics and saved model so you can compare runs later?",
+   "code": "",
+   "options": [
+    "MLflow (experiment tracking)",
+    "Docker",
+    "GitHub Actions",
+    "Gradio"
+   ],
+   "answer": 0,
+   "explain": "MLflow Tracking records each run's parameters (like the learning rate), metrics (like AUC) and artifacts (files such as the trained model or plots), and its web UI lets you sort and compare runs. Without it, people quickly lose track of which settings gave the best score. Docker packages environments, GitHub Actions automates tasks like testing, and Gradio builds demos, so none of them is an experiment log.",
+   "difficulty": "easy"
+  },
+  {
+   "id": "l3-mlops-q03",
+   "q": "Your training dataset is a 5 GB folder of images that changes every month. Why would you use DVC (Data Version Control) together with Git?",
+   "code": "",
+   "options": [
+    "Because DVC trains models faster than PyTorch",
+    "Because Git refuses to store any file larger than 1 MB",
+    "Because DVC deletes old data automatically to save space",
+    "Because Git is not designed for big data files; DVC stores the data separately and keeps small pointer files in Git, so each code version is linked to the exact data version"
+   ],
+   "answer": 3,
+   "explain": "DVC saves large files in a cache or remote storage (such as Google Drive or S3) and puts a small .dvc file containing a hash (a fingerprint of the data) into Git. Checking out an old commit and running dvc checkout brings back the exact data used at that time, which makes experiments reproducible. Git has no 1 MB limit and can technically store big files, but it becomes slow and bloated with huge, frequently changing binary files.",
+   "difficulty": "easy"
+  },
+  {
+   "id": "l3-mlops-q04",
+   "q": "You trained a model that converts spoken Tamil into text. Your manager wants a web page where non-technical colleagues can upload an audio clip and see the transcript, ready by tomorrow and at no cost. What is the quickest good option?",
+   "code": "",
+   "options": [
+    "Build a full React website with a custom backend and rent a cloud server",
+    "Wrap the model in a Gradio (or Streamlit) app and host it on Hugging Face Spaces",
+    "Email the model file to each colleague and ask them to run it in Python",
+    "Set up a Kubernetes cluster with auto-scaling"
+   ],
+   "answer": 1,
+   "explain": "Gradio and Streamlit turn a Python function into an interactive web app, with audio upload, text output and so on, in a few lines of code, and Hugging Face Spaces can host such demos for free behind a shareable link. A custom frontend or Kubernetes (a system for running many containers at scale) is far more work than a demo needs. Asking non-technical colleagues to run Python defeats the purpose.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-mlops-q05",
+   "q": "Your FastAPI prediction endpoint takes about 4 seconds per request. Profiling shows that inside the endpoint function, the code runs joblib.load('model.pkl') every time before predicting. What is the best fix?",
+   "code": "",
+   "options": [
+    "Buy a bigger server so loading becomes faster",
+    "Switch from FastAPI to Flask, which is always faster",
+    "Load the model once when the app starts (at module level or in a startup/lifespan handler) and reuse it for every request",
+    "Save the model as a CSV file instead"
+   ],
+   "answer": 2,
+   "explain": "Loading a model from disk is slow, so doing it on every request wastes time; loading it once at startup keeps it in memory, and each request then runs only the fast predict step. A bigger server only hides the waste, and switching frameworks does not remove the repeated loading. FastAPI's lifespan handler (code that runs when the app starts and stops) is a clean place to do this.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-mlops-q06",
+   "q": "A Chennai NBFC (a non-banking lender) deploys a loan-default model. The true outcomes, whether a borrower actually defaults, arrive only 6 months later, so accuracy cannot be measured right away. How can the team spot trouble early?",
+   "code": "",
+   "options": [
+    "Wait 6 months, because there is no way to monitor a model before labels arrive",
+    "Retrain the model every hour on the same training data",
+    "Check the training accuracy every day",
+    "Monitor data drift: compare the distributions of live inputs and predictions (such as income, loan amount and predicted default rate) with the training data, and raise an alert when they shift a lot"
+   ],
+   "answer": 3,
+   "explain": "Data drift means the inputs the model sees in production no longer look like the training data, for example because of a new customer segment or a festival-season spike in loan amounts. Inputs and predictions are available immediately, so comparing their distributions (with measures like PSI or the KS test) gives an early warning long before the labels arrive. Retraining on the same old data or rechecking training accuracy cannot reveal a change in the real world.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-mlops-q07",
+   "q": "A teammate pushed a change that broke the text-cleaning function, and nobody noticed until the deployed model started giving bad results. Which setup would have caught this automatically before the change was merged?",
+   "code": "",
+   "options": [
+    "A GitHub Actions workflow that runs the test suite (for example with pytest) on every pull request and blocks merging if the tests fail",
+    "A longer, more detailed README",
+    "Logging the experiment in MLflow after deployment",
+    "Adding more data to the training set"
+   ],
+   "answer": 0,
+   "explain": "Continuous integration (CI) means every change is automatically built and tested; with GitHub Actions you describe the steps in a YAML file inside the .github/workflows folder, and they run on each push or pull request. A unit test for the cleaning function would fail, and branch protection rules can then stop the merge. MLflow logging records experiments but does not check that the code still works.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "l3-mlops-q08",
+   "q": "PSI (Population Stability Index) measures how much a feature's distribution has shifted. A common rule of thumb: below 0.1 = stable, 0.1 to 0.25 = moderate shift, above 0.25 = large shift. This code compares the share of customers in four income bands at training time with this month's live data. What does it print, and what does it mean?",
+   "code": "import numpy as np\nexpected = np.array([0.25, 0.25, 0.25, 0.25])   # share per income band at training time\nactual   = np.array([0.10, 0.20, 0.30, 0.40])   # share per band in this month's live data\npsi = np.sum((actual - expected) * np.log(actual / expected))\nprint(round(psi, 2))",
+   "options": [
+    "0.02 – stable, so no action is needed",
+    "0.23 – a moderate shift, worth investigating and possibly retraining",
+    "0.6 – a large shift, so the model must be thrown away",
+    "0.0 – the two distributions are identical"
+   ],
+   "answer": 1,
+   "explain": "Each band contributes (actual − expected) × ln(actual / expected), which gives about 0.137 + 0.011 + 0.009 + 0.070 ≈ 0.23. That falls in the 0.1–0.25 'moderate' range, so the income mix of customers has changed noticeably and the team should check the model's performance and consider retraining. PSI is never negative, and it is exactly 0 only when the two distributions match perfectly.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "l3-mlops-q09",
+   "q": "Your Dockerfile first copies the whole project folder into the image and only then runs pip install -r requirements.txt. Every tiny code change makes the image rebuild take 10 minutes because all the libraries get reinstalled. What is the fix?",
+   "code": "",
+   "options": [
+    "Switch to a smaller base image so that pip runs faster",
+    "Delete requirements.txt and install the libraries by hand inside the running container",
+    "Add more RUN commands so Docker has more layers to cache",
+    "Copy only requirements.txt first and run pip install, then copy the rest of the code, so the install layer is reused from the cache when only the code changes"
+   ],
+   "answer": 3,
+   "explain": "Docker builds an image in layers and reuses a cached layer only if that step and every step before it are unchanged. Because the whole folder is copied before pip install, any code edit invalidates the cache and forces a full reinstall. Copying requirements.txt first means the slow install layer is rebuilt only when the requirements change; a smaller base image helps a little but does not fix the order problem.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "l3-mlops-q10",
+   "q": "This function is called once per API request to prepare a borrower's monthly income (in ₹) before prediction. What does the code print, and what is the bug?",
+   "code": "import numpy as np\nfrom sklearn.preprocessing import StandardScaler\n\ndef predict_api(income):                    # called once per request\n    x = np.array([[income]])\n    x_scaled = StandardScaler().fit_transform(x)\n    return x_scaled                         # (model.predict would come next)\n\nprint(predict_api(15000), predict_api(900000))",
+   "options": [
+    "[[15000.]] [[900000.]] – the scaler does nothing, but that is harmless",
+    "[[-1.]] [[1.]] – the values are scaled correctly into a −1 to 1 range",
+    "[[0.]] [[0.]] – a new scaler is fitted on each single request, so every income becomes 0; the scaler fitted on the training data should be saved and loaded instead",
+    "An error, because StandardScaler needs at least two rows"
+   ],
+   "answer": 2,
+   "explain": "StandardScaler subtracts the mean and divides by the standard deviation of the data it is fitted on; for a single row the mean is the value itself, so the result is always 0 (scikit-learn treats the zero standard deviation as 1 to avoid dividing by zero). Every borrower then looks identical to the model, a classic case of training-serving skew (preprocessing in production that differs from training). The fix is to fit the scaler, or better a whole Pipeline, on the training data, save it with joblib, and load that same object in the API.",
+   "difficulty": "hard"
+  }
+ ],
+ "test-l3": [
+  {
+   "id": "test-l3-q01",
+   "q": "A Hyderabad space-tech startup has 50,000 labelled satellite images of farmland (classes such as paddy, sugarcane and fallow land). These look very different from the everyday photos in ImageNet, and the team has enough GPU time on Kaggle. Which training strategy is usually best?",
+   "code": "",
+   "options": [
+    "Freeze the entire pretrained network and train only a new final layer",
+    "Use the pretrained ImageNet model as it is, without any training",
+    "Start from pretrained weights, replace the head, and fine-tune all the layers with a fairly small learning rate",
+    "Skip neural networks and use k-nearest neighbours on the raw pixel values"
+   ],
+   "answer": 2,
+   "explain": "With a large dataset that differs a lot from ImageNet, the early generic features (edges, textures) are still useful, but the deeper layers must adapt to aerial patterns, so fine-tuning the whole network from pretrained weights works best. A small learning rate adjusts the weights gently instead of wiping out what was already learned. Freezing everything except the head is the right move for small datasets that resemble ImageNet; here it would leave the deep features unsuited to satellite imagery.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "test-l3-q02",
+   "q": "This code applies inverted dropout (drop probability 0.25) to a layer's activations during training. Which distinct values appear in the output, as printed?",
+   "code": "import numpy as np\nrng = np.random.default_rng(42)\np = 0.25                                 # probability of dropping a neuron\na = np.full(8, 4.0)                      # 8 activations, all equal to 4\nmask = rng.random(a.shape) >= p          # keep each one with probability 0.75\nout = a * mask / (1 - p)                 # inverted dropout\nprint(np.round(np.unique(out), 2))",
+   "options": [
+    "[0.   5.33]",
+    "[0. 4.]",
+    "[0. 3.]",
+    "[4.]"
+   ],
+   "answer": 0,
+   "explain": "Dropped activations become 0, and the kept ones are divided by the keep probability 0.75, so 4 becomes 4 / 0.75 ≈ 5.33. This scaling keeps the expected value the same (0.75 × 5.33 ≈ 4), which is why dropout can simply be switched off at test time with no rescaling. [0. 4.] would be dropout without the inverted scaling, and [4.] is what you would see in evaluation mode, when dropout is off.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "test-l3-q03",
+   "q": "The first convolution layer of a CNN takes 32×32 colour images (3 channels) and has 16 filters of size 3×3, each with a bias. How many trainable parameters does this layer have? (For comparison, a dense layer from the flattened image to 16 neurons would have 49,168.)",
+   "code": "",
+   "options": [
+    "144",
+    "448",
+    "432",
+    "49,168"
+   ],
+   "answer": 1,
+   "explain": "Each filter covers all 3 input channels, so it has 3 × 3 × 3 = 27 weights plus 1 bias, which is 28 parameters, and 16 filters give 16 × 28 = 448. The count does not depend on the 32×32 image size, because the same filter is reused at every position (weight sharing). The tempting 432 forgets the biases, and 144 forgets that each filter spans all 3 colour channels.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "test-l3-q04",
+   "q": "Rahul measures accuracy on the same 2,000 validation images twice in a row, with no training in between, and gets 81.2% and then 79.6%. Predicting the same photo twice also gives slightly different probabilities. His model uses dropout and batch norm. What did he most likely forget?",
+   "code": "",
+   "options": [
+    "To shuffle the validation DataLoader",
+    "To move the model to the GPU",
+    "To call optimizer.zero_grad() before validating",
+    "To call model.eval() before validating (and ideally to wrap the loop in torch.no_grad())"
+   ],
+   "answer": 3,
+   "explain": "In training mode, dropout randomly switches off neurons and batch norm uses the current batch's statistics (while also updating its running averages), so the same input can give different outputs. model.eval() turns dropout off and makes batch norm use its stored running averages, giving repeatable predictions, and torch.no_grad() also skips gradient tracking to save memory. Shuffling only changes the order, and accuracy over the full set would be the same either way.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "test-l3-q05",
+   "q": "A Kolkata team's SMS spam classifier scored 94% on the test set. In the notebook, each message first went through a clean_text() function that removes links and replaces every phone number with the word 'PHONE', and then through TF-IDF and the model. In production, the FastAPI endpoint sends the raw SMS straight to the saved TF-IDF vectorizer and model, and many obvious spam messages are missed. What is the problem and the fix?",
+   "code": "",
+   "options": [
+    "The model is overfitting, so it should be retrained with more regularisation",
+    "Training-serving skew: production preprocessing differs from training, so clean_text and every other step should live in one saved pipeline (or one shared function) used for both training and serving",
+    "FastAPI cannot handle phone numbers in text, so the team should switch to Flask",
+    "The test set was too small, so the 94% was just luck"
+   ],
+   "answer": 1,
+   "explain": "The model learned that the token 'PHONE' and link-free text patterns signal spam, but in production it never sees 'PHONE' because the cleaning step is skipped, so the inputs look different from what it was trained on. This mismatch is called training-serving skew. The fix is to make clean_text part of a single saved scikit-learn Pipeline (for example with a FunctionTransformer) or a shared function, so exactly the same steps always run.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "test-l3-q06",
+   "q": "In a GPT-style decoder, a causal mask stops each token from attending to later tokens. This code applies the mask to a 3×3 matrix of attention scores and then takes a softmax along each row. What does it print for the first two rows?",
+   "code": "import numpy as np\nscores = np.array([[2.0, 1.0, 0.5],\n                   [1.0, 3.0, 0.2],\n                   [0.3, 0.4, 1.0]])\nmask = np.triu(np.ones((3, 3)), k=1).astype(bool)   # True above the diagonal\nscores[mask] = -np.inf\nw = np.exp(scores) / np.exp(scores).sum(axis=1, keepdims=True)\nprint(np.round(w[0], 2), np.round(w[1], 2))",
+   "options": [
+    "[0.63 0.23 0.14] [0.11 0.84 0.05]",
+    "[1. 0. 0.] [0.5 0.5 0. ]",
+    "[1. 0. 0.] [0.12 0.88 0.  ]",
+    "[0.33 0.33 0.33] [0.5 0.5 0. ]"
+   ],
+   "answer": 2,
+   "explain": "np.triu with k=1 marks the positions above the diagonal, which are the future tokens, and setting them to −inf makes their softmax weight exactly 0. Token 1 can see only itself, so its row is [1, 0, 0]; token 2 sees tokens 1 and 2 with scores 1.0 and 3.0, giving e¹/(e¹ + e³) ≈ 0.12 and 0.88. The tempting [0.63 0.23 0.14] [0.11 0.84 0.05] is the result with no mask at all, where every token could peek at future words during training, which is cheating for a next-token predictor.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "test-l3-q07",
+   "q": "A Delhi startup uses a tokenizer trained mostly on English text for a Hindi chatbot. A typical Hindi sentence becomes about 4 times as many tokens as a similar English sentence. Which consequence should worry them most?",
+   "code": "",
+   "options": [
+    "Longer token sequences mean more compute and higher API cost, and long messages hit the model's maximum context length sooner, so a tokenizer and model trained with plenty of Indic text would serve them better",
+    "Nothing, because the number of tokens never affects cost or quality",
+    "The model will refuse to accept Devanagari script at all",
+    "The tokenizer will automatically translate the Hindi into English first"
+   ],
+   "answer": 0,
+   "explain": "Sub-word tokenizers learn their pieces from their training text, so a mostly English tokenizer breaks Devanagari into many tiny fragments, sometimes single bytes. More tokens per sentence means more computation and cost, less text fitting into the context window (the maximum number of tokens the model can read at once), and pieces that carry less meaning. Byte-level tokenizers can still encode any script, so the issue is efficiency and quality, not an outright refusal.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "test-l3-q08",
+   "q": "You train on 50,000 images with batch_size=128 for 10 epochs, and the DataLoader keeps the last, smaller batch (drop_last=False). How many optimiser steps (weight updates) happen in total?",
+   "code": "",
+   "options": [
+    "3,900",
+    "500",
+    "6,400,000",
+    "3,910"
+   ],
+   "answer": 3,
+   "explain": "Each epoch has ceil(50,000 / 128) = 391 batches: 390 full batches cover 49,920 images and one last batch holds the remaining 80. With one optimiser step per batch, the total is 391 × 10 = 3,910 steps. The tempting 3,900 drops the partial batch, which happens only with drop_last=True.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "test-l3-q09",
+   "q": "Your image API receives one photo at a time. A teammate worries that batch normalisation layers need a whole batch to compute a mean and variance, so single-image predictions will break. What actually happens after you call model.eval()?",
+   "code": "",
+   "options": [
+    "Batch norm computes the mean and variance of the single image, so the output is always zero",
+    "PyTorch raises an error unless the batch size is at least 32",
+    "Batch norm uses the running mean and variance it stored during training, so predicting one image at a time works fine",
+    "Batch norm is automatically removed from the network"
+   ],
+   "answer": 2,
+   "explain": "During training, batch norm normalises each layer's inputs with the current mini-batch's statistics and also keeps running averages of them. In evaluation mode it switches to those stored running averages, so the result does not depend on how many images are in the batch. Problems with single images appear only if the model is accidentally left in training mode, which is one more reason to call model.eval() before serving.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "test-l3-q10",
+   "q": "A sentiment model for food reviews keeps confusing 'not good' with 'good', so a teammate tries word bigrams. How many features does this code print, and does the vocabulary contain 'not good'?",
+   "code": "from sklearn.feature_extraction.text import CountVectorizer\ndocs = [\"food not good\", \"food good\"]\ncv = CountVectorizer(ngram_range=(1, 2))   # single words + word pairs\ncv.fit(docs)\nprint(len(cv.get_feature_names_out()), cv.get_feature_names_out())",
+   "options": [
+    "3 features, without 'not good'",
+    "6 features, including 'not good'",
+    "5 features, including 'not good'",
+    "4 features, including 'not good'"
+   ],
+   "answer": 1,
+   "explain": "With ngram_range=(1, 2) the vectorizer keeps the 3 single words (food, not, good) and adds every pair of neighbouring words: 'food not', 'not good' and 'food good', for 6 features in total. The bigram 'not good' gives the model a separate feature for the negated phrase, so it can learn that the phrase is negative. Only 3 features would be the default single-word (unigram) setting.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "test-l3-q11",
+   "q": "Why did transformers largely replace LSTMs for training large language models on GPUs?",
+   "code": "",
+   "options": [
+    "Self-attention processes all positions of a sequence in parallel and connects any two tokens directly, while an LSTM must step through the tokens one at a time",
+    "Attention uses far less memory on long sequences, because its cost grows only linearly with length",
+    "LSTMs cannot learn long-range patterns at all, while transformers have no limit on context length",
+    "Transformers do not need tokenisation, so they skip a slow preprocessing step"
+   ],
+   "answer": 0,
+   "explain": "An LSTM must finish token 1 before it can process token 2, which leaves most of a GPU idle, whereas self-attention computes all positions at once with large matrix multiplications that GPUs are built for. Attention also links distant tokens in one step instead of passing information through many time steps. Its cost actually grows quadratically (with the square of the sequence length), so 'less memory on long sequences' is the tempting but wrong claim, and transformers still have a fixed maximum context length.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "test-l3-q12",
+   "q": "Ananya's 10-class image model shows a training loss of 2.303 at every epoch, never changing. This code shows where that number comes from. What does it tell her?",
+   "code": "import numpy as np\nlogits = np.zeros((4, 10))                 # same score for all 10 classes\nprobs = np.exp(logits) / np.exp(logits).sum(axis=1, keepdims=True)\nlabels = np.array([3, 7, 0, 9])\nloss = -np.log(probs[np.arange(4), labels]).mean()   # cross-entropy\nprint(round(loss, 3))",
+   "options": [
+    "The model is overfitting and needs more dropout",
+    "The model is 23% accurate, so it just needs more epochs",
+    "The model has learned perfectly, because 2.303 is the lowest possible cross-entropy",
+    "The model is guessing uniformly (probability 1/10 for every class) and its weights are not changing, so she should check that optimizer.step() is called and the learning rate is not zero"
+   ],
+   "answer": 3,
+   "explain": "The code prints 2.303, which is −ln(1/10): the cross-entropy you get when a model gives every class equal probability, as a model that has learned nothing does. A loss frozen at that value means the weights are not updating, typically because optimizer.step() is missing, zero_grad() is called between backward() and step(), the learning rate is 0, or the parameters were never passed to the optimiser. Perfect learning would push the loss towards 0, not keep it at 2.303.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "test-l3-q13",
+   "q": "A Gurugram fintech's regulator asks it to reproduce exactly the credit model it deployed three months ago. Which combination makes that possible?",
+   "code": "",
+   "options": [
+    "Only the final model file saved on someone's laptop",
+    "Only a screenshot of the validation accuracy",
+    "The Git commit of the code, the DVC-tracked version of the data, and the MLflow run with its parameters, metrics and model artifact",
+    "Retraining today's code on today's data, which will give the same model"
+   ],
+   "answer": 2,
+   "explain": "A model is the product of code, data and settings, so reproducing it needs all three: Git for the code, DVC for the exact data snapshot, and MLflow for the hyperparameters, metrics and saved artifact (plus pinned library versions or a Docker image for the environment). The model file alone cannot show how it was made. Today's code and data have both changed, so retraining now would give a different model.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "test-l3-q14",
+   "q": "A delivery-time model was trained with a 'city' feature. This pandas check measures what fraction of this week's live requests come from cities never seen in training. What does it print, and what should the team do?",
+   "code": "import pandas as pd\ntrain_city = pd.Series([\"Delhi\", \"Mumbai\", \"Pune\", \"Delhi\", \"Chennai\"])\nlive_city = pd.Series([\"Delhi\", \"Indore\", \"Surat\", \"Mumbai\", \"Indore\"])\nunseen = ~live_city.isin(train_city.unique())\nprint(round(unseen.mean(), 2))",
+   "options": [
+    "0.6 – most live requests come from new cities, a strong sign of data drift, so they should retrain with data from the new cities and make sure the encoder handles unknown categories",
+    "0.4 – only a small share is new, so nothing needs to change",
+    "0.6 – this is fine, because one-hot encoding learns new cities automatically at prediction time",
+    "0.2 – only Surat is new"
+   ],
+   "answer": 0,
+   "explain": "Indore, Surat and Indore again are not among the training cities, so 3 of the 5 live requests (0.6) are unseen. An encoder fitted on the training data has no column for them: OneHotEncoder raises an error unless handle_unknown='ignore' is set, and even then the model knows nothing about those cities. The team should collect labelled data from the new cities, retrain, and track this share as part of drift monitoring.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "test-l3-q15",
+   "q": "A transformer's self-attention builds a score matrix of size (sequence length × sequence length) for each head. If you increase the maximum input length from 512 to 1,024 tokens, roughly how much bigger does each attention-score matrix become?",
+   "code": "",
+   "options": [
+    "2 times bigger",
+    "4 times bigger",
+    "The same size, because the number of heads is unchanged",
+    "512 times bigger"
+   ],
+   "answer": 1,
+   "explain": "The matrix has n × n entries: 512 × 512 = 262,144 versus 1,024 × 1,024 = 1,048,576, which is 4 times as many. Doubling the length doubles both dimensions, so the attention cost grows with the square of the length (quadratically), not linearly. That is why long documents are expensive and why so much research goes into more efficient attention.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "test-l3-q16",
+   "q": "An object detector watching a Mumbai parking lot outputs five heavily overlapping boxes around the same car, with confidences 0.92, 0.88, 0.85, 0.60 and 0.55. Which post-processing step turns these into a single box?",
+   "code": "",
+   "options": [
+    "Data augmentation",
+    "Batch normalisation",
+    "Increasing the image resolution",
+    "Non-maximum suppression (NMS): keep the highest-confidence box and remove the other boxes that overlap it with a high IoU"
+   ],
+   "answer": 3,
+   "explain": "Detectors often predict several boxes for the same object, so NMS sorts the boxes by confidence, keeps the best one, and discards any remaining box whose IoU (overlap) with it is above a threshold such as 0.5; boxes that barely overlap are kept, so two cars parked side by side still get two boxes. Classic detectors, including most YOLO versions, rely on this step, while some newer designs are trained to output one box per object and can skip it. Augmentation and batch norm are training-time techniques and do nothing to merge duplicate predictions.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "test-l3-q17",
+   "q": "During the monsoon, a disaster-response team in Assam wants to mark exactly which pixels of each satellite image are flood water, so it can measure the flooded area in square kilometres. Which approach fits best?",
+   "code": "",
+   "options": [
+    "Image classification: label each whole image as 'flood' or 'no flood'",
+    "Object detection: draw bounding boxes around the water",
+    "Semantic segmentation with a U-Net, whose encoder-decoder shape and skip connections produce a sharp, pixel-level water mask",
+    "A word-embedding model applied to the image file names"
+   ],
+   "answer": 2,
+   "explain": "Measuring area needs a label for every pixel, which is semantic segmentation. U-Net's encoder shrinks the image to capture context, its decoder grows it back to full size, and skip connections pass fine details from the encoder to the decoder so that boundaries like river banks stay sharp. Boxes are a poor fit for irregular shapes like flood water, and a single label per image cannot give an area.",
+   "difficulty": "medium"
+  },
+  {
+   "id": "test-l3-q18",
+   "q": "This code trains a linear Perceptron and a small MLP (one hidden layer of 8 tanh neurons) on the four XOR points and prints their training accuracy. Which output does it print?",
+   "code": "import numpy as np\nfrom sklearn.linear_model import Perceptron\nfrom sklearn.neural_network import MLPClassifier\nX = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])\ny = np.array([0, 1, 1, 0])                     # XOR\nlin = Perceptron(max_iter=1000, random_state=0).fit(X, y)\nmlp = MLPClassifier(hidden_layer_sizes=(8,), activation=\"tanh\",\n                    learning_rate_init=0.1, max_iter=2000,\n                    random_state=0).fit(X, y)\nprint(lin.score(X, y), mlp.score(X, y))",
+   "options": [
+    "0.5 1.0",
+    "1.0 1.0",
+    "1.0 0.5",
+    "0.75 0.75"
+   ],
+   "answer": 0,
+   "explain": "XOR is not linearly separable, so a single linear model like the Perceptron can never classify all four points correctly; here it gets only 2 of the 4 right (0.5). The hidden layer with a non-linear activation lets the MLP bend its decision boundary, so it fits all four points (1.0). '1.0 1.0' is tempting if you think enough iterations fix everything, but no number of iterations lets a straight line solve XOR.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "test-l3-q19",
+   "q": "Vikram fine-tunes a pretrained multilingual BERT-style model for Hinglish (Hindi-English) sentiment, using AdamW with a learning rate of 1e-2. Within a few hundred steps, the model predicts the same class for every input, and validation accuracy drops to the share of the largest class. What is the most likely cause and fix?",
+   "code": "",
+   "options": [
+    "BERT-style models cannot handle Hinglish at all, so he must train a model from scratch",
+    "The batch size is too large, so he should use a batch size of 1",
+    "He should raise the learning rate to 1e-1 so the model escapes this bad spot",
+    "The learning rate is far too high for fine-tuning and is wrecking the pretrained weights; he should use a small rate such as 2e-5 to 5e-5, often with warmup"
+   ],
+   "answer": 3,
+   "explain": "Fine-tuning should only nudge the pretrained weights, so typical BERT learning rates are around 2e-5 to 5e-5, often with warmup (starting even smaller and ramping up over the first steps). A rate of 1e-2 is hundreds of times larger and overwrites the pretrained knowledge, leaving a model that just predicts the majority class. Raising the rate further would make things worse, and multilingual or Indic pretrained models can be fine-tuned on Hinglish rather than starting from scratch.",
+   "difficulty": "hard"
+  },
+  {
+   "id": "test-l3-q20",
+   "q": "A Jaipur startup needs two things for its handicraft image classifier: (1) a quick shareable demo for investors, and (2) a JSON API that its Android app will call thousands of times a day. Which plan fits best?",
+   "code": "",
+   "options": [
+    "Use one Gradio demo for both, because an interactive web page is also a full production API",
+    "Use a Gradio or Streamlit app on Hugging Face Spaces for the demo, and a FastAPI service packaged with Docker and deployed on a host such as Render for the app's API",
+    "Send the model file to the investors, and let the Android app run the full PyTorch training code",
+    "Use MLflow's experiment UI as the investor demo and DVC as the API"
+   ],
+   "answer": 1,
+   "explain": "Demo tools like Gradio and Streamlit are ideal for people clicking around, and Hugging Face Spaces gives a free shareable link. A production app needs a clean, documented REST endpoint (FastAPI even generates interactive API docs automatically), and Docker makes it easy to deploy the same image on platforms such as Render. Gradio apps can be called programmatically, but they are built for demos, not as the main backend of a busy mobile app.",
+   "difficulty": "medium"
+  }
  ]
 };

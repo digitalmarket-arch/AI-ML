@@ -230,7 +230,7 @@
       font: raw['--font-body'] || 'system-ui, sans-serif'
     };
     T.dark = luminance(T.surface) < 0.2;
-    T.strength = T.dark ? 0.6 : 0.55;
+    T.strength = T.dark ? 0.5 : 0.55;
     themeCache = { key: key, T: T };
     return T;
   }
@@ -318,7 +318,8 @@
       var body = shape === 'sq' ? '<rect x="3" y="3" width="10" height="10" style="fill:var(' + cssVar + ')"' + stroke + '/>' : '<circle cx="8" cy="8" r="5.2" style="fill:var(' + cssVar + ')"' + stroke + '/>';
       return '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false" style="flex:none;vertical-align:-3px;color:var(--ink)">' + body + '</svg>';
     }
-    function legendItem(svg, text) { return '<span style="display:inline-flex;align-items:center;gap:5px">' + svg + text + '</span>'; }
+    // (divs, not spans: the shared stylesheet puts a round dot before every span inside .lab-legend)
+    function legendItem(svg, text) { return '<div style="display:inline-flex;align-items:center;gap:5px">' + svg + text + '</div>'; }
     function lineSwatch(cssVar, dashed) {
       return '<svg width="22" height="10" viewBox="0 0 22 10" aria-hidden="true" focusable="false" style="flex:none"><line x1="1" y1="5" x2="21" y2="5" style="stroke:var(' + cssVar + ')" stroke-width="' + (dashed ? 1.5 : 2.5) + '"' + (dashed ? ' stroke-dasharray="3 3"' : '') + ' stroke-linecap="round"/></svg>';
     }
@@ -327,7 +328,7 @@
     root.innerHTML =
       '<div class="lab">' +
         '<p class="lab-note"><strong>What you are seeing:</strong> every dot is a point with two numbers, x₁ (left to right) and x₂ (bottom to top), and a colour: blue or orange. ' +
-        'The neural network gets only the two numbers and must learn the colour. The shaded background is its current guess for every spot, and the dark line is its <em>decision boundary</em> (where it is 50/50 unsure). ' +
+        'The neural network gets only the two numbers and must learn the colour. The shaded background is its current guess for every spot, and the thin line is its <em>decision boundary</em> (where it is 50/50 unsure). ' +
         'In the diagram, each square is a <em>neuron</em> (a tiny calculator: it multiplies its inputs by <em>weights</em>, adds them up with a <em>bias</em>, then squashes the result with an <em>activation</em> function). ' +
         'Training repeats: guess, measure how wrong (the <em>loss</em>), work out which way to nudge every weight (<em>backpropagation</em>), nudge a little.</p>' +
         '<div class="lab-body">' +
@@ -358,7 +359,7 @@
               '</div>' +
               '<div class="stack-sm">' +
                 '<div class="lab-canvas-wrap" id="' + P + 'dwrap" style="' + canvasWrapStyle + '"><canvas id="' + P + 'net" role="img" tabindex="0" style="touch-action:pan-y;outline-offset:-3px" aria-label="Network diagram"></canvas></div>' +
-                '<div class="lab-legend">' + legendItem(lineSwatch('--series-1'), 'Positive weight') + legendItem(lineSwatch('--series-2'), 'Negative weight') + '<span style="display:inline">Thicker = stronger</span></div>' +
+                '<div class="lab-legend">' + legendItem(lineSwatch('--series-1'), 'Positive weight') + legendItem(lineSwatch('--series-2'), 'Negative weight') + '<div>Thicker line = stronger</div></div>' +
                 '<p class="small muted" id="' + P + 'ncap" style="min-height:3em"></p>' +
               '</div>' +
             '</div>' +
@@ -410,7 +411,7 @@
     var S = {
       ds: 'circle', layers: 1, n1: 4, n2: 4, act: 'tanh', lrIdx: 4, l2Idx: 0, speedIdx: 1, showTest: true,
       data: null, net: null, seedCounter: 0, trainRnd: null, idx: [],
-      epoch: 0, trainLoss: NaN, testLoss: NaN, testAcc: NaN, trainAcc: NaN, diverged: false, dead: [],
+      epoch: 0, trainLoss: NaN, testLoss: NaN, testAcc: NaN, trainAcc: NaN, diverged: false, dead: [], deadMask: [], intro: false,
       hist: { ep: [], tr: [], te: [] }, stride: 1,
       playing: false, sel: null, cursor: { c: 0, j: 0 }, netFocused: false, kbFocus: false,
       probe: null, hoverNode: null, msgKey: ''
@@ -471,9 +472,13 @@
       }
       var tr = net.evaluate(S.data.train, alive), te = net.evaluate(S.data.test);
       S.trainLoss = tr.loss; S.trainAcc = tr.acc; S.testLoss = te.loss; S.testAcc = te.acc;
-      S.dead = [];
+      S.dead = []; S.deadMask = [];
       if (alive) {
-        alive.forEach(function (al) { var dcount = 0; for (var j = 0; j < al.length; j++) if (!al[j]) dcount++; S.dead.push(dcount); });
+        alive.forEach(function (al) {
+          var dcount = 0, mask = [];
+          for (var j = 0; j < al.length; j++) { mask.push(al[j] ? 0 : 1); if (!al[j]) dcount++; }
+          S.dead.push(dcount); S.deadMask.push(mask);
+        });
       }
       if (!isFinite(S.trainLoss) || !isFinite(S.testLoss)) S.diverged = true;
     }
@@ -512,7 +517,7 @@
     function selCol() { return S.sel ? S.sel.c : S.net.L; }
     function selIdx() { return S.sel ? S.sel.j : 0; }
     function computeGrid() {
-      var n = clamp(Math.round(dims.mw / 6), 30, 64);
+      var n = clamp(Math.round(dims.mw / 6), 30, 60); // about 6px cells, smoothed when drawn
       if (grid.n !== n) {
         grid.n = n; grid.vals = new Float32Array(n * n); grid.off.width = n; grid.off.height = n;
         grid.img = grid.off.getContext('2d').createImageData(n, n);
@@ -565,22 +570,40 @@
       var net = S.net;
       if (c === 0) return j === 0 ? 'input x₁' : 'input x₂';
       if (c === net.L) return 'the output neuron';
-      return (net.L > 2 ? 'layer ' + c + ', ' : 'hidden layer, ') + 'neuron ' + (j + 1);
+      return (net.L > 2 ? 'layer ' + c + ', neuron ' : 'hidden neuron ') + (j + 1);
     }
 
     /* ---------- sizes ---------- */
+    // inner size of a wrapper (its box minus the 1px border the canvas sits inside)
+    function innerSize(wrap) {
+      var r = wrap.getBoundingClientRect(), bx = wrap.offsetWidth - wrap.clientWidth, by = wrap.offsetHeight - wrap.clientHeight;
+      return { w: Math.max(1, r.width - bx), h: Math.max(1, r.height - by) };
+    }
+    function fitCanvas(can, wrap) {
+      var sz = innerSize(wrap), dpr = dims.dpr;
+      var bw = Math.max(1, Math.round(sz.w * dpr)), bh = Math.max(1, Math.round(sz.h * dpr));
+      if (can.width !== bw) can.width = bw;
+      if (can.height !== bh) can.height = bh;
+      return { w: bw / dpr, h: bh / dpr };
+    }
+    // one column (phone): a shorter diagram; two columns: the diagram matches the square map
+    var curAspect = null, aspectRaf = 0;
+    function wantAspect() {
+      var gridW = mwrap.parentNode.parentNode.getBoundingClientRect().width, mw = mwrap.getBoundingClientRect().width;
+      return mw > gridW * 0.7 ? '5 / 4' : '1 / 1';
+    }
+    function applyAspect() {
+      aspectRaf = 0;
+      if (destroyed) return;
+      var want = wantAspect();
+      if (want !== curAspect) { curAspect = want; dwrap.style.aspectRatio = want; }
+    }
     function resize() {
-      var dpr = Math.min(window.devicePixelRatio || 1, 3);
-      dims.dpr = dpr;
-      var r = mwrap.getBoundingClientRect();
-      dims.mw = Math.max(1, Math.round(r.width)); dims.mh = Math.max(1, Math.round(r.height));
-      mcan.width = Math.round(dims.mw * dpr); mcan.height = Math.round(dims.mh * dpr);
-      r = dwrap.getBoundingClientRect();
-      dims.dw = Math.max(1, Math.round(r.width)); dims.dh = Math.max(1, Math.round(r.height));
-      dcan.width = Math.round(dims.dw * dpr); dcan.height = Math.round(dims.dh * dpr);
-      r = lwrap.getBoundingClientRect();
-      dims.lw = Math.max(1, Math.round(r.width)); dims.lh = Math.max(1, Math.round(r.height));
-      lcan.width = Math.round(dims.lw * dpr); lcan.height = Math.round(dims.lh * dpr);
+      // changing a wrapper's size inside a ResizeObserver callback would loop, so do it on the next frame
+      if (wantAspect() !== curAspect && !aspectRaf) aspectRaf = requestAnimationFrame(applyAspect);
+      dims.dpr = Math.min(window.devicePixelRatio || 1, 3);
+      var m = fitCanvas(mcan, mwrap), d = fitCanvas(dcan, dwrap), l = fitCanvas(lcan, lwrap);
+      dims.mw = m.w; dims.mh = m.h; dims.dw = d.w; dims.dh = d.h; dims.lw = l.w; dims.lh = l.h;
       gridDirty = true;
       requestDraw();
     }
@@ -624,13 +647,14 @@
       if (S.showTest) for (i = 0; i < te.length; i++) dot(te[i], true);
       // axis names
       var fs = W < 330 ? 11 : 12;
-      g.font = '600 ' + fs + 'px ' + T.font; g.fillStyle = rgba(T.muted); g.textBaseline = 'alphabetic';
-      g.textAlign = 'right'; g.fillText('x₁ →', W - 6, H / 2 - 5);
-      g.textAlign = 'left'; g.fillText('↑ x₂', W / 2 + 5, fs + 4);
+      g.font = '600 ' + fs + 'px ' + T.font; g.textBaseline = 'alphabetic'; g.lineJoin = 'round';
+      g.strokeStyle = rgba(T.surface, 0.85); g.lineWidth = 3; g.fillStyle = rgba(T.ink, 0.8);
+      g.textAlign = 'right'; g.strokeText('x₁ →', W - 6, H / 2 - 6); g.fillText('x₁ →', W - 6, H / 2 - 6);
+      g.textAlign = 'left'; g.strokeText('↑ x₂', W / 2 + 6, fs + 5); g.fillText('↑ x₂', W / 2 + 6, fs + 5);
       if (S.diverged) {
         pill(g, T, 'Training blew up. Press Reset.', W / 2, H / 2 - 14, 'center', 13);
       } else if (S.sel && c !== net.L) {
-        pill(g, T, 'Showing ' + neuronName(c, j), 6, 6, 'left', fs);
+        pill(g, T, 'Showing ' + neuronName(c, j), 6, H - fs - 14, 'left', fs);
       }
       // probe: ask the network about one spot
       if (S.probe && !S.diverged) {
@@ -639,7 +663,7 @@
         var text;
         if (c === net.L) {
           var pb = net.a[net.L][0];
-          text = pb >= 0.5 ? 'Blue, ' + Math.round(pb * 100) + '% sure' : 'Orange, ' + Math.round((1 - pb) * 100) + '% sure';
+          text = pb >= 0.5 ? 'Blue, ' + Math.floor(pb * 100) + '% sure' : 'Orange, ' + Math.floor((1 - pb) * 100) + '% sure';
         } else {
           text = 'Output ' + net.a[c][j].toFixed(2);
         }
@@ -757,24 +781,31 @@
         if (isFinite(tr[i]) && tr[i] > maxL) maxL = tr[i];
         if (isFinite(te[i]) && te[i] > maxL) maxL = te[i];
       }
-      var choices = [0.8, 1, 1.5, 2, 3, 4], yMax = 4;
+      var choices = [0.8, 1, 1.5, 2, 3, 4, 6, 10, 15, 20, 30], yMax = 30;
       for (i = 0; i < choices.length; i++) if (maxL * 1.05 <= choices[i]) { yMax = choices[i]; break; }
       function X(e) { return pl + e / maxE * pw; }
       function Y(v) { return pt + (1 - v / yMax) * ph; }
       var fs = 11;
       g.font = fs + 'px ' + T.font; g.textBaseline = 'middle';
       // horizontal grid + y labels
-      var ys = yMax <= 1 ? 0.2 : yMax <= 2 ? 0.5 : 1;
+      var ys = yMax <= 1 ? 0.2 : yMax <= 2 ? 0.5 : niceStep(yMax, 4);
       g.strokeStyle = rgba(T.line); g.lineWidth = 1; g.fillStyle = rgba(T.muted); g.textAlign = 'right';
       for (var v = 0; v <= yMax + 1e-9; v += ys) {
         var yy = Math.round(Y(v)) + 0.5;
         g.beginPath(); g.moveTo(pl, yy); g.lineTo(pl + pw, yy); g.stroke();
         g.fillText(v.toFixed(ys < 1 ? 1 : 0), pl - 6, yy);
       }
-      // x labels
-      var xs = niceStep(maxE, W < 400 ? 3 : 6);
-      g.textAlign = 'center'; g.textBaseline = 'top';
-      for (var e = 0; e <= maxE + 1e-9; e += xs) g.fillText(fmtInt(Math.round(e)), clamp(X(e), pl + 6, pl + pw - 10), pt + ph + 6);
+      // x labels (the word "epochs" sits at the right end of the same row)
+      g.textBaseline = 'top'; g.textAlign = 'right';
+      var unitW = g.measureText('epochs').width;
+      g.fillText('epochs', pl + pw, pt + ph + 6);
+      var xs = niceStep(maxE, W < 400 ? 3 : 6), stop = pl + pw - unitW - 10;
+      g.textAlign = 'center';
+      for (var e = 0; e <= maxE + 1e-9; e += xs) {
+        var lab = fmtInt(Math.round(e)), lx = Math.max(X(e), pl + 6), half = g.measureText(lab).width / 2;
+        if (lx + half > stop) break;
+        g.fillText(lab, lx, pt + ph + 6);
+      }
       g.save();
       g.translate(11, pt + ph / 2); g.rotate(-Math.PI / 2); g.textAlign = 'center'; g.textBaseline = 'middle';
       g.fillText('loss', 0, 0);
@@ -800,12 +831,7 @@
       curve(te, T.test, 2);
       curve(tr, T.ink, 2);
       g.restore();
-      if (maxL > yMax) {
-        g.font = '600 ' + fs + 'px ' + T.font; g.fillStyle = rgba(T.bad); g.textAlign = 'right'; g.textBaseline = 'top';
-        g.fillText('↑ loss went off the top of the chart', pl + pw - 4, pt + 2);
-      }
-      g.font = fs + 'px ' + T.font; g.fillStyle = rgba(T.muted); g.textAlign = 'right'; g.textBaseline = 'bottom';
-      g.fillText('epochs', pl + pw, pt + ph - 3);
+      if (maxL > yMax) pill(g, T, '↑ some losses are above ' + yMax + ' (off the chart)', pl + pw - 4, pt + 2, 'right', fs);
     }
 
     /* ---------- text updates ---------- */
@@ -835,15 +861,17 @@
       } else if (S.epoch >= 150 && S.testLoss - S.trainLoss > 0.12 && S.trainLoss < 0.25) {
         key = 'over'; html = '<b>Test loss is clearly higher than train loss:</b> the network is starting to memorise the training points (overfitting). A little L2 regularisation can help.';
       } else if (S.testAcc >= 0.95 && S.epoch > 0) {
-        key = 'solved'; html = '<b>Solved:</b> ' + fmtPct(S.testAcc) + ' of the test points (which it never trained on) are on the right side of the boundary.';
+        key = 'solved'; html = '<b>Solved!</b> At least 95% of the test points (which the network never trained on) are on the right side of the boundary.';
       } else if (S.playing) {
         key = 'play'; html = 'Training… in every epoch the network sees all 200 training points, 10 at a time, and nudges every weight a little after each group.';
       } else if (S.epoch === 0) {
         key = 'fresh'; html = 'A fresh network with random weights, so its guesses are close to 50/50. Press <b>Play</b> to train it, or <b>Step</b> to train one epoch at a time.';
       } else {
-        key = 'paused'; html = 'Paused after ' + fmtInt(S.epoch) + ' epochs. Press <b>Play</b> to keep training, or <b>Step</b> for one more epoch.';
+        key = 'paused'; html = 'Paused after ' + fmtInt(S.epoch) + (S.epoch === 1 ? ' epoch' : ' epochs') + '. Press <b>Play</b> to keep training, or <b>Step</b> for one more epoch.';
       }
-      if (key !== S.msgKey) { S.msgKey = key; elMsg.innerHTML = html; }
+      if (S.intro && key === 'paused') return; // keep the welcome message until the learner does something
+      S.intro = false;
+      if (html !== S.msgKey) { S.msgKey = html; elMsg.innerHTML = html; }
     }
     function updateCaption() {
       var net = S.net, t;
@@ -854,7 +882,8 @@
         if (c === 0) {
           t = j === 0 ? 'Input x₁ is just the left–right position of a point (−1 at the left edge, +1 at the right).' : 'Input x₂ is just the bottom–top position of a point (−1 at the bottom, +1 at the top).';
         } else {
-          var nin = net.sizes[c - 1], W = net.W[c - 1], b = net.b[c - 1][j], fn = net.act;
+          var nin = net.sizes[c - 1], W = net.W[c - 1], b = net.b[c - 1][j];
+          var fn = ACTS.filter(function (a) { return a.id === net.act; })[0].name;
           if (c === 1) {
             t = 'Shown on the map: ' + fn + '(' + fmtW(W[j * nin], true) + ' × x₁' + fmtW(W[j * nin + 1]) + ' × x₂' + fmtW(b) + '). One neuron in the first layer can only draw one straight edge.';
           } else {
@@ -889,13 +918,23 @@
     }
 
     /* ---------- render loop ---------- */
-    function requestDraw() { if (!rafId && !destroyed) rafId = requestAnimationFrame(tick); }
+    // which canvases need repainting on the next frame (pointing at the map only repaints the map)
+    var dirty = { map: true, net: true, loss: true };
+    function requestDraw(only) {
+      if (only) dirty[only] = true; else { dirty.map = true; dirty.net = true; dirty.loss = true; }
+      if (!rafId && !destroyed) rafId = requestAnimationFrame(tick);
+    }
     function tick() {
       rafId = 0;
       if (destroyed) return;
       if (S.playing && !S.diverged) {
-        var k = SPEEDS[S.speedIdx];
-        for (var i = 0; i < k && S.playing; i++) trainEpoch(true);
+        // up to k epochs per frame, but stop early on a slow phone so the page stays smooth
+        var k = SPEEDS[S.speedIdx], t0 = performance.now();
+        for (var i = 0; i < k && S.playing; i++) {
+          trainEpoch(true);
+          if (performance.now() - t0 > 10) break;
+        }
+        dirty.map = true; dirty.net = true; dirty.loss = true;
       }
       draw();
       if (S.playing && !destroyed) rafId = requestAnimationFrame(tick);
@@ -903,23 +942,16 @@
     function draw() {
       var T = readTheme();
       if (gridDirty && !S.diverged) computeGrid();
-      // ReLU neurons that output 0 for every training point
-      S.deadMask = [];
-      if (S.net.actId === 1 && S.net.L > 1) {
-        for (var l = 1; l < S.net.L; l++) {
-          var m = [];
-          for (var j = 0; j < S.net.sizes[l]; j++) m.push(thumbs.max && thumbs.max[l] && thumbs.max[l][j] <= 0 ? 1 : 0);
-          S.deadMask.push(m);
-        }
-      }
-      drawMap(T);
-      drawNet(T);
-      drawLoss(T);
+      if (dirty.map) drawMap(T);
+      if (dirty.net) drawNet(T);
+      if (dirty.loss) drawLoss(T);
+      dirty.map = false; dirty.net = false; dirty.loss = false;
       syncStats();
     }
     function setPlaying(p) {
       S.playing = !!p && !S.diverged;
       syncControls();
+      if (S.diverged) { handOff(btnPlay); handOff(btnStep); }
       if (S.playing) requestDraw();
     }
 
@@ -927,12 +959,14 @@
     function handOff(el) {
       if (document.activeElement === el && el.disabled) btnReset.focus();
     }
-    function rebuild() { buildNet(); syncControls(); requestDraw(); }
-    on(btnPlay, 'click', function () { setPlaying(!S.playing); requestDraw(); });
+    function rebuild() { S.intro = false; buildNet(); syncControls(); syncStats(); requestDraw(); }
+    on(btnPlay, 'click', function () { S.intro = false; setPlaying(!S.playing); requestDraw(); });
     on(btnStep, 'click', function () {
+      S.intro = false;
       setPlaying(false);
       trainEpoch(true);
       syncControls();
+      syncStats();
       handOff(btnStep);
       requestDraw();
     });
@@ -950,7 +984,7 @@
     on(elN2, 'input', function () { var v = parseInt(elN2.value, 10) || 1; if (v !== S.n2) { S.n2 = v; rebuild(); } });
     on(elLr, 'input', function () { S.lrIdx = clamp(parseInt(elLr.value, 10) || 0, 0, LRS.length - 1); syncControls(); syncStats(); });
     on(elL2, 'input', function () { S.l2Idx = clamp(parseInt(elL2.value, 10) || 0, 0, L2S.length - 1); syncControls(); });
-    on(elShowTest, 'change', function () { S.showTest = elShowTest.checked; requestDraw(); });
+    on(elShowTest, 'change', function () { S.showTest = elShowTest.checked; requestDraw('map'); });
 
     /* ---------- pointer: probe on the map ---------- */
     function localPos(e, el) { var r = el.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
@@ -958,7 +992,7 @@
     function setProbeFrom(e) {
       var p = localPos(e, mcan);
       S.probe = { x: clamp(p.x / dims.mw * 2 - 1, -1, 1), y: clamp(1 - p.y / dims.mh * 2, -1, 1) };
-      requestDraw();
+      requestDraw('map');
     }
     on(mcan, 'pointerdown', function (e) {
       mapDown = e.pointerId;
@@ -968,7 +1002,7 @@
     on(mcan, 'pointermove', function (e) { if (e.pointerType === 'mouse' || mapDown === e.pointerId) setProbeFrom(e); });
     on(mcan, 'pointerup', function (e) { if (mapDown === e.pointerId) mapDown = null; });
     on(mcan, 'pointercancel', function () { mapDown = null; });
-    on(mcan, 'pointerleave', function (e) { if (e.pointerType === 'mouse' && mapDown == null) { S.probe = null; requestDraw(); } });
+    on(mcan, 'pointerleave', function (e) { if (e.pointerType === 'mouse' && mapDown == null) { S.probe = null; requestDraw('map'); } });
     mcan.style.cursor = 'crosshair';
 
     /* ---------- pointer + keyboard: pick a neuron in the diagram ---------- */
@@ -1003,11 +1037,11 @@
       var hit = hitNode(localPos(e, dcan));
       var same = (hit && S.hoverNode && hit.c === S.hoverNode.c && hit.j === S.hoverNode.j) || (!hit && !S.hoverNode);
       dcan.style.cursor = hit ? 'pointer' : '';
-      if (!same) { S.hoverNode = hit; requestDraw(); }
+      if (!same) { S.hoverNode = hit; requestDraw('net'); }
     });
-    on(dcan, 'pointerleave', function () { if (S.hoverNode) { S.hoverNode = null; requestDraw(); } });
-    on(dcan, 'focus', function () { S.netFocused = true; requestDraw(); });
-    on(dcan, 'blur', function () { S.netFocused = false; requestDraw(); });
+    on(dcan, 'pointerleave', function () { if (S.hoverNode) { S.hoverNode = null; requestDraw('net'); } });
+    on(dcan, 'focus', function () { S.netFocused = true; requestDraw('net'); });
+    on(dcan, 'blur', function () { S.netFocused = false; requestDraw('net'); });
     on(dcan, 'keydown', function (e) {
       var sz = S.net.sizes, c = S.cursor.c, j = S.cursor.j, k = e.key;
       if (k === 'ArrowRight') { c = Math.min(sz.length - 1, c + 1); }
@@ -1036,18 +1070,19 @@
     S.data = makeData(S.ds);
     buildNet();
     for (var pre = 0; pre < PRETRAIN; pre++) trainEpoch(false);
-    S.msgKey = '';
     syncControls();
+    applyAspect();
+    elMsg.innerHTML = 'This network (1 hidden layer of 4 tanh neurons) has trained for ' + PRETRAIN + ' epochs and is starting to bend its boundary into a circle. Press <b>Play</b> to keep training.';
+    S.msgKey = 'intro'; S.intro = true;
     resize();
-    elMsg.innerHTML = 'This network (1 hidden layer of 4 neurons) has trained for ' + PRETRAIN + ' epochs and is starting to bend its boundary into a circle. Press <b>Play</b> to keep training.';
-    S.msgKey = 'intro';
 
     return {
       destroy: function () {
         destroyed = true;
         S.playing = false;
         if (rafId) cancelAnimationFrame(rafId);
-        rafId = 0;
+        if (aspectRaf) cancelAnimationFrame(aspectRaf);
+        rafId = 0; aspectRaf = 0;
         if (ro) ro.disconnect();
         if (mql) { if (mql.removeEventListener) mql.removeEventListener('change', onTheme); else if (mql.removeListener) mql.removeListener(onTheme); }
         listeners.forEach(function (l) { l[0].removeEventListener(l[1], l[2], l[3]); });

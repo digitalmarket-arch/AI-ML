@@ -113,6 +113,7 @@ body {
   font-family: var(--font-body);
   font-size: var(--step-0);
   line-height: 1.6;
+  overflow-wrap: break-word;
 }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--surface); }
 img, svg, video, canvas { max-width: 100%; }
@@ -277,7 +278,14 @@ textarea { width: 100%; min-height: 120px; resize: vertical; line-height: 1.5; }
 .res-card h4 a:hover { color: var(--indigo); text-decoration: underline; }
 .res-meta { display: flex; flex-wrap: wrap; gap: 6px; }
 .res-why { color: var(--muted); font-size: .97rem; }
+.res-card, .res-card * { overflow-wrap: anywhere; }
 .res-caveat { font-size: .88rem; color: var(--warn); }
+details.res-caveat > summary { cursor: pointer; font-weight: 600; }
+details.res-caveat > p { margin-top: 4px; color: var(--muted); }
+.lang-group { display: flex; flex-direction: column; gap: 12px; }
+.grid > div:not([hidden]) { display: flex; }
+.grid > div > .res-card { flex: 1; }
+.lang-group > h4 { display: flex; align-items: center; gap: 8px; }
 .res-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: auto; }
 .watched-toggle { display: inline-flex; gap: 6px; align-items: center; font-size: .9rem; font-weight: 600; color: var(--muted); }
 .player { position: relative; aspect-ratio: 16 / 9; width: 100%; border-radius: var(--radius-sm); overflow: hidden; background: #0b0d1c; }

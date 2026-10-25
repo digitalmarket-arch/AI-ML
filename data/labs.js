@@ -75,6 +75,30 @@ window.AIM.labs = [
   ]
  },
  {
+  "id": "gradient",
+  "module": "l2-regression",
+  "title": "Gradient descent",
+  "summary": "Watch gradient descent walk downhill on a loss map to fit a straight line to Pune flat prices, and see how the learning rate, stochastic steps and outliers change the walk.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Press Run (or Step) until the loss is within 1% of the best possible loss."
+   },
+   {
+    "id": "t2",
+    "text": "Make it diverge (blow up): raise the learning rate until the loss grows with every step instead of shrinking."
+   },
+   {
+    "id": "t3",
+    "text": "Switch to Stochastic and take at least 20 steps. Watch the path zig-zag, with some steps even going uphill."
+   },
+   {
+    "id": "t4",
+    "text": "Add an outlier (a flat with a very odd price, far from the line, near the left or right edge), then Run until the line settles. Watch it tilt."
+   }
+  ]
+ },
+ {
   "id": "tree",
   "module": "l2-trees-ensembles",
   "title": "Decision tree & forest",
@@ -119,6 +143,30 @@ window.AIM.labs = [
    {
     "id": "t4",
     "text": "Pick “Two moons”, set K = 2 and run. See K-Means cut the moons the wrong way."
+   }
+  ]
+ },
+ {
+  "id": "neuralnet",
+  "module": "l3-nn-basics",
+  "title": "Neural network playground",
+  "summary": "Build a small neural network, train it live and watch it learn to separate blue points from orange ones, from a straight line to a spiral.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Pick Circle, set 0 hidden layers and train for at least 200 epochs. See test accuracy stay stuck below 75%: with no hidden layer the network can only draw one straight line."
+   },
+   {
+    "id": "t2",
+    "text": "Solve XOR with exactly 1 hidden layer: reach 95% test accuracy."
+   },
+   {
+    "id": "t3",
+    "text": "Untangle the Spiral: reach 90% test accuracy. (Hint: try 2 hidden layers.)"
+   },
+   {
+    "id": "t4",
+    "text": "Make training blow up: with tanh, set the learning rate to 3 or 10 and train until the training loss jumps above 1.5 (much worse than guessing)."
    }
   ]
  }
