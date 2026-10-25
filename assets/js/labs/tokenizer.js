@@ -299,7 +299,7 @@
     var left = el('div', { class: 'stack-sm', style: 'min-width:0' });
     var wrap = el('div', { class: 'lab-canvas-wrap', style: 'aspect-ratio:auto;height:320px' });
     // taps only (no dragging), so let a finger on this tall picture still scroll the page
-    var canvas = el('canvas', { role: 'img', tabindex: '0', 'aria-label': 'Training text cut into tokens', style: 'touch-action:manipulation;cursor:default' });
+    var canvas = el('canvas', { role: 'img', tabindex: '0', 'aria-label': 'Training text cut into tokens', style: 'touch-action:manipulation;cursor:default;bottom:auto;height:320px' });
     wrap.appendChild(canvas);
     left.appendChild(wrap);
     var g = canvas.getContext('2d');
@@ -713,7 +713,7 @@
         b.innerHTML = '<span class="mono small" style="color:var(--muted)">' + m.rank + '</span><span class="tk-pieces" style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;min-width:0">' +
           chipHtml(m.a) + '<span aria-hidden="true" style="color:var(--muted)">+</span>' + chipHtml(m.b) + '<span aria-hidden="true" style="color:var(--muted)">→</span>' + chipHtml(m.tok) +
           '</span><span class="mono small" style="color:var(--muted)">×' + m.count + '</span>';
-        var li = el('li', { style: 'margin:0' }, [b]);
+        var li = el('li', { style: 'margin:0;content-visibility:auto;contain-intrinsic-size:auto 36px' }, [b]);
         li.hidden = true;
         mlist.appendChild(li);
         var r = { li: li, b: b, m: m, vis: false, tagged: false };
@@ -813,7 +813,7 @@
     }
 
     /* ---------- canvas: layout + drawing ---------- */
-    var dpr = 1, W = 0, H = 0, curH = 0;
+    var dpr = 1, W = 0, H = 0, curH = 0, h0C = null;
     var chips = [], paraBoxes = [], pairs = [], LM = null;
     var wcache = new Map(), wfont = '';
     function metrics(width) {
@@ -871,22 +871,32 @@
       if (rec) { chips = out; paraBoxes = paras; pairs = prs; LM = m; }
       return Math.ceil(y - m.pgap + m.pad);
     }
+    var canH = 0, h0Key = '', h0 = 0, edge = 1;
     function layoutAll() {
       needLayout = false;
       var width = lastW > 0 ? lastW : wrap.clientWidth;
       if (!(width > 0)) return false;
-      // the picture is exactly as tall as the text: the merge buttons sit beside it (wide screens) or above it
-      // (phones), so the shrinking text never moves a button under the learner's finger
+      // The box is exactly as tall as the text. The merge buttons sit beside it (wide screens) or above it
+      // (phones), so the shrinking text never moves a button under the learner's finger.
       var hk = 160;
-      if (C.lines.length) hk = layout(segs, width, true);
-      else { chips = []; paraBoxes = []; pairs = []; LM = metrics(width); }
+      if (C.lines.length) {
+        var key = width + '|' + wfont + '|' + C.startTokens + '|' + C.lines.length;
+        if (key !== h0Key || C !== h0C) { h0 = layout(C.sym0, width, false); h0Key = key; h0C = C; }
+        hk = layout(segs, width, true);
+      } else { chips = []; paraBoxes = []; pairs = []; LM = metrics(width); h0 = 160; }
       var hNeed = Math.min(MAX_H, Math.max(160, hk));
-      if (hNeed !== curH) { curH = hNeed; wrap.style.height = (hNeed + wrap.clientTop * 2) + 'px'; }
-      dpr = Math.min(window.devicePixelRatio || 1, 3, Math.sqrt(MAX_PX / (width * hNeed)));
+      if (hNeed !== curH) { curH = hNeed; wrap.style.height = (hNeed + 2 * edge) + 'px'; }
+      // The canvas itself keeps the height of the longest (all-characters) text and the box clips it, so a merge
+      // only changes the box height and never re-allocates the big pixel buffer.
+      var ch = Math.min(MAX_H, Math.max(160, h0, hk));
+      var nd = Math.min(window.devicePixelRatio || 1, 3, Math.sqrt(MAX_PX / (width * ch)));
+      if (ch !== canH || Math.abs(nd - dpr) > 1e-3 || width !== W) {
+        canH = ch; dpr = nd;
+        canvas.style.height = ch + 'px';
+        canvas.width = Math.round(width * dpr);
+        canvas.height = Math.round(ch * dpr);
+      }
       W = width; H = hNeed;
-      var bw = Math.round(W * dpr), bh = Math.round(H * dpr);
-      if (canvas.width !== bw) canvas.width = bw;
-      if (canvas.height !== bh) canvas.height = bh;
       if (selTok !== null && (cursor < 0 || cursor >= chips.length || chips[cursor].tok !== selTok)) {
         cursor = -1;
         for (var i = 0; i < chips.length; i++) if (chips[i].tok === selTok) { cursor = i; break; }
@@ -909,7 +919,7 @@
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
       g.globalAlpha = 1;
       g.fillStyle = t.surface;
-      g.fillRect(0, 0, W, H);
+      g.fillRect(0, 0, W, H); // below H the box clips the canvas; every draw repaints all of 0..H
       if (!C.lines.length) {
         g.fillStyle = t.muted; g.font = fontStr(14); g.textAlign = 'center'; g.textBaseline = 'middle';
         g.fillText('Type some training text to start.', W / 2, H / 2);
@@ -1123,6 +1133,7 @@
       var e = entries && entries[0], w = e && e.contentRect ? e.contentRect.width : wrap.clientWidth;
       if (Math.abs(w - lastW) < 0.5) return;
       lastW = w;
+      edge = wrap.clientTop || 0; // border width (layout is fresh inside the observer)
       onStatsWidth();
       relayout(); // runs in the next animation frame, never inside the observer callback
     }
