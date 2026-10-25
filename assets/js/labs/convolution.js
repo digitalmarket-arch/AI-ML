@@ -80,7 +80,7 @@
     if (a < 1e-6) return '0';
     if (Math.abs(v - Math.round(v)) < 1e-9) return String(Math.round(v));
     if (Math.abs(v * 10 - Math.round(v * 10)) < 1e-9) return v.toFixed(1);
-    if (a >= 0.005) return v.toFixed(2);
+    if (a >= 0.005) return String(parseFloat(v.toFixed(2))); // "4.001" → "4", not "4.00"
     return String(parseFloat(v.toPrecision(1)));
   }
   function fmt(v) { return isFinite(v) ? minus(fmtPlain(v)) : '?'; }

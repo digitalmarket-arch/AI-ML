@@ -30,7 +30,7 @@
   var TASKS = [
     { id: 't1', text: 'Pick Circle, set 0 hidden layers and train for at least 200 epochs. See test accuracy stay stuck below 75%: with no hidden layer the network can only draw one straight line.' },
     { id: 't2', text: 'Solve XOR with exactly 1 hidden layer: reach 95% test accuracy. (Stuck below 95%? Press Reset to start again from new random weights.)' },
-    { id: 't3', text: 'Untangle the Spiral: reach 90% test accuracy. (Hint: try 2 hidden layers.)' },
+    { id: 't3', text: 'Untangle the Spiral: reach 90% test accuracy. (Hint: try 2 hidden layers with 6 to 8 neurons each.)' },
     { id: 't4', text: 'Make training blow up: set the learning rate to 10 and train until the training loss jumps above 1.5 (far worse than the 0.69 of pure guessing).' }
   ];
 
@@ -357,7 +357,7 @@
                   legendItem(svgDot('ci', '--series-1'), 'Blue') + legendItem(svgDot('sq', '--series-2'), 'Orange') +
                   legendItem(svgDot('ci', '--surface-2', true), 'Outlined = test point') +
                 '</div>' +
-                '<p class="kbd-hint">Point at (or tap) the map to ask the network about any spot.</p>' +
+                '<p class="small muted">Point at (or tap) the map to ask the network about any spot.</p>' +
               '</div>' +
               '<div class="stack-sm">' +
                 '<div class="lab-canvas-wrap" id="' + P + 'dwrap" style="' + canvasWrapStyle + '"><canvas id="' + P + 'net" role="img" tabindex="0" style="touch-action:pan-y;outline-offset:-3px" aria-label="Network diagram"></canvas></div>' +
@@ -383,7 +383,7 @@
               '<input type="range" id="' + P + 'n2" min="1" max="8" step="1" value="4"></div>' +
             '<div class="control"><span class="control-label" id="' + P + 'actlbl">Activation</span>' +
               '<div class="seg" role="group" aria-labelledby="' + P + 'actlbl">' + seg('act', ACTS.map(function (a) { return [a.id, a.name]; }), 'tanh') + '</div>' +
-              '<p class="small muted" id="' + P + 'actdesc"></p></div>' +
+              '<p class="small muted"><span id="' + P + 'actdesc"></span> Only the hidden neurons use it: the output neuron always uses sigmoid, so its answer is a chance from 0 (orange) to 1 (blue).</p></div>' +
             '<div class="control"><label for="' + P + 'lr">Learning rate <output id="' + P + 'lrout" for="' + P + 'lr">0.1</output></label>' +
               '<input type="range" id="' + P + 'lr" min="0" max="' + (LRS.length - 1) + '" step="1" value="4">' +
               '<p class="small muted">How big a step every weight takes after each mini-batch. Too small: slow. Too big: chaos.</p></div>' +
@@ -601,6 +601,7 @@
       if (want !== curAspect) { curAspect = want; dwrap.style.aspectRatio = want; }
     }
     function resize() {
+      if (destroyed) return;
       // changing a wrapper's size inside a ResizeObserver callback would loop, so do it on the next frame
       if (wantAspect() !== curAspect && !aspectRaf) aspectRaf = requestAnimationFrame(applyAspect);
       dims.dpr = Math.min(window.devicePixelRatio || 1, 3);
@@ -610,7 +611,10 @@
       var cols = lwrap.getBoundingClientRect().width >= 4 * 130 + 3 * 8 ? 'repeat(4,minmax(0,1fr))' : 'repeat(2,minmax(0,1fr))';
       if (cols !== curStatsCols) { curStatsCols = cols; elStats.style.gridTemplateColumns = cols; }
       gridDirty = true;
-      requestDraw();
+      // a new canvas size wipes the canvas, so paint again right now (in this same frame);
+      // waiting for the next animation frame would flash an empty box on every resize step
+      dirty.map = true; dirty.net = true; dirty.loss = true;
+      draw();
     }
 
     /* ---------- drawing: the map ---------- */
@@ -845,7 +849,7 @@
       setText(elEpoch, fmtInt(S.epoch));
       setText(elTrl, fmtLoss(S.trainLoss));
       setText(elTel, fmtLoss(S.testLoss));
-      setText(elAcc, fmtPct(S.testAcc));
+      setText(elAcc, S.diverged ? '—' : fmtPct(S.testAcc));
       var label = 'Map of the ' + S.ds + ' data with the network’s prediction shaded behind the points. Test accuracy ' + fmtPct(S.testAcc) + '.';
       if (mcan.getAttribute('aria-label') !== label) mcan.setAttribute('aria-label', label);
       updateMessage();
