@@ -97,8 +97,7 @@
       node.right = grow(split.right, depth + 1, rlo, hi, node);
       return node;
     }
-    var all = idx;
-    var root = grow(all, 0, DOM.lo.slice(), DOM.hi.slice(), null);
+    var root = grow(idx, 0, DOM.lo.slice(), DOM.hi.slice(), null);
     return { root: root, nodes: nodes, leaves: leaves, depth: maxD };
   }
   function leafOf(tree, x) {
@@ -267,13 +266,13 @@
       return { input: input, out: out, block: block, hint: hintEl };
     }
 
-    var modeBtns = seg('model', 'Model', [{ v: 'tree', t: 'One tree' }, { v: 'forest', t: 'Forest of trees' }], 'tree', function (v) {
+    seg('model', 'Model', [{ v: 'tree', t: 'One tree' }, { v: 'forest', t: 'Forest of trees' }], 'tree', function (v) {
       st.forest = v === 'forest'; note = ''; syncForestControls(); invalidate();
     });
     var depthC = slider('depth', 'Max depth', 1, MAX_DEPTH, st.depth, 'How many questions in a row the tree may ask.');
     var leafC = slider('leaf', 'Min farms per leaf', 1, 20, st.minLeaf, 'Every leaf must hold at least this many training farms.');
     var treesC = slider('trees', 'Trees in the forest', 1, 25, st.nTrees, 'Switch on "Forest of trees" to use this.');
-    var tapBtns = seg('tap', 'Tapping the map', [{ v: 'inspect', t: 'Inspect' }, { v: 'good', t: 'Add good' }, { v: 'poor', t: 'Add poor' }], 'inspect', function (v) {
+    seg('tap', 'Tapping the map', [{ v: 'inspect', t: 'Inspect' }, { v: 'good', t: 'Add good' }, { v: 'poor', t: 'Add poor' }], 'inspect', function (v) {
       st.tap = v; note = ''; canvas.style.cursor = v === 'inspect' ? '' : 'crosshair'; invalidate();
     });
 
@@ -327,7 +326,7 @@
 
     /* ---------- colours (read from CSS variables at draw time) ---------- */
     function toRGB(str) {
-      swatch.fillStyle = '#000';
+      swatch.fillStyle = 'black'; // reset so an unparseable value can't keep the previous colour
       swatch.fillStyle = str;
       var s = swatch.fillStyle;
       if (s.charAt(0) === '#') return [parseInt(s.substr(1, 2), 16), parseInt(s.substr(3, 2), 16), parseInt(s.substr(5, 2), 16)];
@@ -337,9 +336,10 @@
     function readColors() {
       var cs = getComputedStyle(document.documentElement);
       function v(name, fb) { var s = cs.getPropertyValue(name).trim(); return s || fb; }
-      C.surface = v('--surface', '#fff'); C.surface2 = v('--surface-2', '#eee'); C.ink = v('--ink', '#000');
-      C.muted = v('--muted', '#666'); C.line = v('--line', '#ccc'); C.haldi = v('--haldi', '#e2a400');
-      C.good = v('--series-4', '#12807f'); C.poor = v('--series-2', '#c0402c');
+      // fallbacks are CSS system colours (theme-aware), only used if the stylesheet is missing
+      C.surface = v('--surface', 'Canvas'); C.surface2 = v('--surface-2', 'Canvas'); C.ink = v('--ink', 'CanvasText');
+      C.muted = v('--muted', 'GrayText'); C.line = v('--line', 'GrayText'); C.haldi = v('--haldi', 'Highlight');
+      C.good = v('--series-4', 'CanvasText'); C.poor = v('--series-2', 'GrayText');
       var sig = [C.surface, C.ink, C.good, C.poor].join('|');
       if (sig !== lastColSig) {
         lastColSig = sig;
