@@ -3266,7 +3266,8 @@ window.AIM.modules = [
    }
   ],
   "best": "campusx-nitish-singh-generative-ai-using-langchain-full-",
-  "figs": true
+  "figs": true,
+  "lab": "rag"
  },
  {
   "id": "l4-finetuning",

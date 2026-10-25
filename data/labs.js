@@ -459,6 +459,30 @@ window.AIM.labs = [
   ]
  },
  {
+  "id": "rag",
+  "module": "l4-llm-apps",
+  "title": "RAG retrieval: find the right chunk",
+  "summary": "Cut a GST help guide into chunks, score them against a question with BM25 or TF-IDF, and see which pieces reach the LLM’s prompt and whether the answer is among them.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Fit a whole answer into one chunk. The GSTIN answer starts out cut in two. Change the chunk size or the overlap until the whole answer sits inside one retrieved chunk."
+   },
+   {
+    "id": "t2",
+    "text": "Pick “Which documents do I need to register?”. The chunk with its answer ranks just below the top k. Raise k until the answer gets into the prompt."
+   },
+   {
+    "id": "t3",
+    "text": "Pick the vague question “When is it due?” and see the top chunk talk about something else. Then reword the question in the box until the top-ranked chunk holds the answer."
+   },
+   {
+    "id": "t4",
+    "text": "Overflow the context limit: raise k and the chunk size until the prompt needs more tokens than the limit allows."
+   }
+  ]
+ },
+ {
   "id": "lora",
   "module": "l4-finetuning",
   "title": "LoRA and quantisation",

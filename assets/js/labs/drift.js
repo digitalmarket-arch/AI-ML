@@ -44,7 +44,7 @@
     { id: 't1', text: 'Find the first week whose PSI goes above 0.25 (major drift): click or tap it on the weekly chart, or pick it with the “Week shown” slider.' },
     { id: 't2', text: 'Set an alert threshold that makes the drift alarm ring in a drift week, with zero false alarms in the calm weeks before the drift.' },
     { id: 't3', text: 'Once labels show recall below 70%, press “Retrain on recent data”, then step on until labels show the new model’s recall at 80% or more.' },
-    { id: 't4', text: 'Keep labels 2 or more weeks late and step on until the accuracy alarm rings. It rings weeks after the drift alarm, because it has to wait for labels.' }
+    { id: 't4', text: 'Once the accuracy alarm (■) has rung, move the “Labels arrive” slider. The drift alarm (◆) stays put, but the accuracy alarm moves: with labels 2 or more weeks late it rings weeks after the drift alarm.' }
   ];
 
   /* ---------- helpers ---------- */
@@ -259,7 +259,7 @@
       '<p class="lab-note"><strong>What you are seeing:</strong> a bank’s model checks every UPI payment and flags likely fraud. It is a simple rule learned from past payments: flag a payment if its amount is above a cutoff, with one cutoff by day (6 am to 10 pm) and another at night. ' +
       'The weekly chart follows its first 12 weeks in use. Each week the <em>PSI</em> (Population Stability Index, a drift score) compares that week’s payment amounts with the training data. <em>Drift</em> means the live data has stopped looking like the data the model learned from. ' +
       '<em>Accuracy</em> (the share of payments judged correctly) and <em>recall</em> (the share of real frauds caught) need <em>labels</em> (confirmed answers: was it really fraud?), and labels arrive only after customers complain and the bank checks, weeks later.</p>' +
-      '<p class="small muted">PSI = the sum, over 10 amount bins, of (a − e) × ln(a ÷ e), where e is the bin’s share of the training data and a is its share this week (as fractions, so 12% is 0.12). An empty bin counts as 0.0001 so the log still works. Rule of thumb: under 0.1 is stable, 0.1 to 0.25 is a moderate change, over 0.25 is a major change. The payments are made up: 4,000 a week, about 1 in 20 of them fraud (far more than in real life, so the effect is easy to see).</p>' +
+      '<p class="small muted">PSI = the sum, over 10 amount bins (ranges such as ₹100–199), of (a − e) × ln(a ÷ e), where e is the bin’s share of the training data, a is its share this week (as fractions, so 12% is 0.12) and ln is the natural logarithm (the “ln” key on a calculator). An empty bin counts as 0.0001 so the log still works. Rule of thumb: under 0.1 is stable, 0.1 to 0.25 is a moderate change, over 0.25 is a major change. The payments are made up: 4,000 a week, about 1 in 20 of them fraud (far more than in real life, so the effect is easy to see).</p>' +
       '<div class="lab-body">' +
         '<div class="stack-sm">' +
           '<span class="eyebrow">Week by week since launch</span>' +
@@ -287,7 +287,7 @@
           '<div class="lab-legend" id="' + P + 'hleg"></div>' +
           '<p class="small" id="' + P + 'model"></p>' +
           '<details class="fold"><summary>See the PSI sum, bin by bin</summary><div>' +
-            '<div class="table-wrap" tabindex="0" role="region" aria-label="PSI sum, bin by bin"><table class="simple" style="font-variant-numeric:tabular-nums;font-size:.88rem"><thead><tr><th scope="col">Amount</th><th scope="col">e: training share</th><th scope="col" id="' + P + 'tha">a: week share</th><th scope="col">(a − e) × ln(a ÷ e)</th></tr></thead><tbody id="' + P + 'tbody"></tbody></table></div>' +
+            '<div class="table-wrap" tabindex="0" role="region" aria-label="PSI sum, bin by bin"><table class="simple" style="font-variant-numeric:tabular-nums;font-size:.88rem"><thead><tr><th scope="col">Amount</th><th scope="col" style="text-transform:none;letter-spacing:0">e: training share</th><th scope="col" id="' + P + 'tha" style="text-transform:none;letter-spacing:0">a: week share</th><th scope="col" style="text-transform:none;letter-spacing:0">(a − e) × ln(a ÷ e)</th></tr></thead><tbody id="' + P + 'tbody"></tbody></table></div>' +
           '</div></details>' +
         '</div>' +
         '<div class="lab-controls">' +
@@ -308,7 +308,7 @@
           rangeCtl('win', 'Retraining window', 1, 6, 1, DEF.win, DEF.win + ' weeks', 'How many of the latest labelled weeks to learn from.') +
           '<button type="button" class="btn btn-primary" id="' + P + 'retrain">Retrain on recent data</button>' +
           '<p class="small muted" id="' + P + 'rnote" style="min-height:3em"></p>' +
-          '<p class="small muted">Retraining picks new day and night cutoffs that make the fewest mistakes on those weeks, counting each missed fraud as 5 mistakes (a missed fraud costs far more than a false alarm). Those weeks also become the new baseline for PSI.</p>' +
+          '<p class="small muted">Retraining picks new day and night cutoffs that make the fewest mistakes on those weeks, counting each missed fraud as 5 mistakes (a missed fraud costs far more than a false alarm). Those weeks also become the new baseline for PSI (the data each new week is compared with).</p>' +
           '<div class="stack-sm"><h2 class="lab-h">Your tasks</h2><ul class="lab-tasks" id="' + P + 'tasks">' + tasksHtml + '</ul></div>' +
         '</div>' +
       '</div>' +
@@ -358,7 +358,7 @@
       if (done[id]) return;
       done[id] = true;
       markLi(id);
-      taskNote = 'Task done: ' + { t1: 'you found the first week of major drift.', t2: 'your alert line catches the drift with no false alarms.', t3: 'retraining brought recall back up.', t4: 'you saw the accuracy alarm lag behind the drift alarm.' }[id];
+      taskNote = 'Task done: ' + { t1: 'you found the first week of major drift.', t2: 'your alert line catches the drift with no false alarms.', t3: 'retraining brought recall back up.', t4: 'the accuracy alarm moved with the label delay, while the drift alarm stayed put.' }[id];
       if (ctx && ctx.onTaskDone) ctx.onTaskDone(id);
     }
 
@@ -423,7 +423,6 @@
           if (models[R[w2].m].v > models[R[w1].m].v && R[w2].rec >= REC_TARGET) { completeTask('t3'); break outer; }
         }
       }
-      if (S.delay >= 2 && A.trueFirst && A.accFirst && A.trueFirst < A.accFirst) completeTask('t4');
     }
 
     /* ---------- messages ---------- */
@@ -463,6 +462,7 @@
             } else if (isDriftWeek(lw) && R[lw].psi < MODERATE) {
               t2 += ' Yet PSI stayed low in week ' + lw + ': the new trick is a small slice of all payments, so the amounts as a whole barely changed. Only the labels could reveal it.';
             }
+            if (!done.t4) t2 += ' Try moving “Labels arrive” to see this alarm move.';
           }
         }
         parts.push(t2);
@@ -878,14 +878,15 @@
       s += A.trueFirst ? 'The drift alarm first rang in week ' + A.trueFirst + '; ' : 'The drift alarm never rang during the drift; ';
       s += A.accFirst ? 'the accuracy alarm first rang in week ' + A.accFirst + ' (when the labels for week ' + A.accFirstFor + ' arrived).' : 'the accuracy alarm has not rung.';
       s += A.falseW.length ? ' False alarms: ' + weekList(A.falseW) + '.' : '';
+      if (A.accFirst && !done.t4) s += ' Now move “Labels arrive” and watch the accuracy alarm move.';
       say(s, true);
       render();
     }
-    function selectWeek(w) {
+    function selectWeek(w, how) {
       w = clamp(w, 1, S.today);
       S.sel = w;
-      checkTasks('select');
-      say(weekStory(w), true);
+      if (how !== 'drag') checkTasks('select');
+      say(weekStory(w), how !== 'drag');
       render();
     }
     function settingsChanged(msg, announce) {
@@ -921,7 +922,8 @@
       render();
       playTick();
     });
-    on(inSel, 'input', function () { selectWeek(+inSel.value); });
+    on(inSel, 'input', function () { selectWeek(+inSel.value, 'drag'); });
+    on(inSel, 'change', function () { selectWeek(+inSel.value, 'pick'); });
     Array.prototype.forEach.call(modeBtns, function (b) {
       on(b, 'click', function () {
         S.mode = b.getAttribute('data-mode');
@@ -944,10 +946,21 @@
     });
     on(inThr, 'change', function () { elLive.textContent = elMsg.textContent; });
     on(inDelay, 'input', function () {
+      var prevA = A, prevD = S.delay;
       S.delay = +inDelay.value; setOut(inDelay, S.delay === 0 ? 'the same week' : S.delay + (S.delay === 1 ? ' week late' : ' weeks late'));
+      if (S.delay === prevD) return;
       var lab = S.today - S.delay;
-      settingsChanged(S.delay === 0 ? 'Labels now arrive at the end of the same week (rare in real life), so accuracy is known up to week ' + S.today + '.'
-        : 'Labels now arrive ' + S.delay + (S.delay === 1 ? ' week' : ' weeks') + ' late, so accuracy and recall are known ' + (lab >= 1 ? 'up to week ' + lab : 'for no week yet') + '.', false);
+      compute();
+      var laterFirst = S.delay > prevD ? A.accFirst : prevA.accFirst;
+      if (prevA.accFirst && A.accFirst && prevA.accFirst !== A.accFirst && A.trueFirst && Math.max(S.delay, prevD) >= 2 && laterFirst > A.trueFirst) completeTask('t4');
+      checkTasks('settings');
+      var s = S.delay === 0 ? 'Labels now arrive at the end of the same week (rare in real life), so accuracy is known up to week ' + S.today + '.'
+        : 'Labels now arrive ' + S.delay + (S.delay === 1 ? ' week' : ' weeks') + ' late, so accuracy and recall are known ' + (lab >= 1 ? 'up to week ' + lab : 'for no week yet') + '.';
+      if (A.accFirst) s += ' The accuracy alarm first rings in week ' + A.accFirst + (prevA.accFirst && prevA.accFirst !== A.accFirst ? ' (it was week ' + prevA.accFirst + ')' : '') + '.';
+      else if (prevA.accFirst) s += ' With this delay the accuracy alarm has not rung yet (it was week ' + prevA.accFirst + ').';
+      if (A.trueFirst && (A.accFirst || prevA.accFirst)) s += ' The drift alarm still first rings in week ' + A.trueFirst + ': PSI needs no labels.';
+      say(s, false);
+      render();
     });
     on(inDelay, 'change', function () { elLive.textContent = elMsg.textContent; });
     on(inWin, 'input', function () {
@@ -991,7 +1004,7 @@
       var w = weekAt(e);
       if (!w) return;
       if (w > S.today) { say('Week ' + w + ' has not happened yet. Press Next week to move on.', true); return; }
-      selectWeek(w);
+      selectWeek(w, 'tap');
     });
     on(tcan, 'pointercancel', function () { down = null; });
     on(tcan, 'pointermove', function (e) {
