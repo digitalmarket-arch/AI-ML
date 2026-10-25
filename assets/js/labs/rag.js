@@ -653,7 +653,7 @@
       if (!S.inspPicked) {
         if (R.A && S.insp === R.A.main) {
           var ow = overlapOf(c, R.A.span);
-          note = ow === R.A.len ? ' This chunk holds the whole answer.' : ' This chunk holds ' + ow + ' of the ' + R.A.len + ' answer words; the rest is in a neighbouring chunk.';
+          note = ow === R.A.len ? ' This chunk holds the whole answer.' : ' This chunk holds ' + ow + ' of the ' + R.A.len + ' answer words; the rest falls outside it.';
         }
         else if (R.got.length && S.insp === R.got[0]) note = ' This is the top-ranked chunk.';
       }

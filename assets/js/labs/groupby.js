@@ -247,8 +247,15 @@
   /* ---------- friendly numbers: ₹ with Indian digit grouping (₹1,25,000) ---------- */
   function indian(n) {
     var s = String(Math.round(n));
+    if (/e/.test(s)) return s; // a huge number JavaScript writes as 1e+21: leave it as it is
     if (s.length > 3) s = s.slice(0, -3).replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + s.slice(-3);
     return s;
+  }
+  // A number the learner typed, shown exactly (no rounding), with Indian grouping before the decimal point.
+  function fmtTyped(v, money) {
+    var s = String(Math.abs(v));
+    if (!/e/.test(s)) { var parts = s.split('.'); s = indian(+parts[0]) + (parts.length > 1 ? '.' + parts[1] : ''); }
+    return (v < 0 ? '−' : '') + (money ? '₹' : '') + s;
   }
   function fmtNum(v, money) {
     if (isNaN(v)) return 'NaN';
@@ -859,6 +866,7 @@
       stage = s;
       Array.prototype.forEach.call(stageBtns, function (b) { b.setAttribute('aria-pressed', String(+b.getAttribute('data-stage') === s)); });
       renderCaption();
+      svgLabel();
       relayout(animate);
       if (speak) announce(captionText());
     }
@@ -877,7 +885,7 @@
 
     /* ---------- words ---------- */
     function filterWords() {
-      return cfg.fcol + ' ' + OP_WORD[cfg.fop] + ' ' + (isKeyCol(cfg.fcol) ? cfg.fval : fmtNum(cfg.fnum, cfg.fcol === 'sales_rs'));
+      return cfg.fcol + ' ' + OP_WORD[cfg.fop] + ' ' + (isKeyCol(cfg.fcol) ? cfg.fval : fmtTyped(cfg.fnum, cfg.fcol === 'sales_rs'));
     }
     function captionText() {
       var nk = res.kept.length, n = res.groups.length, keys = res.keys;
@@ -990,7 +998,8 @@
       var hint = taskHint(g);
       return hint ? t + ' ' + hint : t;
     }
-    function renderRead() { elRead.textContent = readText(); }
+    // only touch the live region when the words really change, so a screen reader is not flooded
+    function renderRead() { var t = readText(); if (elRead.textContent !== t) elRead.textContent = t; }
     function svgLabel() {
       var t = 'Picture, ' + captionText();
       if (stage >= 2 && res.kept.length) {
@@ -1037,7 +1046,12 @@
       setPressed('fn', cfg.fn);
       elFnDesc.textContent = FN_DESC[cfg.fn];
       setPressed('sort', cfg.sort);
-      Array.prototype.forEach.call(btns('sort'), function (b) { b.disabled = cfg.by === 0; });
+      Array.prototype.forEach.call(btns('sort'), function (b) {
+        b.disabled = cfg.by === 0;
+        // style.css has no disabled look for .seg buttons, so dim them here
+        b.style.opacity = b.disabled ? '0.5' : '';
+        b.style.cursor = b.disabled ? 'not-allowed' : '';
+      });
       elSortDesc.textContent = cfg.by === 0 ? 'Sorting needs groups: with no group-by the result is one number.' :
         cfg.sort === 'none' ? 'Off: groups stay in A-to-Z order of their names.' : (cfg.sort === 'asc' ? 'Smallest first.' : 'Largest first.') + ' A NaN result always goes last.';
       setPressed('na', cfg.missing);
@@ -1095,7 +1109,14 @@
     }
 
     /* ---------- one update after any change ---------- */
+    // Make the settings consistent BEFORE computing: a text column only allows == and != (a > left over from
+    // a number column would otherwise filter the rows while the code shows ==), and the two group-by columns differ.
+    function normalize() {
+      if ((!cfg.fcol || isKeyCol(cfg.fcol)) && cfg.fop !== '==' && cfg.fop !== '!=') cfg.fop = '==';
+      if (cfg.k2 === cfg.k1) cfg.k2 = KEY_COLS.filter(function (c) { return c !== cfg.k1; })[0];
+    }
     function update(kind) {
+      normalize();
       res = compute(cfg);
       if (selId && (!res.byId[selId] || res.scalar)) selId = null;
       chipTexts();
@@ -1110,6 +1131,9 @@
       relayout(kind !== 'init');
       if (kind !== 'init') {
         checkConfigTasks();
+        // a group the learner tapped earlier stays selected; if the settings now answer a task, it counts
+        var sg = selGroup();
+        if (sg) checkPickTasks(sg);
         if (announceTimer) clearTimeout(announceTimer);
         announceTimer = setTimeout(function () {
           announceTimer = 0;
