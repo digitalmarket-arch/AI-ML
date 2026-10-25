@@ -11,7 +11,7 @@
   var MAX_SEEDS = 30;
   var BOOT_N = 2000;                 // bootstrap resamples
   var BOOT_SEED = 20260117;          // the same resampling pattern every time, so results are reproducible
-  var EXP_SEED = 8191;               // experiment 1, 2, 3 ... each get their own fixed random draws
+  var EXP_SEED = 564;                // experiment 1, 2, 3 ... each get their own fixed random draws (564: a typical first experiment)
   var TEST_SIZES = [500, 1000, 2000, 5000, 10000, 50000, 100000];
   var DEF = { a: 810, b: 815, sd: 4, k: 3, nIdx: 4 };  // accuracies and SD in tenths of a point
   var SMALL_TEST = 1000, BIG_TEST = 50000;
@@ -144,8 +144,8 @@
   }
   // one experiment = fixed random draws for up to 30 runs per model; settings then shape them,
   // so moving a slider changes the same "luck" smoothly instead of drawing new luck
-  function makeDraws(e) {
-    var rnd = mulberry32((EXP_SEED + Math.imul(e, 0x9E3779B1)) >>> 0);
+  function makeDraws(e, base) {
+    var rnd = mulberry32(((base === undefined ? EXP_SEED : base) + Math.imul(e, 0x9E3779B1)) >>> 0);
     var d = { sA: [], tA: [], sB: [], tB: [] };
     for (var i = 0; i < MAX_SEEDS; i++) { d.sA.push(gauss(rnd)); d.tA.push(gauss(rnd)); d.sB.push(gauss(rnd)); d.tB.push(gauss(rnd)); }
     return d;
@@ -220,7 +220,7 @@
           '<p class="small muted" id="' + P + 'readout" style="min-height:1.5em">Hover over or tap a dot to read that run’s score.</p>' +
           '<div class="callout small" id="' + P + 'verdict" style="min-height:4.2em"></div>' +
           '<p class="small" id="' + P + 'note" style="min-height:1.5em"></p>' +
-          '<div class="lab-stats">' +
+          '<div class="lab-stats" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr))">' +
             '<div class="stat"><div class="k">Gap B − A</div><div class="v" id="' + P + 'gap">—</div></div>' +
             '<div class="stat"><div class="k">95% CI of gap</div><div class="v" id="' + P + 'ci">—</div></div>' +
             '<div class="stat"><div class="k">Spread per run</div><div class="v" id="' + P + 'spread">—</div></div>' +
@@ -235,12 +235,13 @@
           '<p class="small" id="' + P + 'truegap" style="margin-top:-8px"></p>' +
           range('sd', 'Seed-to-seed spread (SD)', 0, 20, 1, DEF.sd, 'How much the same model’s accuracy wobbles when only the seed changes. SD (standard deviation) is the typical distance from the average.') +
           range('k', 'Seeds (runs) per model', 1, MAX_SEEDS, 1, DEF.k) +
-          range('n', 'Test-set size', 0, TEST_SIZES.length - 1, 1, DEF.nIdx, '') +
+          range('n', 'Test-set size', 0, TEST_SIZES.length - 1, 1, DEF.nIdx, 'More test examples means less test-set luck.') +
           '<div class="control"><span class="control-label" id="' + P + 'modelbl">How B is reported</span>' +
-            '<div class="seg" role="group" aria-labelledby="' + P + 'modelbl">' +
-              '<button type="button" data-mode="honest" aria-pressed="true">Honest: mean of all runs</button>' +
-              '<button type="button" data-mode="cherry" aria-pressed="false">Cherry-pick: B’s best run</button>' +
-            '</div></div>' +
+            '<div class="seg" role="group" aria-labelledby="' + P + 'modelbl" aria-describedby="' + P + 'modehelp" style="display:grid;grid-template-columns:1fr 1fr;width:100%">' +
+              '<button type="button" data-mode="honest" aria-pressed="true">Honest</button>' +
+              '<button type="button" data-mode="cherry" aria-pressed="false">Cherry-pick</button>' +
+            '</div>' +
+            '<p class="small muted" id="' + P + 'modehelp">Honest: B’s mean over all its runs. Cherry-pick: only B’s best run, set against A’s mean.</p></div>' +
           '<div class="stack-sm">' +
             '<button type="button" class="btn btn-primary" id="' + P + 'rerun">Re-run experiment</button>' +
             '<p class="small muted" id="' + P + 'tally" style="min-height:3em"></p>' +
@@ -252,13 +253,13 @@
       '<div class="card stack-sm">' +
         '<h2 class="lab-h">The results table a paper would print</h2>' +
         '<div class="table-wrap"><table class="simple" style="font-size:.92rem">' +
-          '<thead><tr><th scope="col">Model</th><th scope="col">Accuracy (%)</th><th scope="col">95% CI of the mean</th><th scope="col">Runs</th></tr></thead>' +
+          '<thead><tr><th scope="col">Model</th><th scope="col" style="white-space:nowrap">Accuracy %</th><th scope="col" style="white-space:nowrap">95% CI of mean</th><th scope="col">Runs</th></tr></thead>' +
           '<tbody id="' + P + 'tbody"></tbody>' +
         '</table></div>' +
         '<p class="small" id="' + P + 'headline"></p>' +
         '<p class="small muted" id="' + P + 'tline"></p>' +
       '</div>' +
-      '<div class="grid">' +
+      '<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))">' +
         '<div class="card stack-sm"><h2 class="lab-h">Words to know</h2>' +
           '<ul class="small stack-sm" style="padding-left:1.1em;margin:0">' +
             '<li><b>Seed:</b> the starting number for a program’s random choices. Same code and data, different seed: a slightly different model and score.</li>' +
@@ -297,8 +298,6 @@
     Array.prototype.forEach.call(top.querySelectorAll('[data-task]'), function (li) { taskEls[li.getAttribute('data-task')] = li; });
     // the B slider has no help text of its own; the true-gap line serves as its description
     elB.setAttribute('aria-describedby', P + 'truegap');
-    var bHelp = $('bhelp');
-    if (bHelp) bHelp.parentNode.removeChild(bHelp);
 
     /* ---------- state ---------- */
     var S = { a: DEF.a, b: DEF.b, sd: DEF.sd, k: DEF.k, nIdx: DEF.nIdx, mode: 'honest', exp: 1 };
@@ -394,14 +393,19 @@
         tone = 'warn';
         h = '<b>The gap could easily be noise.</b> ' + (res.gap >= 0 ? 'B is ahead by ' : 'B is behind by ') + Math.abs(res.gap).toFixed(2) + ' points, but the 95% CI of the gap (' + ciText(res.ci) + ') includes 0, so “no real difference” is still believable. More seeds or a bigger test set would narrow it.';
       } else {
-        tone = 'good';
-        var winner = res.verdict === 'b' ? 'B' : 'A';
-        h = '<b>' + (winner === 'B' ? 'B’s lead looks real.' : 'A is really ahead.') + '</b> The gap is ' + sgn(res.gap, 2) + ' points and the whole 95% CI (' + ciText(res.ci) + ') sits ' + (winner === 'B' ? 'above' : 'below') + ' 0.';
-        if ((winner === 'B' && tg <= 0) || (winner === 'A' && tg >= 0)) {
-          h += ' But in truth ' + winner + ' is not better: this is a <b>false alarm</b>. A 95% CI still gets fooled now and then (about 1 time in 20, and more often with few seeds).';
-        } else if (res.k < 10) {
-          h += ' Careful: with fewer than 10 seeds, a bootstrap CI tends to come out a little too narrow, so a borderline result deserves more runs.';
+        var winner = res.verdict === 'b' ? 'B' : 'A', side = winner === 'B' ? 'above' : 'below';
+        var wrong = (winner === 'B' && tg <= 0) || (winner === 'A' && tg >= 0);
+        if (res.k < 5) {
+          tone = 'warn';
+          h = '<b>Looks like a win for ' + winner + ', but ' + res.k + ' runs are too few to trust.</b> The bootstrap CI of the gap (' + ciText(res.ci) + ') sits ' + side + ' 0, but with only ' + res.k + ' runs per model the bootstrap can only reshuffle ' + res.k + ' numbers, so its CI comes out far too narrow.';
+          if (A.hi > B.lo && B.hi > A.lo) h += ' Notice how much the two models’ own CIs overlap in the top chart.';
+          h += ' Use 5 or more seeds before believing it.';
+        } else {
+          tone = 'good';
+          h = '<b>' + (winner === 'B' ? 'B’s lead looks real.' : 'A is really ahead.') + '</b> The gap is ' + sgn(res.gap, 2) + ' points and the whole 95% CI (' + ciText(res.ci) + ') sits ' + side + ' 0.';
+          if (!wrong && res.k < 10) h += ' Careful: with fewer than 10 seeds, a bootstrap CI tends to come out a little too narrow, so a borderline result deserves more runs.';
         }
+        if (wrong) h += ' And in truth ' + winner + ' is not better: this is a <b>false alarm</b>. A 95% CI still gets fooled now and then (about 1 time in 20, and more often with few seeds).';
       }
       if (S.mode === 'cherry') {
         h += '<br><b>Cherry-picked claim:</b> B’s best run (' + pct(B.best) + ') minus A’s mean (' + pct(A.mean) + ') = ' + sgn(res.claimed, 2) + ' points, versus an honest ' + sgn(res.gap, 2) + '.';
@@ -445,10 +449,10 @@
           ci = k > 1 ? Sm.lo.toFixed(2) + ' to ' + Sm.hi.toFixed(2) : '<span class="muted">needs 2+ runs</span>';
           runs = String(k);
         }
-        return '<tr><th scope="row" style="font-size:inherit;text-transform:none;letter-spacing:0;color:var(--ink)"><span aria-hidden="true" style="display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:var(' + (isB ? '--series-2' : '--series-1') + ')"></span>' + name + '</th>' +
+        return '<tr><th scope="row" style="font-size:inherit;text-transform:none;letter-spacing:0;color:var(--ink);white-space:nowrap"><span aria-hidden="true" style="display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:var(' + (isB ? '--series-2' : '--series-1') + ')"></span>' + name + '</th>' +
           '<td class="mono" style="white-space:nowrap">' + acc + '</td><td class="mono" style="white-space:nowrap">' + ci + '</td><td style="white-space:nowrap">' + runs + '</td></tr>';
       }
-      setHtml(elTbody, 'tb', row('A (old model)', A, false) + row('B (new model)', B, true));
+      setHtml(elTbody, 'tb', row('A (old)', A, false) + row('B (new)', B, true));
       var head;
       if (cherry) {
         head = '<b>Headline claim:</b> “B beats A by ' + sgn(res.claimed, 2) + ' points.” <span aria-hidden="true" style="color:var(--bad)">●</span> Red flag: B’s number is a single best run with no ±, set against A’s average. The honest gap is ' + sgn(res.gap, 2) + ' points.';
@@ -520,10 +524,10 @@
     function refresh(cause, extraNote) {
       var prev = R;
       R = compute();
-      var key = settingsKey();
-      if (cause === 'rerun' && tally.key === key) tally.n++;
-      else { tally = { key: key, n: 1, lower: 0, clear: 0 }; }
-      if (cause === 'rerun' || tally.n === 1) {
+      var key = settingsKey(), count = false;
+      if (cause === 'mount' || cause === 'reset' || tally.key !== key) { tally = { key: key, n: 1, lower: 0, clear: 0 }; count = true; }
+      else if (cause === 'rerun') { tally.n++; count = true; }
+      if (count) {
         if (R.B.mean < R.A.mean) tally.lower++;
         if (R.ci && R.ci.lo > 0) tally.clear++;
       }
@@ -572,7 +576,7 @@
       var W = dims.w, H = dims.h, narrow = W < 440;
       var padL = narrow ? 34 : 70, padR = narrow ? 12 : 64;
       var p1Top = 30;
-      var p1Bot = Math.round(H * 0.56);
+      var p1Bot = Math.round(H * 0.5);
       var axis1 = p1Bot;                       // tick labels sit just below
       var p2Title = p1Bot + 42;
       var p2Top = p2Title + 20;
@@ -861,7 +865,6 @@
     on(canvas, 'pointerleave', function (e) { if (e.pointerType === 'mouse') { canvas.style.cursor = 'default'; showDot(null); } });
 
     /* ---------- controls ---------- */
-    var prevTestSd = null;
     function onSlider(el, field) {
       on(el, 'input', function () {
         var v = parseInt(el.value, 10);
@@ -874,7 +877,6 @@
           if (n <= SMALL_TEST) visited.small = true;
           if (n >= BIG_TEST) visited.big = true;
           var after = testSd((muA() + muB()) / 2);
-          if (prevTestSd === null) prevTestSd = before;
           extra = 'Test set: ' + fmtIN(n) + ' examples. Test-set luck per run is now about ±' + after.toFixed(2) + ' points (it was ±' + before.toFixed(2) + ').';
         } else if (field === 'k') {
           extra = S.k === 1 ? 'One run per model: nothing to measure the spread with.' : '';
@@ -948,6 +950,6 @@
     summary: 'Simulate two models over many random seeds and a finite test set, and learn to tell a real improvement from seed luck, test-set luck and cherry-picking.',
     tasks: TASKS,
     mount: mount,
-    _test: { tQuantile: tQuantile, tCdf: tCdf, bootstrap: bootstrap, quantileSorted: quantileSorted, summarise: summarise }
+    _test: { tQuantile: tQuantile, tCdf: tCdf, bootstrap: bootstrap, quantileSorted: quantileSorted, summarise: summarise, runScores: runScores, makeDraws: function (e, base) { return makeDraws(e, base); } }
   };
 })();

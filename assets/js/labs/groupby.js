@@ -976,7 +976,10 @@
     }
     function readText() {
       var g = selGroup();
-      if (!g) return res.scalar ? 'With no groups there is only one number to read.' : 'Tap a group (here or in the picture) to see which rows made its number.';
+      if (!g) {
+        if (!res.kept.length) return 'Nothing to read: no rows pass the filter.';
+        return res.scalar ? 'With no groups there is only one number to read.' : 'Tap a group (here or in the picture) to see which rows made its number.';
+      }
       var parts = g.rows.map(function (i) {
         var raw = ROWS[i][cfg.agg];
         if (raw === null) return 'row ' + i + ' NaN' + (cfg.missing === 'fill' ? ' → ₹0' : ' (skipped)');

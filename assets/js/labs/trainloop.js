@@ -1291,12 +1291,13 @@
         var k = b.getAttribute('data-opt');
         if (k === S.optKind) return;
         stopFinder(false);
+        var zoneWasCurrent = zone && zone.cfg === cfgKey();
         S.optKind = k;
         S.opt = makeOpt(k);
         configChanged();
         syncSegs(); updateTexts();
         say('New optimizer: ' + codeTag('torch.optim.' + (k === 'sgd' ? 'SGD' : 'Adam') + '(model.parameters(), lr=' + fmtLr(S.lr) + ')') + '. The weights are kept' +
-          (k === 'adam' ? '; a new Adam starts with empty running averages.' : '.') + (zone ? ' The LR finder result was for the old settings: run it again.' : ''));
+          (k === 'adam' ? '; a new Adam starts with empty running averages.' : '.') + (zoneWasCurrent ? ' The LR finder result was for the old optimizer: run it again.' : ''));
         afterChange();
       });
     });
@@ -1305,13 +1306,14 @@
         var v = +b.getAttribute('data-bs');
         if (v === S.bs) return;
         stopFinder(false);
+        var zoneWasCurrent = zone && zone.cfg === cfgKey();
         S.bs = v;
         syncSegs(); updateTexts();
         if (S.overfit) { say('Batch size ' + (v === 64 ? 'All 64' : v) + ' will be used when you leave overfit-one-batch mode.'); afterChange(); return; }
         configChanged();
         var extra = abandonEpoch(' (a new DataLoader deals new batches)');
         var nb = batchesPerEpoch();
-        say('New DataLoader: ' + codeTag('batch_size=' + v) + ', so ' + nb + ' ' + plural(nb, 'step', 'steps') + ' per epoch.' + extra + (zone ? ' The LR finder result was for the old batch size: run it again.' : ''));
+        say('New DataLoader: ' + codeTag('batch_size=' + v) + ', so ' + nb + ' ' + plural(nb, 'step', 'steps') + ' per epoch.' + extra + (zoneWasCurrent ? ' The LR finder result was for the old batch size: run it again.' : ''));
         afterChange();
       });
     });

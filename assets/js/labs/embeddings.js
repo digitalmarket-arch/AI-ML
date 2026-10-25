@@ -407,7 +407,7 @@
           [0, 1, 2].map(function (k) {
             return '<div style="display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center">' +
               '<label for="' + P + 's' + k + '" style="flex:0 0 5.6em;font-size:.92rem;font-weight:600">Sentence ' + (k + 1) + '</label>' +
-              '<input type="text" id="' + P + 's' + k + '" maxlength="90" spellcheck="false" autocomplete="off" value="' + esc(START_SENTENCES[k]) + '" style="flex:1 1 240px;min-width:0;font-size:1rem"></div>';
+              '<input type="text" id="' + P + 's' + k + '" maxlength="90" spellcheck="false" autocomplete="off" value="' + esc(START_SENTENCES[k]) + '" style="flex:1 1 240px;width:100%;min-width:0;font-size:1rem"></div>';
           }).join('') +
         '</div>' +
         '<div class="row" style="gap:14px">' +
@@ -495,7 +495,7 @@
           '<td aria-hidden="true" style="width:100%;padding:1px 0"><div style="position:relative;height:' + (cols.length * (barH + 2) + 2) + 'px;background:var(--surface-2);border-radius:3px">' + bars + zero + '</div></td>' +
           cols.map(function (c) { return '<td class="num mono" style="text-align:right;padding:1px 0 1px 8px;white-space:nowrap">' + fx(c.vec[k], 2) + '</td>'; }).join('') + '</tr>';
       }).join('');
-      return '<div class="table-wrap" style="width:0;min-width:100%"><table style="width:100%;border-collapse:collapse;font-size:.85rem;line-height:1.3">' +
+      return '<div class="table-wrap" style="position:relative;width:0;min-width:100%"><table style="width:100%;border-collapse:collapse;font-size:.85rem;line-height:1.3">' +
         '<caption class="visually-hidden">The 10 numbers of ' + esc(cols.map(function (c) { return c.name; }).join(' and ')) + '</caption>' + head + '<tbody>' + body + '</tbody></table></div>';
     }
     function wordBtn(i) {
@@ -648,7 +648,7 @@
           '<td class="mono num" style="text-align:right;padding:3px 6px;border-bottom:1px solid var(--line)">' + fx(v.idf, 2) + '</td>' + cells + '</tr>';
       }).join('');
       var what = S.tf === 'bow' ? 'Counts (bag of words)' : (S.l2 ? 'TF-IDF, each sentence scaled to length 1' : 'TF-IDF = count × idf');
-      var table = '<div class="table-wrap" style="width:0;min-width:100%;max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:var(--radius-sm)">' +
+      var table = '<div class="table-wrap" style="position:relative;width:0;min-width:100%;max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:var(--radius-sm)">' +
         '<table style="width:100%;border-collapse:collapse;font-size:.88rem;line-height:1.3">' +
         '<caption class="visually-hidden">' + what + ' for each word in each sentence</caption>' +
         '<thead><tr><th scope="col" ' + th.replace('text-align:right', 'text-align:left') + '>Word</th><th scope="col" ' + th + '>df</th><th scope="col" ' + th + '>idf</th>' +
@@ -679,7 +679,7 @@
         '<p class="small">' + explain + '</p>' +
         '<ul class="small" style="padding-left:1.1em">' + topLines.join('') + '</ul>' +
         '<h2 class="lab-h" style="margin-top:6px">How alike are the sentences? (cosine similarity)</h2>' +
-        '<div class="table-wrap" style="width:0;min-width:100%"><table style="border-collapse:collapse;font-size:.9rem"><caption class="visually-hidden">Cosine similarity between sentences with counts and with TF-IDF</caption>' +
+        '<div class="table-wrap" style="position:relative;width:0;min-width:100%"><table style="border-collapse:collapse;font-size:.9rem"><caption class="visually-hidden">Cosine similarity between sentences with counts and with TF-IDF</caption>' +
           '<thead><tr><th scope="col" style="text-align:left;padding:3px 8px 3px 0;font-size:.78rem;color:var(--muted)">Sentences</th><th scope="col" style="text-align:right;padding:3px 8px;font-size:.78rem;color:var(--muted)">Counts</th><th scope="col" style="text-align:right;padding:3px 0 3px 8px;font-size:.78rem;color:var(--muted)">TF-IDF</th></tr></thead>' +
           '<tbody>' + simRow(0, 1) + simRow(0, 2) + simRow(1, 2) + '</tbody></table></div>' +
         '<p class="small muted">With counts, shared filler words such as “the” make every pair of sentences look alike. TF-IDF shrinks them, so similarity depends more on the words that carry the meaning. (Scaling to length 1 does not change cosine similarity.)</p>';
