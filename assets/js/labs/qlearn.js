@@ -631,7 +631,7 @@
       var L = S.last;
       if (!L) {
         elLastDesc.textContent = 'No updates yet. Press Step to make the first move.';
-        elLastPre.textContent = 'target = r + γ × max Q(s′,a′) × (1 − done)\nnew Q = old Q + α × (target − old Q)';
+        elLastPre.textContent = 'target = r + γ × max Q(s′,a′) × (1−done)\nnew Q = old Q + α × (target − old Q)';
         return;
       }
       var where = L.block ? 'stayed at ' + cellName(L.s2) + ' (' + (L.block === 'edge' ? 'edge of the city' : 'building in the way') + ')' : 'arrived at ' + cellName(L.s2) + (L.s2 === S.map.goal && L.done ? ' (customer)' : L.done ? ' (pothole)' : '');
@@ -639,7 +639,7 @@
       var target = L.r + L.gamma * L.best * (1 - L.done);
       var neg = function (v) { var t = fmt(v, 3); return v < 0 && t.charAt(0) === '−' ? '(' + t + ')' : t; };
       elLastPre.textContent =
-        'target = r + γ × max Q(s′,a′) × (1 − done)\n' +
+        'target = r + γ × max Q(s′,a′) × (1−done)\n' +
         '  = ' + fmtR(L.r) + ' + ' + fmt(L.gamma, 2) + ' × ' + neg(L.best) + ' × (1 − ' + L.done + ')\n' +
         '  = ' + fmt(target, 3) + '\n' +
         'new Q = old Q + α × (target − old Q)\n' +
@@ -865,7 +865,7 @@
           g.restore();
           drawCar(g, T, x + cs * 0.1, y + cs * 0.1, cs * 0.3);
           g.fillStyle = T.ink; g.font = font(T, fs, '700'); g.textAlign = 'right';
-          g.fillText('−1', x + cs - cs * 0.1, y + cs * 0.17);
+          g.fillText('−1', x + cs - Math.max(6, cs * 0.1), y + Math.max(cs * 0.17, 4.5 + fs * 0.6));
           g.textAlign = 'center';
         }
         if (s === M.start) {

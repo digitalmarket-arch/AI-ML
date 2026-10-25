@@ -1586,7 +1586,8 @@ window.AIM.modules = [
     "note": "Do the classification lessons, which build several classifiers on an Asian and Indian cuisines dataset, as hands-on practice."
    }
   ],
-  "best": "codebasics-dhaval-patel-machine-learning-tutorial-python"
+  "best": "codebasics-dhaval-patel-machine-learning-tutorial-python",
+  "figs": true
  },
  {
   "id": "l2-metrics-tuning",
@@ -1723,7 +1724,8 @@ window.AIM.modules = [
     "note": "Scroll through the precision-recall, ROC-AUC and cross-validation essays to see how moving the threshold changes the numbers."
    }
   ],
-  "best": "krish-naik-complete-machine-learning-in-python-detailed-"
+  "best": "krish-naik-complete-machine-learning-in-python-detailed-",
+  "figs": true
  },
  {
   "id": "l2-trees-ensembles",
@@ -2137,7 +2139,8 @@ window.AIM.modules = [
     "note": "Read the cross-validation, categorical variables and feature engineering chapters to learn how Kaggle winners approach a competition."
    }
   ],
-  "best": "campusx-nitish-singh-100-days-of-machine-learning-days-1"
+  "best": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
+  "figs": true
  },
  {
   "id": "l3-nn-basics",
@@ -3108,7 +3111,8 @@ window.AIM.modules = [
     "note": "Type your own sentence into a real GPT-2 in your browser and try the sampling controls, such as temperature, to see the next-token probabilities change; there is nothing to install."
    }
   ],
-  "best": "vizuara-building-llms-from-scratch-lecture-series"
+  "best": "vizuara-building-llms-from-scratch-lecture-series",
+  "figs": true
  },
  {
   "id": "l4-llm-apps",
@@ -3247,7 +3251,8 @@ window.AIM.modules = [
     "note": "Take this to learn how to test and score your chatbot's answers instead of guessing, then use the same ideas with RAGAS on your own RAG app."
    }
   ],
-  "best": "campusx-nitish-singh-generative-ai-using-langchain-full-"
+  "best": "campusx-nitish-singh-generative-ai-using-langchain-full-",
+  "figs": true
  },
  {
   "id": "l4-finetuning",

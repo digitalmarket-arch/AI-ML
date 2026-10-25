@@ -749,7 +749,7 @@
     function draw() {
       rafId = 0;
       if (destroyed || dims.w < 4) return;
-      var T = readTheme(), G = geom(), W = dims.w, H = dims.h, dpr = dims.dpr, i, k;
+      var T = readTheme(), G = geom(), W = dims.w, H = dims.h, dpr = dims.dpr, i;
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
       g.fillStyle = rgb(T.surface);
       g.fillRect(0, 0, W, H);
