@@ -185,9 +185,19 @@
     return '<div class="card stack-sm"><h3>' + esc(t) + '</h3><p class="muted">' + esc(body) + '</p><a href="' + href + '">' + esc(cta) + ' →</a></div>';
   }
 
+  function tocHTML(sections) {
+    if (!sections || sections.length < 5) return '';
+    return '<nav class="card-flat stack-sm" aria-label="On this page"><strong class="small">On this page</strong><ul class="small">' + sections.map(function (s, i) {
+      return '<li><a href="#" data-jump="sec-' + i + '">' + esc(s.heading) + '</a></li>';
+    }).join('') + '</ul></nav>';
+  }
+  document.addEventListener('click', function (ev) {
+    var a = ev.target.closest && ev.target.closest('[data-jump]'); if (!a) return;
+    ev.preventDefault(); var t = document.getElementById(a.getAttribute('data-jump')); if (t) { t.scrollIntoView({ behavior: 'smooth', block: 'start' }); var h = t.querySelector('h3'); if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); } }
+  });
   function sectionsHTML(sections) {
-    return (sections || []).map(function (s) {
-      return '<section class="stack-sm"><h3>' + esc(s.heading) + '</h3>' + (s.paragraphs || []).map(function (p) { return '<p>' + inline(p) + '</p>'; }).join('') +
+    return (sections || []).map(function (s, i) {
+      return '<section class="stack-sm" id="sec-' + i + '"><h3>' + esc(s.heading) + '</h3>' + (s.paragraphs || []).map(function (p) { return '<p>' + inline(p) + '</p>'; }).join('') +
         (s.bullets && s.bullets.length ? '<ul>' + s.bullets.map(function (b) { return '<li>' + inline(b) + '</li>'; }).join('') + '</ul>' : '') + '</section>';
     }).join('');
   }
@@ -195,7 +205,7 @@
     var pg = D.pages.start || { title: 'Start here', sections: [] };
     setView('<div class="wrap stack-lg">' + crumbs([['Home', 'home'], ['Start here']]) +
       '<header class="stack-sm"><h1>' + esc(pg.title || 'Start here') + '</h1><p class="lede muted prose">Everything you need before Level 1: how the site works, free tools, time, cost and how to study well.</p></header>' +
-      '<div class="two-col"><div class="prose stack">' + sectionsHTML(pg.sections) + '</div>' +
+      '<div class="two-col"><div class="prose stack">' + tocHTML(pg.sections) + sectionsHTML(pg.sections) + '</div>' +
       '<aside class="stack">' + plannerCard() + '<div class="card stack-sm"><strong>Ready?</strong><p class="small muted">Begin with the no-coding introduction, then Python.</p><a class="btn btn-primary" href="#m-' + esc((modulesOf(1)[0] || {}).id || '') + '">Open module 1.1</a></div></aside></div></div>', 'Start here');
     bindPlanner();
   }
@@ -678,7 +688,7 @@
     var pg = D.pages.career || { title: 'Careers', sections: [] }, faq = D.pages.faq || [], src = D.pages.sources || [];
     setView('<div class="wrap stack-lg">' + crumbs([['Home', 'home'], ['Career & FAQ']]) +
       '<header class="stack-sm"><h1>' + esc(pg.title || 'Careers') + '</h1><p class="lede muted prose">What to do with these skills in India: jobs, freelancing and AI services for agencies.</p></header>' +
-      '<div class="prose stack">' + sectionsHTML(pg.sections) + '</div>' +
+      '<div class="prose stack">' + tocHTML(pg.sections) + sectionsHTML(pg.sections) + '</div>' +
       (faq.length ? '<section class="stack"><h2>Frequently asked questions</h2><div class="stack-sm">' + faq.map(function (f) { return '<details class="fold"><summary>' + esc(f.q) + '</summary><div class="prose">' + md(f.a) + '</div></details>'; }).join('') + '</div></section>' : '') +
       (src.length ? '<section class="stack-sm"><h3>Sources checked</h3><ul class="small">' + src.map(function (s) { return '<li><a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.label) + '</a> <span class="muted">(' + esc(s.checked || '') + ')</span></li>'; }).join('') + '</ul></section>' : '') +
       '</div>', 'Career & FAQ');
