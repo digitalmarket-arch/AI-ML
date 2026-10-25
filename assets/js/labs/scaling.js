@@ -61,7 +61,6 @@
     var ip = i < 0 ? s : s.slice(0, i), fp = i < 0 ? '' : s.slice(i);
     return (v < 0 && parseFloat(s) !== 0 ? '−' : '') + groupIN(ip) + fp;
   }
-  function fx(v, d) { var s = Math.abs(v).toFixed(d); return (v < 0 && parseFloat(s) !== 0 ? '−' : '') + s; }
   function signed(v, d) { var s = Math.abs(v).toFixed(d); return parseFloat(s) === 0 ? s : (v < 0 ? '−' : '+') + s; }
   function sharePct(s) { return s > 0.9999 ? '> 99.99%' : s < 0.0001 ? '< 0.01%' : (100 * s).toFixed(1) + '%'; }
   function pct(c, n) { return n ? Math.round(100 * c / n) + '%' : '—'; }
@@ -529,15 +528,15 @@
       g.font = font(T, G.small ? 11 : 12, 700); g.textAlign = 'center'; g.textBaseline = 'middle';
       var placed = [{ x: qx, y: qy, r: r + 7 }], spots = [[10, -10], [-10, -10], [10, 10], [-10, 10], [0, -15], [0, 15]];
       NB.forEach(function (nb, rank) {
-        var px = X1(G, A[nb.j].inc), py = Y1(G, A[nb.j].age), best = spots[0], k, m;
-        for (k = 0; k < spots.length; k++) {
-          var lx = px + spots[k][0], ly = py + spots[k][1], free = lx > G.pl + 4 && lx < G.pl + G.pw - 4 && ly > G.pt + 4;
+        var px = X1(G, A[nb.j].inc), py = Y1(G, A[nb.j].age), best = spots[0], c, m;
+        for (c = 0; c < spots.length; c++) {
+          var lx = px + spots[c][0], ly = py + spots[c][1], free = lx > G.pl + 4 && lx < G.pl + G.pw - 4 && ly > G.pt + 4;
           for (m = 0; m < placed.length && free; m++) if (Math.abs(placed[m].x - lx) < (placed[m].r || 9) && Math.abs(placed[m].y - ly) < (placed[m].r || 10)) free = false;
           for (m = 0; m < NB.length && free; m++) {
             var ox = X1(G, A[NB[m].j].inc), oy = Y1(G, A[NB[m].j].age);
             if (m !== rank && Math.abs(ox - lx) < r + 5 && Math.abs(oy - ly) < r + 5) free = false;
           }
-          if (free) { best = spots[k]; break; }
+          if (free) { best = spots[c]; break; }
         }
         placed.push({ x: px + best[0], y: py + best[1] });
         haloText(T, String(rank + 1), px + best[0], py + best[1]);
@@ -880,7 +879,7 @@
     function Y3(G, z) { return G.pt + (G.y1 - z) * G.k; }
     function drawP3(T) {
       if (!disp) return;
-      var G = geom3(), M = S.fitAll ? R3.leak : R3.honest, r = dotR(), i, x, y;
+      var G = geom3(), M = S.fitAll ? R3.leak : R3.honest, r = dotR(), x, y;
       var step = G.k < 26 ? 2 : 1;
       g.lineWidth = 1; g.font = font(T, G.small ? 11 : 12); g.fillStyle = T.muted;
       g.textAlign = 'center'; g.textBaseline = 'top';
