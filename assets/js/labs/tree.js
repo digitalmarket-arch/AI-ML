@@ -202,7 +202,7 @@
     lab.appendChild(h('p', { class: 'lab-note', html:
       '<b>What you are seeing:</b> each dot is one farm\'s rice season, placed by how much rain fell (left to right) and how warm it was (bottom to top). ' +
       'A decision tree sorts farms by asking yes/no questions such as "Rain ≤ 1,000 mm?". Every question is a straight cut across the map, and each shaded box is a <i>leaf</i> (an end point of the tree) showing what it predicts there. ' +
-      'The tree learns only from the filled dots (training farms). The rings are test farms kept aside to check how it does on farms it has never seen.' }));
+      'The tree learns only from the filled dots (training farms). The rings are test farms kept aside to check how it does on farms it has never seen. <i>Accuracy</i> = the share of farms whose harvest it predicts correctly.' }));
 
     var body = h('div', { class: 'lab-body' });
     var left = h('div', { class: 'stack', style: 'gap:10px' });
@@ -321,7 +321,7 @@
       treeBox
     ]));
     lab.appendChild(body);
-    lab.appendChild(h('p', { class: 'lab-note', html: '<b>Why it matters in real ML:</b> trees and forests of trees (and boosted trees such as XGBoost) are still the first choice for table data like loan, crop-insurance and fraud records, and limiting depth is exactly how engineers stop them memorising noise.' }));
+    lab.appendChild(h('p', { class: 'lab-note', html: '<b>Why it matters in real ML:</b> trees and forests of trees (and boosted trees such as XGBoost, where each new tree fixes the mistakes of the ones before it) are still the first choice for table data like loan, crop-insurance and fraud records, and limiting depth is exactly how engineers stop them memorising noise.' }));
     root.appendChild(lab);
 
     /* ---------- colours (read from CSS variables at draw time) ---------- */
@@ -686,11 +686,16 @@
     }
 
     /* ---------- depth experiment chart ---------- */
+    var chartSig = '';
     function drawChart() {
-      while (chart.firstChild) chart.removeChild(chart.firstChild);
-      var Wc = 300, Hc = 150, l = 38, r = 10, t = 8, b = 30;
       var vis = visited[keyBase()] || {};
       var ds = Object.keys(vis).map(Number).sort(function (a, c) { return a - c; });
+      // rebuild the SVG only when what it shows has changed (not on every hover frame)
+      var sig = keyBase() + '|' + ds.join(',') + '|' + st.depth + '|' + (st.forest ? cur.fte : '-');
+      if (sig === chartSig) return;
+      chartSig = sig;
+      while (chart.firstChild) chart.removeChild(chart.firstChild);
+      var Wc = 300, Hc = 150, l = 38, r = 10, t = 8, b = 30;
       var vals = [];
       ds.forEach(function (d) { vals.push(sweep[d - 1].tr, sweep[d - 1].te); });
       if (st.forest) vals.push(cur.fte);
@@ -778,7 +783,7 @@
       var msg;
       if (st.forest) {
         if (st.nTrees === 1) msg = 'A forest of one tree is just one tree trained on a random re-sample of the farms. Add more trees and watch the vote smooth out the blocky edges.';
-        else if (cur.fte > cur.te + 1e-9) msg = 'The forest wins: <b>' + pct(cur.fte) + '</b> on test farms vs ' + pct(cur.te) + ' for one tree. Each of the ' + st.nTrees + ' trees learns from a bootstrap sample (farms picked at random, with repeats) and picks a random feature at each split, so they make different mistakes, and the vote cancels many of them out.';
+        else if (cur.fte > cur.te + 1e-9) msg = 'The forest wins: <b>' + pct(cur.fte) + '</b> on test farms vs ' + pct(cur.te) + ' for one tree. Each of the ' + st.nTrees + ' trees learns from a bootstrap sample (farms picked at random, with repeats) and, for each question, may only use one <i>feature</i> (input column: rain or temperature) picked at random, so they make different mistakes, and the vote cancels many of them out.';
         else msg = 'Here the forest does not beat the single tree (' + pct(cur.fte) + ' vs ' + pct(cur.te) + '). Try a deeper tree, more trees, or press Re-roll forest.';
       } else if (st.depth === 1) {
         msg = 'Depth 1 is a <b>stump</b>: one question (' + (cur.tree.root.leaf ? 'none possible' : (cur.tree.root.f === 0 ? 'Rain' : 'Temp') + ' ≤ ' + fmtFeat(cur.tree.root.f, cur.tree.root.thr)) + '), so one straight cut. Simple, but it misses a lot.';
@@ -789,7 +794,7 @@
       } else if (cur.tr - cur.te > 0.12) {
         msg = 'Train ' + pct(cur.tr) + ' vs test ' + pct(cur.te) + ': the big gap means the tree is fitting farms it has seen much better than new ones.';
       } else {
-        msg = 'Move <b>Max depth</b> and watch both accuracies. Train accuracy keeps climbing as the tree grows; test accuracy climbs, then falls.';
+        msg = 'Move <b>Max depth</b> and watch both accuracies. Train accuracy never goes down as the tree grows; test accuracy climbs, then falls.';
       }
       if (coach.innerHTML !== msg) coach.innerHTML = msg;
       treeHead.textContent = cur.tree.leaves + ' leaves · depth ' + cur.tree.depth;
@@ -856,7 +861,7 @@
     function probeAt(p, touch) {
       var hit = nearest(p, touch ? 22 : 12);
       if (hit) return hit;
-      if (inPlot(p)) return { kind: 'loc', x: [invX(p[0]), invY(p[1])] };
+      if (inPlot(p)) return { kind: 'loc', x: [Math.round(invX(p[0])), Math.round(invY(p[1]) * 10) / 10] };
       return null;
     }
     function sameProbe(a, b) {
