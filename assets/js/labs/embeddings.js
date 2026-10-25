@@ -366,7 +366,7 @@
                 '<button type="button" data-rank="cos" aria-pressed="true">Cosine similarity</button>' +
                 '<button type="button" data-rank="euc" aria-pressed="false">Euclidean distance</button>' +
               '</div></div>' +
-            '<div id="' + P + 'nbody"></div>' +
+            '<div class="stack-sm" id="' + P + 'nbody"></div>' +
           '</section>' +
         '</div>' +
         '<div class="lab-controls">' +
@@ -390,8 +390,8 @@
         '</div>' +
       '</div>' +
       '<div style="display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));align-items:start">' +
-        '<section class="card stack-sm" aria-labelledby="' + P + 'ah"><h2 class="lab-h" id="' + P + 'ah">Analogy result</h2><div id="' + P + 'abody"></div></section>' +
-        '<section class="card stack-sm" aria-labelledby="' + P + 'ch"><h2 class="lab-h" id="' + P + 'ch">Cosine similarity vs Euclidean distance</h2><div id="' + P + 'cbody"></div></section>' +
+        '<section class="card stack-sm" aria-labelledby="' + P + 'ah"><h2 class="lab-h" id="' + P + 'ah">Analogy result</h2><div class="stack-sm" id="' + P + 'abody"></div></section>' +
+        '<section class="card stack-sm" aria-labelledby="' + P + 'ch"><h2 class="lab-h" id="' + P + 'ch">Cosine similarity vs Euclidean distance</h2><div class="stack-sm" id="' + P + 'cbody"></div></section>' +
       '</div>' +
       '<section class="card stack" aria-labelledby="' + P + 'th">' +
         '<h2 class="lab-h" id="' + P + 'th">From words to sentences: bag of words vs TF-IDF</h2>' +
@@ -533,7 +533,7 @@
       elNBody.innerHTML =
         '<p class="small">' + esc(nameOf(i)) + ' (' + KINDS[WORDS[i][1]].label + ') ' + (S.rank === 'euc' ? 'by Euclidean distance (smallest first):' : 'by cosine similarity (biggest first):') + '</p>' +
         '<ol style="padding-left:1.4em;margin:0">' + items + '</ol>' + worked +
-        '<h2 class="lab-h" style="margin-top:6px">The 10 numbers of ' + q(esc(nameOf(i))) + '</h2>' +
+        '<h2 class="lab-h" style="margin-top:4px">The 10 numbers of ' + q(esc(nameOf(i))) + '</h2>' +
         vecTable([{ name: nameOf(i), vec: v, cssVar: '--series-1' }]) + defs;
     }
 
@@ -600,7 +600,7 @@
       var r1 = same ? 0 : rankOf(c.p, c.q);
       var stat = function (k, v) { return '<div class="stat"><div class="k">' + k + '</div><div class="v">' + v + '</div></div>'; };
       elCBody.innerHTML =
-        '<div class="lab-stats" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">' +
+        '<div class="lab-stats" style="grid-template-columns:repeat(2,minmax(0,1fr))">' +
           stat('Cosine similarity', fx(c.cos, 3)) + stat('Angle between', Math.round(c.angle) + '°') +
           stat('Euclidean (10 numbers)', fx(c.eu, 2)) + stat('Gap on the map', fx(c.map, 2) + ' (' + pctW + '%)') +
         '</div>' +

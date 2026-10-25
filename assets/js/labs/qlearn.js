@@ -314,7 +314,7 @@
       alpha: DEF.alpha, gamma: DEF.gamma, eps: DEF.eps, decay: false,
       per: DEF.per, speed: DEF.speed, view: 'arrow', showRoute: true, showBest: false, tapMode: 'look',
       episodes: 0, hist: [], ep: null, last: null,
-      explored: false, g0eps: 0, armed: {}, t3Note: false, notWorthNote: {},
+      explored: false, g0eps: 0, g0wasGood: false, g0Note: false, armed: {}, t3Note: false,
       running: false, sel: 0, hover: -1, focused: false
     };
     S.sel = S.map.start;
