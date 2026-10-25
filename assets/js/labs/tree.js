@@ -186,7 +186,7 @@
     var dataSig = 'base', dataVer = 0, added = 0;
     var visited = {};            // key "minLeaf|data" -> {depth: true}
     var sweep = null, sweepKey = '';
-    var fcache = { key: '', trees: [] };
+    var fcache = { key: '', trees: [] }, fstore = {}, fkeys = []; // small cache of recent forests
     var cur = { tree: null };
     var probe = null;            // {kind:'pt', set, i} | {kind:'loc', x} | {kind:'node', id}
     var note = '';               // one-off message for the readout
@@ -357,7 +357,14 @@
     function keyBase() { return st.minLeaf + '|' + dataSig; }
     function forestTrees() {
       var key = st.depth + '|' + st.minLeaf + '|' + st.seed + '|' + dataSig;
-      if (fcache.key !== key) { fcache.key = key; fcache.trees = []; }
+      if (fcache.key !== key) {
+        if (!fstore[key]) {
+          fstore[key] = [];
+          fkeys.push(key);
+          if (fkeys.length > 12) delete fstore[fkeys.shift()];
+        }
+        fcache.key = key; fcache.trees = fstore[key];
+      }
       while (fcache.trees.length < st.nTrees) {
         var i = fcache.trees.length;
         var rnd = mulberry32(st.seed * 7919 + i * 104729 + 13);
