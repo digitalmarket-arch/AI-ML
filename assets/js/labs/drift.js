@@ -287,7 +287,7 @@
           '<div class="lab-legend" id="' + P + 'hleg"></div>' +
           '<p class="small" id="' + P + 'model"></p>' +
           '<details class="fold"><summary>See the PSI sum, bin by bin</summary><div>' +
-            '<div class="table-wrap" tabindex="0" role="region" aria-label="PSI sum, bin by bin"><table class="simple" style="font-variant-numeric:tabular-nums;font-size:.88rem"><thead><tr><th scope="col">Amount</th><th scope="col" style="text-transform:none;letter-spacing:0">e: training share</th><th scope="col" id="' + P + 'tha" style="text-transform:none;letter-spacing:0">a: week share</th><th scope="col" style="text-transform:none;letter-spacing:0">(a − e) × ln(a ÷ e)</th></tr></thead><tbody id="' + P + 'tbody"></tbody></table></div>' +
+            '<div class="table-wrap" tabindex="0" role="region" aria-label="PSI sum, bin by bin"><table class="simple" style="font-variant-numeric:tabular-nums;font-size:.88rem"><thead><tr><th scope="col" style="text-transform:none;letter-spacing:0">Amount</th><th scope="col" style="text-transform:none;letter-spacing:0">e: training share</th><th scope="col" id="' + P + 'tha" style="text-transform:none;letter-spacing:0">a: week share</th><th scope="col" style="text-transform:none;letter-spacing:0">(a − e) × ln(a ÷ e)</th></tr></thead><tbody id="' + P + 'tbody"></tbody></table></div>' +
           '</div></details>' +
         '</div>' +
         '<div class="lab-controls">' +
@@ -436,7 +436,7 @@
       var r = R[w], s = '<strong>Week ' + w + '</strong>: PSI ' + fmtPsi(r.psi) + ' (' + band(r.psi) + ')';
       var big = 0;
       for (var i = 1; i < NB; i++) if (r.ps.terms[i] > r.ps.terms[big]) big = i;
-      if (r.psi >= MODERATE) s += '. The biggest change is in ' + binName(big) + ' payments: ' + pct(r.ps.e[big], 1) + ' of the baseline, ' + pct(r.ps.a[big], 1) + ' this week';
+      if (r.psi >= MODERATE) s += '. The biggest change is in ' + binName(big) + ' payments: ' + pct(r.ps.e[big], 1) + ' of ' + (models[r.m].v === 1 ? 'the training data' : 'the data model v' + models[r.m].v + ' learned from') + ', ' + pct(r.ps.a[big], 1) + ' this week';
       s += '. ';
       if (w <= S.today - S.delay) s += 'Accuracy ' + pct(r.acc, 1) + ', recall ' + pct(r.rec, 0) + '.';
       else if (w + S.delay <= WEEKS) s += 'Its labels arrive in week ' + (w + S.delay) + '.';
@@ -657,7 +657,8 @@
       var labels = [];
       function vline(x, color, dash, text) {
         g.strokeStyle = color; g.lineWidth = 1.5; g.setLineDash(dash);
-        g.beginPath(); g.moveTo(x, psiTop); g.lineTo(x, perfBot); g.stroke(); g.setLineDash([]);
+        // one stroke per panel, so the line does not run through the lower panel's title
+        g.beginPath(); g.moveTo(x, psiTop); g.lineTo(x, psiBot); g.moveTo(x, perfTop); g.lineTo(x, perfBot); g.stroke(); g.setLineDash([]);
         labels.push({ x: x + 6, text: text, color: color });
       }
       if (S.strength > 0 && S.start <= WEEKS) vline(Math.round(Lm + (S.start - 1) * slot) + 0.5, T.muted, [2, 3], 'drift starts');
@@ -993,7 +994,7 @@
       return w >= 1 && w <= WEEKS ? w : 0;
     }
     on(tcan, 'pointerdown', function (e) {
-      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      if (!e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
       down = { id: e.pointerId, x: e.clientX, y: e.clientY };
     });
     on(tcan, 'pointerup', function (e) {

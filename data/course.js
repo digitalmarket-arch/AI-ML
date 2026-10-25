@@ -2989,7 +2989,8 @@ window.AIM.modules = [
    }
   ],
   "best": "campusx-fastapi-for-machine-learning-playlist",
-  "figs": true
+  "figs": true,
+  "lab": "drift"
  },
  {
   "id": "l4-llm-internals",

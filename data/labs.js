@@ -435,6 +435,30 @@ window.AIM.labs = [
   ]
  },
  {
+  "id": "drift",
+  "module": "l3-mlops",
+  "title": "Data drift monitor",
+  "summary": "Watch a UPI fraud model drift through festival season and a new scam, catch it early with a PSI drift score, and see why accuracy alarms lag while labels are weeks late.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Find the first week whose PSI goes above 0.25 (major drift): click or tap it on the weekly chart, or pick it with the “Week shown” slider."
+   },
+   {
+    "id": "t2",
+    "text": "Set an alert threshold that makes the drift alarm ring in a drift week, with zero false alarms in the calm weeks before the drift."
+   },
+   {
+    "id": "t3",
+    "text": "Once labels show recall below 70%, press “Retrain on recent data”, then step on until labels show the new model’s recall at 80% or more."
+   },
+   {
+    "id": "t4",
+    "text": "Once the accuracy alarm (■) has rung, move the “Labels arrive” slider. The drift alarm (◆) stays put, but the accuracy alarm moves: with labels 2 or more weeks late it rings weeks after the drift alarm."
+   }
+  ]
+ },
+ {
   "id": "sampling",
   "module": "l4-llm-internals",
   "title": "Next-token sampling: temperature, top-k, top-p",
