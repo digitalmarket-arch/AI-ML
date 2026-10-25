@@ -349,7 +349,8 @@ window.AIM.modules = [
     "id": "3blue1brown-grant-sanderson-large-language-models-explai",
     "note": "A short animated English hook on how ChatGPT-style models predict the next word; watch it after the Hindi generative AI video to lock in the idea."
    }
-  ]
+  ],
+  "best": "apna-college-complete-basics-of-ai-in-one-shot"
  },
  {
   "id": "l1-python",
@@ -487,7 +488,8 @@ window.AIM.modules = [
     "id": "kaggle-colin-morris-kaggle-learn-python",
     "note": "Finish the module with these short notebook lessons; they also teach the Kaggle Notebook setup used in later ML modules."
    }
-  ]
+  ],
+  "best": "codewithharry-haris-ali-khan-python-tutorial-for-absolut"
  },
  {
   "id": "l1-tools",
@@ -623,7 +625,8 @@ window.AIM.modules = [
     "id": "mit-missing-semester-agentic-coding-missing-semester-202",
     "note": "Watch last, once the terminal and Git feel familiar, to learn how to use AI coding assistants as a tutor and reviewer rather than a crutch."
    }
-  ]
+  ],
+  "best": "apna-college-shradha-khapra-complete-git-and-github-tuto"
  },
  {
   "id": "l1-stats",
@@ -760,7 +763,8 @@ window.AIM.modules = [
     "id": "khan-academy-khan-academy-statistics-and-probability",
     "note": "Do the practice exercises on summarising data, probability, sampling distributions, confidence intervals and significance tests to check yourself with instant feedback."
    }
-  ]
+  ],
+  "best": "krish-naik-hindi-stats-for-data-science-in-hindi-detaile"
  },
  {
   "id": "l1-linalg-calc",
@@ -895,7 +899,8 @@ window.AIM.modules = [
     "id": "3blue1brown-grant-sanderson-gradient-descent-how-neural-",
     "note": "Watch last, to see a gradient as the downhill direction on a cost landscape and how a neural network uses it to learn."
    }
-  ]
+  ],
+  "best": "campusx-nitish-singh-maths-for-machine-learning-campusx"
  },
  {
   "id": "l1-numpy-pandas",
@@ -1030,7 +1035,8 @@ window.AIM.modules = [
     "id": "kaggle-rachael-tatman-maintained-by-alexis-cook-kaggle-l",
     "note": "Practise the missing-values and date-parsing lessons here to lock in the cleaning skills from CampusX Days 34-40."
    }
-  ]
+  ],
+  "best": "campusx-nitish-singh-campusx-data-science-mentorship-pro"
  },
  {
   "id": "l1-eda-viz-sql",
@@ -1160,7 +1166,8 @@ window.AIM.modules = [
     "id": "kaggle-alexis-cook-kaggle-learn-data-visualization-seabo",
     "note": "Practise choosing and drawing Seaborn charts in the browser, and finish its mini-project on a dataset you pick."
    }
-  ]
+  ],
+  "best": "campusx-nitish-singh-campusx-data-science-mentorship-pro"
  },
  {
   "id": "l2-ml-foundations",
@@ -1297,7 +1304,8 @@ window.AIM.modules = [
     "id": "amazon-machine-learning-university-mlu-explain-visual-es",
     "note": "Scroll through the bias-variance and train/test/validation essays to see overfitting and underfitting change visually without any maths."
    }
-  ]
+  ],
+  "best": "campusx-nitish-singh-100-days-of-machine-learning-days-1"
  },
  {
   "id": "l2-regression",
@@ -1434,7 +1442,8 @@ window.AIM.modules = [
     "id": "google-for-developers-machine-learning-crash-course",
     "note": "Do the linear regression, loss and gradient descent modules and play with the interactive widgets to watch the loss go down."
    }
-  ]
+  ],
+  "best": "campusx-nitish-singh-100-days-of-machine-learning-days-1"
  },
  {
   "id": "l2-classification",
@@ -1570,7 +1579,8 @@ window.AIM.modules = [
     "id": "microsoft-cloud-advocates-ml-for-beginners-12-week-26-le",
     "note": "Do the classification lessons, which build several classifiers on an Asian and Indian cuisines dataset, as hands-on practice."
    }
-  ]
+  ],
+  "best": "codebasics-dhaval-patel-machine-learning-tutorial-python"
  },
  {
   "id": "l2-metrics-tuning",
@@ -1706,7 +1716,8 @@ window.AIM.modules = [
     "id": "amazon-machine-learning-university-mlu-explain-visual-es",
     "note": "Scroll through the precision-recall, ROC-AUC and cross-validation essays to see how moving the threshold changes the numbers."
    }
-  ]
+  ],
+  "best": "krish-naik-complete-machine-learning-in-python-detailed-"
  },
  {
   "id": "l2-trees-ensembles",
@@ -1841,7 +1852,8 @@ window.AIM.modules = [
     "id": "kaggle-dan-becker-kaggle-learn-machine-learning-explaina",
     "note": "Do the permutation importance and SHAP lessons to explain your tree model's predictions; no Hindi or Indian-English option for SHAP was found."
    }
-  ]
+  ],
+  "best": "campusx-nitish-singh-100-days-of-machine-learning-days-1"
  },
  {
   "id": "l2-unsupervised",
@@ -1979,7 +1991,8 @@ window.AIM.modules = [
     "id": "jake-vanderplas-python-data-science-handbook-free-online",
     "note": "Read the 'In Depth' chapters on k-means, PCA and manifold learning and run each notebook yourself."
    }
-  ]
+  ],
+  "best": "campusx-nitish-singh-100-days-of-machine-learning-days-1"
  },
  {
   "id": "l2-feature-eng",
@@ -2117,7 +2130,8 @@ window.AIM.modules = [
     "id": "abhishek-thakur-kaggle-grandmaster-approaching-almost-an",
     "note": "Read the cross-validation, categorical variables and feature engineering chapters to learn how Kaggle winners approach a competition."
    }
-  ]
+  ],
+  "best": "campusx-nitish-singh-100-days-of-machine-learning-days-1"
  },
  {
   "id": "l3-nn-basics",
@@ -2256,7 +2270,8 @@ window.AIM.modules = [
     "id": "google-tensorflow-team-tensorflow-playground-interactive",
     "note": "Spend 30 minutes changing layers, activation functions, learning rate and regularisation here to see overfitting and vanishing gradients happen in front of you, with no code."
    }
-  ]
+  ],
+  "best": "campusx-nitish-singh-100-days-of-deep-learning-ann-to-rn"
  },
  {
   "id": "l3-pytorch",
@@ -2393,7 +2408,8 @@ window.AIM.modules = [
     "id": "aston-zhang-zachary-lipton-mu-li-alexander-smola-dive-in",
     "note": "Keep open as a reference with the PyTorch tab selected; its preliminaries and 'builders' guide' chapters explain tensors, autograd, custom layers, GPUs and saving models."
    }
-  ]
+  ],
+  "best": "campusx-practical-deep-learning-using-pytorch"
  },
  {
   "id": "l3-cv",
@@ -2532,7 +2548,8 @@ window.AIM.modules = [
     "id": "stanford-online-fei-fei-li-s-group-stanford-cs231n-deep-",
     "note": "Optional depth: use the 2025 lectures on CNN architectures, detection and segmentation, and vision transformers when you want the global standard treatment."
    }
-  ]
+  ],
+  "best": "campusx-nitish-singh-100-days-of-deep-learning-ann-to-rn"
  },
  {
   "id": "l3-nlp",
@@ -2668,7 +2685,8 @@ window.AIM.modules = [
     "id": "lena-voita-nlp-course-for-you-word-embeddings-text-class",
     "note": "Read the word-embeddings, text-classification and seq2seq-with-attention lectures alongside the videos, and try the small interactive exercises to check your understanding."
    }
-  ]
+  ],
+  "best": "krish-naik-nlp-live-series-classical-nlp-to-rnn-lstm-enc"
  },
  {
   "id": "l3-transformers",
@@ -2804,7 +2822,8 @@ window.AIM.modules = [
     "id": "jay-alammar-the-illustrated-transformer-plus-the-illustr",
     "note": "Read The Illustrated Transformer for the Q/K/V, multi-head attention and positional-encoding diagrams, then The Illustrated BERT to see the encoder-only (BERT) vs decoder-only (GPT) difference."
    }
-  ]
+  ],
+  "best": "campusx-nitish-singh-100-days-of-deep-learning-ann-to-rn"
  },
  {
   "id": "l3-mlops",
@@ -2942,7 +2961,8 @@ window.AIM.modules = [
     "id": "datatalksclub-alexey-grigorev-and-team-mlops-zoomcamp",
     "note": "Once the Indian-teacher videos are done, use this self-paced global-English course to tie everything together: experiment tracking, orchestration, deployment and monitoring, with homework."
    }
-  ]
+  ],
+  "best": "campusx-fastapi-for-machine-learning-playlist"
  },
  {
   "id": "l4-llm-internals",
@@ -3077,7 +3097,8 @@ window.AIM.modules = [
     "id": "polo-club-of-data-science-georgia-tech-transformer-expla",
     "note": "Type your own sentence into a real GPT-2 in your browser and try the sampling controls, such as temperature, to see the next-token probabilities change; there is nothing to install."
    }
-  ]
+  ],
+  "best": "vizuara-building-llms-from-scratch-lecture-series"
  },
  {
   "id": "l4-llm-apps",
@@ -3215,7 +3236,8 @@ window.AIM.modules = [
     "id": "evidently-ai-llm-evaluations-course",
     "note": "Take this to learn how to test and score your chatbot's answers instead of guessing, then use the same ideas with RAGAS on your own RAG app."
    }
-  ]
+  ],
+  "best": "campusx-nitish-singh-generative-ai-using-langchain-full-"
  },
  {
   "id": "l4-finetuning",
@@ -3349,7 +3371,8 @@ window.AIM.modules = [
     "id": "hugging-face-a-smol-course-instruction-tuning-evaluation",
     "note": "After Chapter 11, do Unit 2 'Evaluation' and Unit 3 'Preference Alignment' (DPO) to evaluate and align your own small fine-tuned model."
    }
-  ]
+  ],
+  "best": "krish-naik-finetuning-llm-playlist"
  },
  {
   "id": "l4-agents",
@@ -3486,7 +3509,8 @@ window.AIM.modules = [
     "id": "deeplearning-ai-with-arize-ai-evaluating-ai-agents",
     "note": "Take this short course to learn how to test an agent's tool choices and final answers systematically before anyone relies on it."
    }
-  ]
+  ],
+  "best": "campusx-nitish-singh-agentic-ai-using-langgraph-full-pla"
  },
  {
   "id": "l4-gen-vision",
@@ -3620,7 +3644,8 @@ window.AIM.modules = [
     "id": "polo-club-georgia-tech-google-pair-gan-lab-interactive",
     "note": "Train a toy GAN in your browser and watch the generator and discriminator compete. This makes the GAN lectures much easier to follow."
    }
-  ]
+  ],
+  "best": "iit-madras-mathematical-foundations-of-generative-ai-iit"
  },
  {
   "id": "l4-rl",
@@ -3753,7 +3778,8 @@ window.AIM.modules = [
     "id": "hugging-face-blog-illustrating-reinforcement-learning-fr",
     "note": "Read it last for the intuition of how a reward model plus PPO trains chat models (RLHF). Then open the RLHF Book for newer methods such as DPO and GRPO."
    }
-  ]
+  ],
+  "best": "prof-balaraman-ravindran-iit-madras-nptel-nptel-reinforc"
  },
  {
   "id": "l4-research-career",
@@ -3891,6 +3917,7 @@ window.AIM.modules = [
     "id": "andrej-karpathy-let-s-reproduce-gpt-2-124m",
     "note": "Use this as your 'reproduce a paper' project: follow along on a rented cloud GPU with the build-nanogpt code, then write up how your results compare with the GPT-2 paper."
    }
-  ]
+  ],
+  "best": "raj-dandekar-3-ways-to-read-an-ml-research-paper"
  }
 ];
