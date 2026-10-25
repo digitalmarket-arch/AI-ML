@@ -149,7 +149,7 @@
     root.innerHTML =
       '<div class="lab">' +
         '<p class="lab-note"><strong>What you are seeing:</strong> each mark is a past loan from a small bank. Circles were repaid; squares <em>defaulted</em> (the borrower stopped paying). These two outcomes are the <em>classes</em> (groups) the model predicts. Left to right is the borrower’s monthly income; bottom to top is the EMIs (monthly loan instalments) they were already paying. ' +
-        'Both features are <em>scaled</em> (squeezed to run from 0 to 1), so a step across the map counts as much as a step up it. ' +
+        'These two <em>features</em> (the facts the model looks at) are <em>scaled</em> (squeezed to run from 0 to 1), so a step across the map counts as much as a step up it. ' +
         'K-Nearest Neighbours (KNN) judges a new applicant by finding the K closest past loans and letting them vote. ' +
         'The background shows that vote for every spot: deeper colour means more of the K neighbours agree, and the thin line is the <em>decision boundary</em> (where the prediction flips). ' +
         'Move over the map, or drag on a phone, to place the <em>probe</em> (a pretend new applicant) and see who its neighbours are.</p>' +
@@ -219,7 +219,7 @@
     var S = {
       pts: makeData(), K: START_K, man: false, cls: 0,
       probe: { x: START_PROBE.x, y: START_PROBE.y }, hover: -1,
-      tried: {}, userTried: {}, userTriedCount: 0, kTouched: false, revealed: false
+      tried: {}, userTried: {}, userTriedCount: 0, kTouched: false, revealed: false, notice: ''
     };
     EXAMPLE_KS.forEach(function (k) { S.tried[k] = true; });
     var done = {};
@@ -712,10 +712,12 @@
       var pad = 7, gap = 10, icon = 11, w = pad * 2 - gap, h = 22;
       var widths = items.map(function (c) { return icon + 4 + g.measureText(String(nb.counts[c])).width; });
       widths.forEach(function (wd) { w += wd + gap; });
-      // try spots round the probe (corners first, then sides) and keep the one that hides the fewest loans
+      // try spots round the probe (corners first, then sides) and keep the one that hides the fewest loans;
+      // hiding one of the probe's own voters costs more, since those are the loans the badge is about
       var cands = [[pp.x + 13, pp.y - 13 - h], [pp.x - 13 - w, pp.y - 13 - h], [pp.x + 13, pp.y + 13], [pp.x - 13 - w, pp.y + 13],
         [pp.x + 16, pp.y - h / 2], [pp.x - 16 - w, pp.y - h / 2], [pp.x - w / 2, pp.y - 16 - h], [pp.x - w / 2, pp.y + 16]];
-      var x = 0, y = 0, bestScore = Infinity, r = pointRadius() + 1, pts = S.pts;
+      var x = 0, y = 0, bestScore = Infinity, r = pointRadius() + 1, pts = S.pts, voter = {};
+      for (i = 0; i < nb.Ke; i++) voter[nb.idx[i]] = true;
       for (var ci = 0; ci < cands.length; ci++) {
         var cx0 = clamp(cands[ci][0], Gm.pl + 2, Math.max(Gm.pl + 2, Gm.pl + Gm.pw - w - 2));
         var cy0 = clamp(cands[ci][1], Gm.pt + 2, Math.max(Gm.pt + 2, Gm.pt + Gm.ph - h - 2));
@@ -724,7 +726,7 @@
         if (pp.x > cx0 - 9 && pp.x < cx0 + w + 9 && pp.y > cy0 - 9 && pp.y < cy0 + h + 9) score += 1000;
         for (i = 0; i < pts.length; i++) {
           var tq = toPx(Gm, pts[i].x, pts[i].y);
-          if (tq.x > cx0 - r && tq.x < cx0 + w + r && tq.y > cy0 - r && tq.y < cy0 + h + r) score++;
+          if (tq.x > cx0 - r && tq.x < cx0 + w + r && tq.y > cy0 - r && tq.y < cy0 + h + r) score += voter[i] ? 4 : 1;
         }
         if (score < bestScore) { bestScore = score; x = cx0; y = cy0; }
       }
@@ -899,10 +901,11 @@
           (S.K > n ? ' K is bigger than the number of loans, so all ' + n + ' vote.' : '') +
           (S.hover >= 0 ? ' <b>Click to remove this loan.</b>' : '');
       }
+      if (S.notice) s += ' <b>' + S.notice + '</b>';
       if (s !== lastReadout) { lastReadout = s; elReadout.innerHTML = s; }
     }
     var DIST_TEXT = {
-      euc: 'Euclidean: straight-line distance, as a bird flies: √(across² + up²). The dashed neighbourhood around the probe is round.',
+      euc: 'Euclidean: straight-line distance, as a bird flies: √(across² + up²). The dashed neighbourhood around the probe is round (it looks oval when the map is wider than it is tall, because both axes run from 0 to 1).',
       man: 'Manhattan: city-block distance, like an auto-rickshaw on Chandigarh’s grid of roads: across + up, no diagonal short cuts. The dashed neighbourhood is a diamond.'
     };
 
@@ -917,6 +920,7 @@
     }
     // how: 'add' (a loan was appended), a number (that loan index was removed), or nothing (rebuild everything)
     function dataChanged(how) {
+      S.notice = '';
       computeModel(); computeAtK();
       var gridOk = G.ready && !dirty.nbrs && G.len && G.len.length === (G.nx + 1) * (G.ny + 1);
       if (gridOk && how === 'add') gridAddLast();
@@ -949,8 +953,10 @@
       Array.prototype.forEach.call(clsBtnEls, function (b) { b.setAttribute('aria-pressed', String(+b.getAttribute('data-cls') === c)); });
       updateStats();
     }
+    // a short message shown under the map (and read out) until the loans change
+    function notify(s) { S.notice = s; announce(s); requestDraw(); }
     function addPoint(x, y) {
-      if (S.pts.length >= MAX_POINTS) { announce('That is the limit of ' + MAX_POINTS + ' loans. Remove some first.'); elReadout.innerHTML = lastReadout = 'That is the limit of ' + MAX_POINTS + ' loans. Remove some first.'; return; }
+      if (S.pts.length >= MAX_POINTS) { notify('That is the limit of ' + MAX_POINTS + ' loans. Remove some first.'); return; }
       S.pts.push({ x: clamp(x, 0, 1), y: clamp(y, 0, 1), c: S.cls, user: true });
       announce('Added a ' + CLASSES[S.cls].name + ' loan. ' + S.pts.length + ' loans on the map.');
       dataChanged('add');
@@ -958,7 +964,7 @@
     function removePoint(i) {
       var p = S.pts[i];
       S.pts.splice(i, 1);
-      S.hover = -1;
+      setHover(-1);   // loan numbers shift after a removal, and the pointer cursor must go too
       announce('Removed a ' + CLASSES[p.c].name + ' loan. ' + S.pts.length + ' loans on the map.');
       dataChanged(i);
     }
@@ -1010,7 +1016,11 @@
       if (cancelled || ptr.moved) return;
       var p = localPos(e), Gm = geom();
       var hit = hitTest(p.x, p.y, ptr.type === 'mouse' ? pointRadius() + 5 : pointRadius() + 12);
-      if (hit >= 0) { removePoint(hit); return; }
+      if (hit >= 0) {
+        removePoint(hit);
+        if (ptr.type === 'mouse') setHover(hitTest(p.x, p.y, pointRadius() + 5));
+        return;
+      }
       var d = toData(Gm, p.x, p.y);
       if (d.x < -0.01 || d.x > 1.01 || d.y < -0.01 || d.y > 1.01) return;   // a tap on the axis labels does nothing
       addPoint(d.x, d.y);
@@ -1019,20 +1029,37 @@
     on(canvas, 'pointerup', function (e) { endPointer(e, false); });
     on(canvas, 'pointercancel', function (e) { endPointer(e, true); });
     on(canvas, 'pointerleave', function (e) { if (e.pointerType === 'mouse' && ptr.id === null) setHover(-1); });
+    // what a screen reader hears after the probe moves by keyboard (the readout under the map is not a live region)
+    var probeAnnounceTimer = 0;
+    function announceProbe() {
+      probeAnnounceTimer = 0;
+      if (destroyed || !S.pts.length) return;
+      var nb = neighboursAt(S.probe.x, S.probe.y);
+      announce('Income ' + inr(round500(incomeOf(S.probe.x))) + ', EMIs ' + inr(round500(emiOf(S.probe.y))) + ': prediction ' +
+        CLASSES[nb.best].name + ', ' + nb.counts[nb.best] + ' of ' + nb.Ke + (nb.Ke === 1 ? ' vote.' : ' votes.'));
+    }
     on(canvas, 'keydown', function (e) {
-      var step = e.shiftKey ? 0.1 : 0.02, k = e.key, handled = true, Gm = geom();
-      if (k === 'ArrowLeft') S.probe.x = clamp(S.probe.x - step, 0, 1);
-      else if (k === 'ArrowRight') S.probe.x = clamp(S.probe.x + step, 0, 1);
-      else if (k === 'ArrowUp') S.probe.y = clamp(S.probe.y + step, 0, 1);
-      else if (k === 'ArrowDown') S.probe.y = clamp(S.probe.y - step, 0, 1);
+      var step = e.shiftKey ? 0.1 : 0.02, k = e.key, handled = true, moved = false, Gm = geom();
+      if (k === 'ArrowLeft') { S.probe.x = clamp(S.probe.x - step, 0, 1); moved = true; }
+      else if (k === 'ArrowRight') { S.probe.x = clamp(S.probe.x + step, 0, 1); moved = true; }
+      else if (k === 'ArrowUp') { S.probe.y = clamp(S.probe.y + step, 0, 1); moved = true; }
+      else if (k === 'ArrowDown') { S.probe.y = clamp(S.probe.y - step, 0, 1); moved = true; }
       else if (k === 'Enter' || k === ' ') {
         var q = toPx(Gm, S.probe.x, S.probe.y), hit = hitTest(q.x, q.y, pointRadius() + 4);
         if (hit >= 0) removePoint(hit); else addPoint(S.probe.x, S.probe.y);
       } else if (k === 'Delete' || k === 'Backspace') {
         var q2 = toPx(Gm, S.probe.x, S.probe.y), hit2 = hitTest(q2.x, q2.y, Math.max(40, pointRadius() + 4));
-        if (hit2 >= 0) removePoint(hit2); else announce('No loan near the probe to remove.');
+        if (hit2 >= 0) removePoint(hit2); else notify('No loan near the probe to remove.');
       } else handled = false;
-      if (handled) { e.preventDefault(); S.hover = -1; requestDraw(); }
+      if (!handled) return;
+      e.preventDefault();
+      setHover(-1);
+      if (moved) {
+        // wait until the key is let go (or held keys pause) so a screen reader is not flooded
+        if (probeAnnounceTimer) clearTimeout(probeAnnounceTimer);
+        probeAnnounceTimer = setTimeout(announceProbe, 350);
+      }
+      requestDraw();
     });
 
     /* ---------- controls ---------- */
@@ -1063,6 +1090,13 @@
     var mql = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
     if (mql) { if (mql.addEventListener) mql.addEventListener('change', onTheme); else if (mql.addListener) mql.addListener(onTheme); }
     on(document, 'themechange', onTheme);
+    // the site's web font can arrive after the first paint: redraw the canvas text (axes, chart, badge) in it
+    function onFonts() { if (destroyed) return; dirty.base = true; dirty.chart = true; requestDraw(); }
+    var fontSet = document.fonts && document.fonts.addEventListener ? document.fonts : null;
+    if (fontSet) {
+      on(fontSet, 'loadingdone', onFonts);
+      if (fontSet.ready && fontSet.ready.then) fontSet.ready.then(onFonts, function () { /* ignore */ });
+    }
 
     // style.css stacks .lab-body into one column at 820px; then the chart moves below the controls,
     // so on a phone the K slider sits close enough to the map to watch both.
@@ -1126,7 +1160,11 @@
 
     return {
       destroy: function () {
+        // a second call must not empty a lab that has since been mounted into the same root
+        if (destroyed) return;
         destroyed = true;
+        if (probeAnnounceTimer) clearTimeout(probeAnnounceTimer);
+        probeAnnounceTimer = 0;
         if (rafId) cancelAnimationFrame(rafId);
         if (aspectRaf) cancelAnimationFrame(aspectRaf);
         if (layoutRaf) cancelAnimationFrame(layoutRaf);

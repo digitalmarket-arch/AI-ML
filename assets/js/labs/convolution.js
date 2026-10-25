@@ -13,7 +13,7 @@
   /* ---------- kernels ---------- */
   var KERNELS = [
     { id: 'identity', label: 'Identity', w: ['0', '0', '0', '0', '1', '0', '0', '0', '0'],
-      about: 'Identity: only the centre weight is 1, so every pixel comes out exactly as it went in (a do-nothing filter, handy for checking).' },
+      about: 'Identity: only the centre weight is 1, so each output pixel is an exact copy of the input pixel under the centre (a do-nothing filter, handy for checking).' },
     { id: 'sharpen', label: 'Sharpen', w: ['0', '-1', '0', '-1', '5', '-1', '0', '-1', '0'],
       about: 'Sharpen: 5 × the centre minus its 4 neighbours. Flat areas stay the same, while edges get extra contrast.' },
     { id: 'box', label: 'Box blur', w: ['1/9', '1/9', '1/9', '1/9', '1/9', '1/9', '1/9', '1/9', '1/9'],
@@ -73,17 +73,18 @@
     });
   }
   function minus(s) { return s.replace(/-/g, '−'); }
-  // tidy number: "0", "3", "2.4", "0.11"; real minus sign
-  function fmt(v) {
-    if (!isFinite(v)) return '?';
-    if (Math.abs(v) < 0.005) return '0';
-    var s;
-    if (Math.abs(v - Math.round(v)) < 1e-9) s = String(Math.round(v));
-    else if (Math.abs(v * 10 - Math.round(v * 10)) < 1e-9) s = v.toFixed(1);
-    else s = v.toFixed(2);
-    return minus(s);
+  // tidy number: "0", "3", "2.4", "0.11"; real minus sign. Tiny non-zero values keep one
+  // significant digit ("0.001"), so a small-but-real sum is never shown as a plain 0.
+  function fmtPlain(v) {
+    var a = Math.abs(v);
+    if (a < 1e-6) return '0';
+    if (Math.abs(v - Math.round(v)) < 1e-9) return String(Math.round(v));
+    if (Math.abs(v * 10 - Math.round(v * 10)) < 1e-9) return v.toFixed(1);
+    if (a >= 0.005) return v.toFixed(2);
+    return String(parseFloat(v.toPrecision(1)));
   }
-  function needsRounding(v) { return Math.abs(v * 100 - Math.round(v * 100)) > 1e-7; }
+  function fmt(v) { return isFinite(v) ? minus(fmtPlain(v)) : '?'; }
+  function needsRounding(v) { return isFinite(v) && Math.abs(parseFloat(fmtPlain(v)) - v) > 1e-9; }
   function tidy(v) { return Math.round(v * 1e9) / 1e9; }
   // a kernel weight typed by the learner: "2", "-1", "0.5", "1/9" (unicode minus allowed)
   function parseWeight(s) {
@@ -377,7 +378,7 @@
     for (var ki = 0; ki < 9; ki++) {
       (function (idx) {
         var id = pre + 'k' + idx;
-        var inp = el('input', { type: 'text', id: id, autocomplete: 'off', spellcheck: 'false', value: kText[idx],
+        var inp = el('input', { type: 'text', id: id, autocomplete: 'off', spellcheck: 'false', value: kText[idx], 'aria-describedby': pre + 'kabout',
           style: 'width:100%;min-width:0;text-align:center;font-family:var(--font-mono);font-size:.95rem;padding:7px 2px' });
         var lb = el('label', { for: id, class: 'visually-hidden', text: 'Kernel weight, row ' + (Math.floor(idx / 3) + 1) + ', column ' + (idx % 3 + 1) });
         inp.addEventListener('input', function () { onWeightInput(idx); });
@@ -388,7 +389,7 @@
         kGrid.appendChild(el('div', { style: 'min-width:0' }, [lb, inp]));
       })(ki);
     }
-    var kAbout = el('p', { class: 'small', style: 'color:var(--muted);line-height:1.45' });
+    var kAbout = el('p', { class: 'small', id: pre + 'kabout', style: 'color:var(--muted);line-height:1.45' });
     controls.appendChild(el('div', { class: 'control' }, [
       el('span', { class: 'control-label', id: pre + 'kg', text: 'Kernel numbers (type your own)' }),
       kGrid, kAbout
@@ -490,6 +491,7 @@
       if (v === null) {
         inp.setAttribute('aria-invalid', 'true');
         inp.style.borderColor = 'var(--bad)';
+        syncAbout();
         return;
       }
       inp.removeAttribute('aria-invalid');
@@ -507,6 +509,7 @@
         inp.value = kText[idx];
         inp.removeAttribute('aria-invalid');
         inp.style.borderColor = '';
+        syncAbout();
       }
     }
     function onWeightKey(idx, e) {
@@ -604,15 +607,7 @@
       W.forEach(function (w) { maxW = Math.max(maxW, Math.abs(w)); });
       kInputs.forEach(function (inp, i) { if (inp.getAttribute('aria-invalid') !== 'true') inp.style.background = tintFor(W[i], maxW, 38); });
 
-      var about;
-      if (kp) about = kp.about;
-      else {
-        about = 'Your own kernel. Its weights add up to ' + fmt(S) + '. ';
-        if (Math.abs(S) < 1e-9) about += 'A sum of 0 means flat areas give 0, so only changes (edges and lines) show up.';
-        else if (Math.abs(S - 1) < 1e-9) about += 'A sum of 1 keeps flat areas at the same brightness.';
-        else about += 'Flat ink areas come out ' + fmt(S) + ' × as strong.';
-      }
-      kAbout.textContent = about;
+      syncAbout();
 
       stIn.v.textContent = N + ' × ' + N;
       stF.v.textContent = R.n + ' × ' + R.n;
@@ -630,13 +625,30 @@
         html += '<div class="mono" style="font-size:.85rem">2×2 pool: ⌊' + R.n + ' ÷ 2⌋ = <b style="color:var(--ink)">' + PR.m + '</b>' +
           (R.n % 2 ? '<span style="font-family:var(--font-body)"> (the odd last row and column are dropped)</span>' : '') + '</div>';
       }
-      html += '<div class="small muted" style="margin-top:4px;line-height:1.4">n = input size, p = padding, k = kernel size, s = stride; ⌊ ⌋ means round down.</div>';
+      html += '<div class="small muted" style="margin-top:4px;line-height:1.4">n = input size, p = padding (border width), k = kernel size, s = stride; ⌊ ⌋ means round down. ' +
+        (pad ? '“Same” padding: the border of 0s lets the filter centre on the edge pixels too, so at stride 1 the output keeps the same size as the input.'
+          : '“Valid” padding: no border, so the filter only stops where all 9 cells fit on the picture, and the output loses 1 pixel on every side.') + '</div>';
       formula.innerHTML = html;
 
       playBtn.innerHTML = anim ? '<span aria-hidden="true">■</span> Stop' : '<span aria-hidden="true">▶</span> Watch the filter slide';
       updateCanvasLabel();
       updateCalc();
       updateTaskCount();
+    }
+    // the note under the kernel grid: what the kernel does, or how to fix a number the grid cannot read
+    function syncAbout() {
+      var bad = kInputs.some(function (inp) { return inp.getAttribute('aria-invalid') === 'true'; });
+      var about, kp = kernelPreset(), S = kernelSum(W);
+      if (bad) about = 'Waiting for a number between −100 and 100, like 2, −1, 0.5 or 1/9. Until then the red cell keeps its old value.';
+      else if (kp) about = kp.about;
+      else {
+        about = 'Your own kernel. Its weights add up to ' + fmt(S) + '. ';
+        if (Math.abs(S) < 1e-9) about += 'A sum of 0 means flat areas give 0, so only changes (edges and lines) show up.';
+        else if (Math.abs(S - 1) < 1e-9) about += 'A sum of 1 keeps flat areas at the same brightness.';
+        else about += 'Flat ink areas come out ' + fmt(S) + ' × as strong.';
+      }
+      kAbout.textContent = about;
+      kAbout.style.color = bad ? 'var(--bad)' : 'var(--muted)';
     }
     function imgName() {
       if (imgId === 'blank') return 'an empty picture';
@@ -731,7 +743,7 @@
       calcFoot.innerHTML = 'Add up the 9 products: <b class="mono" style="font-size:1rem">' + fmt(v) + '</b>' + valueSwatch(v, R.maxAbs) +
         '. That one sum is the highlighted pixel of the feature map.' +
         (padded ? ' <span class="muted">Dashed cells are the border of 0s added by “same” padding.</span>' : '') +
-        (rounded ? ' <span class="muted">(Some numbers are shown rounded to 2 decimals.)</span>' : '');
+        (rounded ? ' <span class="muted">(Some numbers are shown rounded.)</span>' : '');
     }
     function calcPool(i, j) {
       var raw = '', rel = '', vals = [], texts = [], scale = R.maxAbs;
