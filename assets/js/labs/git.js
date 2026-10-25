@@ -284,7 +284,7 @@
   function addCommit(R, o) {
     var id = o.id || makeId(R);
     R.used[id] = true;
-    var c = { id: id, parents: o.parents.slice(), msg: o.msg, files: o.files, kind: o.kind || 'normal', branch: o.branch, seq: R.order.length };
+    var c = { id: id, parents: o.parents.slice(), msg: o.msg, files: o.files, kind: o.kind || 'normal', branch: o.branch, seq: R.order.length, preset: !!o.preset };
     R.commits[id] = c;
     R.order.push(id);
     if (!(o.branch in R.laneOf)) { R.laneOf[o.branch] = R.lanes.length; R.lanes.push(o.branch); }
@@ -688,16 +688,23 @@
         return;
       }
       if (tA[cId]) {
-        var newCount = 0;
-        for (var id in tA) if (!cA[id]) newCount++;
+        // mine = new commits the learner made with git commit / revert (not the story's preset commits, not merges)
+        var newCount = 0, mine = 0, anyMerge = false;
+        for (var id in tA) {
+          if (cA[id]) continue;
+          var nc = R.commits[id];
+          newCount++;
+          if (nc.parents.length > 1) anyMerge = true;
+          else if (!nc.preset) mine++;
+        }
         var ch = diffSnap(R.commits[cId].files, R.commits[tId].files);
         R.branches[R.head] = tId;
         term([cmd, ['out', 'Updating ' + cId + '..' + tId], ['out', 'Fast-forward']].concat(outRows(statLines(ch))));
         ui.lastMerge = 'Fast-forward';
-        var html = '<b>Fast-forward!</b> ' + H + ' had no new commits of its own since ' + N + ' split off, so Git simply slid the ' + H + ' tag forward to ' + tId + ' (' + plural(newCount, 'new commit', 'new commits') + '). No merge commit was needed, and the history stays one straight line.';
+        var html = '<b>Fast-forward!</b> ' + H + ' had no new commits of its own since ' + N + ' split off, so Git simply slid the ' + H + ' tag forward to ' + tId + ' (' + plural(newCount, 'new commit', 'new commits') + '). No merge commit was needed' + (anyMerge ? ': ' + H + ' and ' + N + ' now point at the same commit.' : ', and the history stays one straight line.');
         if (R.head === 'main' && name === 'feature') {
-          if (newCount >= 2) completeTask('t1');
-          else if (!done.t1) html += ' For the task, make 2 commits on feature before merging.';
+          if (mine >= 2) completeTask('t1');
+          else if (!done.t1) html += ' For the task, make 2 commits of your own on feature (press git commit twice while on feature) before merging.';
         }
         say(html, 'good');
         ui.sel = null; ui.scroll = true;
@@ -806,9 +813,9 @@
       var mk = function (model) { var f = Object.assign({}, base.files); f['README.md'] = README_2.replace(MODEL_LINE, model); return f; };
       R.branches.feature = base.id;
       R.branchOrder.push('feature');
-      var f = addCommit(R, { parents: [base.id], msg: 'Choose a decision tree', files: mk('Model: decision tree'), branch: 'feature' });
+      var f = addCommit(R, { parents: [base.id], msg: 'Choose a decision tree', files: mk('Model: decision tree'), branch: 'feature', preset: true });
       R.branches.feature = f.id;
-      var m = addCommit(R, { parents: [base.id], msg: 'Choose linear regression', files: mk('Model: linear regression'), branch: 'main' });
+      var m = addCommit(R, { parents: [base.id], msg: 'Choose linear regression', files: mk('Model: linear regression'), branch: 'main', preset: true });
       R.branches.main = m.id;
       ui.target = 'feature'; ui.sel = null; ui.lastMerge = '—'; ui.scroll = true;
       termEl.textContent = '';
@@ -918,7 +925,7 @@
       elConflictKey.innerHTML = '<b style="color:var(--ink)">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</b> starts <em>ours</em>: the version on ' + esc(m.into) + ', the branch you are on (blue bar). ' +
         '<b style="color:var(--ink)">=======</b> separates the two. <b style="color:var(--ink)">&gt;&gt;&gt;&gt;&gt;&gt;&gt; ' + esc(m.name) + '</b> ends <em>theirs</em>: the version from ' + esc(m.name) + ' (red bar). Choose what the file should say:';
       var o = m.conflicts[0].segs.filter(function (s) { return !s.ok; })[0];
-      var short = function (arr) { var t = arr.join(' / '); return t.length > 34 ? t.slice(0, 33) + '…' : t; };
+      var short = function (arr) { var t = arr.join(' / '); return !t ? '(no lines)' : t.length > 34 ? t.slice(0, 33) + '…' : t; };
       btnKeepOurs.textContent = 'Keep ours (' + m.into + '): ' + short(o.ours);
       btnKeepTheirs.textContent = 'Keep theirs (' + m.name + '): ' + short(o.theirs);
       btnKeepBoth.textContent = 'Keep both lines';

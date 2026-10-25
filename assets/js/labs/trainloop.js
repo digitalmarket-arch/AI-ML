@@ -595,7 +595,7 @@
       S.running = v;
       if (v) {
         S.runLeft = runEpochs(); S.runEpochs = S.runLeft; S.runStartEpoch = S.epochsDone; S.runSteps = 0; S.runNotes = [];
-        S.runStartVa = S.vaLoss;
+        S.runStartVa = S.vaLoss; S.runStartTr = S.trLoss;
         var dur = clamp(S.runLeft * 0.12, 0.6, 3);
         S.stepsPerSec = Math.max(1, S.runLeft * batchesPerEpoch() / dur);
         S.stepAcc = 1;
@@ -644,12 +644,26 @@
         h = 'Ran ' + fmtInt(ran) + ' ' + plural(ran, 'epoch', 'epochs') + ' (' + fmtInt(S.runSteps) + ' steps). Now train loss ' + fmtNum(S.trLoss) + ', validation loss ' + fmtNum(S.vaLoss) +
           ' (typical error on unseen days about ' + fmtC(typicalC(S.vaLoss)) + ').';
         var drop = S.runStartVa - S.vaLoss;
+        var slow = finite(drop) && drop < 0.02 * S.runStartVa && S.vaLoss > 0.2;
+        // too high a learning rate: the training loss rose over the run, or it hardly fell while jumping up and down
+        var rose = !(S.trLoss <= Math.max(1.25 * S.runStartTr, 0.2));
+        var ups = 0, seg = S.hist.filter(function (q) { return q.e >= S.runStartEpoch; });
+        for (var k = 1; k < seg.length; k++) if (!(seg[k].tr <= seg[k - 1].tr * 1.1)) ups++;
+        var stalled = S.overfit ? S.trLoss > 0.05 && !(S.trLoss < 0.5 * S.runStartTr) : slow;
+        var tooHigh = rose || (stalled && ups >= Math.max(2, 0.25 * (seg.length - 1)));
+        var highMsg = ' The training loss ' + (rose ? 'went up instead of down' : 'jumped up and down instead of falling steadily') +
+          ': the learning rate is too high, so the steps overshoot. Lower it (the <b>LR finder</b> can suggest one), then press <b>Reset</b>.';
         if (S.overfit) {
-          if (S.trLoss >= OVERFIT_TARGET) h += ' Each epoch here is just one step on the same 8 days, so try Epochs per Run = 500' + (S.optKind === 'sgd' ? ', and switch to Adam: plain SGD tends to get stuck on this.' : '.');
+          if (tooHigh) h += highMsg;
+          else if (S.trLoss >= OVERFIT_TARGET) h += ' Not near zero yet.' + (S.optKind === 'sgd'
+            ? ' Plain SGD tends to get stuck on this: switch to Adam' + (runEpochs() < 500 ? ' and set Epochs per Run to 500 (each epoch here is a single step).' : '.')
+            : runEpochs() < 500 ? ' Each epoch here is a single step, so set Epochs per Run to 500.' : ' Press Run again to keep going.');
         } else if (S.forget) {
           h += ' zero_grad() is still switched off: in the gradient chart, watch the bars (the piled-up .grad) stand above the dots (each batch’s own gradient).';
           if (!done.t2 && S.forgetSteps > 15 * batchesPerEpoch()) h += ' Nothing dramatic yet? A bigger learning rate (try 0.05) makes the pile-up bite sooner.';
-        } else if (finite(drop) && drop < 0.02 * S.runStartVa && S.vaLoss > 0.2) {
+        } else if (tooHigh) {
+          h += highMsg;
+        } else if (slow) {
           h += ' That was slow. A bigger learning rate might help: the <b>LR finder</b> can suggest one.';
         } else if (S.vaLoss > S.trLoss * 1.5 && S.vaLoss > 0.12) {
           h += ' The validation loss is well above the training loss: the model fits the training days better than unseen ones.';
@@ -674,9 +688,9 @@
     function startFinder() {
       if (S.running) setRunning(false);
       var L0 = lossOn(S.p, trainSet());
-      if (S.blown || !allFinite(S.p) || !finite(L0)) {
+      if (S.blown || !allFinite(S.p) || !(L0 < 1e6)) {   // blown up, or about to (a loss of a million on this scale)
         setView('finder');
-        say('The LR finder starts from a copy of your model, but your model has blown up (its weights are too big to compute with), so there is nothing to sweep from. Press <b>Reset</b> first, then run the LR finder on the fresh model.', 'warn');
+        say('The LR finder starts from a copy of your model, but your model has blown up' + (S.blown ? '' : ' or is about to') + ' (its weights are far too big), so there is nothing useful to sweep from. Press <b>Reset</b> first, then run the LR finder on the fresh model.', 'warn');
         return;
       }
       finder = { p: Float64Array.from(S.p), opt: makeOpt(S.optKind), g: new Float64Array(NP), rng: mulberry32(FINDER_SEED),
@@ -1032,7 +1046,7 @@
       lo = Math.min(lo, ref); hi = Math.max(hi, ref);
       if (!finite(lo)) { lo = 0.01; hi = 1; }
       var yLo = Math.pow(10, Math.floor(Math.log10(lo / 1.15))), yHi = Math.pow(10, Math.ceil(Math.log10(hi * 1.15)));
-      yHi = Math.min(yHi, 1e8); if (yHi <= yLo * 10) yHi = yLo * 10;
+      yHi = Math.min(yHi, 1e300); if (yHi <= yLo * 10) yHi = yLo * 10;
       var lyLo = Math.log10(yLo), lyHi = Math.log10(yHi);
       var E = hist[hist.length - 1].e, xMax = Math.max(10, E);
       var xs = niceStep(xMax / (G.pw < 260 ? 4 : 6)); xMax = Math.ceil(xMax / xs) * xs;
@@ -1041,8 +1055,10 @@
       // grid + labels
       g.lineWidth = 1; g.strokeStyle = T.line; g.fillStyle = T.muted; g.font = font(T, 11);
       g.textAlign = 'right'; g.textBaseline = 'middle';
-      var ticks = logTicks(yLo, yHi), stepT = ticks.length > 6 ? 2 : 1;
+      // at most about 6 labelled decades; when the loss explodes over dozens of decades, only labelled lines are drawn
+      var ticks = logTicks(yLo, yHi), stepT = Math.max(1, Math.ceil(ticks.length / 6));
       ticks.forEach(function (v, k) {
+        if (k % stepT && ticks.length > 12) return;
         var y = Math.round(Y(v)) + 0.5;
         g.beginPath(); g.moveTo(G.pl, y); g.lineTo(G.pl + G.pw, y); g.stroke();
         if (k % stepT === 0) g.fillText(fmtDecade(v), G.pl - 5, y);
@@ -1060,8 +1076,11 @@
       var yr = Y(ref);
       g.strokeStyle = T.muted; g.lineWidth = 1.5; g.setLineDash([2, 3]);
       g.beginPath(); g.moveTo(G.pl, yr); g.lineTo(G.pl + G.pw, yr); g.stroke(); g.setLineDash([]);
-      g.fillStyle = T.muted; g.font = font(T, 11); g.textAlign = 'left'; g.textBaseline = 'top';
-      g.fillText(S.overfit ? 'goal 0.002' : 'noise level', G.pl + 6, yr + 3);
+      g.fillStyle = T.muted; g.font = font(T, 11); g.textAlign = 'left';
+      // label under the line, or above it when the line sits on the bottom edge (it would hit the epoch numbers)
+      var below = yr + 17 <= G.pt + G.ph;
+      g.textBaseline = below ? 'top' : 'bottom';
+      g.fillText(S.overfit ? 'goal 0.002' : 'noise level', G.pl + 6, below ? yr + 3 : yr - 3);
       // lines
       g.save(); g.beginPath(); g.rect(G.pl, G.pt - 4, G.pw + 4, G.ph + 8); g.clip();
       var stride = Math.max(1, Math.floor(hist.length / 800)), idx = [];
@@ -1206,12 +1225,15 @@
       if (!finite(lo)) { lo = 0.1; hi = 10; }
       var yLo = Math.pow(10, Math.floor(Math.log10(lo / 1.2))), yHi = Math.pow(10, Math.ceil(Math.log10(hi * 1.2)));
       if (yHi <= yLo * 10) yHi = yLo * 10;
-      yHi = Math.min(yHi, 1e12);
+      // after a blow-up the sizes reach 10¹⁵⁰ and more: show them at their true height (only guard against overflow)
+      yHi = Math.min(yHi, 1e300);
+      if (yLo > yHi / 10) yLo = yHi / 10;
       var lyLo = Math.log10(yLo), lyHi = Math.log10(yHi);
       function Y(v) { return hTop + (1 - (Math.log10(clamp(v, yLo, yHi)) - lyLo) / (lyHi - lyLo)) * ph; }
       g.strokeStyle = T.line; g.lineWidth = 1; g.fillStyle = T.muted; g.font = font(T, 11); g.textAlign = 'right'; g.textBaseline = 'middle';
-      var ticks = logTicks(yLo, yHi), st = ticks.length > 5 ? 2 : 1;
+      var ticks = logTicks(yLo, yHi), st = Math.max(1, Math.ceil(ticks.length / 5));
       ticks.forEach(function (v, k) {
+        if (k % st && ticks.length > 10) return;
         var y = Math.round(Y(v)) + 0.5;
         g.beginPath(); g.moveTo(pl, y); g.lineTo(pl + pw, y); g.stroke();
         if (k % st === 0) g.fillText(fmtDecade(v), pl - 5, y);

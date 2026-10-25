@@ -207,7 +207,7 @@
     top.innerHTML =
       '<p class="lab-note"><strong>What you are seeing:</strong> a teammate says their new <b>Model B</b> beats the old <b>Model A</b>. ' +
         'Each dot is one training run: the same code, but a different random <em>seed</em> (the number that fixes a run’s random choices, such as its starting weights and the order it sees the data), then scored on a test set. ' +
-        'The dashed lines show each model’s true accuracy, which in real life nobody gets to see. The black bar under each row is the <em>mean</em> (average) with its <em>95% confidence interval</em> ' +
+        'The dashed lines show each model’s true accuracy, which in real life nobody gets to see. The bar with end caps under each row is the <em>mean</em> (average, the short upright line) with its <em>95% confidence interval</em> ' +
         '(CI: a range built so that, in 95 out of 100 repeat experiments, it would catch the true mean). ' +
         'The bottom chart asks the real question: how big is the gap B − A in <em>points</em> (percentage points: 81.5% − 81.0% = 0.5 points), and could it really be zero?</p>' +
       '<div class="lab-body">' +
@@ -252,8 +252,8 @@
       '</div>' +
       '<div class="card stack-sm">' +
         '<h2 class="lab-h">The results table a paper would print</h2>' +
-        '<div class="table-wrap"><table class="simple" style="font-size:.92rem">' +
-          '<thead><tr><th scope="col">Model</th><th scope="col" style="white-space:nowrap">Accuracy %</th><th scope="col" style="white-space:nowrap">95% CI of mean</th><th scope="col">Runs</th></tr></thead>' +
+        '<div class="table-wrap" style="width:0;min-width:100%"><table class="simple" style="font-size:.92rem">' +
+          '<thead><tr><th scope="col">Model</th><th scope="col" style="white-space:nowrap">Accuracy %</th><th scope="col">95% CI of the mean</th></tr></thead>' +
           '<tbody id="' + P + 'tbody"></tbody>' +
         '</table></div>' +
         '<p class="small" id="' + P + 'headline"></p>' +
@@ -271,6 +271,7 @@
           '<p class="small muted">In this lab each run is scored on its own fresh test sample, so test-set luck also averages out over seeds. In many real papers every run shares one test set, so that luck never averages out: only a bigger test set helps.</p>' +
         '</div>' +
         '<div class="card stack-sm"><h2 class="lab-h">What to look for in a results table</h2>' +
+          '<p class="small">Why should papers report mean \u00b1 SD over several seeds? One run mixes the method\u2019s real quality with seed luck. The mean of several runs averages most of that luck away, and the SD tells readers how big the luck is, so they can judge the gap for themselves.</p>' +
           '<ol class="small stack-sm" style="padding-left:1.3em;margin:0">' +
             '<li><b>A ± next to each number:</b> mean ± SD (or a CI) over several seeds. A bare “81.62” hides how noisy it is.</li>' +
             '<li><b>How many seeds:</b> 1 to 3 runs is weak evidence; 5 or more is better.</li>' +
@@ -439,23 +440,21 @@
       // results table
       var A = res.A, B = res.B, cherry = S.mode === 'cherry', k = res.k;
       function row(name, Sm, isB) {
-        var acc, ci, runs;
+        var acc, ci;
         if (cherry && isB) {
-          acc = '<b>' + Sm.best.toFixed(2) + '</b> <span class="small">(best run only)</span>';
-          ci = '<span class="muted">not reported</span>';
-          runs = k > 1 ? 'best of ' + k : '1';
+          acc = '<b>' + Sm.best.toFixed(2) + '</b><br><span class="small" style="font-family:var(--font-body)">' + (k > 1 ? 'best of ' + k + ' runs only' : 'its only run') + '</span>';
+          ci = '<span class="muted" style="font-family:var(--font-body)">not reported</span>';
         } else {
           acc = k > 1 ? Sm.mean.toFixed(2) + ' ± ' + Sm.sd.toFixed(2) : Sm.mean.toFixed(2);
-          ci = k > 1 ? Sm.lo.toFixed(2) + ' to ' + Sm.hi.toFixed(2) : '<span class="muted">needs 2+ runs</span>';
-          runs = String(k);
+          ci = k > 1 ? Sm.lo.toFixed(2) + ' to ' + Sm.hi.toFixed(2) : '<span class="muted" style="font-family:var(--font-body)">needs 2+ runs</span>';
         }
         return '<tr><th scope="row" style="font-size:inherit;text-transform:none;letter-spacing:0;color:var(--ink);white-space:nowrap"><span aria-hidden="true" style="display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:var(' + (isB ? '--series-2' : '--series-1') + ')"></span>' + name + '</th>' +
-          '<td class="mono" style="white-space:nowrap">' + acc + '</td><td class="mono" style="white-space:nowrap">' + ci + '</td><td style="white-space:nowrap">' + runs + '</td></tr>';
+          '<td class="mono" style="white-space:nowrap">' + acc + '</td><td class="mono">' + ci + '</td></tr>';
       }
       setHtml(elTbody, 'tb', row('A (old)', A, false) + row('B (new)', B, true));
       var head;
       if (cherry) {
-        head = '<b>Headline claim:</b> “B beats A by ' + sgn(res.claimed, 2) + ' points.” <span aria-hidden="true" style="color:var(--bad)">●</span> Red flag: B’s number is a single best run with no ±, set against A’s average. The honest gap is ' + sgn(res.gap, 2) + ' points.';
+        head = '<b>Headline claim:</b> “B beats A by ' + sgn(res.claimed, 2) + ' points.” <span aria-hidden="true" style="color:var(--bad)">●</span> Red flag: B’s number is its single best run' + (k > 1 ? ' out of ' + k : '') + ', with no ±, set against A’s average. The honest gap is ' + sgn(res.gap, 2) + ' points.';
       } else if (k > 1) {
         head = '<b>Headline:</b> B − A = ' + sgn(res.gap, 2) + ' points, bootstrap 95% CI ' + ciText(res.ci) + ' points. The ± numbers are each model’s sample SD over its ' + k + ' runs.';
       } else {
@@ -463,7 +462,7 @@
       }
       setHtml(elHeadline, 'hl', head);
       setText(elTline, 'tl', k > 1 ?
-        'CI of the mean = mean ± t × SD ÷ √runs. With ' + k + ' runs, t = ' + A.t.toFixed(3) + ' (from the t distribution with ' + (k - 1) + ' degrees of freedom, which is runs − 1). With few runs t is big, which widens the CI; as runs grow, t falls towards 1.960.' :
+        'CI of the mean = mean ± t × SD ÷ √runs. With ' + k + ' runs, t = ' + A.t.toFixed(3) + ', read from the t distribution (a bell curve with fatter tails, used because the SD itself is only estimated from a few runs) with ' + (k - 1) + ' degrees of freedom, which is runs − 1. With few runs t is big, which widens the CI; as runs grow, t falls towards 1.960.' :
         'With 1 run there is no SD, so no CI: you need at least 2 runs to measure spread.');
 
       // tally of experiments at these settings
@@ -585,7 +584,7 @@
     }
     function scoreRange() {
       var mid = (muA() + muB()) / 2, s = Math.max(runSd(muA()), runSd(muB()));
-      var lo = Math.min(muA(), muB()) - 3.6 * s, hi = Math.max(muA(), muB()) + 3.6 * s;
+      var lo = Math.max(0, Math.min(muA(), muB()) - 3.6 * s), hi = Math.min(100, Math.max(muA(), muB()) + 3.6 * s);
       if (hi - lo < 2) { lo = mid - 1; hi = mid + 1; }
       return { lo: lo, hi: hi };
     }
@@ -685,10 +684,10 @@
       ];
       var bestIdx = R.B.bestIdx;
       rows.forEach(function (row, ri) {
-        var top = L.p1Top + ri * L.rowH + 4, bot = L.p1Top + (ri + 1) * L.rowH - 4;
-        var ciY = bot - 10, dotC = top + (ciY - 12 - top) / 2;
+        var rowTop = L.p1Top + ri * L.rowH + 4, bot = L.p1Top + (ri + 1) * L.rowH - 4;
+        var ciY = bot - 10, dotC = rowTop + (ciY - 12 - rowTop) / 2;
         // band
-        g.fillStyle = T.surface2; g.fillRect(x0, top, L.plotW, bot - top);
+        g.fillStyle = T.surface2; g.fillRect(x0, rowTop, L.plotW, bot - rowTop);
         // row label with a coloured marker
         g.font = font(T, L.narrow ? 13 : 13, '700'); g.textBaseline = 'middle'; g.textAlign = 'left';
         g.fillStyle = row.color; g.beginPath(); g.arc(8, dotC, 4, 0, Math.PI * 2); g.fill();
@@ -696,9 +695,9 @@
         // true accuracy (dashed)
         var tx = sx(row.mu);
         g.strokeStyle = T.muted; g.lineWidth = 1.5; g.setLineDash([5, 4]);
-        g.beginPath(); g.moveTo(tx, top + 2); g.lineTo(tx, bot - 2); g.stroke(); g.setLineDash([]);
+        g.beginPath(); g.moveTo(tx, rowTop + 2); g.lineTo(tx, bot - 2); g.stroke(); g.setLineDash([]);
         // dots
-        var levels = Math.max(0, Math.floor(((ciY - 12 - top) / 2 - r) / (2 * r + 1)));
+        var levels = Math.max(0, Math.floor(((ciY - 12 - rowTop) / 2 - r) / (2 * r + 1)));
         var cx = row.xs.map(function (val) { return clamp(sx(val), x0 + r, x1 - r); });
         var lv = stack(cx, r, levels);
         for (var i = 0; i < row.xs.length; i++) {
@@ -712,14 +711,14 @@
           hitDots.push({ x: px2, y: py, model: row.key, i: i, score: R[row.key][i] });
         }
         // cherry-picked best run of B
-        if (cherry && row.key === 'b') {
+        if (cherry && row.key === 'b' && k > 1) {
           var bx = cx[bestIdx], by = dotC + lv[bestIdx] * (2 * r + 1);
           g.lineWidth = 3; g.strokeStyle = T.haldi; g.beginPath(); g.arc(bx, by, r + 4, 0, Math.PI * 2); g.stroke();
           g.lineWidth = 1; g.strokeStyle = T.ink; g.beginPath(); g.arc(bx, by, r + 6, 0, Math.PI * 2); g.stroke();
           g.fillStyle = T.ink; g.font = font(T, 11, '700'); g.textBaseline = 'bottom';
           g.textAlign = bx > x1 - 50 ? 'right' : bx < x0 + 50 ? 'left' : 'center';
           var labY = by - r - 8;
-          if (labY - 12 < top) labY = by + r + 20;
+          if (labY - 12 < rowTop) labY = by + r + 20;
           g.fillText('best run', bx, labY);
         }
         // mean + 95% CI (t-based)
@@ -784,9 +783,6 @@
           g.fillStyle = rgba(T.rgb.series4, inside || anim ? 0.6 : 0.28);
           g.fillRect(x0 + i * pw + 0.5, histBot - hgt, Math.max(1, pw - 1), hgt);
         }
-      } else {
-        g.fillStyle = T.muted; g.font = font(T, 12); g.textAlign = 'center'; g.textBaseline = 'middle';
-        g.fillText('No bootstrap with 1 run: it needs 2 or more runs per model.', (x0 + x1) / 2, (histTop + histBot) / 2);
       }
       // zero line and true gap
       var zx = gx(0), tg = (S.b - S.a) / 10, tx = gx(tg);
@@ -802,6 +798,19 @@
         g.fillStyle = T.muted; g.textAlign = right ? 'left' : 'right';
         g.fillText('true gap', tx + (right ? 4 : -4), labelY);
       }
+      // with one run there is nothing to resample: say so in a box over the grid
+      if (!R.boot) {
+        var lines = L.narrow ? ['No bootstrap with 1 run:', 'it needs 2 or more runs per model.'] : ['No bootstrap with 1 run: it needs 2 or more runs per model.'];
+        g.font = font(T, 12);
+        var bwid = 0, li;
+        for (li = 0; li < lines.length; li++) bwid = Math.max(bwid, g.measureText(lines[li]).width);
+        var bcx = (x0 + x1) / 2, bcy = (histTop + histBot) / 2, bh = lines.length * 16 + 10;
+        bwid = Math.min(bwid + 20, L.W - 8);
+        g.fillStyle = T.surface; g.strokeStyle = T.line; g.lineWidth = 1;
+        g.beginPath(); g.rect(Math.round(bcx - bwid / 2) + 0.5, Math.round(bcy - bh / 2) + 0.5, Math.round(bwid), Math.round(bh)); g.fill(); g.stroke();
+        g.fillStyle = T.muted; g.textAlign = 'center'; g.textBaseline = 'middle';
+        for (li = 0; li < lines.length; li++) g.fillText(lines[li], bcx, bcy + (li - (lines.length - 1) / 2) * 16);
+      }
       // CI of the gap + observed gap
       if (isFinite(v.ciLo)) {
         var c0 = gx(v.ciLo), c1 = gx(v.ciHi);
@@ -810,7 +819,7 @@
         if (c1 > x1) edgeArrow(x1 + 1, ciY, 1, T.ink);
       }
       var ox = gx(v.gap);
-      if (S.mode === 'cherry') {
+      if (S.mode === 'cherry' && R.k > 1) {
         var cx = gx(v.claimed), ccx = clamp(cx, x0 + 7, x1 - 7);
         g.strokeStyle = T.haldi; g.lineWidth = 2.5; g.setLineDash([4, 3]);
         g.beginPath(); g.moveTo(clamp(ox, x0, x1), ciY); g.lineTo(ccx, ciY); g.stroke(); g.setLineDash([]);

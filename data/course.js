@@ -2706,7 +2706,8 @@ window.AIM.modules = [
    }
   ],
   "best": "krish-naik-nlp-live-series-classical-nlp-to-rnn-lstm-enc",
-  "figs": true
+  "figs": true,
+  "lab": "embeddings"
  },
  {
   "id": "l3-transformers",

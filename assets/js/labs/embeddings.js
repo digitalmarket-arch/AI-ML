@@ -676,8 +676,9 @@
       elTBody.innerHTML =
         '<p class="small"><b>' + what + '.</b> S1, S2, S3 = sentences 1 to 3. df = how many sentences contain the word (<span aria-hidden="true" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--haldi);margin:0 3px"></span>marks words found in every sentence).</p>' + table +
         '<p class="small muted" data-more hidden>Scroll inside the table to see all ' + vocab.length + ' words.</p>' +
-        '<p class="small">' + explain + '</p>' +
-        '<ul class="small" style="padding-left:1.1em">' + topLines.join('') + '</ul>' +
+        // words typed by the learner can be very long: let them break anywhere so the page never scrolls sideways
+        '<p class="small" style="overflow-wrap:anywhere">' + explain + '</p>' +
+        '<ul class="small" style="padding-left:1.1em;overflow-wrap:anywhere">' + topLines.join('') + '</ul>' +
         '<h2 class="lab-h" style="margin-top:6px">How alike are the sentences? (cosine similarity)</h2>' +
         '<div class="table-wrap" style="position:relative;width:0;min-width:100%"><table style="border-collapse:collapse;font-size:.9rem"><caption class="visually-hidden">Cosine similarity between sentences with counts and with TF-IDF</caption>' +
           '<thead><tr><th scope="col" style="text-align:left;padding:3px 8px 3px 0;font-size:.78rem;color:var(--muted)">Sentences</th><th scope="col" style="text-align:right;padding:3px 8px;font-size:.78rem;color:var(--muted)">Counts</th><th scope="col" style="text-align:right;padding:3px 0 3px 8px;font-size:.78rem;color:var(--muted)">TF-IDF</th></tr></thead>' +
@@ -866,7 +867,8 @@
           var far = c >= nearCount, lead = null, score = c * 0.01, bad = 0;
           if (far) lead = [p[0], p[1], clamp(p[0], rect.x, rect.x + rect.w), clamp(p[1], rect.y, rect.y + rect.h)];
           for (k = 0; k < placed.length; k++) {
-            if (rectsOverlap(rect, placed[k])) bad += 10;
+            // two labels on top of each other cannot be read, so that is the last resort
+            if (rectsOverlap(rect, placed[k])) bad += 40;
             if (lead && segHitsRect(lead, placed[k])) bad += 6;
           }
           for (k = 0; k < leaders.length; k++) {
@@ -875,7 +877,8 @@
           }
           for (k = 0; k < NW; k++) {
             if (k === self) continue;
-            if (rectsOverlap(rect, obstacles[k])) bad += inv[k] ? 3 : 1;
+            // a label sitting on another word's dot looks like that word's label
+            if (rectsOverlap(rect, obstacles[k])) bad += inv[k] ? 3 : 2;
             else if (lead && segNearPoint(lead, screenPos[k], r + 1)) bad += 2;
           }
           if (starBox && self !== -2 && rectsOverlap(rect, starBox)) bad += 3;
@@ -911,7 +914,7 @@
         var w = g.measureText(nameOf(j)).width + (badge ? bw + 4 : 0) + 4;
         var ringed = (S.mode === 'nbrs' && j === S.sel) || (S.mode === 'compare' && (j === S.cmp[0] || j === S.cmp[1])) || (S.mode === 'analogy' && A && j === A.best) || j === S.hover;
         // far spots: always for the words in focus, only one ring out for the others, none for the others on a small map
-        spot = place(p, w, j, it.forced, r + (ringed ? 8 : 3), it.forced ? [16, 28, 42] : (G.small ? [] : [17]), false);
+        spot = place(p, w, j, it.forced, r + (ringed ? 8 : 3), it.forced ? [16, 28, 42, 60, 80] : (G.small ? [] : [17]), false);
         if (spot) labels.push({ text: nameOf(j), rect: spot.rect, lead: spot.lead, bold: bold, badge: badge, bw: bw, muted: active && !inv[j] && j !== S.hover });
       });
       // the share-of-width label on the compare line, only where it fits cleanly

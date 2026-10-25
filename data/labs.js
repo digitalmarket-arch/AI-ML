@@ -291,6 +291,30 @@ window.AIM.labs = [
   ]
  },
  {
+  "id": "embeddings",
+  "module": "l3-nlp",
+  "title": "Word embeddings: words as vectors",
+  "summary": "Explore 50 words as hand-made 10-number vectors on a 2-D PCA map, find nearest words by cosine similarity, solve analogies like king − man + woman, and see why TF-IDF turns down common words.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Find the 3 nearest neighbours of Mumbai by cosine similarity: pick Mumbai on the map or in the “Selected word” list."
+   },
+   {
+    "id": "t2",
+    "text": "Solve king − man + woman in the analogy builder. Which word does the sum land on?"
+   },
+   {
+    "id": "t3",
+    "text": "Solve Paris − France + India. Swapping the country should keep the “capital city” part."
+   },
+   {
+    "id": "t4",
+    "text": "Catch the map bending the truth: in “Compare two words”, find a pair with cosine similarity 0.80 or more that sits 25% or more of the map’s width apart. Hint: try Delhi and a capital city abroad."
+   }
+  ]
+ },
+ {
   "id": "tokenizer",
   "module": "l3-transformers",
   "title": "Tokenizer (BPE) lab",
