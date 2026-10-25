@@ -3405,8 +3405,8 @@ window.AIM.resources = [
  },
  {
   "id": "nptel-iit-madras-introduction-to-machine-learning-nptel-",
-  "title": "Introduction to Machine Learning (NPTEL, IIT Madras)",
-  "creator": "NPTEL / IIT Madras",
+  "title": "Introduction to Machine Learning (IIT Madras)",
+  "creator": "IIT Madras (NPTEL)",
   "platform": "NPTEL",
   "type": "course",
   "url": "https://nptel.ac.in/courses/106106139/",
@@ -3419,17 +3419,21 @@ window.AIM.resources = [
    "l4-research-career"
   ],
   "topics": [
-   "supervised learning theory",
    "bias-variance",
-   "SVMs",
-   "probabilistic models",
+   "linear regression",
+   "Ridge/Lasso",
+   "logistic regression",
+   "LDA",
+   "SVM and kernels",
+   "decision trees",
+   "ensembles/boosting",
    "evaluation",
-   "university-level ML depth"
+   "clustering"
   ],
-  "approxHours": 35,
-  "cost": "Free to learn; NPTEL certification exam fee is paid",
-  "why": "A full IIT university ML course that you can turn into an NPTEL certificate, which Indian employers recognise. Good for the theory depth that interviews test.",
-  "caveats": "Recordings are several years old and theory-heavy. The source does not name the instructor. nptel.ac.in could not be opened in this session, and the old URL format may redirect.",
+  "approxHours": 40,
+  "cost": "Free; NPTEL exam fee only if you want the certificate",
+  "why": "A rigorous IIT course and the right next step when you want university-level understanding taught in Indian English.",
+  "caveats": "Theory and maths heavy, with little Python. NPTEL repeats the course every term, so the latest run may have a different page; this older-style URL should redirect but was not opened in this run.",
   "year": 0,
   "status": "verified",
   "listId": "",
@@ -3976,7 +3980,8 @@ window.AIM.resources = [
   "language": "english",
   "level": "advanced",
   "modules": [
-   "l2-regression"
+   "l2-regression",
+   "l4-research-career"
   ],
   "topics": [
    "linear regression and gradient descent",
@@ -4473,12 +4478,12 @@ window.AIM.resources = [
  },
  {
   "id": "krish-naik-hindi-end-to-end-ml-projects-playlist-hindi",
-  "title": "End To End ML Projects Playlist (Hindi)",
-  "creator": "Krish Naik Hindi",
+  "title": "End To End ML Projects (Hindi)",
+  "creator": "Krish Naik (Krish Naik Hindi channel)",
   "platform": "YouTube",
   "type": "playlist",
   "url": "https://www.youtube.com/watch?v=NuwUnRpxq2c&list=PLTDARY42LDV7jzL_f68SY-eOQ9tY2lYvR",
-  "firstVideoUrl": "",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=NuwUnRpxq2c&list=PLTDARY42LDV7jzL_f68SY-eOQ9tY2lYvR",
   "language": "hinglish",
   "level": "intermediate",
   "modules": [
@@ -4487,15 +4492,17 @@ window.AIM.resources = [
    "l4-research-career"
   ],
   "topics": [
-   "end-to-end ML project",
-   "project structure",
-   "deployment",
-   "portfolio project"
+   "end-to-end project",
+   "modular project structure",
+   "data ingestion and transformation",
+   "pipelines",
+   "model training",
+   "deployment"
   ],
   "approxHours": 0,
   "cost": "Free on YouTube",
-  "why": "The main Hindi/Hinglish series from Krish Naik that takes an ML project from notebook to deployment. A finished project also gives you something to show recruiters.",
-  "caveats": "I could not see the episode list, so the exact topics and total length are not confirmed. Videos on the Krish Naik Hindi channel are spoken Hindi with English technical terms (Hinglish). You need basic Python first. AWS/Azure console screens may have changed by 2026.",
+  "why": "Shows in Hindi-English how a notebook model becomes a real project (folders, pipelines, training script, deployment), a step most beginners never see. Good preparation for the capstone.",
+  "caveats": "Assumes you already know basic ML and Python. Deployment tooling (Flask, cloud services) may differ from what you use in 2026. More about project structure than feature engineering itself. The playlist page itself was not opened in this run.",
   "year": 0,
   "status": "verified",
   "listId": "PLTDARY42LDV7jzL_f68SY-eOQ9tY2lYvR",
@@ -4503,7 +4510,7 @@ window.AIM.resources = [
  },
  {
   "id": "krish-naik-end-to-end-ml-projects-playlist-english",
-  "title": "End To End ML Projects Playlist (English)",
+  "title": "End To End ML Projects (English)",
   "creator": "Krish Naik",
   "platform": "YouTube",
   "type": "playlist",
@@ -4517,20 +4524,17 @@ window.AIM.resources = [
    "l4-research-career"
   ],
   "topics": [
-   "end-to-end ML project",
-   "modular code",
-   "DVC",
-   "MLflow",
-   "Docker",
-   "GitHub Actions CI/CD",
-   "AWS SageMaker",
-   "portfolio projects"
+   "end-to-end project",
+   "project structure",
+   "pipelines",
+   "training and evaluation",
+   "deployment"
   ],
   "approxHours": 0,
-  "cost": "Free on YouTube (cloud parts can incur AWS/Azure charges)",
-  "why": "India's most-followed project-based MLOps series. It includes a student-performance starter project, a deep-learning project with DVC and MLOps, an MLflow project, and an AWS SageMaker project.",
-  "caveats": "Many videos are from 2022–2023, so AWS and Azure screens have changed since. Cloud services need a credit card and can bill you outside the free tier. You need comfortable Python first.",
-  "year": 2023,
+  "cost": "Free on YouTube",
+  "why": "Walks through complete tabular ML projects from raw data to a deployed app, a good model for this track's capstone project.",
+  "caveats": "Deployment tooling changes fast, so treat the cloud/CI steps as examples, not current best practice. The playlist page itself was not opened in this run.",
+  "year": 0,
   "status": "verified",
   "listId": "PLZoTAELRMXVPS-dOaVbAux22vzqdgoGhG",
   "videoId": "S_F_c9e2bz4"
@@ -4682,36 +4686,1008 @@ window.AIM.resources = [
  },
  {
   "id": "campusx-nitish-singh-100-days-of-deep-learning-ann-to-rn",
-  "title": "100 Days of Deep Learning (ANN to RNN/LSTM/GRU, seq2seq, attention and transformers)",
+  "title": "100 Days of Deep Learning",
   "creator": "CampusX (Nitish Singh)",
   "platform": "YouTube",
   "type": "playlist",
   "url": "https://www.youtube.com/playlist?list=PLKnIA16_RmvYuZauWaPlRTC54KxSNLtNn",
   "firstVideoUrl": "",
   "language": "hinglish",
-  "level": "intermediate",
+  "level": "beginner",
   "modules": [
+   "l3-nn-basics",
+   "l3-cv",
    "l3-nlp",
    "l3-transformers"
   ],
   "topics": [
-   "RNN",
-   "LSTM",
-   "GRU",
-   "encoder-decoder (seq2seq)",
-   "attention mechanism",
-   "self-attention",
-   "multi-head attention",
-   "positional encoding",
-   "transformer encoder and decoder"
+   "perceptron",
+   "multi-layer perceptron",
+   "activation functions",
+   "loss functions",
+   "backpropagation",
+   "gradient descent",
+   "vanishing gradients",
+   "weight initialisation",
+   "dropout",
+   "batch normalization",
+   "optimisers",
+   "Keras",
+   "CNN",
+   "data augmentation",
+   "transfer learning"
   ],
   "approxHours": 0,
   "cost": "Free on YouTube",
-  "why": "The main Hindi/Hinglish whiteboard series that builds from neural-network basics through RNN, LSTM and GRU towards attention and transformers. It is the best candidate for a Hindi-first learner moving from classical NLP to transformers.",
-  "caveats": "A very long series (100+ videos) that starts from ANN and CNN basics; skip ahead to the RNN section for NLP. The RNN-to-transformer part of the topic list comes from the proposer and was not re-checked video by video in this session, so confirm the later videos before relying on them. CampusX's 2022 roadmap labels this same playlist 'Fundamentals of Neural Network'.",
-  "year": 2024,
+  "why": "One of the most complete Hindi-medium deep learning courses on YouTube. Each idea, from the perceptron to CNNs and transfer learning, gets intuition and math before code, which suits learners without a CS background.",
+  "caveats": "Taught in Hindi with English technical terms (Hinglish). Code is Keras/TensorFlow, not PyTorch. The series may stop short of a full 100 days, so follow it in order. The first-video URL and total hours were not verified.",
+  "year": 0,
   "status": "verified",
   "listId": "PLKnIA16_RmvYuZauWaPlRTC54KxSNLtNn",
+  "videoId": ""
+ },
+ {
+  "id": "microsoft-ai-for-beginners-12-week-curriculum-hindi-tran",
+  "title": "AI for Beginners: 12-week curriculum (Hindi translation)",
+  "creator": "Microsoft",
+  "platform": "GitHub",
+  "type": "course",
+  "url": "https://github.com/microsoft/AI-For-Beginners/blob/main/translations/hi/README.md",
+  "firstVideoUrl": "",
+  "language": "hindi",
+  "level": "beginner",
+  "modules": [
+   "l3-nn-basics",
+   "l3-pytorch",
+   "l3-cv",
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "perceptron",
+   "multi-layer perceptron",
+   "building your own framework",
+   "PyTorch and TensorFlow intro",
+   "overfitting",
+   "OpenCV",
+   "CNN",
+   "CNN architectures",
+   "transfer learning",
+   "autoencoders and VAEs",
+   "GANs",
+   "style transfer",
+   "object detection",
+   "U-Net segmentation",
+   "CLIP"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "A structured, hands-on text curriculum with notebooks, labs and quizzes, and the lessons are in Hindi. It is one of the few Hindi resources that reaches autoencoders, VAEs, GANs and CLIP, with PyTorch notebooks for most lessons.",
+  "caveats": "The Hindi text is machine-translated by Microsoft's Co-op Translator, and the page carries an automated-translation disclaimer. Notebooks and code stay in English. English original: https://github.com/microsoft/AI-For-Beginners. There are no videos; run the notebooks on Colab or Kaggle. The object detection lesson is TensorFlow-only. Diffusion models are not covered.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "krish-naik-hindi-deep-learning-playlist-in-hindi",
+  "title": "Deep Learning Playlist in Hindi",
+  "creator": "Krish Naik Hindi",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/watch?v=SlbbvhO3jKY&list=PLTDARY42LDV4Ic6ZPHIh_CdlPwkKDJmpk",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=SlbbvhO3jKY&list=PLTDARY42LDV4Ic6ZPHIh_CdlPwkKDJmpk",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l3-nn-basics",
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "artificial neural networks",
+   "activation functions",
+   "loss functions",
+   "forward and backward propagation",
+   "optimisers"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "Krish Naik explains neural-network basics in conversational Hindi. It works as a second Hindi explanation next to CampusX when a concept does not click.",
+  "caveats": "Hinglish (Hindi with many English terms). The video-by-video topic list was not checked, so open the playlist to see what it covers. Code is probably TensorFlow/Keras. Channel: https://www.youtube.com/@krishnaikhindi",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLTDARY42LDV4Ic6ZPHIh_CdlPwkKDJmpk",
+  "videoId": "SlbbvhO3jKY"
+ },
+ {
+  "id": "krish-naik-complete-deep-learning-playlist-english",
+  "title": "Complete Deep Learning Playlist (English)",
+  "creator": "Krish Naik",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/watch?v=YFNKnUhm_-s&list=PLZoTAELRMXVPGU70ZGsckrMdr0FteeRUi",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=YFNKnUhm_-s&list=PLZoTAELRMXVPGU70ZGsckrMdr0FteeRUi",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l3-nn-basics"
+  ],
+  "topics": [
+   "artificial neural networks",
+   "activation functions",
+   "loss functions",
+   "backpropagation",
+   "optimisers",
+   "weight initialisation",
+   "dropout"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "Krish Naik's long-running deep learning series in Indian English explains each idea on a whiteboard, then in code. It is very popular with Indian learners preparing for data-science interviews.",
+  "caveats": "Older series (roughly 2019-2021, TensorFlow/Keras era) that also covers NLP; the creator's own README calls it 'Complete Deep Learning And NLP Detailed Playlist'. Some APIs are dated. For a shorter, more recent crash course see his 5 Days Live Deep Learning playlist: https://www.youtube.com/watch?v=8arGWdq_KL0&list=PLZoTAELRMXVPiyueAqA_eQnsycC_DSBns",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLZoTAELRMXVPGU70ZGsckrMdr0FteeRUi",
+  "videoId": "YFNKnUhm_-s"
+ },
+ {
+  "id": "codebasics-dhaval-patel-deep-learning-with-tensorflow-2-",
+  "title": "Deep Learning with TensorFlow 2.0 and Keras",
+  "creator": "codebasics (Dhaval Patel)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLeo1K3hjS3uu7CxAacxVndI4bE_o3BDtO",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l3-nn-basics",
+   "l3-cv"
+  ],
+  "topics": [
+   "neurons",
+   "activation functions",
+   "loss functions",
+   "gradient descent",
+   "neural network from scratch in Python",
+   "Keras",
+   "dropout",
+   "GPU training",
+   "CNN",
+   "data augmentation",
+   "transfer learning"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "Short videos in very simple Indian English that go from theory to working Keras code, with exercises. A gentle first hands-on deep learning course.",
+  "caveats": "This is TensorFlow/Keras, not PyTorch. Recorded around 2020-2022, so a few TF APIs have changed.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLeo1K3hjS3uu7CxAacxVndI4bE_o3BDtO",
+  "videoId": ""
+ },
+ {
+  "id": "prof-mitesh-m-khapra-iit-madras-cs7015-deep-learning-wor",
+  "title": "NPTEL CS7015 Deep Learning (IIT Madras)",
+  "creator": "Prof. Mitesh M. Khapra, IIT Madras (NPTEL)",
+  "platform": "YouTube (NPTEL)",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLyqSpQzTE6M9gCgajvQbc68Hk_JKGBAYT",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "intermediate",
+  "modules": [
+   "l3-nn-basics",
+   "l3-nlp",
+   "l4-gen-vision",
+   "l4-research-career"
+  ],
+  "topics": [
+   "perceptron",
+   "sigmoid neurons",
+   "multi-layer perceptron",
+   "backpropagation",
+   "gradient descent variants (momentum, NAG, Adagrad, RMSProp, Adam)",
+   "autoencoders",
+   "regularisation",
+   "dropout",
+   "batch normalization",
+   "weight initialisation",
+   "vanishing gradients",
+   "CNNs",
+   "RNNs and LSTMs"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube; NPTEL proctored exam fee only if you want a certificate",
+  "why": "The best-known Indian university course on deep learning fundamentals. Prof. Khapra derives every equation clearly, for learners who want to truly understand backpropagation and optimisers.",
+  "caveats": "2018 recording of slides and math, with no PyTorch coding. It needs comfort with calculus and linear algebra. Course page: https://www.cse.iitm.ac.in/~miteshk/CS7015.html",
+  "year": 2018,
+  "status": "verified",
+  "listId": "PLyqSpQzTE6M9gCgajvQbc68Hk_JKGBAYT",
+  "videoId": ""
+ },
+ {
+  "id": "andrew-ng-deeplearning-ai-deep-learning-specialization-l",
+  "title": "Deep Learning Specialization lectures (official DeepLearningAI channel)",
+  "creator": "Andrew Ng / DeepLearning.AI",
+  "platform": "YouTube",
+  "type": "channel",
+  "url": "https://www.youtube.com/channel/UCcIXc5mJsHVYTZR1maL5l9w/playlists",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l3-nn-basics"
+  ],
+  "topics": [
+   "logistic regression as a neural network",
+   "shallow and deep networks",
+   "backpropagation",
+   "initialisation",
+   "regularisation",
+   "dropout",
+   "batch normalization",
+   "optimisers (momentum, RMSprop, Adam)",
+   "hyperparameter tuning",
+   "vanishing gradients"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube; graded assignments and certificate on Coursera (paid, financial aid available)",
+  "why": "Andrew Ng's well-known course, uploaded free by his own company. Course 1 (Neural Networks and Deep Learning) and Course 2 (Improving Deep Neural Networks) are calm, classic explanations of every topic in this module.",
+  "caveats": "Recorded in 2017-18. The programming assignments are not on YouTube. This links to the channel's Playlists page; pick Course 1 and Course 2 there.",
+  "year": 2017,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "kaggle-ryan-holbrook-kaggle-learn-intro-to-deep-learning",
+  "title": "Kaggle Learn: Intro to Deep Learning",
+  "creator": "Kaggle (Ryan Holbrook)",
+  "platform": "Kaggle",
+  "type": "practice",
+  "url": "https://www.kaggle.com/learn/intro-to-deep-learning",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l3-nn-basics"
+  ],
+  "topics": [
+   "a single neuron",
+   "deep neural networks",
+   "stochastic gradient descent",
+   "overfitting and underfitting",
+   "dropout and batch normalization",
+   "binary classification",
+   "Keras"
+  ],
+  "approxHours": 0,
+  "cost": "Free (Kaggle account); free completion certificate",
+  "why": "Short browser lessons, each followed by an interactive coding exercise on free Kaggle hardware. The quickest way to practise dropout, batch norm and overfitting without installing anything.",
+  "caveats": "Uses Keras/TensorFlow, not PyTorch. It is short, so use it as practice next to a video course. The last lesson uses TPUs (Higgs boson dataset).",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "alexander-amini-ava-amini-mit-mit-6-s191-introduction-to",
+  "title": "MIT 6.S191 Introduction to Deep Learning",
+  "creator": "Alexander Amini & Ava Amini (MIT)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLtBw6njQRU-rwp5__7C0oIVt26ZgjG9NI",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=njKP3FqW3Sk&list=PLtBw6njQRU-rwp5__7C0oIVt26ZgjG9NI&index=1",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l3-nn-basics",
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "perceptron",
+   "backpropagation",
+   "optimisation",
+   "regularisation",
+   "CNNs",
+   "deep generative models (VAEs, GANs, diffusion)",
+   "Colab labs"
+  ],
+  "approxHours": 12,
+  "cost": "Free on YouTube; labs free on GitHub/Colab",
+  "why": "MIT's bootcamp is updated every year and gives a fast, polished tour from the perceptron to generative AI. The 2026 labs are already published, so it is current.",
+  "caveats": "Fast-paced, about one hour per big topic. The playlist mixes several years, so start with the newest lectures. The labs need some Python. Labs: https://github.com/aamini/introtodeeplearning. Hours are approximate per yearly edition.",
+  "year": 2026,
+  "status": "verified",
+  "listId": "PLtBw6njQRU-rwp5__7C0oIVt26ZgjG9NI",
+  "videoId": "njKP3FqW3Sk"
+ },
+ {
+  "id": "3blue1brown-grant-sanderson-neural-networks-deep-learnin",
+  "title": "Neural Networks (Deep Learning series)",
+  "creator": "3Blue1Brown (Grant Sanderson)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=aircAruvnKk",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l3-nn-basics"
+  ],
+  "topics": [
+   "what a neural network is",
+   "neurons and layers",
+   "gradient descent",
+   "backpropagation intuition",
+   "backpropagation calculus"
+  ],
+  "approxHours": 3,
+  "cost": "Free on YouTube",
+  "why": "The best visual intuition for how neural networks learn, using animation and no code. Watch it before any course so backpropagation never feels like magic.",
+  "caveats": "Conceptual only, with no coding. The later chapters on transformers and attention belong more to the NLP/LLM track.",
+  "year": 2024,
+  "status": "verified",
+  "listId": "PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi",
+  "videoId": "aircAruvnKk"
+ },
+ {
+  "id": "statquest-with-josh-starmer-statquest-neural-networks-de",
+  "title": "Neural Networks / Deep Learning",
+  "creator": "StatQuest with Josh Starmer",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLblh5JKOoLUIxGDQs4LFFD--41Vzf-ME1",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l3-nn-basics",
+   "l3-nlp",
+   "l3-transformers"
+  ],
+  "topics": [
+   "neural network basics",
+   "backpropagation",
+   "ReLU",
+   "softmax",
+   "cross entropy",
+   "CNN for image classification",
+   "coding neural networks in PyTorch"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "Josh Starmer breaks each idea into tiny, friendly steps with simple numbers. It suits a non-coder who wants the math of backprop and loss functions without getting lost.",
+  "caveats": "The video list and order were not verified, and the topic list (including the PyTorch videos) comes from the proposer. The style is deliberately slow.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLblh5JKOoLUIxGDQs4LFFD--41Vzf-ME1",
+  "videoId": ""
+ },
+ {
+  "id": "andrej-karpathy-neural-networks-zero-to-hero-micrograd-t",
+  "title": "Neural Networks: Zero to Hero",
+  "creator": "Andrej Karpathy",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=VMj-3S1tku0",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l3-nn-basics",
+   "l3-pytorch",
+   "l4-llm-internals"
+  ],
+  "topics": [
+   "backpropagation from scratch (micrograd)",
+   "torch.Tensor",
+   "MLP",
+   "training loop",
+   "learning-rate tuning",
+   "activations and gradients",
+   "batch normalization",
+   "manual backprop",
+   "torch.nn",
+   "building GPT"
+  ],
+  "approxHours": 18,
+  "cost": "Free on YouTube",
+  "why": "A former Tesla/OpenAI researcher codes neural networks from an empty notebook, line by line. Lecture 1 (micrograd) is the clearest backpropagation explanation available, and the series shows how PyTorch works inside.",
+  "caveats": "Needs comfortable Python and high-school calculus. The examples are language models, not images. Notebooks: https://github.com/karpathy/nn-zero-to-hero",
+  "year": 2024,
+  "status": "verified",
+  "listId": "PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ",
+  "videoId": "VMj-3S1tku0"
+ },
+ {
+  "id": "google-tensorflow-team-tensorflow-playground-interactive",
+  "title": "TensorFlow Playground (interactive neural network)",
+  "creator": "Google (TensorFlow team)",
+  "platform": "Website",
+  "type": "tool",
+  "url": "https://playground.tensorflow.org/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l3-nn-basics"
+  ],
+  "topics": [
+   "neurons and hidden layers",
+   "activation functions",
+   "learning rate",
+   "regularisation",
+   "overfitting",
+   "decision boundaries"
+  ],
+  "approxHours": 1,
+  "cost": "Free, runs in the browser",
+  "why": "Train a real neural network in your browser by clicking. Changing layers, activations and learning rate shows overfitting and convergence instantly, with no installation or code. It is the most interactive way to start this module.",
+  "caveats": "Toy 2-D datasets only. It builds intuition, not real projects.",
+  "year": 2016,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "simon-j-d-prince-mit-press-understanding-deep-learning-f",
+  "title": "Understanding Deep Learning (free book + notebooks)",
+  "creator": "Simon J.D. Prince (MIT Press)",
+  "platform": "Book",
+  "type": "book",
+  "url": "https://udlbook.github.io/udlbook",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l3-nn-basics",
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "shallow and deep networks",
+   "loss functions",
+   "fitting and backpropagation",
+   "initialisation",
+   "regularisation",
+   "CNNs",
+   "residual networks",
+   "transformers",
+   "GANs",
+   "normalizing flows",
+   "VAEs",
+   "diffusion models"
+  ],
+  "approxHours": 0,
+  "cost": "Free PDF and Python notebooks; print book paid",
+  "why": "The clearest modern deep learning textbook, with excellent figures and Colab notebooks. Its chapters on VAEs, GANs, flows and diffusion are the best free written treatment of generative vision models.",
+  "caveats": "Math-heavy (linear algebra, probability), so use it as a reference after a video course. The current PDF is dated 29 May 2025 (release v5.0.2).",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "campusx-nitish-singh-campusx-youtube-channel-find-its-py",
+  "title": "CampusX YouTube channel (find its PyTorch for Deep Learning playlist)",
+  "creator": "CampusX (Nitish Singh)",
+  "platform": "YouTube",
+  "type": "channel",
+  "url": "https://www.youtube.com/@campusx-official",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l3-pytorch"
+  ],
+  "topics": [
+   "tensors",
+   "autograd",
+   "Dataset and DataLoader",
+   "training loop",
+   "building neural networks in PyTorch"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "CampusX's PyTorch series continues its Hindi deep learning course in the same careful style. It is the likeliest Hindi route from Keras-style theory to real PyTorch code.",
+  "caveats": "Only the channel URL is verified. No GitHub source listed the exact PyTorch playlist URL, and the web-search budget ran out, so the playlist's existence, contents and topic list were not confirmed. Open the channel's Playlists tab and look for the PyTorch series.",
+  "year": 0,
+  "status": "partial",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "aakash-n-s-jovian-published-by-freecodecamp-org-deep-lea",
+  "title": "Deep Learning with PyTorch: Zero to GANs",
+  "creator": "Aakash N S (Jovian), published by freeCodeCamp.org",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLWKjhJtqVAbm3T2Eq1_KgloC7ogdXxdRa",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l3-pytorch",
+   "l3-cv",
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "tensors and gradients",
+   "linear and logistic regression in PyTorch",
+   "feed-forward networks on GPU",
+   "CNNs",
+   "ResNets",
+   "data augmentation",
+   "regularisation",
+   "GANs"
+  ],
+  "approxHours": 12,
+  "cost": "Free on YouTube",
+  "why": "An Indian instructor teaches PyTorch from scratch over six live sessions, from tensors to CNNs, ResNets and GANs, with runnable notebooks. A friendly bridge from the basics to image models.",
+  "caveats": "Recorded in 2020. The original notebooks and certificate were hosted on Jovian; if those links no longer work, run the code on Colab or Kaggle. The GAN session is introductory only.",
+  "year": 2020,
+  "status": "verified",
+  "listId": "PLWKjhJtqVAbm3T2Eq1_KgloC7ogdXxdRa",
+  "videoId": ""
+ },
+ {
+  "id": "aston-zhang-zachary-lipton-mu-li-alexander-smola-dive-in",
+  "title": "Dive into Deep Learning (interactive book)",
+  "creator": "Aston Zhang, Zachary Lipton, Mu Li, Alexander Smola",
+  "platform": "Website",
+  "type": "book",
+  "url": "https://d2l.ai/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l3-pytorch",
+   "l3-cv"
+  ],
+  "topics": [
+   "linear networks",
+   "MLP",
+   "dropout",
+   "numerical stability and vanishing gradients",
+   "optimisation algorithms",
+   "PyTorch implementations",
+   "CNNs",
+   "modern CNNs (ResNet)",
+   "augmentation and fine-tuning",
+   "object detection",
+   "semantic segmentation",
+   "attention and ViT"
+  ],
+  "approxHours": 0,
+  "cost": "Free online (print book paid)",
+  "why": "Every concept comes with runnable PyTorch code, so you learn theory and implementation together. It is used in many university courses and is a great reference while you build models.",
+  "caveats": "Dense and long, so use it as a companion. It has several framework tabs; choose PyTorch. The current edition dates from 2023.",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "daniel-bourke-zero-to-mastery-learn-pytorch-for-deep-lea",
+  "title": "Learn PyTorch for Deep Learning (25-hour full course video)",
+  "creator": "Daniel Bourke (Zero To Mastery)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://youtu.be/Z_ikDlimN6A",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l3-pytorch"
+  ],
+  "topics": [
+   "tensors",
+   "PyTorch workflow",
+   "training and testing loops",
+   "classification",
+   "torchvision and computer vision",
+   "custom Dataset and DataLoader",
+   "GPU usage",
+   "saving and loading models"
+  ],
+  "approxHours": 25,
+  "cost": "Free on YouTube; later sections free as text on learnpytorch.io (their videos are on paid ZTM)",
+  "why": "A beginner-friendly PyTorch code-along where you write every line yourself. It is the most popular free full-length PyTorch course and assumes only basic Python.",
+  "caveats": "The free video covers notebooks 00-04 only (launched July 2022). It was recorded on PyTorch 1.x; the author says the materials still work with PyTorch 2.x. It is very long, so watch in chunks.",
+  "year": 2022,
+  "status": "verified",
+  "listId": "",
+  "videoId": "Z_ikDlimN6A"
+ },
+ {
+  "id": "jeremy-howard-fast-ai-practical-deep-learning-for-coders",
+  "title": "Practical Deep Learning for Coders, Part 1",
+  "creator": "Jeremy Howard (fast.ai)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLfYUBJiXbdtSvpQjSnJJ_PmDQB_VyT5iU",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l3-pytorch",
+   "l3-cv"
+  ],
+  "topics": [
+   "image classification",
+   "transfer learning and fine-tuning",
+   "deploying a model",
+   "training loop from scratch",
+   "SGD",
+   "data augmentation",
+   "Kaggle notebooks",
+   "PyTorch and fastai"
+  ],
+  "approxHours": 15,
+  "cost": "Free (course site https://course.fast.ai)",
+  "why": "Top-down teaching: you train a working image classifier in lesson 1 and learn the theory as you go. The most practical way to get real computer vision results quickly on free Kaggle or Colab GPUs.",
+  "caveats": "Assumes about a year of coding. It uses the fastai library on top of PyTorch, so pair it with raw-PyTorch material. 2022 edition.",
+  "year": 2022,
+  "status": "verified",
+  "listId": "PLfYUBJiXbdtSvpQjSnJJ_PmDQB_VyT5iU",
+  "videoId": ""
+ },
+ {
+  "id": "pytorch-linux-foundation-pytorch-official-tutorials",
+  "title": "PyTorch official tutorials",
+  "creator": "PyTorch (Linux Foundation)",
+  "platform": "Website",
+  "type": "article",
+  "url": "https://pytorch.org/tutorials",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l3-pytorch"
+  ],
+  "topics": [
+   "Learn the Basics: tensors, Datasets and DataLoaders, transforms, building a model, autograd, optimisation loop, save and load",
+   "60-minute blitz",
+   "transfer learning tutorial",
+   "GPU usage"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "The official, always-current reference for PyTorch syntax. When a 2020-22 video uses an outdated API, check here for the 2026 way.",
+  "caveats": "Reference-style rather than a guided course, so it can feel dry for absolute beginners.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "daniel-bourke-learnpytorch-io-zero-to-mastery-learn-pyto",
+  "title": "learnpytorch.io: Zero to Mastery Learn PyTorch (online book)",
+  "creator": "Daniel Bourke",
+  "platform": "Website",
+  "type": "book",
+  "url": "https://learnpytorch.io",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l3-pytorch",
+   "l3-cv"
+  ],
+  "topics": [
+   "PyTorch fundamentals",
+   "workflow",
+   "classification",
+   "computer vision",
+   "custom datasets",
+   "going modular",
+   "transfer learning",
+   "experiment tracking",
+   "paper replicating (ViT)",
+   "model deployment",
+   "PyTorch 2.0"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "The full text and notebooks of Bourke's course, free, including the later chapters on transfer learning, replicating a Vision Transformer and deploying a model. Every chapter has exercises.",
+  "caveats": "The main content dates from 2022-23. PyTorch 2.x features are covered in a separate chapter.",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "wscube-tech-opencv-full-tutorial-hindi",
+  "title": "OpenCV Full Tutorial (Hindi)",
+  "creator": "WsCube Tech",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLjVLYmrlmjGelmHXLZ0ukHdb-jjvG6rRm",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l3-cv"
+  ],
+  "topics": [
+   "OpenCV",
+   "reading and displaying images",
+   "image transformations",
+   "drawing and annotation",
+   "thresholding",
+   "contours",
+   "video processing"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "A beginner-paced Hindi introduction to OpenCV, the image library used in almost every computer vision project. Do it before CNNs and YOLO.",
+  "caveats": "Classical OpenCV only, with no deep learning. The style is training-institute, not university depth. The topic list is inferred from the title and was not checked video by video.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLjVLYmrlmjGelmHXLZ0ukHdb-jjvG6rRm",
+  "videoId": ""
+ },
+ {
+  "id": "aarohi-singla-code-with-aarohi-code-with-aarohi-yolo-and",
+  "title": "Code With Aarohi (YOLO and computer vision tutorials)",
+  "creator": "Aarohi Singla (Code With Aarohi)",
+  "platform": "YouTube",
+  "type": "channel",
+  "url": "https://www.youtube.com/channel/UCgHDngFV50KmbqF_6-K8XhA",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "intermediate",
+  "modules": [
+   "l3-cv"
+  ],
+  "topics": [
+   "YOLO object detection on custom datasets (YOLOv4, v5, v7, YOLO11)",
+   "instance segmentation",
+   "keypoint detection",
+   "Faster R-CNN",
+   "SSD",
+   "ResNet",
+   "3D object detection"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube (code free on GitHub)",
+  "why": "The best Indian channel for hands-on object detection. Step-by-step videos train YOLO on your own dataset, with a matching GitHub repo for each video, which helps when building a real CV product.",
+  "caveats": "A channel, not a structured course. Suggested first video: the YOLO11 custom object detection tutorial, https://youtu.be/POmyidzahLg. Ultralytics has since released YOLO26, but the workflow is the same. Videos use a local Windows/CUDA setup; Colab works too.",
+  "year": 2024,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "prof-vineeth-n-balasubramanian-iit-hyderabad-nptel-nptel",
+  "title": "NPTEL Deep Learning for Computer Vision (IIT Hyderabad)",
+  "creator": "Prof. Vineeth N Balasubramanian, IIT Hyderabad (NPTEL)",
+  "platform": "YouTube (NPTEL)",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLyqSpQzTE6M_PI-rIz4O1jEgffhJU9GgG",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "intermediate",
+  "modules": [
+   "l3-cv",
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "image processing basics",
+   "CNNs",
+   "CNN architectures (AlexNet, VGG, ResNet)",
+   "visualising CNNs",
+   "object detection (R-CNN family, YOLO, SSD)",
+   "segmentation",
+   "RNNs and attention in vision",
+   "GANs",
+   "VAEs"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube; NPTEL proctored exam fee only if you want a certificate",
+  "why": "A rigorous Indian university course covering the whole CV pipeline, from CNN basics to detection, segmentation and deep generative models, taught by a leading IIT vision researcher.",
+  "caveats": "2020 edition of slides and math, with little live coding. It predates diffusion, CLIP-era vision-language models and the dominance of ViT. Course page: https://onlinecourses.nptel.ac.in/noc20_cs88/preview",
+  "year": 2020,
+  "status": "verified",
+  "listId": "PLyqSpQzTE6M_PI-rIz4O1jEgffhJU9GgG",
+  "videoId": ""
+ },
+ {
+  "id": "polo-club-of-data-science-georgia-tech-cnn-explainer-int",
+  "title": "CNN Explainer (interactive)",
+  "creator": "Polo Club of Data Science, Georgia Tech",
+  "platform": "Website",
+  "type": "tool",
+  "url": "https://poloclub.github.io/cnn-explainer/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l3-cv"
+  ],
+  "topics": [
+   "convolution",
+   "kernels and feature maps",
+   "ReLU",
+   "max pooling",
+   "softmax",
+   "TinyVGG architecture"
+  ],
+  "approxHours": 1,
+  "cost": "Free, runs in the browser",
+  "why": "Click through a real CNN and watch each filter, activation and pooling step on an image. It was designed for non-experts, so learners without a coding background can see what a CNN does.",
+  "caveats": "It visualises one small network (TinyVGG) and builds intuition only; you cannot train your own models in it.",
+  "year": 2020,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "andrew-ng-deeplearning-ai-convolutional-neural-networks-",
+  "title": "Convolutional Neural Networks (Course 4, Deep Learning Specialization)",
+  "creator": "Andrew Ng / DeepLearning.AI",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLkDaE6sCZn6Gl29AoE31iwdVwSG-KnDzF",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l3-cv"
+  ],
+  "topics": [
+   "convolution",
+   "padding and stride",
+   "pooling",
+   "LeNet, AlexNet, VGG",
+   "ResNet",
+   "Inception",
+   "transfer learning",
+   "data augmentation",
+   "object detection (YOLO)",
+   "face recognition",
+   "neural style transfer"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube; graded assignments and certificate on Coursera (paid, financial aid available)",
+  "why": "Andrew Ng's clear, unhurried explanation of how CNNs, ResNets and YOLO work, from the official DeepLearning.AI channel. Excellent theory before hands-on CV projects.",
+  "caveats": "The YouTube upload is from 2017, so it predates Vision Transformers and the U-Net lessons later added on Coursera. There is no code on YouTube.",
+  "year": 2017,
+  "status": "verified",
+  "listId": "PLkDaE6sCZn6Gl29AoE31iwdVwSG-KnDzF",
+  "videoId": ""
+ },
+ {
+  "id": "hugging-face-community-hugging-face-community-computer-v",
+  "title": "Hugging Face Community Computer Vision Course",
+  "creator": "Hugging Face community",
+  "platform": "Hugging Face",
+  "type": "course",
+  "url": "https://huggingface.co/learn/computer-vision-course",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l3-cv",
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "CV fundamentals",
+   "CNNs",
+   "Vision Transformers",
+   "multimodal models (CLIP)",
+   "generative models",
+   "detection and segmentation",
+   "video",
+   "3D vision",
+   "model optimisation",
+   "synthetic data",
+   "zero-shot computer vision"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "A modern, free text-and-notebook course that goes beyond CNNs to ViTs, CLIP and zero-shot models, using the Hugging Face libraries that real products use in 2026.",
+  "caveats": "Written by 60+ community contributors, so style and depth vary. There are few videos.",
+  "year": 2024,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "kaggle-ryan-holbrook-kaggle-learn-computer-vision",
+  "title": "Kaggle Learn: Computer Vision",
+  "creator": "Kaggle (Ryan Holbrook)",
+  "platform": "Kaggle",
+  "type": "practice",
+  "url": "https://www.kaggle.com/learn/computer-vision",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l3-cv"
+  ],
+  "topics": [
+   "the convolutional classifier (pretrained base)",
+   "convolution and ReLU",
+   "maximum pooling",
+   "the sliding window",
+   "custom convnets",
+   "data augmentation"
+  ],
+  "approxHours": 0,
+  "cost": "Free (Kaggle account); free completion certificate",
+  "why": "Interactive exercises on free Kaggle GPUs that make convolution, pooling and augmentation concrete. A good practice companion to any CNN video course.",
+  "caveats": "Keras/TensorFlow only, short, and no detection or segmentation.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "stanford-online-fei-fei-li-s-group-stanford-cs231n-deep-",
+  "title": "Stanford CS231n: Deep Learning for Computer Vision (Spring 2025)",
+  "creator": "Stanford Online (Fei-Fei Li's group)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLoROMvodv4rOmsNzYBMe0gJY2XS8AQg16",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l3-cv",
+   "l4-gen-vision",
+   "l4-research-career"
+  ],
+  "topics": [
+   "image classification",
+   "backpropagation",
+   "CNNs",
+   "training neural networks",
+   "CNN architectures (ResNet)",
+   "detection and segmentation",
+   "Vision Transformers",
+   "self-supervised learning",
+   "generative models",
+   "vision-language models"
+  ],
+  "approxHours": 22,
+  "cost": "Free on YouTube; assignments free on course site",
+  "why": "The best-known computer vision course in the world, recorded in 2025, so it covers ViTs and modern generative and multimodal vision alongside classic CNNs.",
+  "caveats": "University pace. The assignments need solid Python/NumPy. Schedule and slides: https://cs231n.stanford.edu/schedule.html. The lecture topics come from the proposer and were not checked lecture by lecture.",
+  "year": 2025,
+  "status": "verified",
+  "listId": "PLoROMvodv4rOmsNzYBMe0gJY2XS8AQg16",
+  "videoId": ""
+ },
+ {
+  "id": "ultralytics-ultralytics-yolo-documentation-yolo26",
+  "title": "Ultralytics YOLO documentation (YOLO26)",
+  "creator": "Ultralytics",
+  "platform": "Website",
+  "type": "article",
+  "url": "https://docs.ultralytics.com",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l3-cv"
+  ],
+  "topics": [
+   "YOLO object detection",
+   "instance segmentation",
+   "classification",
+   "pose estimation",
+   "tracking",
+   "training on custom datasets",
+   "model export and deployment"
+  ],
+  "approxHours": 0,
+  "cost": "Free docs; library is AGPL-3.0 (closed-source commercial use needs a paid Enterprise license)",
+  "why": "The official, current (YOLO26) guide to training and deploying YOLO detectors. Use it to update older YOLOv5/v8/11 tutorials to the current API.",
+  "caveats": "Important for founders: under the AGPL-3.0 license, shipping YOLO inside a closed commercial product requires an Ultralytics Enterprise license.",
+  "year": 2026,
+  "status": "verified",
+  "listId": "",
   "videoId": ""
  },
  {
@@ -4776,39 +5752,6 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "PLKnIA16_RmvZo7fp5kkIth6nRTeQQsjfX",
   "videoId": "zlUpTlaxAKI"
- },
- {
-  "id": "prof-mitesh-m-khapra-iit-madras-cs7015-deep-learning-wor",
-  "title": "CS7015 Deep Learning (word vectors, RNN, LSTM, GRU, encoder-decoder, attention)",
-  "creator": "Prof. Mitesh M. Khapra, IIT Madras",
-  "platform": "YouTube",
-  "type": "playlist",
-  "url": "https://www.youtube.com/playlist?list=PLyqSpQzTE6M9gCgajvQbc68Hk_JKGBAYT",
-  "firstVideoUrl": "",
-  "language": "indian-english",
-  "level": "advanced",
-  "modules": [
-   "l3-nlp",
-   "l4-research-career"
-  ],
-  "topics": [
-   "word representations (Word2Vec, GloVe)",
-   "RNN",
-   "backpropagation through time",
-   "vanishing gradients",
-   "LSTM",
-   "GRU",
-   "encoder-decoder models",
-   "attention mechanism"
-  ],
-  "approxHours": 0,
-  "cost": "Free on YouTube",
-  "why": "Prof. Mitesh Khapra (IIT Madras) gives rigorous but clear Indian-English lectures on word vectors, RNN/LSTM/GRU and encoder-decoder attention; many Indian ML engineers learned sequence models here.",
-  "caveats": "A 2018-era course that ends at attention; no transformers or LLMs. Maths-heavy (linear algebra and calculus). The first-lecture URL was not found.",
-  "year": 2018,
-  "status": "verified",
-  "listId": "PLyqSpQzTE6M9gCgajvQbc68Hk_JKGBAYT",
-  "videoId": ""
  },
  {
   "id": "krish-naik-complete-nlp-playlist-natural-language-proces",
@@ -5047,7 +5990,8 @@ window.AIM.resources = [
   "level": "advanced",
   "modules": [
    "l3-nlp",
-   "l3-transformers"
+   "l3-transformers",
+   "l4-research-career"
   ],
   "topics": [
    "word vectors (Word2Vec, GloVe)",
@@ -5068,38 +6012,6 @@ window.AIM.resources = [
   "year": 2024,
   "status": "verified",
   "listId": "PLoROMvodv4rOaMFbaqxPDoLWjDaRAdP9D",
-  "videoId": ""
- },
- {
-  "id": "statquest-with-josh-starmer-statquest-neural-networks-de",
-  "title": "StatQuest: Neural Networks / Deep Learning playlist (includes word embeddings, RNN, LSTM, seq2seq, attention, transformers)",
-  "creator": "StatQuest with Josh Starmer",
-  "platform": "YouTube",
-  "type": "playlist",
-  "url": "https://www.youtube.com/playlist?list=PLblh5JKOoLUIxGDQs4LFFD--41Vzf-ME1",
-  "firstVideoUrl": "",
-  "language": "english",
-  "level": "beginner",
-  "modules": [
-   "l3-nlp",
-   "l3-transformers"
-  ],
-  "topics": [
-   "neural network basics",
-   "word embeddings and Word2Vec",
-   "RNN",
-   "LSTM",
-   "seq2seq",
-   "attention",
-   "transformers"
-  ],
-  "approxHours": 0,
-  "cost": "Free on YouTube",
-  "why": "Josh Starmer's slow, picture-driven 'clearly explained' style makes embeddings, RNNs, attention and transformers intuitive with very little jargon. Good for a non-coder before code-heavy courses.",
-  "caveats": "This replaces the single 'Word Embedding and Word2Vec, Clearly Explained' video from the proposal, whose link and channel could not be re-verified. The playlist's NLP and transformer videos are from StatQuest's known series but were not checked one by one in this session. Starts with general neural-network basics.",
-  "year": 0,
-  "status": "verified",
-  "listId": "PLblh5JKOoLUIxGDQs4LFFD--41Vzf-ME1",
   "videoId": ""
  },
  {
@@ -5546,6 +6458,35 @@ window.AIM.resources = [
   "videoId": "KF-rDqQfqz0"
  },
  {
+  "id": "krish-naik-hindi-krish-naik-hindi-channel-career-roadmap",
+  "title": "Krish Naik Hindi channel: career, roadmap and interview videos",
+  "creator": "Krish Naik Hindi",
+  "platform": "YouTube",
+  "type": "channel",
+  "url": "https://www.youtube.com/@krishnaikhindi",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l3-mlops",
+   "l4-research-career"
+  ],
+  "topics": [
+   "AI career roadmaps",
+   "data science / AI jobs in India",
+   "interview preparation",
+   "Hindi project playlists"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "The largest Hinglish source of AI roadmaps and career guidance aimed at Indian job seekers, and the home of the Hindi end-to-end project playlist.",
+  "caveats": "This is a channel, not a structured course, so you have to pick the career and interview videos yourself. Some videos promote his paid programmes. There is no Hindi content on reading research papers or ML system design.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "krish-naik-complete-dockers-in-one-shot",
   "title": "Complete Dockers In One Shot",
   "creator": "Krish Naik",
@@ -5935,6 +6876,40 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "chip-huyen-stanford-university-stanford-cs329s-machine-l",
+  "title": "Stanford CS329S: Machine Learning Systems Design (lecture notes and slides)",
+  "creator": "Chip Huyen, Stanford University",
+  "platform": "Website (course site)",
+  "type": "course",
+  "url": "https://stanford-cs329s.github.io/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l3-mlops",
+   "l4-research-career"
+  ],
+  "topics": [
+   "ML production fundamentals",
+   "training data",
+   "feature engineering",
+   "offline evaluation",
+   "deployment",
+   "data distribution shifts and monitoring",
+   "continual learning",
+   "ML platforms",
+   "integrating ML into business"
+  ],
+  "approxHours": 25,
+  "cost": "Free (notes and slides are public)",
+  "why": "The best free university course on ML system design. Most lectures have free notes and slides, and there are tutorials on deployment and monitoring (Evidently, WhyLogs). Ideal preparation for system-design interviews.",
+  "caveats": "Winter 2022 term. Lecture videos are not public, except a deployment tutorial (https://youtu.be/GHk5HMW4XMA) and the demo-day recording. Reading-heavy and predates LLMs. Open the Syllabus page from the site menu for the notes.",
+  "year": 2022,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "streamlit-snowflake-streamlit-get-started-free-community",
   "title": "Streamlit: Get started + free Community Cloud deployment",
   "creator": "Streamlit (Snowflake)",
@@ -6037,7 +7012,8 @@ window.AIM.resources = [
   "language": "indian-english",
   "level": "advanced",
   "modules": [
-   "l4-llm-internals"
+   "l4-llm-internals",
+   "l4-rl"
   ],
   "topics": [
    "reasoning models (intuition)",
@@ -6238,36 +7214,6 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "",
   "videoId": "l8pRSuU81PU"
- },
- {
-  "id": "andrej-karpathy-neural-networks-zero-to-hero-micrograd-t",
-  "title": "Neural Networks: Zero to Hero (micrograd to GPT to tokenizer)",
-  "creator": "Andrej Karpathy",
-  "platform": "YouTube",
-  "type": "playlist",
-  "url": "https://www.youtube.com/playlist?list=PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ",
-  "firstVideoUrl": "https://www.youtube.com/watch?v=VMj-3S1tku0",
-  "language": "english",
-  "level": "intermediate",
-  "modules": [
-   "l4-llm-internals"
-  ],
-  "topics": [
-   "backpropagation (micrograd)",
-   "bigram and MLP language models (makemore)",
-   "activations and BatchNorm",
-   "WaveNet",
-   "GPT from scratch",
-   "GPT tokenizer (BPE)"
-  ],
-  "approxHours": 15,
-  "cost": "Free on YouTube",
-  "why": "A step-by-step path from 'what is a gradient' to building GPT and its tokenizer, all live-coded, so next-token prediction becomes clear from first principles.",
-  "caveats": "Needs Python. Fast for absolute beginners. Lectures 7 (GPT) and 8 (Tokenizer) are also listed separately because they are the core of this module.",
-  "year": 2024,
-  "status": "verified",
-  "listId": "PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ",
-  "videoId": "VMj-3S1tku0"
  },
  {
   "id": "stanford-online-stanford-cs336-language-modeling-from-sc",
@@ -7681,32 +8627,969 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
-  "id": "krish-naik-hindi-krish-naik-hindi-channel-career-roadmap",
-  "title": "Krish Naik Hindi channel: career, roadmap and interview videos",
-  "creator": "Krish Naik Hindi",
+  "id": "indian-institute-of-science-iisc-bangalore-deep-generati",
+  "title": "Deep Generative Models (IISc)",
+  "creator": "Indian Institute of Science (IISc), Bangalore",
   "platform": "YouTube",
-  "type": "channel",
-  "url": "https://www.youtube.com/@krishnaikhindi",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLL1s8qiaGy0LwIajdxKZr_FRL7KZeQK9r",
   "firstVideoUrl": "",
-  "language": "hinglish",
-  "level": "beginner",
+  "language": "indian-english",
+  "level": "expert",
   "modules": [
-   "l4-research-career",
-   "l3-mlops"
+   "l4-gen-vision"
   ],
   "topics": [
-   "AI career roadmaps",
-   "data science / AI jobs in India",
-   "interview preparation",
-   "Hindi project playlists"
+   "deep generative models",
+   "VAEs",
+   "GANs",
+   "flows and diffusion (likely)"
   ],
   "approxHours": 0,
   "cost": "Free on YouTube",
-  "why": "The largest Hinglish source of AI roadmaps and career guidance aimed at Indian job seekers, and the home of the Hindi end-to-end project playlist.",
-  "caveats": "This is a channel, not a structured course, so you have to pick the career and interview videos yourself. Some videos promote his paid programmes. There is no Hindi content on reading research papers or ML system design.",
+  "why": "A graduate course on deep generative models from IISc, one of India's top research institutes, in Indian English. A good fit for learners heading towards research.",
+  "caveats": "Instructor, year and syllabus were not verified; the topics are inferred from the title. Graduate level.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLL1s8qiaGy0LwIajdxKZr_FRL7KZeQK9r",
+  "videoId": ""
+ },
+ {
+  "id": "iit-madras-mathematical-foundations-of-generative-ai-iit",
+  "title": "Mathematical Foundations of Generative AI (IIT Madras)",
+  "creator": "IIT Madras",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLZ2ps__7DhBa5xCmncgH7kPqLqMBq7xlu",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "advanced",
+  "modules": [
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "mathematics of generative models",
+   "probabilistic foundations of VAEs, GANs and diffusion"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "An IIT Madras course on the maths behind generative AI, in Indian English. A good Indian-taught companion to CS236 for learners who want the theory.",
+  "caveats": "Instructor, year, length and exact syllabus were not verified; the topics are inferred from the title. Expect university-level probability.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLZ2ps__7DhBa5xCmncgH7kPqLqMBq7xlu",
+  "videoId": ""
+ },
+ {
+  "id": "vizuara-the-principles-of-diffusion-models",
+  "title": "The Principles of Diffusion Models",
+  "creator": "Vizuara",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLPTV0NXA_ZShSUHKLhdHAdAw5oM9vM1Yf",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "advanced",
+  "modules": [
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "diffusion models",
+   "DDPM",
+   "score-based models",
+   "flow matching perspective"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "A from-first-principles diffusion series in Indian English by Vizuara. It is one of the few Indian sources that goes deep into how image-generation models work.",
+  "caveats": "Math-heavy. The syllabus, year and topic list were not verified (they come from the series title), so check the playlist order.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLPTV0NXA_ZShSUHKLhdHAdAw5oM9vM1Yf",
+  "videoId": ""
+ },
+ {
+  "id": "polo-club-of-data-science-georgia-tech-diffusion-explain",
+  "title": "Diffusion Explainer (interactive Stable Diffusion)",
+  "creator": "Polo Club of Data Science, Georgia Tech",
+  "platform": "Website",
+  "type": "tool",
+  "url": "https://poloclub.github.io/diffusion-explainer",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "Stable Diffusion pipeline",
+   "text prompt to CLIP text embeddings",
+   "U-Net denoising over timesteps",
+   "guidance scale",
+   "random seed"
+  ],
+  "approxHours": 1,
+  "cost": "Free, runs in the browser",
+  "why": "Shows interactively, in your browser, how Stable Diffusion turns a text prompt into an image step by step. No installation, code or GPU needed.",
+  "caveats": "Uses preset prompts on a Stable Diffusion 1.x-era model. It builds intuition; it does not generate new images.",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "ai-coffee-break-with-letitia-diffusion-models-explained-",
+  "title": "Diffusion models explained (AI Coffee Break)",
+  "creator": "AI Coffee Break with Letitia",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=344w5h24-h8&ab_channel=AICoffeeBreakwithLetitia",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=344w5h24-h8&ab_channel=AICoffeeBreakwithLetitia",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "diffusion models intuition"
+  ],
+  "approxHours": 0.2,
+  "cost": "Free on YouTube",
+  "why": "A short, friendly, visual explanation of diffusion models. Watch it before the maths-heavy courses.",
+  "caveats": "From March 2022, so it predates newer methods such as flow matching. A single video; its length is approximate.",
+  "year": 2022,
+  "status": "verified",
+  "listId": "",
+  "videoId": "344w5h24-h8"
+ },
+ {
+  "id": "polo-club-georgia-tech-google-pair-gan-lab-interactive",
+  "title": "GAN Lab (interactive)",
+  "creator": "Polo Club (Georgia Tech) & Google PAIR",
+  "platform": "Website",
+  "type": "tool",
+  "url": "https://poloclub.github.io/ganlab/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "generator",
+   "discriminator",
+   "adversarial training",
+   "loss curves",
+   "mode collapse"
+  ],
+  "approxHours": 1,
+  "cost": "Free, runs in the browser",
+  "why": "Train a real GAN in your browser and watch the generator and discriminator compete step by step. The easiest way to see adversarial training without code.",
+  "caveats": "Uses 2-D toy data, not images. It builds intuition only.",
+  "year": 2018,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "deeplearning-ai-sharon-zhou-how-diffusion-models-work-sh",
+  "title": "How Diffusion Models Work (short course)",
+  "creator": "DeepLearning.AI (Sharon Zhou)",
+  "platform": "DeepLearning.AI",
+  "type": "course",
+  "url": "https://www.deeplearning.ai/short-courses/how-diffusion-models-work/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "diffusion sampling",
+   "U-Net noise predictor",
+   "training a diffusion model",
+   "conditioning with context",
+   "faster sampling (DDIM)",
+   "PyTorch"
+  ],
+  "approxHours": 1,
+  "cost": "Free to watch with a DeepLearning.AI account; some platform extras may sit behind its paid Pro tier",
+  "why": "A one-hour code-along that builds a small diffusion model in PyTorch, with in-browser notebooks. The fastest way for a busy founder to see what happens inside image generators.",
+  "caveats": "Toy scale (sprite images). It does not cover latent diffusion or modern flow-matching models. DeepLearning.AI access terms change over time.",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "hugging-face-computer-vision-community-60-contributors-h",
+  "title": "Hugging Face Community Computer Vision Course",
+  "creator": "Hugging Face Computer Vision community (60+ contributors)",
+  "platform": "Hugging Face / GitHub",
+  "type": "course",
+  "url": "https://github.com/huggingface/computer-vision-course",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "variational autoencoders",
+   "GANs, StyleGAN and CycleGAN",
+   "diffusion models",
+   "Stable Diffusion",
+   "CLIP",
+   "vision-language models"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "A free course of text and runnable Colab notebooks. Its units cover VAEs, GANs, StyleGAN, CycleGAN, diffusion, Stable Diffusion, CLIP and vision-language models.",
+  "caveats": "Written by the community, so quality and style vary by chapter. The GitHub repo holds the source; a hosted reading version on huggingface.co/learn exists but its URL was not verified here. The year is approximate.",
+  "year": 2024,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "hugging-face-hugging-face-diffusion-models-course",
+  "title": "Hugging Face Diffusion Models Course",
+  "creator": "Hugging Face",
+  "platform": "Hugging Face",
+  "type": "course",
+  "url": "https://huggingface.co/learn/diffusion-course",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "introduction to diffusion models",
+   "Diffusers library",
+   "diffusion model from scratch",
+   "fine-tuning and guidance",
+   "Stable Diffusion (latent, text-conditioned)",
+   "custom pipelines"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "Free hands-on notebooks to train, fine-tune and guide diffusion models with the Diffusers library that most open-source image-generation products use.",
+  "caveats": "Units were published between Nov 2022 and early 2023 (Stable Diffusion 1.x era). The Diffusers API has changed since, so pin library versions or adapt the code. It needs a GPU (Colab) and good Python plus basic PyTorch.",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "hugging-face-hugging-face-diffusion-models-course-2",
+  "title": "Hugging Face Diffusion Models Course",
+  "creator": "Hugging Face",
+  "platform": "GitHub / Hugging Face",
+  "type": "course",
+  "url": "https://github.com/huggingface/diffusion-models-class",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "diffusion from scratch",
+   "Diffusers library",
+   "fine-tuning and guidance",
+   "Stable Diffusion",
+   "conditional generation"
+  ],
+  "approxHours": 12,
+  "cost": "Free",
+  "why": "A free hands-on course: you build a diffusion model from scratch, then use the Diffusers library to fine-tune, guide and run Stable Diffusion.",
+  "caveats": "Published November 2022 to early 2023, so some Diffusers APIs and model names have changed. Needs basic Python and PyTorch. Only 4 units.",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "openai-interacting-with-clip-colab-notebook",
+  "title": "Interacting with CLIP (Colab notebook)",
+  "creator": "OpenAI",
+  "platform": "Google Colab",
+  "type": "practice",
+  "url": "https://colab.research.google.com/github/openai/clip/blob/master/notebooks/Interacting_with_CLIP.ipynb",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "CLIP",
+   "image-text similarity",
+   "zero-shot image classification",
+   "contrastive vision-language models"
+  ],
+  "approxHours": 1,
+  "cost": "Free (Google account for Colab)",
+  "why": "Run OpenAI's CLIP in one click and see, interactively, how it matches images to text with zero-shot classification. It shows the idea behind text-to-image and vision-language models.",
+  "caveats": "This is the original 2021 CLIP, and the notebook's install cells may need small fixes on current Colab. Newer open alternatives (OpenCLIP, SigLIP) are stronger; see https://github.com/mlfoundations/open_clip.",
+  "year": 2021,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "mit-csail-mit-6-s184-flow-matching-and-diffusion-models-",
+  "title": "MIT 6.S184: Flow Matching and Diffusion Models (2025)",
+  "creator": "MIT CSAIL",
+  "platform": "Website",
+  "type": "course",
+  "url": "https://diffusion.csail.mit.edu",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "expert",
+  "modules": [
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "flow matching",
+   "diffusion as SDEs",
+   "score functions",
+   "classifier-free guidance",
+   "image generation",
+   "lecture notes and labs"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "A 2025 course on flow matching, the approach behind current image generators such as SD3 and Flux. It brings diffusion knowledge up to date for 2026.",
+  "caveats": "Expert level with heavy math (ODEs/SDEs, probability). Take it after a hands-on diffusion course. The topic list comes from the proposer.",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "jeremy-howard-fast-ai-practical-deep-learning-part-2-fro",
+  "title": "Practical Deep Learning Part 2: From Deep Learning Foundations to Stable Diffusion",
+  "creator": "Jeremy Howard (fast.ai)",
+  "platform": "Website",
+  "type": "course",
+  "url": "https://course.fast.ai/Lessons/part2.html",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=_7rMfsA24Ls&ab_channel=JeremyHoward",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "Stable Diffusion pipeline",
+   "CLIP",
+   "U-Net",
+   "VAE latents",
+   "DDPM and DDIM",
+   "building a deep learning framework (miniai) from scratch",
+   "initialisation",
+   "batchnorm",
+   "optimisers",
+   "attention"
+  ],
+  "approxHours": 30,
+  "cost": "Free",
+  "why": "You rebuild Stable Diffusion and the training framework under it from scratch in PyTorch. The most complete free hands-on path to understanding image generation.",
+  "caveats": "Very demanding, and recorded in 2022-23. Newer models (SD3, Flux) use flow matching and diffusion transformers, but the foundations still apply. Notebooks: https://github.com/fastai/course22p2",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": "_7rMfsA24Ls"
+ },
+ {
+  "id": "deeplearning-ai-with-comet-prompt-engineering-for-vision",
+  "title": "Prompt Engineering for Vision Models (short course)",
+  "creator": "DeepLearning.AI with Comet",
+  "platform": "DeepLearning.AI",
+  "type": "course",
+  "url": "https://www.deeplearning.ai/short-courses/prompt-engineering-for-vision-models/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "prompting vision models with text, points, boxes and masks",
+   "segmentation with SAM",
+   "zero-shot detection (OWL-ViT)",
+   "Stable Diffusion inpainting",
+   "fine-tuning image generation (DreamBooth)"
+  ],
+  "approxHours": 1,
+  "cost": "Free to watch with a DeepLearning.AI account; some platform extras may sit behind its paid Pro tier",
+  "why": "A short, practical tour of modern vision foundation models (segment, detect, inpaint) without training from scratch. This matches how startups build vision features in 2026.",
+  "caveats": "The specific models (SAM, OWL-ViT, DreamBooth) come from memory. Only the general description (prompting with text, points, boxes, masks and images) was confirmed. Model choices date from 2024. Access terms may change.",
+  "year": 2024,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "stanford-online-stanford-cme296-diffusion-large-vision-m",
+  "title": "Stanford CME296: Diffusion & Large Vision Models",
+  "creator": "Stanford Online",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLoROMvodv4rNdy8rt2rZ4T2xM0OjADnfu",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "diffusion models",
+   "large vision models",
+   "vision-language models"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "A recent Stanford course on diffusion and large vision models, the ideas behind today's image AI. It fits the modern end of this module better than the 2018-2023 courses.",
+  "caveats": "Syllabus, instructors and year were not verified; check the lecture titles first. It is listed next to CME295 (Autumn 2025), which suggests it is a 2025-26 course. Stable Diffusion and CLIP coverage is likely but not confirmed.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLoROMvodv4rNdy8rt2rZ4T2xM0OjADnfu",
+  "videoId": ""
+ },
+ {
+  "id": "stefano-ermon-stanford-online-stanford-cs236-deep-genera",
+  "title": "Stanford CS236: Deep Generative Models (2023)",
+  "creator": "Stefano Ermon, Stanford Online",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLoROMvodv4rPOWA-omMM6STXaWW4FvJT8",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "expert",
+  "modules": [
+   "l4-gen-vision"
+  ],
+  "topics": [
+   "autoregressive models",
+   "VAEs",
+   "normalizing flows",
+   "GANs",
+   "energy-based models",
+   "score-based and diffusion models",
+   "evaluating generative models"
+  ],
+  "approxHours": 22,
+  "cost": "Free on YouTube",
+  "why": "The definitive university course on the theory behind all generative image models. Take it when you want research-level understanding of VAEs, GANs and diffusion.",
+  "caveats": "Graduate-level probability and math. Recorded in 2023, before the flow-matching wave; for that, see MIT 6.S184 (https://diffusion.csail.mit.edu).",
+  "year": 2023,
+  "status": "verified",
+  "listId": "PLoROMvodv4rPOWA-omMM6STXaWW4FvJT8",
+  "videoId": ""
+ },
+ {
+  "id": "umar-jamil-umar-jamil-paper-explanations-and-from-scratc",
+  "title": "Umar Jamil: paper explanations and from-scratch implementations",
+  "creator": "Umar Jamil",
+  "platform": "YouTube",
+  "type": "channel",
+  "url": "https://www.youtube.com/@umarjamilai",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l4-gen-vision",
+   "l4-rl",
+   "l4-research-career"
+  ],
+  "topics": [
+   "Stable Diffusion from scratch",
+   "vision-language models (PaliGemma)",
+   "RLHF / PPO",
+   "DPO",
+   "Transformer from scratch",
+   "reproducing a paper"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "Long, careful videos that explain a famous paper and then code it line by line in PyTorch. Excellent practice for reading and reproducing papers, for vision models and for RL on LLMs.",
+  "caveats": "Videos often run 2-5 hours and assume PyTorch. Only the channel URL and two videos are verified: Transformer from scratch (https://www.youtube.com/watch?v=ISNdQcPhsts) and DPO (https://www.youtube.com/watch?v=hvGa5Mba4c8). His GitHub (hkproj) has companion repos for Stable Diffusion from scratch, RLHF/PPO notes and PaliGemma, but the matching video links were not verified; find them on the channel.",
   "year": 0,
   "status": "verified",
   "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "labml-ai-labml-ai-annotated-paper-implementations",
+  "title": "labml.ai Annotated Paper Implementations",
+  "creator": "labml.ai",
+  "platform": "Website + GitHub",
+  "type": "practice",
+  "url": "https://nn.labml.ai/index.html",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l4-gen-vision",
+   "l4-rl",
+   "l4-research-career"
+  ],
+  "topics": [
+   "reading papers alongside code",
+   "paper implementations",
+   "transformers",
+   "diffusion",
+   "GANs",
+   "RL",
+   "optimisers"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "Simple PyTorch implementations of many well-known papers, shown as side-by-side notes that link the paper's ideas to the code. A good way to learn to read papers and then reproduce them.",
+  "caveats": "Reference material, not a guided course; you need PyTorch. Coverage of the newest (2025–26) papers is limited.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "iit-kanpur-ee675-introduction-to-reinforcement-learning-",
+  "title": "EE675 Introduction to Reinforcement Learning (IIT Kanpur, 2024)",
+  "creator": "IIT Kanpur",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLZAmMLcSnKRICBNyjraAhQdtdJFFgyRL5",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "advanced",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "MDPs",
+   "value functions",
+   "Q-learning",
+   "policy gradients",
+   "deep RL basics"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "A full IIT course on RL recorded in 2024, a more recent Indian alternative to the NPTEL lectures.",
+  "caveats": "The instructor, video quality and full syllabus were not verified, and the topic list is the standard intro-RL syllabus, not a checked one. University pace with plenty of maths.",
+  "year": 2024,
+  "status": "verified",
+  "listId": "PLZAmMLcSnKRICBNyjraAhQdtdJFFgyRL5",
+  "videoId": ""
+ },
+ {
+  "id": "jadavpur-university-introduction-to-reinforcement-learni",
+  "title": "Introduction to Reinforcement Learning (Jadavpur University, 2025)",
+  "creator": "Jadavpur University",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLcNLn_ApooUzGJW60RcD2HRrL7sm0HG-w",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "advanced",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "MDPs",
+   "value-based methods",
+   "policy-based methods"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "A 2025 university RL course from an Indian university, the most recent Indian-taught RL option found.",
+  "caveats": "Instructor, length and syllabus were not verified; the topics are the standard intro-RL syllabus. Recording quality unknown.",
+  "year": 2025,
+  "status": "verified",
+  "listId": "PLcNLn_ApooUzGJW60RcD2HRrL7sm0HG-w",
+  "videoId": ""
+ },
+ {
+  "id": "prof-balaraman-ravindran-iit-madras-nptel-nptel-reinforc",
+  "title": "NPTEL Reinforcement Learning (IIT Madras)",
+  "creator": "Prof. Balaraman Ravindran, IIT Madras (NPTEL)",
+  "platform": "YouTube (NPTEL)",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLyqSpQzTE6M_FwzHFAyf4LSkz_IjMyjD9",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "advanced",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "multi-armed bandits",
+   "MDPs",
+   "dynamic programming",
+   "TD learning",
+   "Q-learning",
+   "function approximation",
+   "policy gradients"
+  ],
+  "approxHours": 30,
+  "cost": "Free on YouTube; NPTEL exam fee only for a certificate",
+  "why": "India's best-known RL course, from one of the country's leading RL researchers. It starts with multi-armed bandits and builds carefully to MDPs, Q-learning and policy gradients.",
+  "caveats": "The source list labels the playlist only 'Reinforcement Learning - IIT Madras'. The matching NPTEL course page is https://nptel.ac.in/courses/106106143/ (Prof. Ravindran's course). It is an older recording (roughly 2016-18, year not verified), so deep RL (DQN, PPO) is thin and RLHF is absent. Separate TA tutorial playlists exist.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLyqSpQzTE6M_FwzHFAyf4LSkz_IjMyjD9",
+  "videoId": ""
+ },
+ {
+  "id": "prof-sergey-levine-uc-berkeley-berkeley-cs285-deep-reinf",
+  "title": "Berkeley CS285: Deep Reinforcement Learning (2023)",
+  "creator": "Prof. Sergey Levine, UC Berkeley",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PL_iWQOsE6TfVYGEGiAOMaOzzv41Jfm_Ps",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "expert",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "imitation learning",
+   "policy gradients",
+   "actor-critic",
+   "deep Q-learning",
+   "model-based RL",
+   "offline RL"
+  ],
+  "approxHours": 30,
+  "cost": "Free on YouTube",
+  "why": "The deepest free course on modern deep RL, from one of the field's top researchers. Best for robotics and research-level understanding.",
+  "caveats": "Very advanced; the homework needs PyTorch and Gym/MuJoCo. The source list's link for a Spring 2026 edition is truncated (list=PLKq1TCpsv3Y4) and unusable, so the 2023 playlist is given. Course site: https://rail.eecs.berkeley.edu/deeprlcourse/.",
+  "year": 2023,
+  "status": "verified",
+  "listId": "PL_iWQOsE6TfVYGEGiAOMaOzzv41Jfm_Ps",
+  "videoId": ""
+ },
+ {
+  "id": "david-silver-deepmind-ucl-david-silver-s-reinforcement-l",
+  "title": "David Silver's Reinforcement Learning Course (UCL / DeepMind, 2015)",
+  "creator": "David Silver, DeepMind / UCL",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLqYmG7hTraZDM-OYHWgPebj2MfCFzFObQ",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=2pWv7GOvuf0&list=PLqYmG7hTraZDM-OYHWgPebj2MfCFzFObQ",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "agents, environments, rewards",
+   "MDPs",
+   "dynamic programming",
+   "Monte Carlo and TD learning",
+   "Q-learning",
+   "function approximation",
+   "policy gradients",
+   "exploration and bandits"
+  ],
+  "approxHours": 15,
+  "cost": "Free on YouTube",
+  "why": "The classic 10-lecture RL course by AlphaGo's lead researcher. It follows Sutton & Barto and is famous for building intuition.",
+  "caveats": "A 2015 recording, so there is no PPO, modern deep RL or RLHF. For the newer DeepMind x UCL 2021 series, see its separate entry.",
+  "year": 2015,
+  "status": "verified",
+  "listId": "PLqYmG7hTraZDM-OYHWgPebj2MfCFzFObQ",
+  "videoId": "2pWv7GOvuf0"
+ },
+ {
+  "id": "hado-van-hasselt-diana-borsa-matteo-hessel-deepmind-ucl-",
+  "title": "DeepMind x UCL Reinforcement Learning Lecture Series (2021)",
+  "creator": "Hado van Hasselt, Diana Borsa, Matteo Hessel (DeepMind / UCL)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLqYmG7hTraZDVH599EItlEWsUOsJbAodm",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "introduction to RL",
+   "dynamic programming",
+   "model-free algorithms",
+   "deep reinforcement learning"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "A newer DeepMind series than David Silver's 2015 course, adding more on deep RL. A good second pass after Silver or the NPTEL course.",
+  "caveats": "2021, so it does not cover RLHF or RL for reasoning LLMs. Lecture count and total hours were not checked.",
+  "year": 2021,
+  "status": "verified",
+  "listId": "PLqYmG7hTraZDVH599EItlEWsUOsJbAodm",
+  "videoId": ""
+ },
+ {
+  "id": "hugging-face-thomas-simonini-omar-sanseviero-hugging-fac",
+  "title": "Hugging Face Deep Reinforcement Learning Course",
+  "creator": "Hugging Face (Thomas Simonini, Omar Sanseviero)",
+  "platform": "Hugging Face",
+  "type": "course",
+  "url": "https://huggingface.co/deep-rl-course/unit0/introduction",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "Q-learning",
+   "deep Q-networks",
+   "policy gradients",
+   "actor-critic",
+   "PPO",
+   "multi-agent RL",
+   "RLHF intro"
+  ],
+  "approxHours": 30,
+  "cost": "Free",
+  "why": "The most beginner-friendly hands-on route: short theory, then Colab notebooks where you train agents to play games and share them on the Hub.",
+  "caveats": "The repo says the course is now low-maintenance: Unit 7 (AI vs AI) does not work and the leaderboard is offline. Some library versions are outdated; check the GitHub issues for community fixes.",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "hugging-face-blog-illustrating-reinforcement-learning-fr",
+  "title": "Illustrating Reinforcement Learning from Human Feedback (RLHF)",
+  "creator": "Hugging Face blog",
+  "platform": "Hugging Face",
+  "type": "article",
+  "url": "https://huggingface.co/blog/rlhf",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "RL for LLMs (intuition)",
+   "RLHF",
+   "reward models",
+   "PPO fine-tuning of language models"
+  ],
+  "approxHours": 0.5,
+  "cost": "Free",
+  "why": "A diagram-rich explainer of the three steps of RLHF. The quickest way to get the intuition behind RL for LLMs.",
+  "caveats": "Written in 2022, before DPO, GRPO and the verifiable-reward RL used in 2025-26 reasoning models. Pair it with the RLHF Book.",
+  "year": 2022,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "openai-joshua-achiam-openai-spinning-up-in-deep-rl",
+  "title": "OpenAI Spinning Up in Deep RL",
+  "creator": "OpenAI (Joshua Achiam)",
+  "platform": "Website",
+  "type": "article",
+  "url": "https://spinningup.openai.com/en/latest/user/introduction.html",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "RL key concepts",
+   "policy gradients",
+   "PPO",
+   "DDPG / SAC",
+   "how to become an RL researcher"
+  ],
+  "approxHours": 10,
+  "cost": "Free",
+  "why": "A short, well-written introduction to deep RL and policy-gradient algorithms, with clean reference code and a well-regarded essay on doing RL research.",
+  "caveats": "No longer maintained (released 2018). The code depends on old Gym, MuJoCo and TensorFlow/PyTorch versions that are hard to install now, so read it for the concepts.",
+  "year": 2018,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "arxiv-insights-policy-gradients-and-ppo-explained-arxiv-",
+  "title": "Policy gradients and PPO explained (Arxiv Insights)",
+  "creator": "Arxiv Insights",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=5P7I-xPq8u8",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=5P7I-xPq8u8",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "policy gradients",
+   "PPO intuition"
+  ],
+  "approxHours": 0.3,
+  "cost": "Free on YouTube",
+  "why": "A clear visual explanation of policy gradients and the clipping trick at the heart of PPO, the algorithm also used in classic RLHF.",
+  "caveats": "An older single video (around 2018-19). Its exact YouTube title was not verified; the source describes it as 'Explanation of the PPO algorithm by Arxiv Insights'.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "5P7I-xPq8u8"
+ },
+ {
+  "id": "nathan-lambert-rlhf-book-reinforcement-learning-from-hum",
+  "title": "RLHF Book (Reinforcement Learning from Human Feedback)",
+  "creator": "Nathan Lambert",
+  "platform": "Website (free online book)",
+  "type": "book",
+  "url": "https://rlhfbook.com",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "RLHF",
+   "reward models",
+   "PPO, REINFORCE, GRPO, RLOO",
+   "DPO",
+   "RL with verifiable rewards",
+   "post-training"
+  ],
+  "approxHours": 0,
+  "cost": "Free online (print edition from Manning is paid)",
+  "why": "A free, actively maintained book by a leading open-model post-training researcher. It covers RLHF, DPO, GRPO and RL with verifiable rewards, the methods behind 2025-26 reasoning LLMs, with reference code.",
+  "caveats": "Advanced and specific to LLMs. A companion 'RLHF and Post-Training Course' (2025) is listed at https://rlhfbook.com/course.",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "ucla-reinforcement-learning-of-large-language-models-ucl",
+  "title": "Reinforcement Learning of Large Language Models (UCLA)",
+  "creator": "UCLA",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLir0BWtR5vRp5dqaouyMU-oTSzaU5LK9r",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "expert",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "RL for LLMs",
+   "RLHF and preference optimisation",
+   "RL for reasoning models"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "A university course devoted to RL for LLMs, the part of RL that matters most for 2026 AI work, bridging classic RL and modern post-training.",
+  "caveats": "Instructor, year and exact syllabus were not verified; the topics are inferred from the title. Assumes solid RL and deep learning foundations.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLir0BWtR5vRp5dqaouyMU-oTSzaU5LK9r",
+  "videoId": ""
+ },
+ {
+  "id": "richard-s-sutton-and-andrew-g-barto-reinforcement-learni",
+  "title": "Reinforcement Learning: An Introduction, 2nd ed. (free PDF)",
+  "creator": "Richard S. Sutton and Andrew G. Barto",
+  "platform": "Book (author's site)",
+  "type": "book",
+  "url": "https://incompleteideas.net/book/RLbook2020.pdf",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "multi-armed bandits",
+   "MDPs",
+   "dynamic programming",
+   "Monte Carlo",
+   "TD learning and Q-learning",
+   "function approximation",
+   "policy gradients"
+  ],
+  "approxHours": 0,
+  "cost": "Free PDF from the author's site",
+  "why": "The standard RL textbook, legally free from the author's website. The Silver and NPTEL lectures follow it closely.",
+  "caveats": "A dense, maths-heavy textbook with little on deep RL (DQN, PPO) and nothing on LLMs. The link is plain http.",
+  "year": 2020,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "stanford-online-stanford-cs224r-deep-reinforcement-learn",
+  "title": "Stanford CS224R: Deep Reinforcement Learning",
+  "creator": "Stanford Online",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLoROMvodv4rPwxE0ONYRa_itZFdaKCylL",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "expert",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "deep reinforcement learning",
+   "imitation learning",
+   "policy gradients and actor-critic",
+   "offline RL"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "Stanford's dedicated deep-RL course, with a course site at https://cs224r.stanford.edu/. A more modern deep-RL option alongside Berkeley CS285.",
+  "caveats": "Year, instructor and exact lecture list were not verified; the topics are the standard deep-RL syllabus. Check the course site for whether it covers RL for LLMs. Graduate level.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLoROMvodv4rPwxE0ONYRa_itZFdaKCylL",
+  "videoId": ""
+ },
+ {
+  "id": "prof-emma-brunskill-stanford-online-stanford-cs234-reinf",
+  "title": "Stanford CS234: Reinforcement Learning (Spring 2024)",
+  "creator": "Prof. Emma Brunskill, Stanford Online",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLoROMvodv4rN4wG6Nk6sNpTEbuOSosZdX",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "expert",
+  "modules": [
+   "l4-rl"
+  ],
+  "topics": [
+   "MDPs",
+   "policy evaluation",
+   "Q-learning",
+   "deep Q-networks",
+   "policy gradients and PPO",
+   "offline RL",
+   "exploration"
+  ],
+  "approxHours": 20,
+  "cost": "Free on YouTube",
+  "why": "Stanford's main RL course in a recent recording: a rigorous path from tabular methods up to deep RL and policy optimisation.",
+  "caveats": "Graduate-level maths. Check the lecture list for newer topics such as learning from human preferences. A Winter 2019 version also exists. The instructor name was not in the source line (Emma Brunskill is CS234's long-time instructor).",
+  "year": 2024,
+  "status": "verified",
+  "listId": "PLoROMvodv4rN4wG6Nk6sNpTEbuOSosZdX",
   "videoId": ""
  },
  {
@@ -7738,6 +9621,33 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "krish-naik-perfect-roadmap-to-learn-data-science-in-2025",
+  "title": "Perfect Roadmap To Learn Data Science In 2025 (video + GitHub roadmap)",
+  "creator": "Krish Naik",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://youtu.be/N7RU6W4hAMI",
+  "firstVideoUrl": "https://youtu.be/N7RU6W4hAMI",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l4-research-career"
+  ],
+  "topics": [
+   "AI/ML career roadmap",
+   "skills for AI jobs",
+   "learning plan"
+  ],
+  "approxHours": 0.5,
+  "cost": "Free on YouTube",
+  "why": "Krish Naik's roadmap video plus a matching GitHub checklist of free English and Hindi playlists (https://github.com/krishnaik06/Perfect-Roadmap-To-Learn-Data-Science-In-2025). It gives Indian learners a clear map of the skills for data science and AI roles.",
+  "caveats": "Aimed at data science and GenAI jobs more than research, so it fits this advanced module only as career context. It is not confirmed whether the video is in English or Hindi (it is not known which of his channels hosts it), and its length is approximate. Parts promote paid courses.",
+  "year": 2025,
+  "status": "partial",
+  "listId": "",
+  "videoId": "N7RU6W4hAMI"
+ },
+ {
   "id": "alireza-dirafzoon-aimlinterviews-formerly-machine-learni",
   "title": "AIMLInterviews (formerly Machine-Learning-Interviews)",
   "creator": "Alireza Dirafzoon",
@@ -7762,6 +9672,93 @@ window.AIM.resources = [
   "why": "A very popular free interview guide (about 9.9k stars), 'updated for 2026' with LLM, multimodal, post-training and GenAI system-design content. Current for 2026 AI-engineer interviews.",
   "caveats": "Aimed at big-tech (FAANG-style) interviews, so it can be more than an Indian startup or freelance role needs. You can ignore the coaching links.",
   "year": 2026,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "carnegie-mellon-university-prof-bhiksha-raj-cmu-11-785-i",
+  "title": "CMU 11-785: Introduction to Deep Learning (2024)",
+  "creator": "Carnegie Mellon University (Prof. Bhiksha Raj)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLp-0K3kfddPxUJzAW0KxNNjGiK_hISFas",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l4-research-career"
+  ],
+  "topics": [
+   "full university deep learning course",
+   "MLPs",
+   "CNNs and RNNs",
+   "attention and sequence-to-sequence models"
+  ],
+  "approxHours": 40,
+  "cost": "Free on YouTube",
+  "why": "One of the most thorough free deep learning courses. It goes from MLPs up to attention and sequence models with unusual care.",
+  "caveats": "Very long. Homework autograders and competitions are for CMU students; slides are at https://deeplearning.cs.cmu.edu/S24/index.html. Recitations are in a separate playlist.",
+  "year": 2024,
+  "status": "verified",
+  "listId": "PLp-0K3kfddPxUJzAW0KxNNjGiK_hISFas",
+  "videoId": ""
+ },
+ {
+  "id": "hugging-face-hugging-face-papers-daily-and-trending-ai-p",
+  "title": "Hugging Face Papers (daily and trending AI papers)",
+  "creator": "Hugging Face",
+  "platform": "Hugging Face",
+  "type": "tool",
+  "url": "https://huggingface.co/papers",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-research-career"
+  ],
+  "topics": [
+   "how to find and read ML papers",
+   "daily papers feed",
+   "papers linked to code, models and demos",
+   "choosing a paper to reproduce"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "The easiest daily feed of new AI papers. Each paper page links its models, datasets and demos, so you can pick one and try to reproduce it.",
+  "caveats": "Papers with Code was shut down in 2025 and this is the closest replacement (from general knowledge; not re-checked here). Rankings come from upvotes, so popular does not mean important, and the feed leans heavily towards LLMs.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "alexander-amini-and-ava-amini-mit-mit-6-s191-introductio",
+  "title": "MIT 6.S191: Introduction to Deep Learning",
+  "creator": "Alexander Amini and Ava Amini, MIT",
+  "platform": "Website + YouTube",
+  "type": "course",
+  "url": "https://introtodeeplearning.com/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l4-research-career",
+   "l4-gen-vision",
+   "l4-rl"
+  ],
+  "topics": [
+   "deep learning overview",
+   "deep generative modeling",
+   "deep reinforcement learning",
+   "LLMs",
+   "hands-on labs"
+  ],
+  "approxHours": 10,
+  "cost": "Free",
+  "why": "A short MIT bootcamp refreshed every year, with lectures on generative models, RL and LLMs. A fast, polished overview before the longer Stanford and CMU courses.",
+  "caveats": "Overview depth only; the labs need Python. A lecture playlist is https://www.youtube.com/playlist?list=PLtBw6njQRU-rwp5__7C0oIVt26ZgjG9NI, but which year's edition it holds was not verified; the website links the current year. The per-year lecture topics were not re-checked.",
+  "year": 0,
   "status": "verified",
   "listId": "",
   "videoId": ""
@@ -7854,40 +9851,6 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
-  "id": "chip-huyen-stanford-university-stanford-cs329s-machine-l",
-  "title": "Stanford CS329S: Machine Learning Systems Design (lecture notes and slides)",
-  "creator": "Chip Huyen, Stanford University",
-  "platform": "Website (course site)",
-  "type": "course",
-  "url": "https://stanford-cs329s.github.io/",
-  "firstVideoUrl": "",
-  "language": "english",
-  "level": "advanced",
-  "modules": [
-   "l4-research-career",
-   "l3-mlops"
-  ],
-  "topics": [
-   "ML production fundamentals",
-   "training data",
-   "feature engineering",
-   "offline evaluation",
-   "deployment",
-   "data distribution shifts and monitoring",
-   "continual learning",
-   "ML platforms",
-   "integrating ML into business"
-  ],
-  "approxHours": 25,
-  "cost": "Free (notes and slides are public)",
-  "why": "The best free university course on ML system design. Most lectures have free notes and slides, and there are tutorials on deployment and monitoring (Evidently, WhyLogs). Ideal preparation for system-design interviews.",
-  "caveats": "Winter 2022 term. Lecture videos are not public, except a deployment tutorial (https://youtu.be/GHk5HMW4XMA) and the demo-day recording. Reading-heavy and predates LLMs. Open the Syllabus page from the site menu for the notes.",
-  "year": 2022,
-  "status": "verified",
-  "listId": "",
-  "videoId": ""
- },
- {
   "id": "eugene-yan-applied-ml-papers-and-blogs-on-ml-in-producti",
   "title": "applied-ml: Papers and blogs on ML in production",
   "creator": "Eugene Yan",
@@ -7915,37 +9878,6 @@ window.AIM.resources = [
   "why": "A curated list, in 31 topic sections, of how real companies designed and ran their ML systems. The best free reading list for learning ML system design from real examples.",
   "caveats": "A list of links to company blogs, so you choose what to read. Most entries are from 2023 or earlier, with little on LLMs or agents.",
   "year": 2023,
-  "status": "verified",
-  "listId": "",
-  "videoId": ""
- },
- {
-  "id": "labml-ai-labml-ai-annotated-paper-implementations",
-  "title": "labml.ai Annotated Paper Implementations",
-  "creator": "labml.ai",
-  "platform": "Website + GitHub",
-  "type": "practice",
-  "url": "https://nn.labml.ai/index.html",
-  "firstVideoUrl": "",
-  "language": "english",
-  "level": "advanced",
-  "modules": [
-   "l4-research-career"
-  ],
-  "topics": [
-   "reading papers alongside code",
-   "paper implementations",
-   "transformers",
-   "diffusion",
-   "GANs",
-   "RL",
-   "optimisers"
-  ],
-  "approxHours": 0,
-  "cost": "Free",
-  "why": "Simple PyTorch implementations of many well-known papers, shown as side-by-side notes that link the paper's ideas to the code. A good way to learn to read papers and then reproduce them.",
-  "caveats": "Reference material, not a guided course; you need PyTorch. Coverage of the newest (2025–26) papers is limited.",
-  "year": 0,
   "status": "verified",
   "listId": "",
   "videoId": ""

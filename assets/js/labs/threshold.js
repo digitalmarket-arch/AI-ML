@@ -147,6 +147,7 @@
         (withCost ? '<div id="' + P + 'k' + key + '" class="num" style="font-size:.8rem;line-height:1.35;color:var(--bad);font-weight:600;margin-top:2px"></div>' : '') +
       '</td>';
     }
+    var STAT = 'display:flex;flex-direction:column;justify-content:space-between;gap:2px';
     var TH = 'font-size:.72rem;letter-spacing:.04em;line-height:1.3;padding:6px 8px;border:0;vertical-align:bottom;';
 
     root.innerHTML =
@@ -168,17 +169,17 @@
               '</div>' +
             '</div>' +
             '<div class="control">' +
-              '<label for="' + P + 't">Threshold: flag a payment if its score is at least <output id="' + P + 'tout" for="' + P + 't">0.50</output></label>' +
+              '<label for="' + P + 't">Threshold: flag if the score is at least <output id="' + P + 'tout" for="' + P + 't">0.50</output></label>' +
               '<input type="range" id="' + P + 't" min="0" max="1" step="0.01" value="0.50">' +
             '</div>' +
             '<p class="small" id="' + P + 'msg" role="status" aria-live="polite" style="min-height:3.4em"></p>' +
             '<div class="lab-stats">' +
-              '<div class="stat"><div class="k">Accuracy</div><div class="v" id="' + P + 'sacc">—</div></div>' +
-              '<div class="stat"><div class="k">Precision</div><div class="v" id="' + P + 'sprec">—</div></div>' +
-              '<div class="stat"><div class="k">Recall</div><div class="v" id="' + P + 'srec">—</div></div>' +
-              '<div class="stat"><div class="k">F1 score</div><div class="v" id="' + P + 'sf1">—</div></div>' +
-              '<div class="stat"><div class="k">False-alarm rate</div><div class="v" id="' + P + 'sfpr">—</div></div>' +
-              '<div class="stat"><div class="k">Total cost</div><div class="v" id="' + P + 'scost">—</div></div>' +
+              '<div class="stat" style="' + STAT + '"><div class="k">Accuracy</div><div class="v" id="' + P + 'sacc">—</div></div>' +
+              '<div class="stat" style="' + STAT + '"><div class="k">Precision</div><div class="v" id="' + P + 'sprec">—</div></div>' +
+              '<div class="stat" style="' + STAT + '"><div class="k">Recall</div><div class="v" id="' + P + 'srec">—</div></div>' +
+              '<div class="stat" style="' + STAT + '"><div class="k">F1 score</div><div class="v" id="' + P + 'sf1">—</div></div>' +
+              '<div class="stat" style="' + STAT + '"><div class="k">False-alarm rate</div><div class="v" id="' + P + 'sfpr">—</div></div>' +
+              '<div class="stat" style="' + STAT + '"><div class="k">Total cost</div><div class="v" id="' + P + 'scost">—</div></div>' +
             '</div>' +
             '<details class="fold"><summary>How each number is worked out, with today’s counts</summary><div id="' + P + 'formulas" class="small stack-sm"></div></details>' +
             '<div style="display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));align-items:start">' +
@@ -188,8 +189,8 @@
                   '<caption class="visually-hidden">Confusion matrix: rows are what each payment really was, columns are what the model did</caption>' +
                   '<colgroup><col style="width:27%"><col><col></colgroup>' +
                   '<thead><tr><td style="border:0"></td>' +
-                    '<th scope="col" class="muted" style="' + TH + 'text-align:left">ALLOWED<br><span style="text-transform:none;letter-spacing:0;font-weight:400">model says genuine · <b class="num" id="' + P + 'hn">0</b></span></th>' +
-                    '<th scope="col" class="muted" style="' + TH + 'text-align:left">FLAGGED<br><span style="text-transform:none;letter-spacing:0;font-weight:400">model says fraud · <b class="num" id="' + P + 'hf">0</b></span></th>' +
+                    '<th scope="col" class="muted" style="' + TH + 'text-align:left">ALLOWED<br><span style="text-transform:none;letter-spacing:0;font-weight:400">model says genuine</span><br><b class="num" id="' + P + 'hn" style="font-size:.8rem;color:var(--ink)">0</b></th>' +
+                    '<th scope="col" class="muted" style="' + TH + 'text-align:left">FLAGGED<br><span style="text-transform:none;letter-spacing:0;font-weight:400">model says fraud</span><br><b class="num" id="' + P + 'hf" style="font-size:.8rem;color:var(--ink)">0</b></th>' +
                   '</tr></thead><tbody>' +
                   '<tr><th scope="row" style="' + TH + 'vertical-align:middle;text-align:left;color:var(--series-1)">REALLY GENUINE<br><b class="num" id="' + P + 'rg" style="font-size:.8rem">0</b></th>' +
                     cell('TN', 'var(--ok-soft)', 'True negative (TN)', 'genuine, let through', false) +
@@ -250,7 +251,7 @@
               '<button type="button" class="btn btn-primary" id="' + P + 'sweep">Sweep 1 → 0</button>' +
               '<button type="button" class="btn" id="' + P + 'reset">Reset</button>' +
             '</div>' +
-            '<p class="kbd-hint" id="' + P + 'kbd">Drag or tap any chart to move the threshold. Keyboard: Tab to a chart, then use the arrow keys (hold Shift for steps of 0.10).</p>' +
+            '<p class="kbd-hint" id="' + P + 'kbd">Drag or tap any chart to move the threshold. Keyboard: Tab to a chart, then use the arrow keys (hold Shift for steps of 0.10). “Sweep” slides the threshold from 1 down to 0 so you can watch every number change.</p>' +
             '<div class="stack-sm"><h4>Your tasks</h4><ul class="lab-tasks">' + tasksHtml + '</ul></div>' +
           '</div>' +
         '</div>' +
@@ -523,9 +524,9 @@
       g.stroke();
       g.globalAlpha = 1;
     }
+    function pillWidth(g, T, text) { g.font = '600 12px ' + T.font; return Math.ceil(g.measureText(text).width) + 14; }
     function pill(g, T, text, x, y, align, minX, maxX, border, colour) {
-      g.font = '600 12px ' + T.font;
-      var w = Math.ceil(g.measureText(text).width) + 14, h = 20;
+      var w = pillWidth(g, T, text), h = 20;
       var px = align === 'right' ? x - w : align === 'center' ? x - w / 2 : x;
       px = clamp(px, minX, Math.max(minX, maxX - w));
       rrect(g, px, y, w, h, 6);
@@ -562,11 +563,11 @@
         v = scoreDensity(s, mg); if (v > maxG) maxG = v;
         v = scoreDensity(s, mf); if (v > maxF) maxF = v;
       }
-      var hMax = half * 0.76, kG, kF;
+      var hMax = Math.min(half * 0.8, half - 30), kG, kF;
       if (S.trueScale) { var big = Math.max(Ng * maxG, Nf * maxF) || 1; kG = Ng * hMax / big; kF = Nf * hMax / big; }
       else { kG = hMax / (maxG || 1); kF = hMax / (maxF || 1); }
-      function hG(s) { return Math.min(half - 1, scoreDensity(s, mg) * kG); }
-      function hF(s) { return Math.min(half - 1, scoreDensity(s, mf) * kF); }
+      function hG(q) { return Math.min(half - 1, scoreDensity(q, mg) * kG); }
+      function hF(q) { return Math.min(half - 1, scoreDensity(q, mf) * kF); }
       function regionPath(a, b, fn, dir) {
         var n = Math.max(1, Math.ceil((b - a) * K));
         g.beginPath(); g.moveTo(X(a), ym);
@@ -616,10 +617,24 @@
       // the four outcomes, one in each quarter (same layout as the confusion matrix)
       var cc = cur(S.ti), wide = pw > 440, minX = x0 + 2, maxX = x1 - 2;
       function lab(abbr, n, words) { return (wide ? abbr + ' · ' : '') + fmtInt(n) + ' ' + words; }
-      pill(g, T, lab('TN', cc.tn, 'let through'), tx - 8, y0 + 5, 'right', minX, maxX, T.ok, T.ink);
-      pill(g, T, lab('FP', cc.fp, cc.fp === 1 ? 'false alarm' : 'false alarms'), tx + 8, y0 + 5, 'left', minX, maxX, T.bad, T.bad);
-      pill(g, T, lab('FN', cc.fn, 'missed'), tx - 8, y1 - 25, 'right', minX, maxX, T.bad, T.bad);
-      pill(g, T, lab('TP', cc.tp, 'caught'), tx + 8, y1 - 25, 'left', minX, maxX, T.ok, T.ink);
+      // a pair of pills sits either side of the line; when one side is too narrow, that pill moves to
+      // the other side, one row further from the edge, so the two never overlap
+      function pair(lt, rt, yEdge, yInner, lBorder, lColour, rBorder, rColour) {
+        var lw = pillWidth(g, T, lt), rw = pillWidth(g, T, rt);
+        var lFits = tx - 8 - lw >= minX, rFits = tx + 8 + rw <= maxX;
+        if ((lFits && rFits) || (!lFits && !rFits)) {
+          pill(g, T, lt, tx - 8, yEdge, 'right', minX, maxX, lBorder, lColour);
+          pill(g, T, rt, tx + 8, yEdge, 'left', minX, maxX, rBorder, rColour);
+        } else if (!rFits) {
+          pill(g, T, lt, tx - 8, yEdge, 'right', minX, maxX, lBorder, lColour);
+          pill(g, T, rt, tx - 8, yInner, 'right', minX, maxX, rBorder, rColour);
+        } else {
+          pill(g, T, rt, tx + 8, yEdge, 'left', minX, maxX, rBorder, rColour);
+          pill(g, T, lt, tx + 8, yInner, 'left', minX, maxX, lBorder, lColour);
+        }
+      }
+      pair(lab('TN', cc.tn, 'let through'), lab('FP', cc.fp, cc.fp === 1 ? 'false alarm' : 'false alarms'), y0 + 5, y0 + 29, T.ok, T.ink, T.bad, T.bad);
+      pair(lab('FN', cc.fn, 'missed'), lab('TP', cc.tp, 'caught'), y1 - 25, y1 - 49, T.bad, T.bad, T.ok, T.ink);
 
       // threshold value on top, with "let through / flagged" either side
       g.font = '700 12.5px ' + T.mono;
@@ -676,7 +691,7 @@
       if (pr) { g.moveTo(X(0), Y(base)); g.lineTo(X(1), Y(base)); } else { g.moveTo(X(0), Y(0)); g.lineTo(X(1), Y(1)); }
       g.stroke(); g.setLineDash([]);
       g.font = '11px ' + T.font; g.fillStyle = T.muted;
-      if (pr) { g.textAlign = 'right'; g.textBaseline = 'bottom'; g.fillText('random guessing = ' + S.rate + '%', X(1) - 4, Y(base) - 3); }
+      if (pr) { g.textAlign = 'left'; g.textBaseline = 'bottom'; g.fillText('random guessing = fraud rate (' + S.rate + '%)', X(0) + 6, Y(base) - 3); }
       else { g.save(); g.translate(X(0.62) + 7, Y(0.62) + 7); g.rotate(-Math.PI / 4); g.textAlign = 'center'; g.textBaseline = 'top'; g.fillText('random guessing', 0, 0); g.restore(); }
 
       // shaded area + curve
@@ -750,10 +765,15 @@
       starPath(g, bx, by, 9); g.fillStyle = T.ok; g.fill(); g.strokeStyle = T.surface; g.lineWidth = 1.5; g.stroke();
       g.beginPath(); g.arc(tx, Y(M.cost[S.ti]), 6, 0, Math.PI * 2);
       g.fillStyle = T.haldi; g.fill(); g.strokeStyle = T.ink; g.lineWidth = 1.5; g.stroke();
-      g.font = '700 11.5px ' + T.font; g.fillStyle = T.ok; g.textBaseline = 'bottom';
-      var cl = 'cheapest ' + fmtT(M.best), cw = g.measureText(cl).width;
-      g.textAlign = 'left';
-      g.fillText(cl, clamp(bx - cw / 2, x0 + 2, x1 - cw - 2), Math.max(y0 + 12, by - 12));
+      g.font = '700 11.5px ' + T.font;
+      var cl = 'cheapest ' + fmtT(M.best), cw = Math.ceil(g.measureText(cl).width) + 10;
+      var cx = M.best === S.ti ? bx - cw / 2 : bx < tx ? bx + 4 - cw : bx - 4;
+      cx = clamp(cx, x0 + 2, x1 - cw - 2);
+      var cy = Math.max(y0, by - 34);
+      rrect(g, cx, cy, cw, 18, 5);
+      g.globalAlpha = 0.9; g.fillStyle = T.surface; g.fill(); g.globalAlpha = 1;
+      g.fillStyle = T.ok; g.textAlign = 'left'; g.textBaseline = 'middle';
+      g.fillText(cl, cx + 5, cy + 9.5);
       // axis title
       g.font = '600 12px ' + T.font; g.fillStyle = T.ink; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
       g.fillText('Threshold', X(0.5), y1 + 33);

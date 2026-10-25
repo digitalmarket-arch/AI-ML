@@ -241,5 +241,29 @@ window.AIM.labs = [
     "text": "Turn on ReLU + 2×2 max-pool and make the final output exactly 7 × 7. (Hint: use the output-size formula.)"
    }
   ]
+ },
+ {
+  "id": "tokenizer",
+  "module": "l3-transformers",
+  "title": "Tokenizer (BPE) lab",
+  "summary": "Train a tiny Byte-Pair Encoding tokenizer on English, Hindi and Hinglish text, merge by merge, and see why Hindi often needs more tokens per word.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Do at least 20 merges, then find the first merge that made a complete word (not just a piece of one) and tap it in the merge list."
+   },
+   {
+    "id": "t2",
+    "text": "Keep merging until an English word needs fewer than 2.5 tokens on average. How many does a Hindi word need at that point?"
+   },
+   {
+    "id": "t3",
+    "text": "In “Try new text”, type a word that is not in the training text (try “relearning” or “tokenizing”) and watch it split into pieces the tokenizer already knows."
+   },
+   {
+    "id": "t4",
+    "text": "Do at least 30 merges, then switch the training text to “More Hindi”. Do the same Hindi sentences now need fewer tokens per word?"
+   }
+  ]
  }
 ];
