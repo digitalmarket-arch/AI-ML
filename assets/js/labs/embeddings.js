@@ -100,8 +100,8 @@
   var START_COMPARE = ['prince', 'woman'];
   var PRESETS = [['prince', 'boy', 'girl'], ['Kolkata', 'West Bengal', 'Karnataka'], ['chef', 'biryani', 'kabaddi']];
   var START_SENTENCES = [
-    'The cricket match in Mumbai was exciting',
-    'The biryani in Hyderabad was very spicy',
+    'The cricket match in Mumbai was fun',
+    'The biryani in Hyderabad was spicy',
     'The kabaddi match in Pune was a draw'
   ];
   var HIGH_COS = 0.8, FAR_SHARE = 0.25;   // task 4: cosine 0.8 or more, over a quarter of the map's width apart

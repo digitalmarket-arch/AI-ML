@@ -626,7 +626,8 @@ window.AIM.modules = [
     "note": "Watch last, once the terminal and Git feel familiar, to learn how to use AI coding assistants as a tutor and reviewer rather than a crutch."
    }
   ],
-  "best": "apna-college-shradha-khapra-complete-git-and-github-tuto"
+  "best": "apna-college-shradha-khapra-complete-git-and-github-tuto",
+  "figs": true
  },
  {
   "id": "l1-stats",
@@ -764,7 +765,8 @@ window.AIM.modules = [
     "note": "Do the practice exercises on summarising data, probability, sampling distributions, confidence intervals and significance tests to check yourself with instant feedback."
    }
   ],
-  "best": "krish-naik-hindi-stats-for-data-science-in-hindi-detaile"
+  "best": "krish-naik-hindi-stats-for-data-science-in-hindi-detaile",
+  "figs": true
  },
  {
   "id": "l1-linalg-calc",

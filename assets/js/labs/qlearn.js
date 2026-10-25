@@ -35,7 +35,7 @@
 
   var TASKS = [
     { id: 't1', text: 'Train the rider until its greedy route (always taking the move with the highest Q-value) reaches the customer.' },
-    { id: 't2', text: 'Set γ (gamma) to 0 and train at least 50 more episodes. The rider stops caring about the far-away +10, and its route no longer reaches the customer.' },
+    { id: 't2', text: 'Once the route reaches the customer, set γ (gamma) to 0 and train at least 50 more episodes. The rider stops caring about the far-away +10, and its route no longer reaches the customer.' },
     { id: 't3', text: 'Set ε (epsilon) to 0, press Reset Q, then train at least 50 episodes. With no exploring, the rider never learns the way out of its lane to the customer.' },
     { id: 't4', text: 'Under the map choose “Changes it”, and put a traffic jam on a square of the rider’s greedy route. Keep training until the route changes to go round the jam.' }
   ];
@@ -595,6 +595,7 @@
       if ((kind === 'start' ? M.start : M.goal) === t) return;
       M.types[t] = ROAD;
       if (kind === 'start') M.start = t; else M.goal = t;
+      S.armed = {};   // the route now starts or ends somewhere else, so an old jam no longer counts for the task
       S.sel = t;
       mapChanged((kind === 'start' ? 'The restaurant (start)' : 'The customer') + ' moved to ' + cellName(t) + '. The Q-table is kept, so the rider has to adapt with more training.');
     }
@@ -624,13 +625,13 @@
         html += '<tr><td>' + MOVE_ARROWS[a] + ' ' + MOVE_NAMES[a] + (isBest ? ' <strong>(' + (nBest > 1 ? 'tied best' : 'best') + ')</strong>' : '') + '</td><td>' + fmt(q, 2) + '</td><td>' + whatMove(M, s, a) + '</td></tr>';
       }
       elQBody.innerHTML = html;
-      elQNote.textContent = eq ? 'All four Q-values are equal, so the rider has no preference here yet.' : 'The greedy move is the one with the highest Q-value. Rows are rounded to 2 decimal places.';
+      elQNote.textContent = eq ? 'All four Q-values are equal, so the rider has no preference here' + (m === 0 ? ' yet.' : '.') : 'The greedy move is the one with the highest Q-value. Rows are rounded to 2 decimal places.';
     }
     function updateLast() {
       var L = S.last;
       if (!L) {
         elLastDesc.textContent = 'No updates yet. Press Step to make the first move.';
-        elLastPre.textContent = 'target = r + γ × max Q(s′, a′) × (1 − done)\nnew Q  = old Q + α × (target − old Q)';
+        elLastPre.textContent = 'target = r + γ × max Q(s′,a′) × (1 − done)\nnew Q = old Q + α × (target − old Q)';
         return;
       }
       var where = L.block ? 'stayed at ' + cellName(L.s2) + ' (' + (L.block === 'edge' ? 'edge of the city' : 'building in the way') + ')' : 'arrived at ' + cellName(L.s2) + (L.s2 === S.map.goal && L.done ? ' (customer)' : L.done ? ' (pothole)' : '');
@@ -638,12 +639,12 @@
       var target = L.r + L.gamma * L.best * (1 - L.done);
       var neg = function (v) { var t = fmt(v, 3); return v < 0 && t.charAt(0) === '−' ? '(' + t + ')' : t; };
       elLastPre.textContent =
-        'target = r + γ × max Q(s′, a′) × (1 − done)\n' +
-        '       = ' + fmtR(L.r) + ' + ' + fmt(L.gamma, 2) + ' × ' + neg(L.best) + ' × (1 − ' + L.done + ')\n' +
-        '       = ' + fmt(target, 3) + '\n' +
-        'new Q  = old Q + α × (target − old Q)\n' +
-        '       = ' + fmt(L.qOld, 3) + ' + ' + fmt(L.alpha, 2) + ' × (' + fmt(target, 3) + ' − ' + neg(L.qOld) + ')\n' +
-        '       = ' + fmt(L.qNew, 3);
+        'target = r + γ × max Q(s′,a′) × (1 − done)\n' +
+        '  = ' + fmtR(L.r) + ' + ' + fmt(L.gamma, 2) + ' × ' + neg(L.best) + ' × (1 − ' + L.done + ')\n' +
+        '  = ' + fmt(target, 3) + '\n' +
+        'new Q = old Q + α × (target − old Q)\n' +
+        '  = ' + fmt(L.qOld, 3) + ' + ' + fmt(L.alpha, 2) + ' × (' + fmt(target, 3) + ' − ' + neg(L.qOld) + ')\n' +
+        '  = ' + fmt(L.qNew, 3);
     }
     function mapLabel() {
       var M = S.map, w = 0, j = 0, p = 0;
@@ -1053,10 +1054,15 @@
       var c = clamp(Math.floor(x / (r.width / N)), 0, N - 1), rr = clamp(Math.floor(y / (r.height / N)), 0, N - 1);
       return rr * N + c;
     }
+    function cellSummary(sq) {
+      var Q = S.Q, txt = cellName(sq) + ': ' + squareKind(sq) + '.';
+      if (!isWall(S.map, sq) && !isTerminal(S.map, sq)) txt += allEqual(Q, sq) ? ' No preferred move' + (Q[sq * 4] === 0 ? ' yet.' : '.') : ' Best move ' + MOVE_NAMES[argmaxFirst(Q, sq)] + ', Q = ' + fmt(maxQ(Q, sq), 2) + '.';
+      return txt;
+    }
     function tap(s) {
       S.sel = s;
       if (S.tapMode === 'edit') cycleCell(s);
-      else { updateQTable(); requestDraw(); }
+      else { say(cellSummary(s) + ' All four Q-values are in the Q-values table.'); updateQTable(); requestDraw(); }
     }
     on(mcanvas, 'pointerdown', function (e) {
       if (e.pointerType === 'mouse' && e.button !== 0) return;
@@ -1108,9 +1114,7 @@
         e.preventDefault();
         S.sel = r * N + c; S.hover = -1;
         updateQTable(); requestDraw();
-        var Q = S.Q, sq = S.sel, txt = cellName(sq) + ': ' + squareKind(sq) + '.';
-        if (!isWall(S.map, sq) && !isTerminal(S.map, sq)) txt += allEqual(Q, sq) ? ' No preferred move yet.' : ' Best move ' + MOVE_NAMES[argmaxFirst(Q, sq)] + ', Q = ' + fmt(maxQ(Q, sq), 2) + '.';
-        say(txt);
+        say(cellSummary(S.sel));
         return;
       }
       if (k === 'Enter' || k === ' ') { e.preventDefault(); tap(S.sel); return; }
@@ -1124,7 +1128,7 @@
       var L = advance(true, performance.now());
       if (!S.ep.active) say(stepWords(L) + ' ' + episodeWords(S.ep, S.episodes), S.ep.end === 'goal' ? 'good' : S.ep.end === 'pit' ? 'warn' : '');
       else say(stepWords(L));
-      afterLearning(false);
+      afterLearning('learn');
     });
     on(btnRun, 'click', function () {
       if (S.running) { setRunning(false); say('Paused in the middle of episode ' + fmtInt(S.episodes + 1) + '. Press Run episode to carry on, or Step to go one move at a time.'); updateUI(); return; }
@@ -1139,10 +1143,10 @@
       anim = null;
       S.Q = new Float64Array(NS * 4); S.qVer++;
       S.episodes = 0; S.hist = []; S.last = null; S.ep = idleEp();
-      S.explored = false; S.g0eps = 0; S.armed = {}; S.t3Note = false;
+      S.explored = false; S.g0eps = 0; S.g0wasGood = false; S.g0Note = false; S.armed = {}; S.t3Note = false;
       chartDirty = true;
       say('Q-table wiped: every Q-value is back to 0, so the rider has forgotten everything it learned.' + (S.eps === 0 ? ' ε is 0, so from now on it will never explore.' : ''));
-      afterLearning(false);
+      afterLearning('edit');
     });
     on(btnResetMap, 'click', function () {
       S.map = parseMap(DEFAULT_ROWS);
@@ -1167,7 +1171,8 @@
     on(inGamma, 'input', function () {
       var g = +inGamma.value, was = S.gamma;
       S.gamma = g;
-      if (g !== was) S.g0eps = 0;
+      if (g !== was) { S.g0eps = 0; S.g0Note = false; }
+      if (g === 0 && was !== 0) S.g0wasGood = route().end === 'goal';
       if (g === 0 && was !== 0) say('γ is now 0: from now on only the very next reward counts. Train and watch what happens to the blue squares and the route.');
       updateUI(); requestDraw(); chartDirty = true;
     });
@@ -1193,6 +1198,7 @@
     function onTheme() { themeCache.key = ''; chartDirty = true; requestDraw(); }
     var mql = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
     if (mql) { if (mql.addEventListener) mql.addEventListener('change', onTheme); else if (mql.addListener) mql.addListener(onTheme); }
+    if (narrowMql) { if (narrowMql.addEventListener) narrowMql.addEventListener('change', placeExtras); else if (narrowMql.addListener) narrowMql.addListener(placeExtras); }
     on(document, 'themechange', onTheme);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (!destroyed) onTheme(); });
     var ro = null;
@@ -1219,6 +1225,7 @@
         rafId = 0;
         if (ro) ro.disconnect();
         if (mql) { if (mql.removeEventListener) mql.removeEventListener('change', onTheme); else if (mql.removeListener) mql.removeListener(onTheme); }
+        if (narrowMql) { if (narrowMql.removeEventListener) narrowMql.removeEventListener('change', placeExtras); else if (narrowMql.removeListener) narrowMql.removeListener(placeExtras); }
         listeners.forEach(function (l) { l[0].removeEventListener(l[1], l[2], l[3]); });
         listeners = [];
         if (top.parentNode) top.parentNode.removeChild(top);
