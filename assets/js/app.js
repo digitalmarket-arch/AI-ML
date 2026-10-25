@@ -137,7 +137,7 @@
       '<div class="small muted">' + esc(r.creator || '') + (r.year ? ' · ' + esc(r.year) : '') + (r.cost ? ' · ' + esc(r.cost) : '') + '</div>' +
       note + (r.why ? '<p class="res-why">' + inline(r.why) + '</p>' : '') +
       (r.caveats ? '<details class="res-caveat"><summary>Heads-up</summary><p>' + inline(r.caveats) + '</p></details>' : '') +
-      '<div class="res-actions">' + (embeddable && !player ? '<button type="button" class="btn btn-sm btn-primary" data-action="play-inline" data-id="' + esc(r.id) + '" aria-expanded="false">▶ Play here</button>' : '') +
+      '<div class="res-actions">' + (embeddable && !player ? '<button type="button" class="btn btn-sm btn-primary" data-action="play-inline" data-id="' + esc(r.id) + '" aria-expanded="false"><span aria-hidden="true">▶ </span>Play here</button>' : '') +
       '<label class="watched-toggle"><input type="checkbox" data-action="watched" data-id="' + esc(r.id) + '"' + (watched ? ' checked' : '') + '> I finished this</label>' +
       '<a class="btn btn-sm" href="' + esc(r.url) + '" target="_blank" rel="noopener">Open ' + (isYT ? 'on YouTube' : 'site') + ' ↗</a>' +
       (isYT && r.status !== 'verified' ? '<a class="btn btn-sm btn-ghost" href="' + esc(searchUrl) + '" target="_blank" rel="noopener">Search YouTube</a>' : '') +
@@ -153,7 +153,7 @@
   function posText(r) {
     var p = S().pos[r.id];
     if (!p || S().watched[r.id]) return '';
-    if (r.listId && p.n) return 'Video ' + Math.min(p.i + 1, p.n) + ' of ' + p.n;
+    if (r.listId && p.n) return p.i > 0 || p.s > 5 ? 'Video ' + Math.min(p.i + 1, p.n) + ' of ' + p.n : '';
     return p.s > 5 ? 'Stopped at ' + fmtTime(p.s) : '';
   }
   function posChip(r) { var t = posText(r); return '<span class="chip chip-pos num" data-pos="' + esc(r.id) + '"' + (t ? '' : ' hidden') + '>' + esc(t) + '</span>'; }
@@ -172,7 +172,9 @@
         C.save(); updatePos(r);
       },
       onComplete: function () {
-        var st = S(); if (st.watched[r.id]) return;
+        // forget the stop point: it sits at the very end, so a replay after unticking would end and re-tick at once
+        var st = S(); delete st.pos[r.id];
+        if (st.watched[r.id]) { C.save(); return; }
         st.watched[r.id] = C.today(); C.logActivity(); C.save(); syncWatched(r.id, true);
         C.toast(r.listId ? 'Playlist finished: ticked as done' : 'Video finished: ticked as done');
       }
@@ -184,7 +186,7 @@
     var box = art.querySelector('.player[data-inline]');
     if (box) {
       if (box._aimPlayer) box._aimPlayer.destroy();
-      box.remove(); btn.textContent = '▶ Play here'; btn.setAttribute('aria-expanded', 'false');
+      box.remove(); btn.innerHTML = '<span aria-hidden="true">▶ </span>Play here'; btn.setAttribute('aria-expanded', 'false');
       return;
     }
     box = document.createElement('div'); box.className = 'player'; box.setAttribute('data-inline', '');
@@ -196,8 +198,17 @@
   function gotoRes(id, andPlay) {
     var art = null; eachWithAttr('.res-card', 'data-res', id, function (el) { if (!art) art = el; });
     if (!art) return;
-    var wrap = art.parentElement; if (wrap && wrap.hidden) wrap.hidden = false;
+    var wrap = art.parentElement;
+    if (wrap && wrap.hidden) {
+      // shown out of a collapsed group: keep that group's "Show N more" count right
+      wrap.hidden = false;
+      var grp = wrap.parentElement, more = grp && grp.id ? document.querySelector('[data-more="' + grp.id + '"]') : null;
+      var left = grp ? Array.prototype.filter.call(grp.children, function (x) { return x.hidden; }).length : 0;
+      if (more) { if (left) more.textContent = 'Show ' + left + ' more'; else more.remove(); }
+    }
     try { art.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { art.scrollIntoView(); }
+    // keyboard and screen-reader users land on the card, not back at the Next up button
+    var link = art.querySelector('.res-title a'); if (link) { try { link.focus({ preventScroll: true }); } catch (e) { link.focus(); } }
     if (!andPlay) return;
     var facade = art.querySelector('.player-facade');
     var btn = art.querySelector('[data-action="play-inline"]');
@@ -218,7 +229,7 @@
     var p = t.of ? Math.round(t.n / t.of * 100) : 0;
     var nextHTML = next ? '<div class="next-up"><span class="eyebrow">Next up</span><strong>' + esc(next.title) + '</strong>' +
       '<span class="small muted">' + esc(next.creator || '') + ' · ' + esc(next.type) + (posText(next) ? ' · ' + esc(posText(next)) : '') + '</span>' +
-      '<div class="row">' + (C.canEmbed(next) ? '<button class="btn btn-sm btn-primary" type="button" data-action="goto-res" data-id="' + esc(next.id) + '" data-play="1">▶ ' + (posText(next) ? 'Resume' : 'Play') + '</button>' :
+      '<div class="row">' + (C.canEmbed(next) ? '<button class="btn btn-sm btn-primary" type="button" data-action="goto-res" data-id="' + esc(next.id) + '" data-play="1"><span aria-hidden="true">▶ </span>' + (posText(next) ? 'Resume' : 'Play') + '</button>' :
         '<a class="btn btn-sm" href="' + esc(next.url) + '" target="_blank" rel="noopener">Open ↗</a>') +
       '<button class="btn btn-sm" type="button" data-action="goto-res" data-id="' + esc(next.id) + '">Show details</button></div></div>' :
       '<div class="callout small">Every resource in this module is ticked. Well done!</div>';
@@ -234,8 +245,11 @@
     var el = document.getElementById('watch-checklist'); if (!el) return;
     var m = modById[el.getAttribute('data-mod')]; if (!m) return;
     var d = document.getElementById('checklist-all'), open = d && d.open;
+    // re-rendering removes the focused checkbox: put keyboard focus back on its replacement
+    var a = document.activeElement, fid = a && el.contains(a) && a.getAttribute('data-action') === 'watched' ? a.getAttribute('data-id') : null;
     el.innerHTML = checklistHTML(m);
     if (open) { d = document.getElementById('checklist-all'); if (d) d.open = true; }
+    if (fid) eachWithAttr('#watch-checklist input[data-action="watched"]', 'data-id', fid, function (x) { try { x.focus({ preventScroll: true }); } catch (e) { x.focus(); } });
   }
   // most recent unfinished videos or playlists, newest first
   function continueList(max) {
@@ -831,6 +845,21 @@
       selectHTML('lib-level', 'Level', [['all', 'All levels'], ['beginner', 'Level 1 · Beginner'], ['intermediate', 'Level 2 · Intermediate'], ['advanced', 'Level 3 · Advanced'], ['expert', 'Level 4 · Expert']], libState.level) +
       selectHTML('lib-type', 'Type', [['all', 'All types']].concat(Object.keys(types).sort().map(function (t) { return [t, cap(t)]; })), libState.type) +
       '</div><h2 class="visually-hidden">Resources</h2><div class="small muted num" id="lib-count"></div><div class="grid" id="lib-grid"></div><div id="lib-more"></div></div>', 'Library');
+    var lastList = [];
+    function moreButton() {
+      var shown = Math.min(libState.shown, lastList.length);
+      document.getElementById('lib-count').textContent = 'Showing ' + shown + ' of ' + lastList.length + ' matching resources · Hindi, Hinglish and Indian English teachers listed first';
+      document.getElementById('lib-more').innerHTML = shown < lastList.length ? '<button class="btn" type="button" id="lib-more-btn">Show ' + Math.min(LIB_PAGE, lastList.length - shown) + ' more</button>' : '';
+      var mb = document.getElementById('lib-more-btn');
+      if (mb) mb.addEventListener('click', function () {
+        var from = shown, grid = document.getElementById('lib-grid');
+        libState.shown = shown + LIB_PAGE;
+        grid.insertAdjacentHTML('beforeend', lastList.slice(from, Math.min(libState.shown, lastList.length)).map(function (r) { return resCard(r); }).join(''));
+        moreButton();
+        // keyboard users continue at the first new card
+        var first = grid.children[from]; var link = first && first.querySelector('.res-title a'); if (link) link.focus();
+      });
+    }
     function apply(keepShown) {
       if (!keepShown) libState.shown = LIB_PAGE;
       libState.q = document.getElementById('lib-q').value.toLowerCase().trim();
@@ -844,11 +873,10 @@
         return true;
       });
       list = list.slice().sort(function (a, b) { return C.langRank(a.language, S().prefs.lang) - C.langRank(b.language, S().prefs.lang); });
+      lastList = list;
       var shown = Math.min(libState.shown, list.length);
-      document.getElementById('lib-count').textContent = 'Showing ' + shown + ' of ' + list.length + ' matching resources · Hindi, Hinglish and Indian English teachers listed first';
       document.getElementById('lib-grid').innerHTML = list.slice(0, shown).map(function (r) { return resCard(r); }).join('') || '<div class="empty stack-sm"><span>Nothing matches these filters.</span><div><button class="btn btn-sm" type="button" id="lib-clear">Clear filters</button></div></div>';
-      document.getElementById('lib-more').innerHTML = shown < list.length ? '<button class="btn" type="button" id="lib-more-btn">Show ' + Math.min(LIB_PAGE, list.length - shown) + ' more</button>' : '';
-      var mb = document.getElementById('lib-more-btn'); if (mb) mb.addEventListener('click', function () { libState.shown += LIB_PAGE; apply(true); });
+      moreButton();
       var cb = document.getElementById('lib-clear'); if (cb) cb.addEventListener('click', function () { ['lib-lang', 'lib-level', 'lib-type'].forEach(function (id) { document.getElementById(id).value = 'all'; }); document.getElementById('lib-q').value = ''; apply(); });
     }
     ['lib-q', 'lib-lang', 'lib-level', 'lib-type'].forEach(function (id) { document.getElementById(id).addEventListener(id === 'lib-q' ? 'input' : 'change', function () { apply(); }); });

@@ -200,9 +200,11 @@
   }
 
   // hooks: getPos() -> {i, s} or null; onPos({i, n, s}); onComplete(). Returns { destroy }.
+  var nowPlaying = null; // one video at a time: starting another pauses this one
   function play(container, r, hooks) {
     hooks = hooks || {};
-    var alive = true, player = null, timer = null, completed = false;
+    var alive = true, player = null, timer = null, completed = false, played = false;
+    // after completion the stop point is meaningless (the app forgets it), so stop reporting
     var report = function () {
       if (!player || typeof player.getCurrentTime !== 'function') return null;
       var p = { i: 0, n: 0, s: 0, d: 0 };
@@ -211,17 +213,28 @@
         p.d = player.getDuration() || 0;
         if (r.listId) { p.i = player.getPlaylistIndex() || 0; var pl = player.getPlaylist(); p.n = pl && pl.length ? pl.length : 0; }
       } catch (e) { return null; }
-      if (hooks.onPos) hooks.onPos(p);
+      if (hooks.onPos && !completed) hooks.onPos(p);
       return p;
     };
     var checkDone = function (p, ended) {
       if (completed || !p) return;
       var nearEnd = ended || (p.d > 0 && p.s / p.d >= 0.9);
-      var lastItem = !r.listId || (p.n > 0 && p.i >= p.n - 1);
+      // the embedded player may only list a playlist's first 200 videos, so a 200+ list is never auto-completed
+      var lastItem = !r.listId || (p.n > 0 && p.n < 200 && p.i >= p.n - 1);
       if (nearEnd && lastItem) { completed = true; if (hooks.onComplete) hooks.onComplete(); }
     };
     var stopTimer = function () { if (timer) { clearInterval(timer); timer = null; } };
-    container.innerHTML = '<div class="player-loading">Loading the player…</div>';
+    // a player that never started has nothing to report (a cued player says 0:00 and would wipe the saved place)
+    var onHide = function () { if (alive && played && (document.visibilityState === 'hidden' || !document.visibilityState)) report(); };
+    var destroy = function () {
+      if (!alive) return;
+      alive = false; stopTimer();
+      document.removeEventListener('visibilitychange', onHide); window.removeEventListener('pagehide', onHide);
+      if (nowPlaying === player) nowPlaying = null;
+      if (player) { if (played) checkDone(report(), false); try { player.destroy(); } catch (e) {} player = null; }
+    };
+    document.addEventListener('visibilitychange', onHide); window.addEventListener('pagehide', onHide);
+    container.innerHTML = '<div class="player-loading" role="status">Loading the player…</div>';
     ensureYT(6000).then(function (YT) {
       if (!alive) return;
       var holder = document.createElement('div');
@@ -233,17 +246,28 @@
       if (r.videoId) opts.videoId = r.videoId;
       if (r.listId) { vars.listType = 'playlist'; vars.list = r.listId; }
       if (!r.listId && pos && pos.s > 5) vars.start = Math.floor(pos.s);
+      // resuming a playlist: loadPlaylist (which plays) jumps to the saved video, so do not autoplay video 1 first
+      var resume = r.listId && pos && (pos.i > 0 || pos.s > 5);
+      if (resume) vars.autoplay = 0;
       opts.events.onReady = function (e) {
         try { var fr = e.target.getIframe(); fr.title = r.title; fr.setAttribute('allowfullscreen', ''); } catch (err) {}
-        if (r.listId && pos && (pos.i > 0 || pos.s > 5)) {
+        if (resume) {
           try { e.target.loadPlaylist({ list: r.listId, listType: 'playlist', index: pos.i || 0, startSeconds: pos.s > 5 ? Math.floor(pos.s) : 0 }); } catch (err) {}
         }
       };
       opts.events.onStateChange = function (e) {
         var S = YT.PlayerState || { ENDED: 0, PLAYING: 1, PAUSED: 2 };
+        if (!alive) return;
         if (e.data === S.PLAYING) {
+          played = true;
+          if (nowPlaying && nowPlaying !== player) { try { nowPlaying.pauseVideo(); } catch (err) {} }
+          nowPlaying = player;
           stopTimer();
-          timer = setInterval(function () { checkDone(report(), false); }, 10000);
+          timer = setInterval(function () {
+            // the card was re-rendered away (e.g. a Library filter) without a destroy: clean up
+            if (!document.documentElement.contains(container)) { destroy(); return; }
+            checkDone(report(), false);
+          }, 10000);
           report();
         } else if (e.data === S.PAUSED) { stopTimer(); checkDone(report(), false); }
         else if (e.data === S.ENDED) { stopTimer(); checkDone(report(), true); }
@@ -252,13 +276,7 @@
     }, function () {
       if (alive) plainPlayer(container, r);
     });
-    return {
-      destroy: function () {
-        if (!alive) return;
-        alive = false; stopTimer();
-        if (player) { report(); try { player.destroy(); } catch (e) {} player = null; }
-      }
-    };
+    return { destroy: destroy };
   }
 
   /* ---------------- quiz engine ---------------- */
