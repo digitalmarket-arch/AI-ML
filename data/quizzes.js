@@ -1313,7 +1313,7 @@ window.AIM.quizzes = {
    "code": "",
    "options": [
     "Overfitting: it memorised the training data instead of learning general patterns",
-    "Underfitting: the model is too simple",
+    "Underfitting: the model is too simple to learn the patterns in the training data",
     "The test set is too large",
     "Nothing: test accuracy does not matter if training accuracy is high"
    ],
@@ -1326,10 +1326,10 @@ window.AIM.quizzes = {
    "q": "A crop-price prediction model for an agri-startup worked well at launch. Six months later its errors have doubled because a new minimum support price (MSP) policy changed how prices move. Which step of the ML project lifecycle was neglected?",
    "code": "",
    "options": [
-    "Defining the problem clearly",
-    "Choosing the train/test split ratio",
-    "Monitoring the deployed model and retraining it on fresh data",
-    "Collecting more features at the start"
+    "Defining the problem clearly and fixing the target metric at the start",
+    "Choosing a better train/test split ratio before the first training run",
+    "Monitoring the live model and retraining it on fresh data regularly",
+    "Collecting more features at the start, such as rainfall and soil data"
    ],
    "answer": 2,
    "explain": "The ML lifecycle does not end at deployment: you must keep monitoring live performance and retrain when the world changes (this is called drift, meaning new data no longer follows the patterns of the training data). No split ratio or extra feature chosen at the start could have predicted a future policy change. Only monitoring and retraining catches and fixes it.",
@@ -1342,7 +1342,7 @@ window.AIM.quizzes = {
    "options": [
     "Add stronger regularisation to make the model even simpler",
     "Use a more flexible model or add useful features such as temperature and day of the week",
-    "Collect many more rows of the same data and keep the same model",
+    "Collect many more rows of the same data and keep the same straight-line model unchanged",
     "Remove half of the features"
    ],
    "answer": 1,
@@ -1354,10 +1354,10 @@ window.AIM.quizzes = {
    "q": "A bank's loan-default model reaches 99% validation accuracy. One of its features is 'number of recovery calls made to the customer'. Why is this result suspicious?",
    "code": "",
    "options": [
-    "Recovery calls happen only after a customer defaults, so the feature leaks the answer and will not exist when a new loan is being decided",
-    "99% accuracy is impossible for any real-world model",
-    "Phone-call data is always too noisy to be useful",
-    "The model needs more training epochs to be trustworthy"
+    "Recovery calls happen only after a default, so this feature leaks the outcome",
+    "Accuracy above 95% is impossible for any real-world loan-default model",
+    "Call-count data is always too noisy to predict defaults, so it adds only error",
+    "The model needs more epochs; a score this early in training is not trustworthy"
    ],
    "answer": 0,
    "explain": "This is target leakage (a kind of data leakage): a feature that is only known after the outcome sneaks the answer into training. At loan-approval time there are no recovery calls yet, so real-world accuracy will collapse. High accuracy is not impossible by itself; the problem is where the information came from.",
@@ -1396,10 +1396,10 @@ window.AIM.quizzes = {
    "q": "A small fraud dataset has 8 genuine (0) and 2 fraud (1) transactions. What does this baseline print, and what does it teach?",
    "code": "import numpy as np\nfrom sklearn.dummy import DummyClassifier\n\nX = np.zeros((10, 1))                 # features don't matter here\ny = np.array([0] * 8 + [1] * 2)       # 8 genuine, 2 fraud\nbase = DummyClassifier(strategy=\"most_frequent\").fit(X, y)\nprint(base.score(X, y), base.predict(X).sum())",
    "options": [
-    "0.8 2 : the baseline catches both frauds",
-    "0.8 0 : 80% accuracy while catching zero fraud, so any real model must beat this",
-    "0.2 0 : the baseline is wrong on every row",
-    "1.0 0 : the baseline is perfect"
+    "0.8 2 : it predicts both frauds correctly, so it is a strong fraud detector",
+    "0.8 0 : 80% accuracy while catching no fraud, so a real model must beat this",
+    "0.2 10 : it predicts fraud for everyone, so only the 2 fraud rows are right",
+    "1.0 0 : it memorises the training labels, so its training score is always perfect"
    ],
    "answer": 1,
    "explain": "A 'most_frequent' DummyClassifier (a baseline model that ignores the features) always predicts the majority class, 0 (genuine). It is right on 8 of 10 rows, so accuracy is 0.8, and it predicts fraud for no one, so the sum of its predictions is 0. This is why baselines matter: a fraud model showing 80% accuracy here would be no better than doing nothing.",
@@ -1410,7 +1410,7 @@ window.AIM.quizzes = {
    "q": "You fit polynomial models of different degrees to predict monsoon rainfall. RMSE in mm: Degree 1 gives train 40, validation 42. Degree 4 gives train 12, validation 14. Degree 15 gives train 1, validation 60. Which reading is correct?",
    "code": "",
    "options": [
-    "Degree 15 is best because its training error is lowest",
+    "Degree 15 is best because its training error of 1 mm is the lowest of the three models",
     "Degree 1 overfits and degree 15 underfits",
     "All three are equally good because they were trained on the same data",
     "Degree 4 is best; degree 1 underfits (high bias) and degree 15 overfits (high variance)"
@@ -1468,13 +1468,13 @@ window.AIM.quizzes = {
    "q": "While training linear regression with gradient descent, your loss (MSE) after each epoch is: 10, 25, 70, 300, 1200. What is the most likely cause?",
    "code": "",
    "options": [
-    "The learning rate is too small",
-    "The model is underfitting",
-    "The dataset has too many rows",
+    "The learning rate is too small, so each step barely moves the weights",
+    "The model is underfitting, as a straight line is too simple for the data",
+    "The dataset has too many rows, so the model cannot fit them all in time",
     "The learning rate is too large, so each step overshoots the minimum"
    ],
    "answer": 3,
-   "explain": "If the loss grows every epoch (an epoch is one full pass over the training data), the steps are so big that they jump past the lowest point and land further away each time, so reduce the learning rate (step size). A too-small learning rate shows the opposite symptom: the loss falls, but very slowly.",
+   "explain": "If the loss grows every epoch (an epoch is one full pass over the training data), the steps are so big that they jump past the lowest point and land further away each time, so reduce the learning rate (step size). A too-small learning rate shows the opposite symptom: the loss falls, but very slowly. Underfitting keeps the loss stuck high rather than making it explode, and MSE is an average, so more rows do not make it climb.",
    "difficulty": "medium"
   },
   {
@@ -1482,10 +1482,10 @@ window.AIM.quizzes = {
    "q": "A food-delivery company in Kolkata wants one error number for managers: 'on average, how many minutes off are our delivery-time predictions?' A few orders had extreme delays because of flooding. Which metric fits best?",
    "code": "",
    "options": [
-    "RMSE, because it gives extra weight to big errors",
-    "MAE, because it is in minutes and is not dominated by a few extreme errors",
-    "R², because it is always between 0 and 1",
-    "MSE, because it is measured in minutes"
+    "RMSE, because squaring the errors makes the flood-day delays count extra",
+    "MAE, because it is in minutes and a few extreme delays do not dominate it",
+    "R², because it always lies between 0 and 1, so managers can read it easily",
+    "MSE, because it is in minutes and averages the error over every order"
    ],
    "answer": 1,
    "explain": "MAE (mean absolute error) is the average size of the errors in the same unit as the target (minutes), and each error counts in proportion to its size, so a few flood-day orders do not dominate it. RMSE (root mean squared error) squares errors before averaging, so big errors pull it up a lot; that is useful when large errors are especially costly, but not for a simple 'typical error'. MSE is in minutes squared, and R² can even be negative.",
@@ -1496,10 +1496,10 @@ window.AIM.quizzes = {
    "q": "Plotting AC sales against temperature in Nagpur shows a clear curve: sales rise slowly at first, then very fast above 38°C. A straight-line model underfits. What is a simple fix?",
    "code": "",
    "options": [
-    "Switch to logistic regression",
-    "Remove the temperature feature",
-    "Use MAE instead of MSE as the loss",
-    "Add polynomial features (such as temperature²) and fit linear regression on them"
+    "Switch to logistic regression, which is built to fit curved patterns",
+    "Drop the temperature feature, since it is what causes the bend",
+    "Use MAE instead of MSE as the loss so the line can follow the curve",
+    "Add features like temperature² and fit linear regression on them"
    ],
    "answer": 3,
    "explain": "Polynomial regression creates new features like temperature² and temperature³, which lets a linear model fit a curve; it is still 'linear' in its coefficients, so the same fitting method works. Logistic regression is for classification (predicting categories), not for a number like sales. Changing the loss function does not give a straight line the ability to bend.",
@@ -1510,13 +1510,13 @@ window.AIM.quizzes = {
    "q": "After fitting linear regression for house prices, you plot residuals (actual minus predicted) against predicted price. The spread is narrow for cheap houses and much wider for expensive ones, like a funnel. Which assumption is broken, and what often helps?",
    "code": "",
    "options": [
-    "Constant spread of errors (homoscedasticity) is broken; log-transforming the price often helps",
-    "Linearity is broken; delete the expensive houses",
-    "Independence of features is broken; add more features",
-    "Nothing is broken; a funnel shape is ideal"
+    "Equal error spread (homoscedasticity) is broken; log-transforming price often helps",
+    "Linearity is broken; dropping the expensive houses as outliers usually fixes it",
+    "Feature independence is broken; adding more features usually evens out the error spread",
+    "Nothing is broken; a funnel shape is expected whenever prices vary widely"
    ],
    "answer": 0,
-   "explain": "Linear regression assumes the errors have roughly the same spread everywhere (homoscedasticity); a funnel means the spread grows with the prediction (heteroscedasticity). Modelling log(price) often evens out the spread. Deleting expensive houses throws away real data and hides the problem instead of fixing it.",
+   "explain": "Linear regression assumes the errors have roughly the same spread everywhere (homoscedasticity); a funnel means the spread grows with the prediction (heteroscedasticity). Modelling log(price) often evens out the spread. Dropping expensive houses throws away real data and hides the problem instead of fixing it.",
    "difficulty": "medium"
   },
   {
@@ -1597,9 +1597,9 @@ window.AIM.quizzes = {
    "code": "",
    "options": [
     "It assumes the features are independent of each other once you know the class",
-    "It is meant only for beginners",
-    "It ignores the training data and guesses",
-    "It assumes all classes are equally common"
+    "It is a simple method meant only for beginners, not for real-world projects",
+    "It ignores most of the training data and guesses from the first few rows",
+    "It assumes every class is equally common, whatever the training data says"
    ],
    "answer": 0,
    "explain": "Naive Bayes applies Bayes' theorem with a simplifying assumption: within each class, every feature is independent of the others (conditional independence). Words in an SMS are not truly independent, yet the method still works surprisingly well for text. It does not assume classes are equally common; it uses class frequencies from the training data (the prior).",
@@ -1610,13 +1610,13 @@ window.AIM.quizzes = {
    "q": "You use KNN to predict whether a customer will accept a credit-card offer. Features: annual income (₹2,00,000 to ₹50,00,000) and age (21 to 60). Accuracy is poor. What is the most likely fix?",
    "code": "",
    "options": [
-    "Use K = 1",
-    "Remove the age feature",
-    "Scale the features (for example with StandardScaler) so both contribute fairly to the distance",
-    "Measure distance using income only"
+    "Use K = 1 so each prediction copies the single closest past customer",
+    "Remove the age feature, since its range is tiny compared with income",
+    "Scale the features (e.g. StandardScaler) so both count fairly in distance",
+    "Measure distance on income only, as it is the stronger signal for card offers"
    ],
    "answer": 2,
-   "explain": "KNN works with distances, and an income gap of ₹1,00,000 completely swamps an age gap of 30 years, so age is effectively ignored. Scaling puts features on comparable ranges (StandardScaler gives each feature mean 0 and standard deviation 1). Changing K does not fix the fact that one feature dominates the distance.",
+   "explain": "KNN works with distances, and an income gap of ₹1,00,000 completely swamps an age gap of 30 years, so age is effectively ignored. Scaling puts features on comparable ranges (StandardScaler gives each feature mean 0 and standard deviation 1). Changing K does not fix the fact that one feature dominates the distance, and dropping age or using income only throws away useful information instead of fixing the imbalance.",
    "difficulty": "medium"
   },
   {
@@ -1738,13 +1738,13 @@ window.AIM.quizzes = {
    "q": "Only 3% of your rows are positive (for example, loan defaults). Why would you use StratifiedKFold instead of plain KFold for cross-validation?",
    "code": "",
    "options": [
-    "It makes training faster",
-    "It removes duplicate rows",
-    "It always uses 10 folds",
-    "It keeps roughly the same 3% positive share in every fold"
+    "It trains faster, because each fold drops most of the negative rows",
+    "It removes duplicate rows so the same loan never appears in two folds",
+    "It always uses 10 folds, which is the minimum for imbalanced data",
+    "It keeps roughly the same 3% share of positives in every fold"
    ],
    "answer": 3,
-   "explain": "Cross-validation trains and tests the model k times, each time holding out a different fold (slice) of the data. With plain KFold, some folds could get almost no positives by chance, making their scores unreliable; StratifiedKFold keeps each fold's class proportions close to the full dataset's. It does not change speed or the number of folds, which you still choose yourself.",
+   "explain": "Cross-validation trains and tests the model k times, each time holding out a different fold (slice) of the data. With plain KFold, some folds could get almost no positives by chance, making their scores unreliable; StratifiedKFold keeps each fold's class proportions close to the full dataset's. It does not drop or de-duplicate rows, does not speed up training, and does not fix the number of folds, which you still choose yourself.",
    "difficulty": "easy"
   },
   {
@@ -1752,10 +1752,10 @@ window.AIM.quizzes = {
    "q": "A digital-wallet company's data has 0.5% fraud. Your first model shows 99.5% accuracy, but its recall for fraud is 0. What is the best next step?",
    "code": "",
    "options": [
-    "Celebrate: 99.5% accuracy is excellent",
-    "Use class_weight='balanced' (or resampling) and judge the model by precision, recall and PR-AUC instead of accuracy",
-    "Delete the fraud rows because they are outliers",
-    "Train longer until accuracy reaches 99.9%"
+    "Accept the model as it is, since 99.5% accuracy is far above the usual 95% target",
+    "Use class_weight='balanced' or resampling, and judge by precision, recall, PR-AUC",
+    "Delete the fraud rows, since such rare cases are outliers that confuse the model",
+    "Train for more epochs until the accuracy climbs from 99.5% to 99.9% or higher"
    ],
    "answer": 1,
    "explain": "With 0.5% fraud, predicting 'not fraud' for everyone already scores 99.5% accuracy, so accuracy hides the fact that no fraud is caught (the accuracy paradox). class_weight='balanced' makes mistakes on the rare class cost more during training, and precision, recall and PR-AUC (area under the precision-recall curve) actually measure fraud-catching. Chasing higher accuracy would still reward ignoring fraud.",
@@ -1766,13 +1766,13 @@ window.AIM.quizzes = {
    "q": "A TB-screening model at a rural health camp decides who is sent for a confirmatory test. Missing a sick person is far worse than sending a healthy person for one extra test. How should you set the decision threshold?",
    "code": "",
    "options": [
-    "Raise it to 0.9 so only very sure cases are flagged",
-    "Keep 0.5 because it is the standard",
-    "Pick the threshold that maximises accuracy",
-    "Lower it (for example to 0.2) to raise recall, accepting more false positives"
+    "Raise it to 0.9 so that only very confident cases are flagged",
+    "Keep it at 0.5, since that is the standard for any classifier",
+    "Pick whichever threshold gives the highest overall accuracy score",
+    "Lower it (say to 0.2) to raise recall, accepting false alarms"
    ],
    "answer": 3,
-   "explain": "Lowering the threshold flags more people, which catches more true cases (higher recall) at the cost of more false alarms (lower precision), the right trade when a false negative (a missed sick person) is the costly error. Raising the threshold does the opposite: fewer false alarms but more missed patients. 0.5 is only a default, not a rule.",
+   "explain": "Lowering the threshold flags more people, which catches more true cases (higher recall) at the cost of more false alarms (lower precision), the right trade when a false negative (a missed sick person) is the costly error. Raising the threshold does the opposite: fewer false alarms but more missed patients. 0.5 is only a default, not a rule. Picking the threshold with the best accuracy ignores that the two kinds of error have very different costs here.",
    "difficulty": "medium"
   },
   {
@@ -1794,10 +1794,10 @@ window.AIM.quizzes = {
    "q": "A team applied SMOTE (which creates synthetic minority-class rows by blending nearby real ones) to the ENTIRE dataset, then ran 5-fold cross-validation and got recall 0.95. In production, recall is 0.60. What went wrong?",
    "code": "",
    "options": [
-    "SMOTE always lowers recall",
-    "5 folds is too few; 10 folds would have fixed it",
-    "Synthetic rows made from validation rows leaked into training, so validation was not truly unseen; SMOTE should be applied only to the training part of each fold",
-    "Production data is always worse, so nothing could have been done"
+    "SMOTE always lowers recall on real data, so synthetic rows should never be used for training",
+    "5 folds is too few to estimate recall; 10-fold cross-validation would have given a true score",
+    "Synthetic twins of validation rows leaked into training; SMOTE belongs inside each training fold",
+    "Production data is always noisier than training data, so a drop like this simply cannot be prevented"
    ],
    "answer": 2,
    "explain": "Because SMOTE ran before the split, a real row and the synthetic 'twins' made from it could land in different folds, so the model was effectively tested on near-copies of what it trained on. Resampling must happen inside each training fold only (for example with imbalanced-learn's Pipeline). Using more folds does not fix leakage, because every fold would still be contaminated.",
@@ -1866,10 +1866,10 @@ window.AIM.quizzes = {
    "q": "What makes a random forest different from training one big decision tree?",
    "code": "",
    "options": [
-    "It trains many trees on bootstrap samples, lets each split consider a random subset of features, and combines their votes or averages",
-    "It trains one tree and prunes it heavily",
-    "It trains trees one after another, each fixing the previous tree's errors",
-    "It replaces the splits with a straight line"
+    "It combines many trees, each built on a bootstrap sample with random feature subsets",
+    "It trains one deep tree and then prunes it heavily so that it generalises better",
+    "It trains trees one after another, each correcting the previous tree's errors",
+    "It replaces each yes/no split with a straight-line fit, like linear regression"
    ],
    "answer": 0,
    "explain": "Random forest = bagging (bootstrap aggregating: each tree learns from a random sample of rows drawn with replacement) plus a random subset of features at each split, so the trees differ from each other and their combined vote is more stable (lower variance). Training trees one after another to fix earlier errors describes boosting, not random forests.",
@@ -1908,10 +1908,10 @@ window.AIM.quizzes = {
    "q": "A teammate applies StandardScaler to all numeric features before training a random forest. What effect will this usually have on the forest's predictions?",
    "code": "",
    "options": [
-    "Almost none, because tree splits depend only on the order of values, which scaling does not change",
-    "A big improvement, because trees need scaled data",
-    "The forest will fail on negative values",
-    "It turns the forest into a linear model"
+    "Almost none, because tree splits depend only on the order of values",
+    "A big improvement, because trees split poorly on unscaled features",
+    "Errors, because the forest cannot split on the negative scaled values",
+    "It makes the forest behave like a linear model on standardised inputs"
    ],
    "answer": 0,
    "explain": "A tree asks questions like 'is income > 5 lakh?'; scaling only changes the number in the question (for example 'is scaled income > 0.3?') while the same rows go to each side. So tree-based models do not need scaling, unlike KNN, SVM or regularised linear models, which depend on distances or coefficient sizes.",
@@ -1922,13 +1922,13 @@ window.AIM.quizzes = {
    "q": "A bank's policy requires it to tell each rejected loan applicant the main reasons for THEIR rejection. The model is gradient boosting. Which tool fits best?",
    "code": "",
    "options": [
-    "The model's overall feature_importances_ list",
-    "The model's training accuracy",
-    "SHAP values, which show how much each feature pushed this one applicant's score up or down",
-    "A confusion matrix of the test set"
+    "The model's feature_importances_, ranking features across all applicants",
+    "The model's training accuracy, broken down by approved and rejected loans",
+    "SHAP values, showing how much each feature moved this applicant's score",
+    "A confusion matrix of the test set, showing where rejections went wrong"
    ],
    "answer": 2,
-   "explain": "SHAP values (SHapley Additive exPlanations, based on a fair-sharing idea from game theory) split a single prediction into per-feature contributions, such as 'high existing EMI lowered the score by 0.25'. feature_importances_ is tempting, but it only says which features matter on average across all customers, not why this particular person was rejected.",
+   "explain": "SHAP values (SHapley Additive exPlanations, based on a fair-sharing idea from game theory) split a single prediction into per-feature contributions, such as 'high existing EMI lowered the score by 0.25'. feature_importances_ is tempting, but it only says which features matter on average across all applicants, not why this particular person was rejected. Training accuracy and a confusion matrix describe the model as a whole, not one applicant's case.",
    "difficulty": "medium"
   },
   {
@@ -1936,10 +1936,10 @@ window.AIM.quizzes = {
    "q": "You are training LightGBM to forecast Diwali-sale demand for an e-commerce site. You reduce learning_rate from 0.3 to 0.03 to get a more careful model. What else should you usually change?",
    "code": "",
    "options": [
-    "Reduce the number of trees to 10",
-    "Increase the number of trees (n_estimators), ideally with early stopping on a validation set",
-    "Remove all categorical features",
-    "Nothing, because learning rate and number of trees are unrelated"
+    "Reduce n_estimators to about 10, because smaller steps make each tree stronger",
+    "Increase n_estimators, ideally choosing it with early stopping on validation data",
+    "Drop the categorical features, because a low learning rate cannot handle them",
+    "Nothing, because the learning rate and the number of trees do not affect each other"
    ],
    "answer": 1,
    "explain": "In gradient boosting each new tree adds a correction scaled by the learning rate, so with smaller steps you need more trees to reach the same fit. Early stopping (stop adding trees when validation error stops improving) chooses the number automatically. Cutting the number of trees as well would leave the model badly underfitted.",
@@ -1978,13 +1978,13 @@ window.AIM.quizzes = {
    "q": "In a random forest predicting loan default, a randomly assigned 'customer_id' number shows up as the MOST important feature in feature_importances_. What is the best explanation and fix?",
    "code": "",
    "options": [
-    "Customer ID truly causes default, so keep it",
-    "The forest has too few trees; adding more will correct the importance",
-    "Impurity-based importance favours features with many unique values, which trees can use to memorise rows; drop the ID and confirm with permutation importance on validation data",
-    "Random forests cannot read numbers above 1,000, so this is a software bug"
+    "Customer ID truly drives default risk, so keep it as the model's key feature",
+    "The forest has too few trees; adding a few hundred more will fix the scores",
+    "Unique IDs let trees memorise rows; drop it and check permutation importance",
+    "Random forests misread numbers above 1,000, so scale the ID to 0–1 first"
    ],
    "answer": 2,
-   "explain": "The default feature_importances_ (mean decrease in impurity) is measured on training data and is inflated for high-cardinality features (features with many unique values), because trees can split on them to isolate individual rows. Permutation importance (shuffle one feature on validation data and measure how much the score drops) would show the ID is useless. More trees only make the misleading importance more stable, not more correct.",
+   "explain": "The default feature_importances_ (mean decrease in impurity) is measured on training data and is inflated for high-cardinality features (features with many unique values), because trees can split on them to isolate individual rows. Permutation importance (shuffle one feature on validation data and measure how much the score drops) would show the ID is useless. More trees only make the misleading importance more stable, not more correct. Trees split on thresholds, so scaling the ID to 0–1 would not change its importance at all.",
    "difficulty": "hard"
   }
  ],
@@ -2022,10 +2022,10 @@ window.AIM.quizzes = {
    "q": "What is PCA (Principal Component Analysis) mainly used for?",
    "code": "",
    "options": [
-    "Predicting a label from features",
-    "Turning many correlated features into fewer new features that keep most of the variance",
-    "Filling in missing values",
-    "Encoding categories as numbers"
+    "Predicting a target label by finding the features most strongly linked to it",
+    "Compressing many correlated features into a few new ones that keep most variance",
+    "Filling in missing values by estimating them from the other, correlated columns in the data",
+    "Encoding categorical columns as numbers so that models are able to read them"
    ],
    "answer": 1,
    "explain": "PCA finds new axes (principal components) along which the data varies the most, so you can keep the first few and drop the rest with little information lost, which speeds up models and helps visualisation. It is unsupervised: it never looks at a label, so it does not predict anything by itself.",
@@ -2052,7 +2052,7 @@ window.AIM.quizzes = {
    "options": [
     "K-Means uses distances, so the large rupee values dominate; scale both features first",
     "K-Means cannot use more than one feature",
-    "Visits per month is a categorical feature and must be one-hot encoded",
+    "Visits per month is a categorical feature, so it must be one-hot encoded before running K-Means",
     "K must equal 20 to match the range of visits"
    ],
    "answer": 0,
@@ -2064,10 +2064,10 @@ window.AIM.quizzes = {
    "q": "You make a t-SNE plot of 768-dimensional text embeddings (lists of numbers that represent each text) and see three clear groups. Which conclusion is safe?",
    "code": "",
    "options": [
-    "The gaps between the groups show exactly how different they are",
-    "The 2-D t-SNE coordinates are great input features for a production model",
-    "The plot proves there are exactly three classes in the data",
-    "Points close together on the plot were likely close in the original space, but group sizes and gaps can be misleading"
+    "The gaps between the groups show exactly how different the groups really are",
+    "The 2-D t-SNE coordinates make great input features for a production model",
+    "The plot proves the data contains exactly three classes, no more and no fewer",
+    "Nearby points were likely close originally, but group sizes and gaps can mislead"
    ],
    "answer": 3,
    "explain": "t-SNE and UMAP are mainly visualisation tools that try to keep nearby points nearby, so local neighbourhoods are meaningful. Cluster sizes and the gaps between clusters are distorted and change with settings such as perplexity (roughly, how many neighbours each point considers). Reading the gaps as real distances is the most common misreading.",
@@ -2120,10 +2120,10 @@ window.AIM.quizzes = {
    "q": "Ravi flags a UPI transaction as an anomaly if its z-score (distance from the mean, measured in standard deviations) is above 3. What does this code print, and what went wrong?",
    "code": "import numpy as np\n\namt = np.array([500, 520, 480, 510, 495, 505, 5000])   # ₹ per transaction\nz = (amt - amt.mean()) / amt.std()\nprint(round(z[-1], 2), (np.abs(z) > 3).sum())",
    "options": [
-    "8.2 1 : the ₹5,000 transaction is correctly flagged",
-    "2.45 1 : it is flagged because 2.45 rounds up to 3",
-    "2.45 0 : not flagged, because the outlier itself inflates the mean and standard deviation; a robust method (median/IQR or Isolation Forest) works better",
-    "0.0 0 : z-scores are always zero for small datasets"
+    "8.2 1 : the ₹5,000 transaction is far above the mean, so it is correctly flagged",
+    "2.45 1 : it is flagged, because NumPy rounds 2.45 up to 3 before comparing",
+    "2.45 0 : missed, as the outlier inflates the mean and std; median/IQR works better",
+    "0.0 0 : with only seven rows, NumPy returns a z-score of zero for every transaction"
    ],
    "answer": 2,
    "explain": "The ₹5,000 value drags the mean up to about ₹1,144 and inflates the standard deviation to about ₹1,574, so its own z-score is only 2.45 and nothing crosses 3 (count 0). With very few points, a single outlier can never reach a high z-score. Methods based on the median and IQR (interquartile range: the spread of the middle 50% of the data), or Isolation Forest, are not fooled this way.",
@@ -2136,13 +2136,13 @@ window.AIM.quizzes = {
    "q": "A 'city' column has the values Delhi, Mumbai and Chennai, and you are training linear regression. Why is one-hot encoding usually better than mapping them to 0, 1 and 2?",
    "code": "",
    "options": [
-    "One-hot encoding makes the dataset smaller",
-    "Mapping to 0, 1, 2 invents an order (as if Chennai = 2 × Mumbai) that the model will wrongly use",
-    "Linear models cannot read numbers",
-    "pandas does not allow mapping text to numbers"
+    "One-hot encoding makes the dataset smaller, so training runs faster",
+    "Codes 0, 1, 2 invent a fake order, as if Chennai were twice Mumbai",
+    "Linear regression can only use 0/1 inputs, so a value of 2 breaks it",
+    "pandas does not allow mapping a text column to numbers like 0, 1, 2"
    ],
    "answer": 1,
-   "explain": "Cities have no natural order, but numbers do, so a linear model would treat Chennai (2) as 'twice' Mumbai (1). One-hot encoding creates one 0/1 column per city (city_Delhi, city_Mumbai, city_Chennai), so no fake order exists. One-hot actually makes the data wider, not smaller.",
+   "explain": "Cities have no natural order, but numbers do, so a linear model would treat Chennai (2) as 'twice' Mumbai (1). One-hot encoding creates one 0/1 column per city (city_Delhi, city_Mumbai, city_Chennai), so no fake order exists. One-hot actually makes the data wider, not smaller, and both linear regression and pandas handle codes like 2 without any error: the problem is the invented order, not a technical limit.",
    "difficulty": "easy"
   },
   {
@@ -2165,9 +2165,9 @@ window.AIM.quizzes = {
    "code": "",
    "options": [
     "Yesterday's sales, used as a feature to predict today's sales",
-    "Today's sales minus the yearly average",
-    "The average sales over the whole year",
-    "The delay in delivering milk to the store"
+    "Today's sales minus the yearly average, used to remove the trend",
+    "The average daily sales over the whole year, used as a baseline",
+    "The delay in delivering milk to the store, measured in days"
    ],
    "answer": 0,
    "explain": "A lag feature is a past value of the series placed alongside the current row: lag-1 is the previous day's value and lag-7 is the value from the same weekday last week. It lets ordinary ML models use recent history. A whole-year average would include future days, which you would not know at prediction time.",
@@ -2178,13 +2178,13 @@ window.AIM.quizzes = {
    "q": "Why should scaling and imputation (filling missing values) be put inside a scikit-learn Pipeline before calling cross_val_score?",
    "code": "",
    "options": [
-    "Pipelines make the model more accurate on the training data",
-    "Every scikit-learn model refuses to run without a Pipeline",
-    "So that preprocessing is learned only from the training folds in each round, avoiding leakage, and the same steps are reused at prediction time",
-    "Pipelines automatically choose the best algorithm"
+    "Pipelines raise training accuracy by tuning the scaler and imputer together",
+    "Every scikit-learn model refuses to run unless it is wrapped in a Pipeline",
+    "So the scaler and imputer learn only from the training folds, avoiding leakage",
+    "Pipelines automatically pick the best algorithm and the best imputation strategy"
    ],
    "answer": 2,
-   "explain": "When the whole Pipeline is passed to cross-validation, the scaler and imputer are re-fitted on the training folds every time, so the validation fold stays truly unseen. If you scale the full dataset first, the validation rows' mean and spread leak into training. Pipelines do not choose algorithms for you; they just chain the steps reliably.",
+   "explain": "When the whole Pipeline is passed to cross-validation, the scaler and imputer are re-fitted on the training folds every time, so the validation fold stays truly unseen. If you scale the full dataset first, the validation rows' mean and spread leak into training. Pipelines do not choose algorithms for you; they just chain the steps reliably. The same fitted steps are then reused automatically at prediction time.",
    "difficulty": "medium"
   },
   {
@@ -2206,10 +2206,10 @@ window.AIM.quizzes = {
    "q": "You have 2,000 rows and 800 features. A teammate picks the 30 features most correlated with the target using ALL 2,000 rows, then runs 5-fold cross-validation on those 30 features and reports a great score. What is the problem?",
    "code": "",
    "options": [
-    "30 features is too many for 2,000 rows",
-    "Correlation can only be computed for numeric targets",
-    "Nothing; this is the standard approach",
-    "The selection step already saw the validation rows' labels, so the CV score is over-optimistic; selection should happen inside a Pipeline within each fold"
+    "30 features is too many for only 2,000 rows, so the model will overfit whatever features are chosen",
+    "Correlation works only for numeric targets, so the chosen features may be meaningless",
+    "Nothing is wrong; selecting features first and then cross-validating is standard practice",
+    "Selection already saw the validation labels, so CV is over-optimistic; select inside each fold"
    ],
    "answer": 3,
    "explain": "Choosing features using every row's label is data leakage: some features were picked partly because they happen to fit the validation rows. Putting the selector (for example SelectKBest) inside a Pipeline makes each fold choose features from its own training part only. 'Select first, then cross-validate' looks standard, which is exactly why it is such a well-known trap.",
@@ -2220,10 +2220,10 @@ window.AIM.quizzes = {
    "q": "In a Kaggle competition, you keep tweaking your model to climb the public leaderboard. When the private leaderboard is revealed, you drop 300 places. What lesson does this teach?",
    "code": "",
    "options": [
-    "Always submit the model with the best public leaderboard score",
-    "Trust a solid local cross-validation score; the public leaderboard is a small sample that you can overfit by tuning to it",
-    "The private leaderboard is random",
-    "Use fewer features in every competition"
+    "Always submit the model with the best public leaderboard score at the end",
+    "Trust solid local cross-validation; the small public board is easy to overfit",
+    "The private leaderboard is random, so final rankings depend mostly on luck",
+    "Use fewer features in every competition, since extra features always overfit"
    ],
    "answer": 1,
    "explain": "The public leaderboard is scored on a small part of the test data, so many small tweaks that 'win' there may just fit its noise, which is overfitting to the leaderboard. A careful local cross-validation that mirrors the competition's split is a more reliable guide ('trust your CV'). The private leaderboard is not random; it simply exposes that overfitting.",
@@ -2278,10 +2278,10 @@ window.AIM.quizzes = {
    "q": "A Bengaluru quick-commerce startup wants to predict whether an order will be delivered late (yes/no). It has 1 lakh past orders, and 8% of them were late. Which setup is most appropriate?",
    "code": "",
    "options": [
-    "Linear regression on the yes/no column, judged by R²",
-    "A classifier with a stratified train/validation/test split, judged by precision, recall and PR-AUC for the 'late' class",
-    "K-Means with K = 2, judged by inertia",
-    "A classifier judged only by accuracy, since 92% is an easy target to beat"
+    "Linear regression on the yes/no column, judged by R² on a random split",
+    "A classifier on a stratified split, judged by precision, recall and PR-AUC",
+    "K-Means with K = 2 on the order features, judged by the lowest possible inertia",
+    "A classifier judged only by accuracy, since 92% should be easy to beat"
    ],
    "answer": 1,
    "explain": "This is binary classification with an imbalanced target (8% late). A stratified split keeps the 8% share in every part, and precision, recall and PR-AUC show how well 'late' orders are caught. Accuracy is the trap: a model that always says 'on time' already scores 92% while catching zero late orders.",
@@ -2306,10 +2306,10 @@ window.AIM.quizzes = {
    "q": "A telecom company's churn model shows 99% validation accuracy. One feature is 'number of days since the SIM was deactivated'. What should you do before deployment?",
    "code": "",
    "options": [
-    "Remove that feature: it is only known after a customer has already left, so it leaks the answer",
-    "Deploy it: 99% validation accuracy proves the model generalises",
-    "Keep the feature but standardise it so it does not dominate",
-    "Run 10-fold cross-validation to confirm the 99%, then deploy"
+    "Remove that feature: its value exists only after a customer leaves",
+    "Deploy it: 99% validation accuracy proves the model will generalise",
+    "Keep the feature but standardise it so its large values do not dominate",
+    "Run 10-fold cross-validation to confirm the 99%, and then deploy it"
    ],
    "answer": 0,
    "explain": "'Days since SIM deactivated' exists only after a customer has churned, so it is target leakage; while the customer is still active (when you need the prediction) the value is not available, and real accuracy will crash. Re-checking with 10-fold cross-validation is tempting, but it would also show about 99% because every fold contains the same leaked feature. Scaling changes units, not the leak.",
@@ -2334,13 +2334,13 @@ window.AIM.quizzes = {
    "q": "The labels y are pure coin flips, so there is NO real pattern to learn. The code prints two cross-validation accuracies, a and b. What do you see, and why?",
    "code": "import numpy as np\nfrom sklearn.feature_selection import SelectKBest\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import cross_val_score\nfrom sklearn.pipeline import make_pipeline\n\nrng = np.random.default_rng(0)\nX = rng.normal(size=(100, 5000))\ny = rng.integers(0, 2, size=100)         # labels are pure coin flips\n\nX_sel = SelectKBest(k=20).fit_transform(X, y)\na = cross_val_score(LogisticRegression(), X_sel, y, cv=5).mean()\npipe = make_pipeline(SelectKBest(k=20), LogisticRegression())\nb = cross_val_score(pipe, X, y, cv=5).mean()\nprint(round(a, 2), round(b, 2))",
    "options": [
-    "a ≈ 0.85 and b ≈ 0.48: a is inflated because SelectKBest saw every label before cross-validation; b is the honest score",
-    "Both near 0.5, because the labels are random",
-    "a ≈ 0.48 and b ≈ 0.85, because the Pipeline overfits",
-    "Both near 0.85, because 5,000 features can learn anything"
+    "a ≈ 0.85 and b ≈ 0.48: SelectKBest saw all labels before CV, so a is inflated",
+    "Both ≈ 0.5: the labels are random, so no feature selection can find a pattern",
+    "a ≈ 0.48 and b ≈ 0.85: the Pipeline overfits because it refits on every fold",
+    "Both ≈ 0.85: with 5,000 features, logistic regression can fit any set of labels"
    ],
    "answer": 0,
-   "explain": "For a, SelectKBest picked the 20 columns (out of 5,000 random ones) that best matched all 100 labels, including the labels of rows later used for validation, so cross-validation scores about 0.85 on pure noise. For b, the selector sits inside the Pipeline and is re-fitted on each training fold, so validation rows stay unseen and the score is about 0.48, coin-flip level, which is the truth. 'Both near 0.5' is what should happen, and it is exactly the leak that stops a from doing so.",
+   "explain": "The code prints 0.85 0.48. For a, SelectKBest picked the 20 columns (out of 5,000 random ones) that best matched all 100 labels, including the labels of rows later used for validation, so cross-validation scores about 0.85 on pure noise. For b, the selector sits inside the Pipeline and is re-fitted on each training fold, so validation rows stay unseen and the score is about 0.48, coin-flip level, which is the honest result. 'Both ≈ 0.5' is what should happen, and the leak is exactly what stops a from getting there. Many features let a model fit its training labels, but cross-validation scores held-out rows, so that alone cannot push b to 0.85.",
    "difficulty": "hard"
   },
   {
@@ -2348,13 +2348,13 @@ window.AIM.quizzes = {
    "q": "A Chennai NBFC (non-banking finance company) has 50,000 loan records with 40 mixed numeric and categorical columns and some missing values. It wants the most accurate default-risk model it can get from this tabular data. Which is the strongest first choice to try?",
    "code": "",
    "options": [
-    "K-Nearest Neighbours on unscaled data",
-    "Gaussian Naive Bayes",
-    "A single unpruned decision tree",
+    "K-Nearest Neighbours run on the raw, unscaled numeric columns",
+    "Gaussian Naive Bayes, treating every column as independent",
+    "A single deep decision tree grown with no pruning at all",
     "Gradient-boosted trees such as XGBoost, LightGBM or CatBoost"
    ],
    "answer": 3,
-   "explain": "Gradient-boosted trees are usually the top performers on tabular data: they capture non-linear patterns and feature interactions, need no scaling, and these libraries handle missing values natively (some also handle categorical columns directly). A single unpruned tree overfits badly, and KNN on unscaled mixed features would be dominated by whichever columns have the largest numbers.",
+   "explain": "Gradient-boosted trees are usually the top performers on tabular data: they capture non-linear patterns and feature interactions, need no scaling, and these libraries handle missing values natively (some also handle categorical columns directly). A single unpruned tree overfits badly, and KNN on unscaled mixed features would be dominated by whichever columns have the largest numbers. Gaussian Naive Bayes assumes the columns are independent and normally distributed, which rarely holds for loan data.",
    "difficulty": "medium"
   },
   {
@@ -2376,10 +2376,10 @@ window.AIM.quizzes = {
    "q": "A Jaipur handicrafts e-store wants to group its 20,000 customers for a Diwali campaign. There are no labels. Which plan is most sensible?",
    "code": "",
    "options": [
-    "Build RFM features (recency, frequency, monetary), scale them, run K-Means, and choose K using the elbow method and silhouette score",
-    "Train logistic regression to predict each customer's segment",
-    "Run K-Means using the customer ID as the only feature",
-    "Run PCA and treat each principal component as one customer segment"
+    "Build scaled RFM features (recency, frequency, monetary), run K-Means, pick K by elbow and silhouette",
+    "Train logistic regression on purchase history to predict each customer's segment directly",
+    "Run K-Means with customer ID as the only feature and set K to the number of product categories sold",
+    "Run PCA on the purchase data and treat each principal component as one customer segment"
    ],
    "answer": 0,
    "explain": "Without labels this is an unsupervised problem. RFM features capture buying behaviour, scaling stops the rupee column from dominating distances, and the elbow method plus the silhouette score (how well each point fits its own cluster compared with the next-nearest one) help choose K. Logistic regression needs known segment labels to learn from, which the store does not have.",
@@ -2390,13 +2390,13 @@ window.AIM.quizzes = {
    "q": "A colleague runs PCA on raw (unscaled) income and age. What does this code print, and what went wrong?",
    "code": "import numpy as np\nfrom sklearn.decomposition import PCA\n\nrng = np.random.default_rng(1)\nincome = rng.normal(800000, 200000, 200)   # ₹ per year\nage = rng.normal(35, 10, 200)              # years\nX = np.column_stack([income, age])\nprint(PCA().fit(X).explained_variance_ratio_.round(3))",
    "options": [
-    "[0.5 0.5] : both features matter equally",
-    "[0. 1.] : age dominates because its numbers are smaller",
-    "[0.8 0.2] : PCA worked correctly on the raw data",
-    "[1. 0.] : the first component is almost entirely income only because its numbers are huge; standardise features before PCA"
+    "[0.5 0.5] : both features carry equal variance, so both matter equally",
+    "[0. 1.] : age dominates because its smaller numbers vary more in relative terms",
+    "[0.8 0.2] : PCA worked correctly, and income is four times as useful as age",
+    "[1. 0.] : income's huge numbers swamp the variance; standardise before PCA"
    ],
    "answer": 3,
-   "explain": "PCA looks for the directions of greatest variance, and income varies by lakhs of rupees while age varies by tens of years, so income's variance is hundreds of millions of times larger and the first component is basically 'income'. That says nothing about which feature is more useful; it is just a units effect. Standardising (mean 0, standard deviation 1) gives each feature a fair chance.",
+   "explain": "The code prints [1. 0.]. PCA looks for the directions of greatest variance. Income varies by lakhs of rupees while age varies by tens of years, so income's variance is hundreds of millions of times larger (about 4×10^8 here) and the first component is basically just 'income'. That says nothing about which feature is more useful; it is a units effect. Standardising first (mean 0, standard deviation 1, e.g. with StandardScaler) gives each feature a fair chance.",
    "difficulty": "hard"
   },
   {
@@ -2418,10 +2418,10 @@ window.AIM.quizzes = {
    "q": "You are forecasting daily onion prices at a Nashik mandi using lag and rolling features. How should you cross-validate the model?",
    "code": "",
    "options": [
-    "Shuffled KFold, so every fold has a mix of all seasons",
-    "Hold out a random 20% of days",
-    "TimeSeriesSplit: each fold trains on earlier days and validates on the days right after",
-    "StratifiedKFold on the price column"
+    "Shuffled KFold, so that every fold has a mix of all the seasons",
+    "Hold out a random 20% of days spread across the whole year",
+    "TimeSeriesSplit: train on earlier days, validate on the days after",
+    "StratifiedKFold on the price column, so each fold has similar prices"
    ],
    "answer": 2,
    "explain": "TimeSeriesSplit always validates on data that comes after the training data, exactly as in real forecasting. Shuffled KFold is tempting because it 'mixes seasons', but it lets the model learn from future days (and from lag features that overlap the validation days), which inflates the score. Stratification is meant for class labels, not a continuous price.",
@@ -2432,13 +2432,13 @@ window.AIM.quizzes = {
    "q": "You need a feature to predict today's sales (the last row, 11). What does this code print, and which value is safe to use as the feature?",
    "code": "import pandas as pd\n\nsales = pd.Series([5, 7, 9, 11])   # today's sales = 11 (last row)\na = sales.rolling(3).mean().iloc[-1]\nb = sales.shift(1).rolling(3).mean().iloc[-1]\nprint(a, b)",
    "options": [
-    "Prints 9.0 7.0; use b (7.0), because a includes today's own sales, which you won't know when predicting",
-    "Prints 9.0 7.0; use a (9.0), because it is the more recent average",
-    "Prints 7.0 9.0; use b (9.0), the shifted one",
-    "Prints 9.0 9.0; shifting makes no difference"
+    "Prints 9.0 7.0; use b, because a already includes today's sales of 11",
+    "Prints 9.0 7.0; use a, because it is the more recent 3-day average",
+    "Prints 7.0 9.0; use b, because shifting moves the window a day ahead",
+    "Prints 9.0 9.0; use either, because shifting does not change a mean"
    ],
    "answer": 0,
-   "explain": "a = mean(7, 9, 11) = 9.0 includes today's value 11, so using it to predict today's sales leaks the answer. b shifts first, so it is mean(5, 7, 9) = 7.0, built only from the three previous days, which you would actually know in the morning. Choosing a because it is 'more recent' is exactly how rolling-feature leakage sneaks into projects.",
+   "explain": "a = mean(7, 9, 11) = 9.0, and that window includes today's value of 11, so using it to predict today's sales leaks the answer. b shifts the series first, so its last window is mean(5, 7, 9) = 7.0. That uses only the three previous days, which you would actually know before today's sales come in. Picking a because it is 'more recent' is exactly how leakage gets into rolling features.",
    "difficulty": "hard"
   },
   {
@@ -2488,10 +2488,10 @@ window.AIM.quizzes = {
    "q": "Which statement about adding more trees is correct?",
    "code": "",
    "options": [
-    "Adding more trees to a random forest steadily causes overfitting, so keep it under 50",
+    "In a random forest, more trees steadily cause overfitting, so keep it under 50",
     "More trees help both random forests and gradient boosting forever, with no risk",
-    "In a random forest, more trees mostly just stabilise the averaged prediction, while in gradient boosting too many rounds can overfit, so use early stopping",
-    "The number of trees has no effect in either method"
+    "More trees mostly stabilise a random forest, but too many boosting rounds overfit",
+    "The number of trees has no real effect on accuracy in either forests or boosting"
    ],
    "answer": 2,
    "explain": "A random forest averages independently grown trees, so adding more reduces variance until the score plateaus; the main cost is compute time. Gradient boosting adds trees that keep correcting the remaining errors, so after a point they start fitting noise, and early stopping on a validation set picks the right number. The belief that 'more trees overfit' is true for boosting, not for random forests.",
@@ -2502,10 +2502,10 @@ window.AIM.quizzes = {
    "q": "A team tried 200 hyperparameter combinations and picked the one with the best score on the TEST set, reporting 94% accuracy. In production the model gets 86%. What went wrong?",
    "code": "",
    "options": [
-    "200 combinations is too few",
-    "The test set was used for model selection, so it was no longer unseen and 94% was over-optimistic; tune with a validation set or cross-validation and use the test set once at the end",
-    "Production data is always about 8% worse",
-    "They should have chosen by training-set accuracy instead"
+    "200 combinations is too few; they needed to try thousands more",
+    "The test set was used to pick the model, so 94% was over-optimistic",
+    "Production data is always about 8% worse, so this drop is expected",
+    "They should have picked the model by its training-set accuracy"
    ],
    "answer": 1,
    "explain": "Every time you choose based on the test score, a little information about the test set leaks into your decisions, and after 200 tries the 'winner' is partly just lucky on those particular rows. Hyperparameters should be chosen with a validation set or cross-validation (for example GridSearchCV on the training data), keeping the test set for one final, honest check. Choosing by training accuracy would be even more optimistic.",
@@ -2516,13 +2516,13 @@ window.AIM.quizzes = {
    "q": "What does this code print, and how should you read it?",
    "code": "import numpy as np\nfrom sklearn.cluster import DBSCAN\n\nX = np.array([[1.0], [1.2], [1.4], [5.0], [5.1], [5.3], [12.0]])\nprint(DBSCAN(eps=0.5, min_samples=2).fit(X).labels_)",
    "options": [
-    "[0 0 0 1 1 1 2] : three clusters",
-    "[ 0  0  0  1  1  1 -1] : two clusters, and 12.0 is labelled noise (a possible anomaly)",
-    "[0 0 0 0 0 0 0] : everything is one cluster",
-    "[-1 -1 -1 -1 -1 -1 -1] : eps is too small for any cluster"
+    "[0 0 0 1 1 1 2] : three clusters, with 12.0 forming a small third cluster of its own",
+    "[ 0  0  0  1  1  1 -1] : two clusters, with 12.0 labelled noise (a possible anomaly)",
+    "[0 0 0 0 0 0 0] : one cluster, since DBSCAN chains every point into a single group",
+    "[-1 -1 -1 -1 -1 -1 -1] : all noise, because eps = 0.5 is too small to form clusters"
    ],
    "answer": 1,
-   "explain": "With eps = 0.5, the points 1.0, 1.2 and 1.4 are within reach of each other and form cluster 0, and 5.0, 5.1 and 5.3 form cluster 1. The point 12.0 has no other point within 0.5, so it cannot reach min_samples = 2 (which counts the point itself) and gets the special label -1, meaning noise. Expecting 12.0 to form a third cluster of its own is the common mistake.",
+   "explain": "Running the code prints [ 0  0  0  1  1  1 -1]. With eps = 0.5, the points 1.0, 1.2 and 1.4 are all within 0.5 of a neighbour, so they form cluster 0. The points 5.0, 5.1 and 5.3 form cluster 1 in the same way. The gap from 1.4 to 5.0 is 3.6, far more than eps, so the two groups cannot chain into one. The point 12.0 has no other point within 0.5, so its neighbourhood holds only itself and cannot reach min_samples = 2 (which counts the point itself). DBSCAN gives it the special label -1, meaning noise, which you can treat as a possible anomaly. Unlike k-means, DBSCAN does not put an isolated point in a cluster of its own, so expecting 12.0 to form a third cluster is the common mistake. eps is not too small here either, because each tight group is easily dense enough to form a cluster.",
    "difficulty": "hard"
   },
   {
@@ -2530,13 +2530,13 @@ window.AIM.quizzes = {
    "q": "A customer-support system in Hyderabad sorts complaints into 6 categories. Two categories (fraud reports and legal notices) are rare but very important. Which single score best reflects performance on ALL categories equally?",
    "code": "",
    "options": [
-    "Overall accuracy",
-    "Micro-averaged precision",
-    "Macro-averaged F1 (each class's F1 averaged with equal weight)",
-    "Training-set accuracy"
+    "Overall accuracy (share of all complaints sorted correctly)",
+    "Micro-averaged precision (all predictions pooled together)",
+    "Macro-averaged F1 (each class's F1 given equal weight)",
+    "Training-set accuracy (scored on the data it learned from)"
    ],
    "answer": 2,
-   "explain": "Macro F1 computes F1 separately for each class and then averages them with equal weight, so doing badly on the rare fraud class clearly pulls the score down. Overall accuracy, and micro-averaging (which pools all predictions together), are dominated by the big classes, so a model could ignore the rare ones and still look good.",
+   "explain": "Macro F1 computes F1 separately for each class and then averages them with equal weight, so doing badly on the rare fraud class clearly pulls the score down. Overall accuracy, and micro-averaging (which pools all predictions together), are dominated by the big classes, so a model could ignore the rare ones and still look good. Training-set accuracy only shows how well the model fits complaints it has already seen.",
    "difficulty": "medium"
   },
   {
@@ -2544,13 +2544,13 @@ window.AIM.quizzes = {
    "q": "An SVM with an RBF kernel and gamma = 100 gets 100% training accuracy but 58% validation accuracy on a medical dataset. Which change is most likely to help?",
    "code": "",
    "options": [
-    "Increase gamma to 1,000 so it fits even better",
-    "Switch off feature scaling",
-    "Evaluate on the training set instead",
-    "Decrease gamma (and possibly C) so the decision boundary becomes smoother"
+    "Increase gamma to 1,000 so the boundary fits the data even better",
+    "Switch off feature scaling so the kernel works on the raw values",
+    "Judge the model on training accuracy, since validation data is noisy",
+    "Decrease gamma (and possibly C) so the boundary becomes smoother"
    ],
    "answer": 3,
-   "explain": "gamma controls how far each training point's influence reaches in an RBF kernel: a very high gamma gives each point a tiny island of influence, so the boundary wraps tightly around individual points (overfitting). Lowering gamma, and lowering C (which sets how strongly training mistakes are penalised), gives a smoother, more general boundary. Increasing gamma would make the overfitting worse.",
+   "explain": "gamma controls how far each training point's influence reaches in an RBF kernel: a very high gamma gives each point a tiny island of influence, so the boundary wraps tightly around individual points (overfitting). Lowering gamma, and lowering C (which sets how strongly training mistakes are penalised), gives a smoother, more general boundary. Increasing gamma would make the overfitting worse, and judging on training accuracy only hides the problem.",
    "difficulty": "hard"
   }
  ],
@@ -2560,13 +2560,13 @@ window.AIM.quizzes = {
    "q": "A friend builds a neural network with five hidden layers but forgets to add any activation function, so every layer only computes weights × inputs + bias. What is the problem?",
    "code": "",
    "options": [
-    "The network will train more slowly, but in the end it will be just as powerful",
-    "The network will not be able to produce any output at all",
-    "All the layers together still behave like one single linear layer, so the network cannot learn curved (non-linear) patterns",
-    "The network will overfit because it has too many non-linear layers"
+    "It will just train more slowly, but in the end it will be equally powerful",
+    "It cannot produce any output, since values only pass on through activations",
+    "The layers collapse into one linear layer, so it can't learn curved patterns",
+    "It will overfit, because five non-linear layers give it far too much power"
    ],
    "answer": 2,
-   "explain": "A linear function of a linear function is still linear, so five stacked layers without activations collapse into the same thing as one linear layer. Activation functions such as ReLU (which outputs max(0, x)) add the non-linearity that lets a network learn curved decision boundaries. The network still trains and gives outputs, so 'slower but equally powerful' is the tempting wrong idea: no amount of training adds power that the maths does not allow.",
+   "explain": "A linear function of a linear function is still linear, so five stacked layers without activations collapse into the same thing as one linear layer. Activation functions such as ReLU (which outputs max(0, x)) add the non-linearity that lets a network learn curved decision boundaries. The network still trains and gives outputs, and it has no non-linear layers at all, so it cannot overfit for that reason. 'Slower but equally powerful' is the tempting wrong idea: no amount of training adds power that the maths does not allow.",
    "difficulty": "easy"
   },
   {
@@ -2588,10 +2588,10 @@ window.AIM.quizzes = {
    "q": "What does weight decay do while training a neural network?",
    "code": "",
    "options": [
-    "It slowly reduces the learning rate after every epoch",
-    "It shrinks every weight slightly on each update (like a penalty on large weights), pushing weights towards smaller values so the model is less likely to overfit",
-    "It deletes neurons whose weights are close to zero",
-    "It makes the weights grow over time so the network learns faster"
+    "It lowers the learning rate a little after every epoch, so the steps get smaller",
+    "It shrinks every weight slightly on each update, which helps reduce overfitting",
+    "It deletes neurons whose weights are near zero, so the network becomes smaller",
+    "It makes the weights grow a little on each step, so the network learns faster"
    ],
    "answer": 1,
    "explain": "Weight decay pulls every weight a little towards zero on each update, so a weight stays large only if the data really needs it. Smaller weights give a smoother, simpler function that generalises better (works better on unseen data). With plain SGD this is exactly the same as adding an L2 penalty (the sum of squared weights) to the loss. With adaptive optimisers like Adam the two behave differently, which is why AdamW applies the decay directly to the weights. Do not confuse it with learning-rate decay, which changes the step size over time and does not shrink the weights at all.",
@@ -2616,10 +2616,10 @@ window.AIM.quizzes = {
    "q": "Meera trains a network with a learning rate of 1.0. After a few batches the printed loss becomes 'nan' (not a number). What is the most likely cause and fix?",
    "code": "",
    "options": [
-    "The model has too few layers, so she should add more hidden layers",
-    "The updates are far too large, so the weights and gradients blow up (explode); she should lower the learning rate and consider gradient clipping",
-    "The dataset has too many rows, so she should train on a smaller sample",
-    "She scaled the input features to similar ranges, so she should remove the scaling"
+    "The network is too shallow; she should add several more hidden layers",
+    "The steps are too big and the weights explode; lower the learning rate",
+    "The dataset is too big; she should train on a smaller random sample of rows",
+    "Her inputs are scaled to similar ranges; she should undo the scaling"
    ],
    "answer": 1,
    "explain": "With a very large learning rate each step overshoots the minimum, the loss and weights grow bigger with every step, and soon the numbers overflow into 'nan'. Lowering the learning rate (for example to 0.001 with Adam) and using gradient clipping (capping the size of gradients before each update) are the standard fixes. Adding layers usually makes exploding values worse, and scaling the inputs actually helps prevent this problem rather than causing it.",
@@ -2630,13 +2630,13 @@ window.AIM.quizzes = {
    "q": "Arjun trains with plain SGD and sees the loss zig-zag from side to side down a narrow valley instead of moving smoothly downhill. Which change is designed for exactly this problem?",
    "code": "",
    "options": [
-    "Add momentum, so each update also carries a running average of past gradients that cancels the zig-zag and speeds up progress along the valley",
-    "Remove the bias terms from every layer",
-    "Compute the loss on a larger batch of test data",
-    "Switch the activation function from ReLU to sigmoid"
+    "Add momentum, so each update uses a running average of past gradients that damps the zig-zag",
+    "Remove the bias terms from every layer so that the gradients point more directly downhill each step",
+    "Compute the loss on a larger batch of test data so that each gradient step is more accurate",
+    "Switch the activation from ReLU to sigmoid so that the gradients become smaller and smoother"
    ],
    "answer": 0,
-   "explain": "Momentum keeps a moving average of recent gradients, like a ball rolling downhill that keeps its speed. The side-to-side parts of the zig-zag point in opposite directions and cancel out, while the steady downhill part adds up, so training becomes smoother and faster. Adam combines this momentum idea with a separate adaptive step size for each weight, which is why it is a popular default; switching to sigmoid would not fix the path and can cause vanishing gradients.",
+   "explain": "Momentum keeps a moving average of recent gradients, like a ball rolling downhill that keeps its speed. The side-to-side parts of the zig-zag point in opposite directions and cancel out, while the steady downhill part adds up, so training becomes smoother and faster. Adam combines this momentum idea with a separate adaptive step size for each weight, which is why it is a popular default; removing biases or using test data does not change the path, and switching to sigmoid can cause vanishing gradients.",
    "difficulty": "medium"
   },
   {
@@ -2644,10 +2644,10 @@ window.AIM.quizzes = {
    "q": "A 25-layer network uses sigmoid activations everywhere. During training, the last few layers change, but the weights in the first layers barely move at all. What is happening, and what is a common fix?",
    "code": "",
    "options": [
-    "Exploding gradients; increase the learning rate of the first layers",
-    "Overfitting; add dropout to the first layers",
-    "Vanishing gradients; switch to ReLU-type activations and use good initialisation, batch normalisation or residual (skip) connections",
-    "The first layers have already learned perfectly, so nothing needs to change"
+    "Exploding gradients; raise the learning rate of the first layers to compensate",
+    "Overfitting; add dropout to the first layers so they stop memorising the data",
+    "Vanishing gradients; use ReLU-type activations, residual connections or batch norm",
+    "Nothing is wrong; the first layers already learned perfectly and need no change"
    ],
    "answer": 2,
    "explain": "During backpropagation the gradient is multiplied by the sigmoid's slope at every layer, and that slope is at most 0.25, so after 25 layers the signal reaching the first layers is tiny (vanishing gradients). ReLU has a slope of 1 for positive inputs, and He initialisation (starting weights at a suitable scale), batch normalisation and residual connections all keep gradients healthy. Exploding gradients show the opposite symptom: huge, unstable updates or 'nan' losses.",
@@ -2702,13 +2702,13 @@ window.AIM.quizzes = {
    "q": "In PyTorch, what does autograd do for you?",
    "code": "",
    "options": [
-    "It automatically chooses the best learning rate for your model",
-    "It records the operations done on tensors that have requires_grad=True and computes their gradients automatically when you call backward()",
-    "It converts your NumPy arrays into tensors",
-    "It moves your model to the GPU whenever one is available"
+    "It tunes the learning rate automatically based on how fast the loss falls",
+    "It records operations on tensors and computes their gradients on backward()",
+    "It converts NumPy arrays into tensors so they can be fed into a neural network",
+    "It moves the model and the data to the GPU whenever one is available"
    ],
    "answer": 1,
-   "explain": "Autograd (automatic differentiation) builds a graph of every operation as you compute the loss; calling backward() then walks that graph in reverse using the chain rule and stores each gradient in the tensor's .grad attribute. This saves you from working out gradients by hand for millions of weights. Choosing the learning rate and moving data or models to the GPU are still your job.",
+   "explain": "Autograd (automatic differentiation) builds a graph of every operation on tensors with requires_grad=True as you compute the loss; calling backward() then walks that graph in reverse using the chain rule and stores each gradient in the tensor's .grad attribute. This saves you from working out gradients by hand for millions of weights. Choosing the learning rate and moving data or models to the GPU are still your job.",
    "difficulty": "easy"
   },
   {
@@ -2716,13 +2716,13 @@ window.AIM.quizzes = {
    "q": "You have a PyTorch Dataset of 10,000 photos of handwritten Hindi characters. What does wrapping it in a DataLoader give you?",
    "code": "",
    "options": [
-    "It trains the model on the photos automatically",
-    "It splits the data into training and test sets for you",
-    "It labels any photos that do not have labels yet",
-    "It serves the data in mini-batches, can shuffle the order every epoch, and can load batches in parallel"
+    "It runs the training loop on the photos automatically, epoch by epoch",
+    "It splits the photos into training and test sets, using 80:20 by default",
+    "It labels any unlabelled photos using the classes it has already seen",
+    "It serves mini-batches, can reshuffle each epoch and can load in parallel"
    ],
    "answer": 3,
-   "explain": "A Dataset knows how to return one sample (through its __len__ and __getitem__ methods), while a DataLoader groups samples into mini-batches, reshuffles them each epoch when shuffle=True, and can use several worker processes to prepare data while the GPU trains. It does not split data: you create the training and validation sets yourself (for example with random_split) and give each its own DataLoader. The training itself still happens in your own loop.",
+   "explain": "A Dataset knows how to return one sample (through its __len__ and __getitem__ methods), while a DataLoader groups samples into mini-batches, reshuffles them each epoch when shuffle=True, and can use several worker processes to prepare data while the GPU trains. It does not split data: you create the training and validation sets yourself (for example with random_split) and give each its own DataLoader. It never creates labels, and the training itself still happens in your own loop.",
    "difficulty": "easy"
   },
   {
@@ -2744,13 +2744,13 @@ window.AIM.quizzes = {
    "q": "On a Colab GPU you call model.to('cuda'), but the first training step crashes with: 'Expected all tensors to be on the same device, but found at least two devices, cuda:0 and cpu!'. What is the fix?",
    "code": "",
    "options": [
-    "Reduce the batch size, because the GPU has run out of memory",
-    "Restart the runtime and reinstall PyTorch",
-    "Inside the loop, move every batch to the same device as the model, for example images = images.to(device) and labels = labels.to(device)",
-    "Move the model back to the CPU, because Colab GPUs cannot train models"
+    "Reduce the batch size, because the GPU has run out of memory for these tensors",
+    "Restart the Colab runtime and reinstall PyTorch, because the CUDA setup is broken",
+    "Inside the loop, move every batch to the model's device, e.g. x = x.to(device)",
+    "Move the model back to the CPU, because free Colab GPUs cannot run training"
    ],
    "answer": 2,
-   "explain": "The model's weights are on the GPU, but the batches coming out of the DataLoader are still on the CPU, and PyTorch will not mix devices in one operation. The usual pattern is to set device = 'cuda' if torch.cuda.is_available() else 'cpu' and send both the model and every batch to that device. Running out of memory gives a different error ('CUDA out of memory'), so reducing the batch size will not help here.",
+   "explain": "The model's weights are on the GPU, but the batches coming out of the DataLoader are still on the CPU, and PyTorch will not mix devices in one operation. The usual pattern is to set device = 'cuda' if torch.cuda.is_available() else 'cpu' and send both the model and every batch (images and labels) to that device. Running out of memory gives a different error ('CUDA out of memory'), so reducing the batch size will not help here.",
    "difficulty": "medium"
   },
   {
@@ -2758,13 +2758,13 @@ window.AIM.quizzes = {
    "q": "Ankit's training loop does this for every batch: compute the outputs, compute the loss, call loss.backward(), then call optimizer.step(). He never calls optimizer.zero_grad(). What happens?",
    "code": "",
    "options": [
-    "Gradients from every batch keep adding up in .grad, so each update uses a growing sum of old gradients and training becomes unstable",
-    "Nothing, because optimizer.step() resets the gradients automatically",
-    "PyTorch raises an error on the second batch",
-    "The gradients become zero, so the model stops learning"
+    "Gradients keep adding up in .grad across batches, so the updates go wrong",
+    "Nothing changes, because optimizer.step() clears the gradients automatically",
+    "PyTorch raises a RuntimeError on the second batch about stale gradients",
+    "The gradients reset to zero after each batch, so the model stops learning"
    ],
    "answer": 0,
-   "explain": "In PyTorch, backward() adds new gradients to whatever is already stored in each parameter's .grad instead of replacing it. Without zero_grad() at the start of every iteration, the update on batch 10 uses the sum of the gradients from batches 1 to 10, so the steps become wrong and often blow up. step() only reads the gradients and does not clear them, which is why the tempting 'nothing happens' answer is wrong.",
+   "explain": "In PyTorch, backward() adds new gradients to whatever is already stored in each parameter's .grad instead of replacing it. Without zero_grad() at the start of every iteration, the update on batch 10 uses the sum of the gradients from batches 1 to 10, so the steps become wrong and often blow up. step() only reads the gradients and does not clear them, which is why the tempting 'nothing happens' answer is wrong. PyTorch raises no error, which is what makes this bug easy to miss.",
    "difficulty": "medium"
   },
   {
@@ -2772,10 +2772,10 @@ window.AIM.quizzes = {
    "q": "Yesterday you mounted Google Drive in Colab and saved your crop-disease model with p = '/content/drive/MyDrive/crop_model.pt' and torch.save(model.state_dict(), p). Today, in a fresh Colab session, you mount Drive again. What is the correct way to use the saved model for predictions?",
    "code": "",
    "options": [
-    "Run model = torch.load(p) and then call model(images) directly",
-    "Open the file with numpy.load, because PyTorch saves weights as NumPy arrays",
-    "Retrain the model, because a state_dict stores only the training settings, not the weights",
-    "Build the model from the same class (same architecture), call model.load_state_dict(torch.load(p, map_location='cpu')), then call model.eval() before predicting"
+    "Run model = torch.load(p), which returns the full trained model, and then call model(images) directly",
+    "Load the file with numpy.load, because torch.save stores the weights as plain NumPy arrays",
+    "Retrain from scratch, because a state_dict stores only training settings like the learning rate",
+    "Rebuild the same model class, call load_state_dict(torch.load(p, map_location='cpu')), then eval()"
    ],
    "answer": 3,
    "explain": "A state_dict is a dictionary of tensors that holds the learned weights, but not the model's code. So you first rebuild an identical model object, load the saved weights into it with load_state_dict, and switch to evaluation mode with eval() so that dropout and batch norm behave correctly at prediction time. map_location='cpu' lets weights saved on a GPU load even when today's session has no GPU. The tempting option, model = torch.load(p), gives back only that dictionary, not a ready model, so calling model(images) fails with an error. Also note that saving to a plain filename such as 'crop_model.pt' writes to /content, which Colab wipes between sessions; that is why the full path inside the mounted Drive matters.",
@@ -2787,9 +2787,9 @@ window.AIM.quizzes = {
    "code": "",
    "options": [
     "The model needs more data, so she should start training on all 50,000 images",
-    "Something is broken in the pipeline (for example labels not matching images, a wrong loss, or weights not updating), so she should fix it before full training",
-    "The model is overfitting, so she should add dropout",
-    "This is normal, because a model can never memorise a single small batch"
+    "Something in the pipeline (labels, loss or weight updates) is broken; fix it first",
+    "The model is overfitting this tiny batch, so she should add dropout and retry",
+    "This is normal, because no model can memorise a single small batch of images"
    ],
    "answer": 1,
    "explain": "A healthy model should easily memorise 8 examples and drive the loss close to zero, so this 'overfit one batch' test is a quick bug detector. If it fails, the problem is usually in the code: mismatched labels, a wrong loss or output shape, a missing optimizer.step(), or a learning rate that is far off. More data will not help, because the model cannot even learn the few examples it already has.",
@@ -2844,10 +2844,10 @@ window.AIM.quizzes = {
    "q": "Why do convolutional neural networks (CNNs) usually work much better on images than plain fully connected networks fed with raw pixels?",
    "code": "",
    "options": [
-    "Small filters slide across the image and reuse the same weights everywhere, so they detect local patterns like edges anywhere in the picture with far fewer parameters",
-    "CNNs do not need any labelled training data",
-    "CNNs first turn the image into a text description, which is easier to classify",
-    "CNNs give every pixel its own separate weight in every neuron, so they have more parameters to capture detail"
+    "Small filters reuse the same weights everywhere, catching local patterns with few parameters",
+    "They learn their filters without any labels, so they need no annotated training images",
+    "They first turn each image into a text description, which is much easier to classify",
+    "They give every pixel its own weight in every neuron, so they can capture finer detail"
    ],
    "answer": 0,
    "explain": "A convolution filter (a small grid of weights, such as 3×3) slides over the whole image, so the same edge or texture detector is reused at every position; this is called weight sharing. That keeps the number of parameters small and lets the network recognise a pattern wherever it appears. Giving each pixel its own weight in every neuron is what a fully connected layer does, which explodes the parameter count and ignores the image's 2-D structure.",
@@ -2872,13 +2872,13 @@ window.AIM.quizzes = {
    "q": "How does a Vision Transformer (ViT) turn an image into something a transformer can process?",
    "code": "",
    "options": [
-    "It first writes a text caption for the image and feeds the words to the transformer",
-    "It cuts the image into small fixed-size patches (for example 16×16 pixels), turns each patch into a vector, adds position information and treats the patches like a sequence of tokens",
-    "It feeds the pixels one by one into an RNN",
+    "It first writes a text caption for the image and feeds those words in",
+    "It cuts the image into small fixed-size patches and treats each as a token",
+    "It feeds the pixels one by one, in reading order, into an RNN encoder",
     "It uses only convolution and pooling layers, with no attention at all"
    ],
    "answer": 1,
-   "explain": "A ViT splits the image into a grid of patches, flattens and projects each patch into an embedding (a vector of numbers), adds position embeddings so the model knows where each patch came from, and then runs self-attention over the patches just like words in a sentence. Using only convolution and pooling describes a CNN, not a transformer. ViTs usually need a lot of data or pretraining to beat CNNs, which is why pretrained ViTs are normally fine-tuned rather than trained from scratch.",
+   "explain": "A ViT cuts the image into a grid of fixed-size patches (for example 16×16 pixels), flattens and projects each patch into an embedding (a vector of numbers), adds position embeddings so the model knows where each patch came from, and then runs self-attention over the patches just like words in a sentence. It needs no captions or RNNs, and using only convolution and pooling describes a CNN, not a transformer. ViTs usually need a lot of data or pretraining to beat CNNs, which is why pretrained ViTs are normally fine-tuned rather than trained from scratch.",
    "difficulty": "easy"
   },
   {
@@ -2886,13 +2886,13 @@ window.AIM.quizzes = {
    "q": "A Nashik agritech startup has only 900 labelled photos of grape leaves across 4 disease classes and one free Colab GPU. What is the best way to build an accurate classifier?",
    "code": "",
    "options": [
-    "Train a large VGG network from scratch for 200 epochs",
-    "Use an ImageNet-pretrained model exactly as it is, since it has already seen plants",
-    "Run K-Means clustering on the raw pixels to find the 4 diseases",
-    "Take an ImageNet-pretrained CNN such as ResNet, replace its final layer with a 4-class layer, train that new layer first and then optionally fine-tune deeper layers with a small learning rate"
+    "Train a large VGG network from scratch for 200 epochs on the 900 photos",
+    "Use an ImageNet-pretrained model unchanged, since it has already seen plants",
+    "Run K-Means on the raw pixel values to group the photos into the 4 diseases",
+    "Swap an ImageNet-pretrained ResNet's head for a 4-class layer, then fine-tune"
    ],
    "answer": 3,
-   "explain": "Transfer learning reuses features (edges, textures, shapes) that a network already learned from millions of ImageNet photos, so a few hundred images are enough to train a new final layer, called the head. Fine-tuning later layers with a small learning rate adapts those features further without destroying them. Using the pretrained model unchanged fails because its output layer predicts ImageNet's 1,000 classes, not your 4 diseases, and training from scratch on 900 photos would overfit badly.",
+   "explain": "Transfer learning reuses features (edges, textures, shapes) that a network already learned from millions of ImageNet photos, so a few hundred images are enough to train a new final layer, called the head. Train that new head first, then optionally fine-tune deeper layers with a small learning rate to adapt those features further without destroying them. Using the pretrained model unchanged fails because its output layer predicts ImageNet's 1,000 classes, not your 4 diseases, and training from scratch on 900 photos would overfit badly.",
    "difficulty": "medium"
   },
   {
@@ -2915,9 +2915,9 @@ window.AIM.quizzes = {
    "code": "",
    "options": [
     "It is overfitting, so they should add dropout and more data augmentation",
-    "The kernels are too small, so they should change every 3×3 filter to 11×11",
-    "Very deep plain networks are harder to optimise: the extra layers struggle even to learn to pass their input through unchanged. ResNet's skip connections, which add a block's input to its output, fix this",
-    "The pooling layers are the problem, so they should remove all pooling"
+    "The 3×3 kernels are too small; switching to 11×11 filters will fix it",
+    "Deep plain nets are hard to optimise; ResNet's skip connections fix this",
+    "The pooling layers lose too much detail, so they should remove all pooling"
    ],
    "answer": 2,
    "explain": "It cannot be overfitting, because overfitting means low training error but high test error, and here the deeper network is worse on the training data itself. This is called the degradation problem (an optimisation difficulty). In theory the extra layers could simply copy their input (an identity mapping), but plain layers find even that hard to learn. A ResNet block outputs F(x) + x, so to copy its input it only needs to push F(x) towards zero, and the shortcut also gives gradients a direct path back to the early layers. The original ResNet paper found that its plain networks, which used batch normalisation, did not have vanishing gradients, so 'fading gradients' alone does not explain the problem.",
@@ -2928,10 +2928,10 @@ window.AIM.quizzes = {
    "q": "You load a Holi festival photo with cv2.imread('holi.jpg') and show it with matplotlib's plt.imshow(img). The red and pink colours appear blue. What went wrong?",
    "code": "",
    "options": [
-    "The JPEG file is corrupted",
-    "matplotlib needs pixel values between 0 and 1, so you must divide by 255 first",
-    "OpenCV can only read grayscale images",
-    "OpenCV stores colour channels in BGR order while matplotlib expects RGB, so convert with cv2.cvtColor(img, cv2.COLOR_BGR2RGB)"
+    "The JPEG was saved with a broken colour profile, so it must be re-exported before loading",
+    "matplotlib needs float pixel values between 0 and 1, so you must divide the image by 255 first",
+    "OpenCV reads only grayscale images, so matplotlib fills in the colours with its default colour map",
+    "OpenCV loads channels in BGR order but matplotlib expects RGB; convert with cv2.cvtColor first"
    ],
    "answer": 3,
    "explain": "OpenCV loads images as NumPy arrays with channels in Blue-Green-Red order, but matplotlib assumes Red-Green-Blue, so red and blue are swapped on screen. Converting with cvtColor fixes the display without changing the file. Dividing by 255 only changes the brightness scale, not the channel order, and matplotlib already handles 0–255 integer images correctly.",
@@ -3000,10 +3000,10 @@ window.AIM.quizzes = {
    "q": "You apply TF-IDF to 50,000 restaurant reviews from a food-delivery app. The word 'food' appears in almost every review. Why does it get a very low TF-IDF weight?",
    "code": "",
    "options": [
-    "Because 'food' is a short word",
-    "Because its inverse document frequency (IDF) is tiny: a word found in nearly every document does not help tell documents apart",
-    "Because TF-IDF automatically deletes all nouns",
-    "Because its term frequency (TF) inside each review is always zero"
+    "Because 'food' is a short word, and TF-IDF gives short words lower weights",
+    "Because its IDF is tiny: a word in nearly every review cannot tell them apart",
+    "Because TF-IDF automatically removes common nouns such as 'food' and 'order'",
+    "Because its term frequency (TF) inside each review is always counted as zero"
    ],
    "answer": 1,
    "explain": "TF-IDF multiplies term frequency (how often a word appears in this document) by inverse document frequency (high for rare words, low for words that appear in most documents). 'food' appears everywhere, so its IDF, and therefore its weight, is low, while specific words such as 'soggy' or 'biryani' get higher weights. Its TF is not zero; it actually appears often, but the IDF part pulls the weight down.",
@@ -3028,10 +3028,10 @@ window.AIM.quizzes = {
    "q": "You build a sentiment model for product reviews on an e-commerce site. While cleaning the text you remove all stopwords using a standard English list, which includes 'not'. Which problem does this cause?",
    "code": "",
    "options": [
-    "None, because stopwords never carry meaning",
-    "The vocabulary becomes larger, so training becomes slower",
-    "Reviews like 'not good' turn into 'good', flipping their sentiment, so the model misreads negative reviews",
-    "The model can no longer handle reviews that contain numbers"
+    "None, because stopwords like 'not' never change what a review means",
+    "The vocabulary grows larger, so training becomes noticeably slower",
+    "'not good' becomes 'good', so negative reviews get read as positive",
+    "The model can no longer handle reviews that contain prices or numbers"
    ],
    "answer": 2,
    "explain": "Stopwords are very common words (such as 'the', 'is' and 'not') that are often removed to reduce noise, but for sentiment, words like 'not', 'no' and 'never' change the meaning completely. Removing them makes 'not good' look identical to 'good'. Preprocessing should match the task: keep negations, or use bigrams (two-word features like 'not good') so the model can see them.",
@@ -3042,13 +3042,13 @@ window.AIM.quizzes = {
    "q": "A simple RNN that predicts the next word works on short sentences but fails on long ones. In 'The cricketer who scored a century at Eden Gardens last winter, after months of injury, ... is from Mumbai', it has forgotten the subject by the end. Which change is designed for this problem?",
    "code": "",
    "options": [
-    "Use a bag-of-words model, which keeps every word",
-    "Remove all punctuation from the sentences",
+    "Use a bag-of-words model, which keeps every single word in the sentence",
+    "Remove all punctuation so the commas do not break up the sentence",
     "Use a bigger learning rate so that early words have more influence",
-    "Replace the simple RNN with an LSTM or GRU, whose gates let the network keep important information over many time steps"
+    "Switch to an LSTM or GRU, whose gates keep key information for longer"
    ],
    "answer": 3,
-   "explain": "In a simple RNN the gradient is multiplied again at every time step, so information from early words fades (vanishing gradients) and long-range links are lost. LSTMs (Long Short-Term Memory networks) and GRUs (Gated Recurrent Units) add gates, small learned switches that decide what to remember, forget and output, so important context can travel much further. Bag of words throws away word order completely, so it cannot track who did what.",
+   "explain": "In a simple RNN the gradient is multiplied again at every time step, so information from early words fades (vanishing gradients) and long-range links are lost. LSTMs (Long Short-Term Memory networks) and GRUs (Gated Recurrent Units) add gates, small learned switches that decide what to remember, forget and output, so important context can travel much further. Bag of words throws away word order completely, so it cannot track who did what, and removing punctuation or raising the learning rate does nothing about vanishing gradients.",
    "difficulty": "medium"
   },
   {
@@ -3056,10 +3056,10 @@ window.AIM.quizzes = {
    "q": "A basic encoder-decoder (seq2seq) model translates Hindi to English. It is good on short sentences, but quality drops sharply on long ones. Its encoder squeezes the whole sentence into one fixed-size vector. What is the standard fix?",
    "code": "",
    "options": [
-    "Add attention, so at each output step the decoder can look back at all the encoder's hidden states and focus on the relevant words",
-    "Make the fixed-size vector smaller, so it is easier to learn",
-    "Translate the sentence word by word with a dictionary",
-    "Train only on short sentences and ignore the long ones"
+    "Add attention, so each decoder step can look back at all the encoder states",
+    "Make the fixed-size vector smaller, so the encoder has fewer numbers to learn",
+    "Replace the model with word-by-word lookup in a Hindi-English dictionary",
+    "Train only on short sentences and cut long ones down before translating"
    ],
    "answer": 0,
    "explain": "Forcing a long sentence into one fixed-size vector is a bottleneck, so details from the beginning get lost. Attention computes, for each output word, a weighted mix of all encoder states (the weights show which input words matter right now), so nothing has to be crammed into a single vector. This idea was the stepping stone to the Transformer, which is built entirely on attention.",
@@ -3128,10 +3128,10 @@ window.AIM.quizzes = {
    "q": "Self-attention on its own treats a sentence like an unordered bag of tokens. Why do transformers add positional encodings to the token embeddings?",
    "code": "",
    "options": [
-    "To make the model run faster on GPUs",
-    "So the model can tell word order apart, for example 'Kohli hit the ball' versus 'the ball hit Kohli'",
-    "To remove punctuation from the input",
-    "To translate the tokens into English"
+    "To make attention run faster on GPUs by sorting the tokens first",
+    "So it can tell 'Kohli hit the ball' from 'the ball hit Kohli'",
+    "To strip punctuation and stop-words before the attention step",
+    "To translate every token into English before it is processed"
    ],
    "answer": 1,
    "explain": "Self-attention compares every token with every other token, but the calculation gives the same result if you shuffle the tokens, so word order would be invisible. Positional encodings (fixed sine/cosine patterns or learned vectors, one per position) are added to each token's embedding so the model knows which word came where. They do not change speed; the speed advantage of transformers comes from processing all tokens in parallel.",
@@ -3142,10 +3142,10 @@ window.AIM.quizzes = {
    "q": "Which statement correctly compares BERT and GPT?",
    "code": "",
    "options": [
-    "BERT generates text one word at a time from left to right, while GPT reads the whole sentence in both directions",
-    "They are the same architecture; GPT is simply a bigger BERT",
-    "BERT is built from LSTMs, while GPT is built from transformers",
-    "BERT is an encoder that reads the whole sentence in both directions and suits understanding tasks like classification; GPT is a decoder that predicts the next token from left to right and suits text generation"
+    "BERT generates text left to right, one token at a time; GPT reads the whole sentence in both directions",
+    "They share the same architecture and training objective; GPT is simply a much larger version of BERT",
+    "BERT is built from stacked LSTMs suited to classification; GPT is built from transformers for generation",
+    "BERT is a two-way encoder suited to understanding; GPT is a left-to-right decoder suited to generation"
    ],
    "answer": 3,
    "explain": "BERT is trained by hiding (masking) some words and predicting them from both sides, which gives rich two-way understanding for tasks like classification, named-entity recognition and search. GPT-style decoders use a causal mask (each token can see only earlier tokens) and are trained to predict the next token, which is exactly what generation needs. The most common mix-up is to swap the two: it is GPT, not BERT, that generates text left to right.",
@@ -3156,10 +3156,10 @@ window.AIM.quizzes = {
    "q": "What does a Hugging Face pipeline, such as pipeline('sentiment-analysis'), do for you?",
    "code": "",
    "options": [
-    "It bundles a pretrained model with its matching tokenizer and the pre- and post-processing, so you can get predictions from raw text in a couple of lines",
-    "It trains a brand-new model from scratch on your laptop",
-    "It downloads a dataset but cannot make predictions",
-    "It only splits text into tokens and returns their token IDs"
+    "It wraps a pretrained model, its tokenizer and post-processing into one call",
+    "It trains a brand-new sentiment model from scratch on your own laptop's data",
+    "It downloads a ready-made sentiment dataset but cannot make any predictions",
+    "It only splits text into tokens and returns their token IDs for later use"
    ],
    "answer": 0,
    "explain": "A pipeline handles the full journey: tokenising your text, running the model, and turning the raw outputs (logits, the raw scores before softmax) into readable labels and probabilities. It is the fastest way to try a pretrained model before fine-tuning your own. Turning text into token IDs is only the tokenizer's part of that job, and loading data is the job of the separate datasets library.",
@@ -3170,13 +3170,13 @@ window.AIM.quizzes = {
    "q": "A Hyderabad e-commerce company has 20,000 English customer-support tickets, each labelled with one of 6 categories such as refund, delivery and payment. What is the most sensible approach?",
    "code": "",
    "options": [
-    "Train a GPT-style model from scratch on the 20,000 tickets",
-    "Use pipeline('sentiment-analysis') as it is, since it already understands customer text",
-    "Fine-tune a pretrained BERT-style encoder with a 6-class classification head (for example AutoModelForSequenceClassification with num_labels=6)",
-    "Cluster the tickets with K-Means on word embeddings and ignore the labels"
+    "Train a GPT-style model from scratch on the 20,000 labelled tickets",
+    "Use pipeline('sentiment-analysis') as is, since it already understands tickets",
+    "Fine-tune a pretrained BERT-style encoder with a 6-class classification head",
+    "Cluster ticket embeddings with K-Means (K = 6) and ignore the given labels"
    ],
    "answer": 2,
-   "explain": "Fine-tuning a pretrained encoder reuses its general language understanding and needs only your labelled tickets to learn the 6 categories; the classification head is a small layer on top that outputs one score per class. A sentiment pipeline predicts only positive or negative, not your 6 categories. Training from scratch would need far more data and compute, and clustering throws away the labels you already have.",
+   "explain": "Fine-tuning a pretrained encoder reuses its general language understanding and needs only your labelled tickets to learn the 6 categories; the classification head is a small layer on top that outputs one score per class (for example AutoModelForSequenceClassification with num_labels=6). A sentiment pipeline predicts only positive or negative, not your 6 categories. Training from scratch would need far more data and compute, and clustering throws away the labels you already have.",
    "difficulty": "medium"
   },
   {
@@ -3184,13 +3184,13 @@ window.AIM.quizzes = {
    "q": "Sneha loads the tokenizer from the 'bert-base-uncased' checkpoint but the model from 'roberta-base'. The code runs without errors, but the predictions look like nonsense. What is wrong?",
    "code": "",
    "options": [
-    "She needs a GPU, because on a CPU transformer predictions are random",
-    "Each checkpoint has its own vocabulary, so the token IDs mean different things to the two models; the tokenizer and the model must come from the same checkpoint",
-    "Her batch size is too small",
-    "She forgot to lowercase the text herself before tokenising"
+    "She needs a GPU, because on a CPU transformer predictions come out random",
+    "The checkpoints have different vocabularies, so the token IDs don't match",
+    "Her batch size is too small for the model to give stable predictions",
+    "She forgot to lowercase the text herself before calling the tokenizer"
    ],
    "answer": 1,
-   "explain": "A tokenizer turns text into ID numbers using its own vocabulary, and a model learned what each ID means during pretraining. With a BERT tokenizer feeding a RoBERTa model, an ID that means one word to the tokenizer means something unrelated to the model, so the input is gibberish to it. Always load both with from_pretrained using the same checkpoint name; lowercasing is already handled by the 'uncased' tokenizer.",
+   "explain": "A tokenizer turns text into ID numbers using its own vocabulary, and a model learned what each ID means during pretraining. With a BERT tokenizer feeding a RoBERTa model, an ID that means one word to the tokenizer means something unrelated to the model, so the input is gibberish to it. Always load both with from_pretrained using the same checkpoint name. A CPU gives the same predictions as a GPU (just slower), batch size does not change what the IDs mean, and lowercasing is already handled by the 'uncased' tokenizer.",
    "difficulty": "medium"
   },
   {
@@ -3198,10 +3198,10 @@ window.AIM.quizzes = {
    "q": "A WordPiece or BPE tokenizer meets a rare word like 'unbelievably', or a brand-new app name, that never appeared in its training text. What usually happens?",
    "code": "",
    "options": [
-    "It breaks the word into smaller known pieces (sub-words or characters), so it can still represent the word without an unknown token",
-    "It crashes, because every word must already be in the vocabulary",
-    "It silently deletes the word from the sentence",
-    "It adds the new word to its vocabulary while the model is running"
+    "It splits the word into smaller known sub-word pieces, avoiding an unknown token",
+    "It raises an error, because every word must already be in the fixed vocabulary",
+    "It silently drops the word from the sentence and encodes only the known words",
+    "It adds the new word to its vocabulary on the fly while the model is running"
    ],
    "answer": 0,
    "explain": "Sub-word tokenizers build a vocabulary of frequent pieces, so a rare word is split into parts that are in the vocabulary; WordPiece marks a piece that continues a word with ##, so a split might look like 'un', '##believ', '##ably'. Because single characters (or bytes) are also in the vocabulary, almost any word can be represented, which avoids the out-of-vocabulary problem of word-level tokenizers. The vocabulary is fixed after training, so the tokenizer does not learn new words while running.",
@@ -3212,10 +3212,10 @@ window.AIM.quizzes = {
    "q": "In the sentence 'Rohit told Virat that he would open the batting', a transformer must link 'he' to the right person while also tracking grammar, such as which verb goes with which subject. Why do transformers use multi-head attention instead of a single attention head?",
    "code": "",
    "options": [
-    "Each head handles a different sentence in the batch",
-    "Using several heads makes the input sequence shorter",
-    "Each head belongs to a different layer of the network",
-    "Several heads run in parallel, each with its own learned projections, so different heads can focus on different relationships at the same time before their outputs are combined"
+    "Each head processes a different sentence in the batch, all at the same time",
+    "Using several heads shortens the input sequence, which speeds up training",
+    "Each head sits in a different layer, so more heads make the whole network deeper",
+    "Each head has its own projections, so heads can learn different relationships"
    ],
    "answer": 3,
    "explain": "Each head has its own query, key and value projections (learned weight matrices), so one head might learn to link pronouns to names while another tracks subject–verb pairs. The heads' outputs are concatenated and mixed by a final linear layer. Batches, layers and sequence length are separate things: every layer has its own set of heads, and all heads see the same full sentence.",
@@ -3270,10 +3270,10 @@ window.AIM.quizzes = {
    "q": "Your model API works on your laptop but crashes on a teammate's machine because of different Python and library versions. What problem does Docker solve here?",
    "code": "",
    "options": [
-    "It makes the model more accurate",
-    "It automatically writes unit tests for your code",
-    "It packages your code, Python version, libraries and system settings into an image, so the app runs in the same environment on your teammate's machine",
-    "It removes the need for a GPU"
+    "It makes the model more accurate by running training inside an isolated and fully optimised environment",
+    "It automatically writes and runs unit tests for your code each time the image is rebuilt",
+    "It bundles code, Python version and libraries into an image, so both machines share one environment",
+    "It removes the need for a GPU, because containers run deep learning models efficiently on any CPU"
    ],
    "answer": 2,
    "explain": "A Docker image is a snapshot of everything your app needs (an operating-system layer, the Python version, libraries and your code). It is built from a recipe file called a Dockerfile, and a running copy of an image is called a container. Because the environment travels with the app, version-mismatch 'it works on my machine' problems disappear. Docker does not change accuracy or replace hardware, and an image is built for one CPU type (for example x86 or ARM) and uses the host's GPU drivers, so those can still differ between machines.",
@@ -3285,9 +3285,9 @@ window.AIM.quizzes = {
    "code": "",
    "options": [
     "MLflow (experiment tracking)",
-    "Docker",
-    "GitHub Actions",
-    "Gradio"
+    "Docker (container packaging)",
+    "GitHub Actions (CI automation)",
+    "Gradio (web demo builder)"
    ],
    "answer": 0,
    "explain": "MLflow Tracking records each run's parameters (like the learning rate), metrics (like AUC) and artifacts (files such as the trained model or plots), and its web UI lets you sort and compare runs. Without it, people quickly lose track of which settings gave the best score. Docker packages environments, GitHub Actions automates tasks like testing, and Gradio builds demos, so none of them is an experiment log.",
@@ -3298,10 +3298,10 @@ window.AIM.quizzes = {
    "q": "Your training dataset is a 5 GB folder of images that changes every month. Why would you use DVC (Data Version Control) together with Git?",
    "code": "",
    "options": [
-    "Because DVC trains models faster than PyTorch",
-    "Because Git refuses to store any file larger than 1 MB",
-    "Because DVC deletes old data automatically to save space",
-    "Because Git is not designed for big data files; DVC stores the data separately and keeps small pointer files in Git, so each code version is linked to the exact data version"
+    "Because DVC trains models on large image folders faster than PyTorch",
+    "Because Git refuses to store any single file larger than 1 MB in a repository",
+    "Because DVC deletes old data versions automatically to save disk space",
+    "Because DVC stores data outside Git and ties each commit to its exact data"
    ],
    "answer": 3,
    "explain": "DVC saves large files in a cache or remote storage (such as Google Drive or S3) and puts a small .dvc file containing a hash (a fingerprint of the data) into Git. Checking out an old commit and running dvc checkout brings back the exact data used at that time, which makes experiments reproducible. Git has no 1 MB limit and can technically store big files, but it becomes slow and bloated with huge, frequently changing binary files.",
@@ -3326,13 +3326,13 @@ window.AIM.quizzes = {
    "q": "Your FastAPI prediction endpoint takes about 4 seconds per request. Profiling shows that inside the endpoint function, the code runs joblib.load('model.pkl') every time before predicting. What is the best fix?",
    "code": "",
    "options": [
-    "Buy a bigger server so loading becomes faster",
-    "Switch from FastAPI to Flask, which is always faster",
-    "Load the model once when the app starts (at module level or in a startup/lifespan handler) and reuse it for every request",
-    "Save the model as a CSV file instead"
+    "Buy a bigger server with more RAM so each load finishes faster",
+    "Switch from FastAPI to Flask, which handles model files faster",
+    "Load the model once at app startup and reuse it for every request",
+    "Save the model as a CSV file instead, which is quicker to read"
    ],
    "answer": 2,
-   "explain": "Loading a model from disk is slow, so doing it on every request wastes time; loading it once at startup keeps it in memory, and each request then runs only the fast predict step. A bigger server only hides the waste, and switching frameworks does not remove the repeated loading. FastAPI's lifespan handler (code that runs when the app starts and stops) is a clean place to do this.",
+   "explain": "Loading a model from disk is slow, so doing it on every request wastes time; loading it once at startup (at module level or in a startup/lifespan handler) keeps it in memory, and each request then runs only the fast predict step. A bigger server only hides the waste, switching frameworks does not remove the repeated loading, and a CSV file cannot store a trained model at all. FastAPI's lifespan handler (code that runs when the app starts and stops) is a clean place to do this.",
    "difficulty": "medium"
   },
   {
@@ -3340,13 +3340,13 @@ window.AIM.quizzes = {
    "q": "A Chennai NBFC (a non-banking lender) deploys a loan-default model. The true outcomes, whether a borrower actually defaults, arrive only 6 months later, so accuracy cannot be measured right away. How can the team spot trouble early?",
    "code": "",
    "options": [
-    "Wait 6 months, because there is no way to monitor a model before labels arrive",
-    "Retrain the model every hour on the same training data",
-    "Check the training accuracy every day",
-    "Monitor data drift: compare the distributions of live inputs and predictions (such as income, loan amount and predicted default rate) with the training data, and raise an alert when they shift a lot"
+    "Nothing can be checked before the labels arrive, so the team must wait 6 months",
+    "Retrain the model every hour on the same training data to keep it up to date",
+    "Check the model's accuracy on the training data every day for any sudden drop",
+    "Monitor drift: compare live input and prediction distributions with training data"
    ],
    "answer": 3,
-   "explain": "Data drift means the inputs the model sees in production no longer look like the training data, for example because of a new customer segment or a festival-season spike in loan amounts. Inputs and predictions are available immediately, so comparing their distributions (with measures like PSI or the KS test) gives an early warning long before the labels arrive. Retraining on the same old data or rechecking training accuracy cannot reveal a change in the real world.",
+   "explain": "Data drift means the inputs the model sees in production no longer look like the training data, for example because of a new customer segment or a festival-season spike in loan amounts. Inputs and predictions (such as income, loan amount and predicted default rate) are available immediately, so comparing their distributions with the training data (using measures like PSI or the KS test) gives an early warning long before the labels arrive. Retraining on the same old data or rechecking training accuracy cannot reveal a change in the real world.",
    "difficulty": "medium"
   },
   {
@@ -3354,10 +3354,10 @@ window.AIM.quizzes = {
    "q": "A teammate pushed a change that broke the text-cleaning function, and nobody noticed until the deployed model started giving bad results. Which setup would have caught this automatically before the change was merged?",
    "code": "",
    "options": [
-    "A GitHub Actions workflow that runs the test suite (for example with pytest) on every pull request and blocks merging if the tests fail",
-    "A longer, more detailed README",
-    "Logging the experiment in MLflow after deployment",
-    "Adding more data to the training set"
+    "A GitHub Actions job that runs pytest on each pull request and blocks failures",
+    "A longer, more detailed README that explains how the text-cleaning function works",
+    "Logging every training run and its metrics in MLflow after each deployment",
+    "Adding more training data so the model can tolerate badly cleaned text"
    ],
    "answer": 0,
    "explain": "Continuous integration (CI) means every change is automatically built and tested; with GitHub Actions you describe the steps in a YAML file inside the .github/workflows folder, and they run on each push or pull request. A unit test for the cleaning function would fail, and branch protection rules can then stop the merge. MLflow logging records experiments but does not check that the code still works.",
@@ -3382,10 +3382,10 @@ window.AIM.quizzes = {
    "q": "Your Dockerfile first copies the whole project folder into the image and only then runs pip install -r requirements.txt. Every tiny code change makes the image rebuild take 10 minutes because all the libraries get reinstalled. What is the fix?",
    "code": "",
    "options": [
-    "Switch to a smaller base image so that pip runs faster",
-    "Delete requirements.txt and install the libraries by hand inside the running container",
-    "Add more RUN commands so Docker has more layers to cache",
-    "Copy only requirements.txt first and run pip install, then copy the rest of the code, so the install layer is reused from the cache when only the code changes"
+    "Switch to a smaller base image such as python:3.11-slim so that pip can install the libraries faster",
+    "Delete requirements.txt and install the libraries by hand inside the running container after each build",
+    "Split pip install into more RUN commands so that Docker has more layers to cache between builds",
+    "Copy requirements.txt and run pip install first, then copy the code, so the install layer stays cached"
    ],
    "answer": 3,
    "explain": "Docker builds an image in layers and reuses a cached layer only if that step and every step before it are unchanged. Because the whole folder is copied before pip install, any code edit invalidates the cache and forces a full reinstall. Copying requirements.txt first means the slow install layer is rebuilt only when the requirements change; a smaller base image helps a little but does not fix the order problem.",
@@ -3396,13 +3396,13 @@ window.AIM.quizzes = {
    "q": "This function is called once per API request to prepare a borrower's monthly income (in ₹) before prediction. What does the code print, and what is the bug?",
    "code": "import numpy as np\nfrom sklearn.preprocessing import StandardScaler\n\ndef predict_api(income):                    # called once per request\n    x = np.array([[income]])\n    x_scaled = StandardScaler().fit_transform(x)\n    return x_scaled                         # (model.predict would come next)\n\nprint(predict_api(15000), predict_api(900000))",
    "options": [
-    "[[15000.]] [[900000.]] – the scaler does nothing, but that is harmless",
-    "[[-1.]] [[1.]] – the values are scaled correctly into a −1 to 1 range",
-    "[[0.]] [[0.]] – a new scaler is fitted on each single request, so every income becomes 0; the scaler fitted on the training data should be saved and loaded instead",
-    "An error, because StandardScaler needs at least two rows"
+    "[[15000.]] [[900000.]] – the scaler does nothing here, but that is harmless",
+    "[[-1.]] [[1.]] – both incomes are correctly scaled into the −1 to 1 range",
+    "[[0.]] [[0.]] – a one-row fit zeroes every income; load the training scaler",
+    "An error is raised, because StandardScaler needs at least two rows to fit"
    ],
    "answer": 2,
-   "explain": "StandardScaler subtracts the mean and divides by the standard deviation of the data it is fitted on; for a single row the mean is the value itself, so the result is always 0 (scikit-learn treats the zero standard deviation as 1 to avoid dividing by zero). Every borrower then looks identical to the model, a classic case of training-serving skew (preprocessing in production that differs from training). The fix is to fit the scaler, or better a whole Pipeline, on the training data, save it with joblib, and load that same object in the API.",
+   "explain": "The code prints [[0.]] [[0.]]. StandardScaler subtracts the mean and divides by the standard deviation of the data it is fitted on. Fitted on a single row, the mean is the value itself, so the result is always 0 (scikit-learn treats the zero standard deviation as 1 to avoid dividing by zero). Every borrower then looks identical to the model. This is a classic case of training-serving skew, where preprocessing in production differs from training. The fix is to fit the scaler (or better, a whole Pipeline) on the training data, save it with joblib, and load that same fitted object in the API. No error is raised, because StandardScaler will fit a single row without complaint.",
    "difficulty": "hard"
   }
  ],
@@ -3413,9 +3413,9 @@ window.AIM.quizzes = {
    "code": "",
    "options": [
     "Freeze the entire pretrained network and train only a new final layer",
-    "Use the pretrained ImageNet model as it is, without any training",
-    "Start from pretrained weights, replace the head, and fine-tune all the layers with a fairly small learning rate",
-    "Skip neural networks and use k-nearest neighbours on the raw pixel values"
+    "Use the pretrained ImageNet model as it is, without any extra training",
+    "Swap the head and fine-tune all pretrained layers with a small learning rate",
+    "Skip neural networks and use k-nearest neighbours on the raw pixel values instead"
    ],
    "answer": 2,
    "explain": "With a large dataset that differs a lot from ImageNet, the early generic features (edges, textures) are still useful, but the deeper layers must adapt to aerial patterns, so fine-tuning the whole network from pretrained weights works best. A small learning rate adjusts the weights gently instead of wiping out what was already learned. Freezing everything except the head is the right move for small datasets that resemble ImageNet; here it would leave the deep features unsuited to satellite imagery.",
@@ -3454,13 +3454,13 @@ window.AIM.quizzes = {
    "q": "Rahul measures accuracy on the same 2,000 validation images twice in a row, with no training in between, and gets 81.2% and then 79.6%. Predicting the same photo twice also gives slightly different probabilities. His model uses dropout and batch norm. What did he most likely forget?",
    "code": "",
    "options": [
-    "To shuffle the validation DataLoader",
-    "To move the model to the GPU",
-    "To call optimizer.zero_grad() before validating",
-    "To call model.eval() before validating (and ideally to wrap the loop in torch.no_grad())"
+    "To shuffle the validation DataLoader so each run sees a fair mix of images",
+    "To move the model to the GPU, where results are fully repeatable",
+    "To call optimizer.zero_grad() so old gradients don't change outputs",
+    "To call model.eval() so dropout is off and batch norm uses saved stats"
    ],
    "answer": 3,
-   "explain": "In training mode, dropout randomly switches off neurons and batch norm uses the current batch's statistics (while also updating its running averages), so the same input can give different outputs. model.eval() turns dropout off and makes batch norm use its stored running averages, giving repeatable predictions, and torch.no_grad() also skips gradient tracking to save memory. Shuffling only changes the order, and accuracy over the full set would be the same either way.",
+   "explain": "In training mode, dropout randomly switches off neurons and batch norm uses the current batch's statistics (while also updating its running averages), so the same input can give different outputs. model.eval() turns dropout off and makes batch norm use its stored running averages, giving repeatable predictions; ideally also wrap the loop in torch.no_grad() to skip gradient tracking and save memory. Shuffling only changes the order, and accuracy over the full set would be the same either way. optimizer.zero_grad() only matters for weight updates, and moving to a GPU does not switch dropout off.",
    "difficulty": "medium"
   },
   {
@@ -3468,13 +3468,13 @@ window.AIM.quizzes = {
    "q": "A Kolkata team's SMS spam classifier scored 94% on the test set. In the notebook, each message first went through a clean_text() function that removes links and replaces every phone number with the word 'PHONE', and then through TF-IDF and the model. In production, the FastAPI endpoint sends the raw SMS straight to the saved TF-IDF vectorizer and model, and many obvious spam messages are missed. What is the problem and the fix?",
    "code": "",
    "options": [
-    "The model is overfitting, so it should be retrained with more regularisation",
-    "Training-serving skew: production preprocessing differs from training, so clean_text and every other step should live in one saved pipeline (or one shared function) used for both training and serving",
-    "FastAPI cannot handle phone numbers in text, so the team should switch to Flask",
-    "The test set was too small, so the 94% was just luck"
+    "Overfitting: retrain the model with stronger regularisation and a larger test set",
+    "Training-serving skew: put clean_text and TF-IDF in one saved pipeline for both",
+    "FastAPI mangles phone numbers in request text, so the team should switch to Flask",
+    "Test-set luck: the test set was too small, so the 94% score was not reliable"
    ],
    "answer": 1,
-   "explain": "The model learned that the token 'PHONE' and link-free text patterns signal spam, but in production it never sees 'PHONE' because the cleaning step is skipped, so the inputs look different from what it was trained on. This mismatch is called training-serving skew. The fix is to make clean_text part of a single saved scikit-learn Pipeline (for example with a FunctionTransformer) or a shared function, so exactly the same steps always run.",
+   "explain": "The model learned that the token 'PHONE' and link-free text patterns signal spam, but in production it never sees 'PHONE' because the cleaning step is skipped, so the inputs look different from what it was trained on. This mismatch is called training-serving skew. The fix is to make clean_text part of a single saved scikit-learn Pipeline (for example with a FunctionTransformer) or a shared function, so exactly the same steps always run in training and serving.",
    "difficulty": "medium"
   },
   {
@@ -3496,13 +3496,13 @@ window.AIM.quizzes = {
    "q": "A Delhi startup uses a tokenizer trained mostly on English text for a Hindi chatbot. A typical Hindi sentence becomes about 4 times as many tokens as a similar English sentence. Which consequence should worry them most?",
    "code": "",
    "options": [
-    "Longer token sequences mean more compute and higher API cost, and long messages hit the model's maximum context length sooner, so a tokenizer and model trained with plenty of Indic text would serve them better",
+    "More tokens mean higher cost and hitting the context limit sooner",
     "Nothing, because the number of tokens never affects cost or quality",
-    "The model will refuse to accept Devanagari script at all",
-    "The tokenizer will automatically translate the Hindi into English first"
+    "The model will reject Devanagari script and return an error instead",
+    "The tokenizer will quietly translate the Hindi into English first"
    ],
    "answer": 0,
-   "explain": "Sub-word tokenizers learn their pieces from their training text, so a mostly English tokenizer breaks Devanagari into many tiny fragments, sometimes single bytes. More tokens per sentence means more computation and cost, less text fitting into the context window (the maximum number of tokens the model can read at once), and pieces that carry less meaning. Byte-level tokenizers can still encode any script, so the issue is efficiency and quality, not an outright refusal.",
+   "explain": "Sub-word tokenizers learn their pieces from their training text, so a mostly English tokenizer breaks Devanagari into many tiny fragments, sometimes single bytes. More tokens per sentence means more computation and cost, less text fitting into the context window (the maximum number of tokens the model can read at once), and pieces that carry less meaning. Byte-level tokenizers can still encode any script, so the issue is efficiency and quality, not an outright refusal. A tokenizer and model trained with plenty of Indic text would serve them better. Tokenizers also never translate; they only split text into pieces.",
    "difficulty": "medium"
   },
   {
@@ -3552,10 +3552,10 @@ window.AIM.quizzes = {
    "q": "Why did transformers largely replace LSTMs for training large language models on GPUs?",
    "code": "",
    "options": [
-    "Self-attention processes all positions of a sequence in parallel and connects any two tokens directly, while an LSTM must step through the tokens one at a time",
+    "Self-attention handles all positions in parallel and links any two tokens directly; LSTMs go step by step",
     "Attention uses far less memory on long sequences, because its cost grows only linearly with length",
-    "LSTMs cannot learn long-range patterns at all, while transformers have no limit on context length",
-    "Transformers do not need tokenisation, so they skip a slow preprocessing step"
+    "LSTMs cannot learn long-range patterns at all, whereas transformers have no limit on their context length",
+    "Transformers do not need tokenisation, so they skip the slow text preprocessing step that LSTMs need"
    ],
    "answer": 0,
    "explain": "An LSTM must finish token 1 before it can process token 2, which leaves most of a GPU idle, whereas self-attention computes all positions at once with large matrix multiplications that GPUs are built for. Attention also links distant tokens in one step instead of passing information through many time steps. Its cost actually grows quadratically (with the square of the sequence length), so 'less memory on long sequences' is the tempting but wrong claim, and transformers still have a fixed maximum context length.",
@@ -3566,13 +3566,13 @@ window.AIM.quizzes = {
    "q": "Ananya's 10-class image model shows a training loss of 2.303 at every epoch, never changing. This code shows where that number comes from. What does it tell her?",
    "code": "import numpy as np\nlogits = np.zeros((4, 10))                 # same score for all 10 classes\nprobs = np.exp(logits) / np.exp(logits).sum(axis=1, keepdims=True)\nlabels = np.array([3, 7, 0, 9])\nloss = -np.log(probs[np.arange(4), labels]).mean()   # cross-entropy\nprint(round(loss, 3))",
    "options": [
-    "The model is overfitting and needs more dropout",
-    "The model is 23% accurate, so it just needs more epochs",
-    "The model has learned perfectly, because 2.303 is the lowest possible cross-entropy",
-    "The model is guessing uniformly (probability 1/10 for every class) and its weights are not changing, so she should check that optimizer.step() is called and the learning rate is not zero"
+    "The model is overfitting the training set and needs more dropout layers added",
+    "The model is 23% accurate, so it simply needs many more epochs to keep improving",
+    "The model has learned perfectly, since 2.303 is the lowest cross-entropy possible",
+    "It gives every class 1/10 and is not learning; check optimizer.step() and lr"
    ],
    "answer": 3,
-   "explain": "The code prints 2.303, which is −ln(1/10): the cross-entropy you get when a model gives every class equal probability, as a model that has learned nothing does. A loss frozen at that value means the weights are not updating, typically because optimizer.step() is missing, zero_grad() is called between backward() and step(), the learning rate is 0, or the parameters were never passed to the optimiser. Perfect learning would push the loss towards 0, not keep it at 2.303.",
+   "explain": "The code prints 2.303, which is −ln(1/10) = ln 10. That is the cross-entropy you get when a model gives every class equal probability, which is what a model that has learned nothing does. A loss stuck at that value means the weights are not updating. Typical causes: optimizer.step() is missing, zero_grad() is called between backward() and step(), the learning rate (lr) is 0, or the parameters were never passed to the optimiser. Perfect learning would push the loss towards 0, not leave it at 2.303. And 2.303 is a loss value, not an accuracy: a uniform guesser is only about 10% accurate.",
    "difficulty": "hard"
   },
   {
@@ -3580,10 +3580,10 @@ window.AIM.quizzes = {
    "q": "A Gurugram fintech's regulator asks it to reproduce exactly the credit model it deployed three months ago. Which combination makes that possible?",
    "code": "",
    "options": [
-    "Only the final model file saved on someone's laptop",
-    "Only a screenshot of the validation accuracy",
-    "The Git commit of the code, the DVC-tracked version of the data, and the MLflow run with its parameters, metrics and model artifact",
-    "Retraining today's code on today's data, which will give the same model"
+    "Only the final model file, saved as a .pkl on a team member's laptop",
+    "A screenshot of the validation accuracy and the confusion matrix from that day",
+    "The Git commit, the DVC data version and the MLflow run of that model",
+    "Retraining today's code on today's data, which gives the same model"
    ],
    "answer": 2,
    "explain": "A model is the product of code, data and settings, so reproducing it needs all three: Git for the code, DVC for the exact data snapshot, and MLflow for the hyperparameters, metrics and saved artifact (plus pinned library versions or a Docker image for the environment). The model file alone cannot show how it was made. Today's code and data have both changed, so retraining now would give a different model.",
@@ -3594,13 +3594,13 @@ window.AIM.quizzes = {
    "q": "A delivery-time model was trained with a 'city' feature. This pandas check measures what fraction of this week's live requests come from cities never seen in training. What does it print, and what should the team do?",
    "code": "import pandas as pd\ntrain_city = pd.Series([\"Delhi\", \"Mumbai\", \"Pune\", \"Delhi\", \"Chennai\"])\nlive_city = pd.Series([\"Delhi\", \"Indore\", \"Surat\", \"Mumbai\", \"Indore\"])\nunseen = ~live_city.isin(train_city.unique())\nprint(round(unseen.mean(), 2))",
    "options": [
-    "0.6 – most live requests come from new cities, a strong sign of data drift, so they should retrain with data from the new cities and make sure the encoder handles unknown categories",
-    "0.4 – only a small share is new, so nothing needs to change",
-    "0.6 – this is fine, because one-hot encoding learns new cities automatically at prediction time",
-    "0.2 – only Surat is new"
+    "0.6 – clear drift; retrain on the new cities and handle unknown categories",
+    "0.4 – only Indore and Surat are new, a small share, so no change is needed",
+    "0.6 – this is fine, since one-hot encoding learns new cities at prediction time",
+    "0.2 – only one request is unusual, so log it and keep the current model"
    ],
    "answer": 0,
-   "explain": "Indore, Surat and Indore again are not among the training cities, so 3 of the 5 live requests (0.6) are unseen. An encoder fitted on the training data has no column for them: OneHotEncoder raises an error unless handle_unknown='ignore' is set, and even then the model knows nothing about those cities. The team should collect labelled data from the new cities, retrain, and track this share as part of drift monitoring.",
+   "explain": "Indore, Surat and Indore again are not among the training cities, so 3 of the 5 live requests (0.6) are unseen. Counting Indore only once gives the wrong 0.4: the check counts requests, not distinct cities. An encoder fitted on the training data has no column for these cities. By default sklearn's OneHotEncoder raises an error on unknown categories, and setting handle_unknown='ignore' only turns them into all-zero rows, so the model still learns nothing about them. The team should collect labelled data from the new cities, retrain, handle unknown categories explicitly, and track this share as part of drift monitoring.",
    "difficulty": "hard"
   },
   {
@@ -3622,13 +3622,13 @@ window.AIM.quizzes = {
    "q": "An object detector watching a Mumbai parking lot outputs five heavily overlapping boxes around the same car, with confidences 0.92, 0.88, 0.85, 0.60 and 0.55. Which post-processing step turns these into a single box?",
    "code": "",
    "options": [
-    "Data augmentation",
-    "Batch normalisation",
-    "Increasing the image resolution",
-    "Non-maximum suppression (NMS): keep the highest-confidence box and remove the other boxes that overlap it with a high IoU"
+    "Data augmentation: flip and crop the image so the boxes line up as one",
+    "Batch normalisation: rescale the box scores so only one stays above 0.5",
+    "Higher input resolution: lets the detector see the car's edges more sharply",
+    "Non-maximum suppression: keep the top box and drop boxes with high IoU"
    ],
    "answer": 3,
-   "explain": "Detectors often predict several boxes for the same object, so NMS sorts the boxes by confidence, keeps the best one, and discards any remaining box whose IoU (overlap) with it is above a threshold such as 0.5; boxes that barely overlap are kept, so two cars parked side by side still get two boxes. Classic detectors, including most YOLO versions, rely on this step, while some newer designs are trained to output one box per object and can skip it. Augmentation and batch norm are training-time techniques and do nothing to merge duplicate predictions.",
+   "explain": "Detectors often predict several boxes for the same object, so non-maximum suppression (NMS) sorts the boxes by confidence, keeps the best one, and discards any remaining box whose IoU (overlap) with it is above a threshold such as 0.5; boxes that barely overlap are kept, so two cars parked side by side still get two boxes. Classic detectors, including most YOLO versions, rely on this step, while some newer designs are trained to output one box per object and can skip it. Augmentation and batch norm are training-time techniques, and a higher resolution only changes the input, so none of them merges duplicate predictions.",
    "difficulty": "medium"
   },
   {
@@ -3636,10 +3636,10 @@ window.AIM.quizzes = {
    "q": "During the monsoon, a disaster-response team in Assam wants to mark exactly which pixels of each satellite image are flood water, so it can measure the flooded area in square kilometres. Which approach fits best?",
    "code": "",
    "options": [
-    "Image classification: label each whole image as 'flood' or 'no flood'",
-    "Object detection: draw bounding boxes around the water",
-    "Semantic segmentation with a U-Net, whose encoder-decoder shape and skip connections produce a sharp, pixel-level water mask",
-    "A word-embedding model applied to the image file names"
+    "Image classification, labelling each whole image as 'flood' or 'no flood'",
+    "Object detection, drawing rectangular bounding boxes around the patches of water",
+    "Semantic segmentation with a U-Net, labelling every pixel as water or not",
+    "A word-embedding model applied to the image file names and captions"
    ],
    "answer": 2,
    "explain": "Measuring area needs a label for every pixel, which is semantic segmentation. U-Net's encoder shrinks the image to capture context, its decoder grows it back to full size, and skip connections pass fine details from the encoder to the decoder so that boundaries like river banks stay sharp. Boxes are a poor fit for irregular shapes like flood water, and a single label per image cannot give an area.",
@@ -3664,10 +3664,10 @@ window.AIM.quizzes = {
    "q": "Vikram fine-tunes a pretrained multilingual BERT-style model for Hinglish (Hindi-English) sentiment, using AdamW with a learning rate of 1e-2. Within a few hundred steps, the model predicts the same class for every input, and validation accuracy drops to the share of the largest class. What is the most likely cause and fix?",
    "code": "",
    "options": [
-    "BERT-style models cannot handle Hinglish at all, so he must train a model from scratch",
-    "The batch size is too large, so he should use a batch size of 1",
-    "He should raise the learning rate to 1e-1 so the model escapes this bad spot",
-    "The learning rate is far too high for fine-tuning and is wrecking the pretrained weights; he should use a small rate such as 2e-5 to 5e-5, often with warmup"
+    "BERT-style models cannot handle Hinglish at all, so he must pretrain a new model from scratch",
+    "The batch size is too large and averages away the useful signal, so he should switch to a batch size of 1",
+    "The model is stuck in a bad spot, so he should raise the learning rate to 1e-1 to escape it",
+    "The learning rate is far too high and wrecks the pretrained weights; use about 2e-5 to 5e-5 with warmup"
    ],
    "answer": 3,
    "explain": "Fine-tuning should only nudge the pretrained weights, so typical BERT learning rates are around 2e-5 to 5e-5, often with warmup (starting even smaller and ramping up over the first steps). A rate of 1e-2 is hundreds of times larger and overwrites the pretrained knowledge, leaving a model that just predicts the majority class. Raising the rate further would make things worse, and multilingual or Indic pretrained models can be fine-tuned on Hinglish rather than starting from scratch.",
@@ -3678,10 +3678,10 @@ window.AIM.quizzes = {
    "q": "A Jaipur startup needs two things for its handicraft image classifier: (1) a quick shareable demo for investors, and (2) a JSON API that its Android app will call thousands of times a day. Which plan fits best?",
    "code": "",
    "options": [
-    "Use one Gradio demo for both, because an interactive web page is also a full production API",
-    "Use a Gradio or Streamlit app on Hugging Face Spaces for the demo, and a FastAPI service packaged with Docker and deployed on a host such as Render for the app's API",
-    "Send the model file to the investors, and let the Android app run the full PyTorch training code",
-    "Use MLflow's experiment UI as the investor demo and DVC as the API"
+    "One Gradio demo for both, since an interactive web page is also a full production API",
+    "A Gradio demo on Hugging Face Spaces, plus a Dockerised FastAPI service for the app",
+    "Email the model file to investors, and run the full PyTorch training code in the app",
+    "Use MLflow's experiment UI as the investor demo and DVC to serve the app's JSON API"
    ],
    "answer": 1,
    "explain": "Demo tools like Gradio and Streamlit are ideal for people clicking around, and a free Hugging Face ZeroGPU Space (or Streamlit Community Cloud) gives a shareable link. A production app needs a clean, documented REST endpoint (FastAPI even generates interactive API docs automatically), and Docker makes it easy to deploy the same image on platforms such as Render. Gradio apps can be called programmatically, but they are built for demos, not as the main backend of a busy mobile app.",

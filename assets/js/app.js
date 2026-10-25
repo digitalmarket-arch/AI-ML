@@ -132,7 +132,7 @@
       '<div class="res-meta">' + C.langChip(r.language) + '<span class="chip chip-level">' + esc(r.type) + '</span>' +
       (r.approxHours ? '<span class="chip num">~' + esc(r.approxHours) + ' h</span>' : '') +
       '<span class="chip">' + esc(r.platform || '') + '</span>' + status + '</div>' +
-      '<h4><a href="' + esc(r.url) + '" target="_blank" rel="noopener">' + esc(r.title) + '</a></h4>' +
+      '<h3 class="res-title"><a href="' + esc(r.url) + '" target="_blank" rel="noopener">' + esc(r.title) + '</a></h3>' +
       '<div class="small muted">' + esc(r.creator || '') + (r.year ? ' · ' + esc(r.year) : '') + (r.cost ? ' · ' + esc(r.cost) : '') + '</div>' +
       note + (r.why ? '<p class="res-why">' + inline(r.why) + '</p>' : '') +
       (r.caveats ? '<details class="res-caveat"><summary>Heads-up</summary><p>' + inline(r.caveats) + '</p></details>' : '') +
@@ -163,7 +163,7 @@
     }).join('') + '</nav>';
   }
   function ring(p) { return '<div class="ring" style="--p:' + p + '" data-label="' + p + '%" role="img" aria-label="' + p + '% complete"></div>'; }
-  function bar(p) { return '<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + p + '"><span style="width:' + p + '%"></span></div>'; }
+  function bar(p, label) { return '<div class="bar" role="progressbar" aria-label="' + esc(label || 'Progress') + '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + p + '"><span style="width:' + p + '%"></span></div>'; }
   function langSeg() {
     var l = S().prefs.lang;
     return '<div class="seg" role="group" aria-label="Video language preference">' +
@@ -180,7 +180,7 @@
         '<span class="stack-sm"><span class="station-name"><span class="sa">' + esc(l.sanskrit) + '</span><b>' + esc(l.name) + '</b><span class="muted small">' + esc(l.meaning) + '</span></span>' +
         '<span><strong>Level ' + l.id + ': ' + esc(l.title) + '</strong></span>' +
         '<span class="small muted num">' + ms.length + ' modules' + (hours ? ' · ~' + hours + ' hours' : '') + ' · ' + esc(l.weeks || '') + ' weeks at 10 h/week (modules only)</span>' +
-        bar(p) + '</span></a>';
+        bar(p, 'Level ' + l.id + ' progress') + '</span></a>';
     }).join('') + '</div>';
   }
 
@@ -236,7 +236,7 @@
   });
   function sectionsHTML(sections) {
     return (sections || []).map(function (s, i) {
-      return '<section class="stack-sm" id="sec-' + i + '"><h3>' + esc(s.heading) + '</h3>' + (s.paragraphs || []).map(function (p) { return '<p>' + inline(p) + '</p>'; }).join('') +
+      return '<section class="stack-sm" id="sec-' + i + '"><h2 class="h-sub">' + esc(s.heading) + '</h2>' + (s.paragraphs || []).map(function (p) { return '<p>' + inline(p) + '</p>'; }).join('') +
         (s.bullets && s.bullets.length ? (s.bullets.every(function (b) { return /^\d+\.\s/.test(b); }) ? '<ol>' + s.bullets.map(function (b) { return '<li>' + inline(b.replace(/^\d+\.\s/, '')) + '</li>'; }).join('') + '</ol>' : '<ul>' + s.bullets.map(function (b) { return '<li>' + inline(b) + '</li>'; }).join('') + '</ul>') : '') + '</section>';
     }).join('');
   }
@@ -284,7 +284,7 @@
   function levelHeader(l, tag) {
     return '<div class="level-head"><div class="level-glyph" aria-hidden="true">' + esc(l.sanskrit) + '</div><div class="stack-sm">' +
       '<span class="eyebrow">Level ' + l.id + ' · ' + esc(l.name) + ' (' + esc(l.meaning) + ')</span><' + tag + '><a href="#level-' + l.id + '" style="color:inherit;text-decoration:none">' + esc(l.title) + '</a></' + tag + '>' +
-      '<div class="row">' + bar(levelProgress(l.id)).replace('class="bar"', 'class="bar" style="width:160px"') + '<span class="small muted num">' + levelProgress(l.id) + '%</span></div></div></div>';
+      '<div class="row">' + bar(levelProgress(l.id), 'Level ' + l.id + ' progress').replace('class="bar"', 'class="bar" style="width:160px"') + '<span class="small muted num">' + levelProgress(l.id) + '%</span></div></div></div>';
   }
   function moduleList(lv) {
     return '<div class="module-list">' + modulesOf(lv).map(function (m) {
@@ -377,8 +377,8 @@
         (m.whyItMatters ? '<div class="callout callout-indigo"><strong>Why it matters:</strong> ' + inline(m.whyItMatters) + '</div>' : '') + '</div>' +
         listBlock('You will be able to', m.outcomes) +
         listBlock('Study plan', m.studySteps, true) +
-        (m.keyTerms && m.keyTerms.length ? '<section class="stack-sm"><h3>Key terms</h3><dl>' + m.keyTerms.map(function (k) { return '<div class="gloss-term"><dt>' + esc(k.term) + '</dt><dd>' + inline(k.meaning) + '</dd></div>'; }).join('') + '</dl></section>' : '') +
-        (m.indiaExample ? '<section class="stack-sm"><h3>In India</h3><p class="prose">' + inline(m.indiaExample) + '</p></section>' : '') +
+        (m.keyTerms && m.keyTerms.length ? '<section class="stack-sm"><h2 class="h-sub">Key terms</h2><dl>' + m.keyTerms.map(function (k) { return '<div class="gloss-term"><dt>' + esc(k.term) + '</dt><dd>' + inline(k.meaning) + '</dd></div>'; }).join('') + '</dl></section>' : '') +
+        (m.indiaExample ? '<section class="stack-sm"><h2 class="h-sub">In India</h2><p class="prose">' + inline(m.indiaExample) + '</p></section>' : '') +
         listBlock('Common mistakes', m.commonMistakes) +
         listBlock('Check yourself (open tasks)', m.selfCheck) +
         listBlock('Topics covered', m.topics) +
@@ -389,13 +389,13 @@
       var rest = list.filter(function (r) { return r !== mainPick && r !== otherLangPick; });
       el.innerHTML = '<div class="stack-lg"><div class="row-between"><div class="small muted">' + list.length + ' resources for this module</div>' + langSeg() + '</div>' +
         (location.protocol === 'file:' ? '<div class="callout small">Opened as a file: YouTube may refuse to play embedded videos here. Use "Open on YouTube", or publish the site on GitHub Pages (see README).</div>' : '') +
-        (mainPick ? '<section class="stack"><h3>Main pick · ' + GROUP_LABEL[group(mainPick)] + '</h3>' + resCard(mainPick, { player: true, featured: true, note: noteFor(m, mainPick) }) + '</section>' : '<div class="empty">Resources for this module are being added.</div>') +
-        (otherLangPick ? '<section class="stack"><h3>Main pick in ' + GROUP_LABEL[group(otherLangPick)] + '</h3>' + resCard(otherLangPick, { player: true, note: noteFor(m, otherLangPick) }) + '</section>' : '') +
-        (rest.length ? '<section class="stack"><h3>More options</h3>' + ['hi', 'in', 'en'].map(function (g) {
+        (mainPick ? '<section class="stack"><h2 class="h-sub">Main pick · ' + GROUP_LABEL[group(mainPick)] + '</h2>' + resCard(mainPick, { player: true, featured: true, note: noteFor(m, mainPick) }) + '</section>' : '<div class="empty">Resources for this module are being added.</div>') +
+        (otherLangPick ? '<section class="stack"><h2 class="h-sub">Main pick in ' + GROUP_LABEL[group(otherLangPick)] + '</h2>' + resCard(otherLangPick, { player: true, note: noteFor(m, otherLangPick) }) + '</section>' : '') +
+        (rest.length ? '<section class="stack"><h2 class="h-sub">More options</h2>' + ['hi', 'in', 'en'].map(function (g) {
           var items = rest.filter(function (r) { return group(r) === g; });
           if (!items.length) return '';
           var gid = 'more-' + g, shown = 4;
-          return '<div class="lang-group"><h4>' + esc(g === 'en' ? 'Global English (extras)' : GROUP_LABEL[g]) + ' <span class="chip num">' + items.length + '</span></h4><div class="grid" id="' + gid + '">' +
+          return '<div class="lang-group"><h3 class="h-sub3">' + esc(g === 'en' ? 'Global English (extras)' : GROUP_LABEL[g]) + ' <span class="chip num">' + items.length + '</span></h3><div class="grid" id="' + gid + '">' +
             items.map(function (r, i) { return '<div' + (i >= shown ? ' hidden' : '') + '>' + resCard(r, { note: noteFor(m, r) }) + '</div>'; }).join('') + '</div>' +
             (items.length > shown ? '<div><button class="btn btn-sm" type="button" data-more="' + gid + '">Show ' + (items.length - shown) + ' more</button></div>' : '') + '</div>';
         }).join('') + '</section>' : '') + '</div>';
@@ -433,7 +433,7 @@
   function listBlock(title, arr, ordered) {
     if (!arr || !arr.length) return '';
     var tag = ordered ? 'ol' : 'ul';
-    return '<section class="stack-sm"><h3>' + esc(title) + '</h3><' + tag + ' class="prose">' + arr.map(function (x) { return '<li>' + inline(x) + '</li>'; }).join('') + '</' + tag + '></section>';
+    return '<section class="stack-sm"><h2 class="h-sub">' + esc(title) + '</h2><' + tag + ' class="prose">' + arr.map(function (x) { return '<li>' + inline(x) + '</li>'; }).join('') + '</' + tag + '></section>';
   }
   function recordQuiz(key, score) {
     var q = S().quiz[key] || { best: 0, attempts: 0 };
@@ -471,7 +471,7 @@
       '<header class="stack-sm"><h1>Interactive labs</h1><p class="lede muted prose">Play first, then learn the maths. Each lab has small challenges; finishing them counts toward your module progress.</p></header>' +
       '<div class="grid">' + byModule.map(function (m) {
         var lab = labOf(m), t = lab.tasks || [], dn = t.filter(function (x) { return S().labs[lab.id] && S().labs[lab.id][x.id]; }).length;
-        return '<a class="card stack-sm" href="#lab-' + esc(lab.id) + '" style="text-decoration:none;color:inherit"><span class="eyebrow">Module ' + modNo(m) + ' · ' + esc(m.title) + '</span><h3>' + esc(lab.title) + '</h3><p class="small muted">' + esc(lab.summary || '') + '</p>' +
+        return '<a class="card stack-sm" href="#lab-' + esc(lab.id) + '" style="text-decoration:none;color:inherit"><span class="eyebrow">Module ' + modNo(m) + ' · ' + esc(m.title) + '</span><h2 class="h-sub3">' + esc(lab.title) + '</h2><p class="small muted">' + esc(lab.summary || '') + '</p>' +
           '<div class="row"><span class="chip num">' + dn + '/' + t.length + ' tasks</span></div></a>';
       }).join('') + (ids.length ? '' : '<div class="empty">Labs are loading.</div>') + '</div></div>', 'Labs');
   }
@@ -502,7 +502,7 @@
     opts = opts || {};
     var saved = S().code[e.id], done = S().ex[e.id] && S().ex[e.id].done;
     var hintN = 0, solArmed = false;
-    root.innerHTML = '<div class="ex"><div class="row-between">' + (opts.hideTitle ? '<span></span>' : '<h3>' + esc(e.title) + '</h3>') + '<div class="row">' +
+    root.innerHTML = '<div class="ex"><div class="row-between">' + (opts.hideTitle ? '<span></span>' : '<h2 class="h-sub">' + esc(e.title) + '</h2>') + '<div class="row">' +
       (done ? '<span class="chip chip-ok">Solved</span>' : '') + (e.optional ? '<span class="chip chip-hi">Optional</span>' : '') + (e.difficulty && e.difficulty !== 'free' ? '<span class="chip chip-level">' + esc(e.difficulty) + '</span>' : '') +
       (e.packages && e.packages.length ? '<span class="chip">' + esc(e.packages.join(', ')) + '</span>' : '') + '</div></div>' +
       (e.concept ? '<span class="small muted">Practises: ' + inline(e.concept) + '</span>' : '') +
@@ -640,12 +640,12 @@
     var html = '<div class="wrap stack-lg">' + crumbs([['Home', 'home'], ['Projects', 'projects'], [p.title]]) +
       '<header class="stack-sm"><div class="row"><span class="eyebrow">' + (p.level === 5 ? 'Grand capstone' : 'Level ' + p.level + ' project') + '</span>' + stars(p.difficulty || 3) + '<span class="chip num">~' + esc(p.hours || '?') + ' hours</span></div><h1>' + esc(p.title) + '</h1><p class="lede muted prose">' + inline(p.tagline || '') + '</p></header>' +
       '<div class="two-col"><div class="stack-lg">' +
-      '<section class="stack-sm prose"><h3>The brief</h3><p>' + inline(p.brief || '') + '</p>' + (p.why ? '<div class="callout callout-indigo"><strong>Why build this:</strong> ' + inline(p.why) + '</div>' : '') + (p.indiaContext ? '<p class="small muted">' + inline(p.indiaContext) + '</p>' : '') + '</section>' +
-      (p.datasets && p.datasets.length ? '<section class="stack-sm"><h3>Data</h3><ul class="prose">' + p.datasets.map(function (d) { return '<li>' + (d.url ? '<a href="' + esc(d.url) + '" target="_blank" rel="noopener">' + esc(d.name) + '</a>' : '<strong>' + esc(d.name) + '</strong>') + (d.note ? ' · <span class="muted">' + inline(d.note) + '</span>' : '') + '</li>'; }).join('') + '</ul></section>' : '') +
-      '<section class="stack-sm"><h3>Milestones</h3><ul class="checklist">' + (p.milestones || []).map(function (ms, i) {
+      '<section class="stack-sm prose"><h2 class="h-sub">The brief</h2><p>' + inline(p.brief || '') + '</p>' + (p.why ? '<div class="callout callout-indigo"><strong>Why build this:</strong> ' + inline(p.why) + '</div>' : '') + (p.indiaContext ? '<p class="small muted">' + inline(p.indiaContext) + '</p>' : '') + '</section>' +
+      (p.datasets && p.datasets.length ? '<section class="stack-sm"><h2 class="h-sub">Data</h2><ul class="prose">' + p.datasets.map(function (d) { return '<li>' + (d.url ? '<a href="' + esc(d.url) + '" target="_blank" rel="noopener">' + esc(d.name) + '</a>' : '<strong>' + esc(d.name) + '</strong>') + (d.note ? ' · <span class="muted">' + inline(d.note) + '</span>' : '') + '</li>'; }).join('') + '</ul></section>' : '') +
+      '<section class="stack-sm"><h2 class="h-sub">Milestones</h2><ul class="checklist">' + (p.milestones || []).map(function (ms, i) {
         return '<li><label><input type="checkbox" data-action="pstep" data-id="' + esc(id) + '" data-i="' + i + '"' + (st.steps[i] ? ' checked' : '') + '><span><strong>' + esc(ms.title) + '</strong><br><span class="small muted">' + inline(ms.detail || '') + '</span></span></label></li>';
       }).join('') + '</ul></section>' +
-      '<section class="stack-sm"><h3>Rubric: grade yourself honestly</h3><div class="table-wrap"><table class="simple rubric"><thead><tr><th>Criterion</th><th>Basic</th><th>Good</th><th>Excellent</th></tr></thead><tbody>' +
+      '<section class="stack-sm"><h2 class="h-sub">Rubric: grade yourself honestly</h2><div class="table-wrap"><table class="simple rubric"><thead><tr><th>Criterion</th><th>Basic</th><th>Good</th><th>Excellent</th></tr></thead><tbody>' +
       (p.rubric || []).map(function (r, i) {
         return '<tr><td><strong>' + esc(r.criterion) + '</strong></td>' + ['basic', 'good', 'excellent'].map(function (lv, k) {
           return '<td data-label="' + ['Basic', 'Good', 'Excellent'][k] + '"><label class="small" style="display:grid;grid-template-columns:20px 1fr;gap:6px"><input type="radio" name="rub-' + i + '" data-action="prub" data-id="' + esc(id) + '" data-i="' + i + '" value="' + (k + 1) + '"' + (st.rubric[i] === k + 1 ? ' checked' : '') + '><span>' + inline(r[lv] || '') + '</span></label></td>';
@@ -676,7 +676,7 @@
       '<header class="stack-sm"><h1>Level tests</h1><p class="lede muted prose">Each test mixes the whole level. Answers are revealed only after you submit. Pass with 70% before moving on. Module quizzes live on each module page.</p></header><div class="grid-4">' +
       D.levels.map(function (l) {
         var q = D.quizzes['test-l' + l.id] || [], s = S().quiz['test-l' + l.id];
-        return '<div class="card stack-sm"><span class="eyebrow">Level ' + l.id + ' · ' + esc(l.name) + '</span><h3>' + esc(l.title) + '</h3><span class="small muted">' + q.length + ' questions · ' + Math.max(15, Math.round(q.length * 1.5)) + ' minutes</span>' +
+        return '<div class="card stack-sm"><span class="eyebrow">Level ' + l.id + ' · ' + esc(l.name) + '</span><h2 class="h-sub3">' + esc(l.title) + '</h2><span class="small muted">' + q.length + ' questions · ' + Math.max(15, Math.round(q.length * 1.5)) + ' minutes</span>' +
           (s ? '<span class="chip ' + (s.best >= 70 ? 'chip-ok' : '') + ' num">Best ' + esc(s.best) + '%</span>' : '') + '<a class="btn btn-primary" href="#test-l' + l.id + '">' + (s ? 'Retake' : 'Start') + ' test</a></div>';
       }).join('') + '</div>' +
       '<section class="stack"><h2>Module quizzes taken</h2>' + quizTable() + '</section></div>', 'Tests');
@@ -721,7 +721,7 @@
       selectHTML('lib-lang', 'Language', [['all', 'All languages'], ['hi', 'Hindi + Hinglish'], ['indian-english', 'Indian English'], ['english', 'English']], libState.lang) +
       selectHTML('lib-level', 'Level', [['all', 'All levels'], ['beginner', 'Level 1 · Beginner'], ['intermediate', 'Level 2 · Intermediate'], ['advanced', 'Level 3 · Advanced'], ['expert', 'Level 4 · Expert']], libState.level) +
       selectHTML('lib-type', 'Type', [['all', 'All types']].concat(Object.keys(types).sort().map(function (t) { return [t, cap(t)]; })), libState.type) +
-      '</div><div class="small muted num" id="lib-count"></div><div class="grid" id="lib-grid"></div><div id="lib-more"></div></div>', 'Library');
+      '</div><h2 class="visually-hidden">Resources</h2><div class="small muted num" id="lib-count"></div><div class="grid" id="lib-grid"></div><div id="lib-more"></div></div>', 'Library');
     function apply(keepShown) {
       if (!keepShown) libState.shown = LIB_PAGE;
       libState.q = document.getElementById('lib-q').value.toLowerCase().trim();
@@ -864,7 +864,7 @@
       '<header class="row-between"><div class="stack-sm"><h1>My progress</h1><p class="muted">Saved only in this browser on this device. Export it to keep a backup or move devices.</p></div>' + ring(overallProgress()) + '</header>' +
       (overallProgress() === 0 && !Object.keys(st.quiz).length ? '<div class="callout row-between"><span>Nothing here yet. Your first step takes about 30 minutes.</span><a class="btn btn-primary" href="#start">Start here</a></div>' : '') +
       '<div class="lab-stats">' + stat('Course complete', overallProgress() + '%') + stat('Day streak', C.streak()) + stat('Exercises solved', solved + '/' + D.exercises.length) + stat('Quizzes passed', passed) + stat('Lab tasks', labTasks) + stat('Projects done', projDone + '/' + D.projects.length) + '</div>' +
-      '<section class="stack">' + D.levels.map(function (l) { return '<div class="stack-sm"><div class="row-between"><a href="#level-' + l.id + '"><strong>Level ' + l.id + ' · ' + esc(l.name) + '</strong></a><span class="num small">' + levelProgress(l.id) + '%</span></div>' + bar(levelProgress(l.id)) + '</div>'; }).join('') + '</section>' +
+      '<section class="stack">' + D.levels.map(function (l) { return '<div class="stack-sm"><div class="row-between"><a href="#level-' + l.id + '"><strong>Level ' + l.id + ' · ' + esc(l.name) + '</strong></a><span class="num small">' + levelProgress(l.id) + '%</span></div>' + bar(levelProgress(l.id), 'Level ' + l.id + ' progress') + '</div>'; }).join('') + '</section>' +
       '<div class="two-col"><section class="stack"><h2>Quizzes</h2>' + quizTable() + '</section><aside class="stack">' + plannerCard() +
       '<div class="card stack-sm"><strong>Backup</strong><div class="row"><button class="btn btn-sm" data-action="export">Copy progress</button><button class="btn btn-sm" data-action="download">Download file</button></div>' +
       '<label class="small" for="import-box">Restore: paste a backup and press Restore</label><textarea id="import-box" rows="3" placeholder="{&quot;v&quot;:1, …}"></textarea><div class="row"><button class="btn btn-sm" data-action="import">Restore</button><button class="btn btn-sm btn-ghost" data-action="reset">Reset all progress</button></div></div>' +
