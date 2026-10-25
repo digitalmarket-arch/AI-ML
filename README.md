@@ -41,6 +41,8 @@ GitHub Pages hosts this folder as a website at no cost.
 
 ### Turn on sign-in (optional, free, about 10 minutes)
 
+**This copy is already connected** to the Firebase project `ai-marg`, so sign-in is live on the GitHub Pages site. The steps below are for anyone who copies the site and wants sign-in on their own project.
+
 Without this, the site works fully and each learner's progress stays in their own browser. With it, learners can press **Sign in** (top right), sign in with Google, and their progress is backed up and synced between their phone and laptop. It uses Firebase from Google on the free Spark plan (₹0; no card needed).
 
 1. Go to [console.firebase.google.com](https://console.firebase.google.com), sign in with your Google account and press **Create a project**. Name it, for example `ai-marg`. You can turn Google Analytics off.
@@ -56,6 +58,7 @@ Without this, the site works fully and each learner's progress stays in their ow
    ```
 
    Commit the change. A minute later the **Sign in** button appears on the site.
+8. Optional but recommended: open **Project settings → General → Public settings** and set the **public-facing name** to your site's name (for example `AI Marg`). Otherwise Google may show a project number such as `project-519581742822` when learners sign in.
 
 These config values are not secret (every Firebase web app shows them to the browser); the rules from step 6 are what keep each learner's data private. The free plan allows about 50,000 reads and 20,000 writes a day. That covers a few hundred daily learners because the site syncs a few seconds after a change (at most twice a minute), sends a playing video's position only every few minutes or when the learner switches away from the tab, and skips the write when nothing has changed.
 

@@ -342,7 +342,7 @@
       '<section class="hero"><div class="stack">' +
       '<span class="eyebrow">Free AI & ML course · Videos in Hindi, Hinglish & Indian English</span>' +
       '<h1>From your first line of Python to building <em>AI agents</em>.</h1>' +
-      '<p class="lede">A guided path through the best free videos from Indian teachers first, in Hindi, Hinglish and Indian English, with interactive labs, Python you can run in the browser, tests and tough projects. No fees, no sign-up.</p>' +
+      '<p class="lede">A guided path through the best free videos from Indian teachers first, in Hindi, Hinglish and Indian English, with interactive labs, Python you can run in the browser, tests and tough projects. No fees, and no sign-up needed.</p>' +
       '<div class="row"><a class="btn btn-primary" href="#start">Start here</a>' +
       (last ? '<a class="btn" href="#m-' + esc(last.id) + '">Continue: ' + esc(last.title) + '</a>' : '<a class="btn" href="#level-1">Open Level 1</a>') + '</div>' +
       '</div>' + stations() + '</section>' +
@@ -1043,8 +1043,9 @@
     var privacy = '<section class="stack-sm"><h2 class="h-sub">What is saved, and who can see it</h2><ul class="prose small">' +
       '<li>Only your course progress: ticks, quiz scores, lab tasks, exercise answers and drafts, notes, project checklists and links, flashcard scores, where you stopped each video, and your study plan and display settings, together with your Google account ID.</li>' +
       '<li>Your name and email come from Google so you can see which account you used. No password is ever seen by this site.</li>' +
-      '<li>Each account can read and write only its own copy. Nothing is sold or used for ads.</li>' +
-      '<li>You can delete your cloud copy below at any time. Signing in is optional: without it, progress stays in this browser.</li></ul></section>';
+      '<li>It is stored with Google Firebase in Mumbai, India. Each account can read and write only its own copy. The site owner can see the stored data and the name and email of each account in the Firebase console, and uses them only to run this site. Nothing is sold, shared or used for ads.</li>' +
+      '<li>You can delete your cloud copy below at any time. That removes your progress; to also remove your sign-in record, ask on <a href="https://github.com/digitalmarket-arch/AI-ML/issues" target="_blank" rel="noopener">GitHub</a> and give the account ID shown on this page when you are signed in (do not post your email).</li>' +
+      '<li>Signing in is optional: without it, progress stays in this browser.</li></ul></section>';
     if (!st.user) {
       return '<section class="card stack"><div class="stack-sm"><h2 class="h-sub">Keep your progress safe in your account</h2>' +
         '<ul class="prose"><li>Continue on your phone exactly where you stopped on your laptop.</li><li>Nothing is lost if you clear your browser or change devices.</li><li>What you have already done on this device is kept and added to your account.</li></ul></div>' +
@@ -1059,6 +1060,7 @@
       '<details class="small"><summary>More options</summary><div class="stack-sm" style="margin-top:8px">' +
       '<div><button class="btn btn-sm" type="button" data-action="cloud-signout-clear">Sign out and remove progress from this device</button><p class="muted">Use this on a shared or office computer. Your progress stays safe in your account.</p></div>' +
       '<div><button class="btn btn-sm btn-ghost" type="button" data-action="cloud-delete">' + (cloudDeleteArmed ? 'Press again to delete for good' : 'Delete my cloud copy') + '</button><p class="muted">Removes your progress from the cloud and signs you out. This device keeps its own copy. If you are signed in on another device, sign out there first, or it will back up its copy again.</p></div>' +
+      (st.user.uid ? '<p class="muted">Your account ID: <code>' + esc(st.user.uid) + '</code>. Give this when you ask for your sign-in record to be removed.</p>' : '') +
       '</div></details></section>' + privacy;
   }
   var cloudDeleteArmed = false;
