@@ -99,6 +99,30 @@ window.AIM.labs = [
   ]
  },
  {
+  "id": "knn",
+  "module": "l2-classification",
+  "title": "K-Nearest Neighbours: loan risk map",
+  "summary": "Predict whether a loan will be repaid by letting its K most similar past loans vote, and see how K and the distance measure reshape the decision boundary.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Slide K down to 1. Training accuracy jumps to 100%, but the map breaks into jagged islands around single loans. That is overfitting (memorising the data, noise included)."
+   },
+   {
+    "id": "t2",
+    "text": "Find the best K: try at least 4 values of K, then leave the slider on the one with the highest leave-one-out accuracy (the accuracy chart keeps score)."
+   },
+   {
+    "id": "t3",
+    "text": "Add a loan that looks mislabelled: a Defaulted point deep inside the Repaid area (or the other way round). See it get its own island at K = 1, then get out-voted at K = 5 or more."
+   },
+   {
+    "id": "t4",
+    "text": "Try a third class: add at least 3 “Paid late” loans close together in an empty corner. With a small K, KNN paints a third region for them."
+   }
+  ]
+ },
+ {
   "id": "tree",
   "module": "l2-trees-ensembles",
   "title": "Decision tree & forest",
@@ -167,6 +191,30 @@ window.AIM.labs = [
    {
     "id": "t4",
     "text": "Make training blow up: with tanh, set the learning rate to 3 or 10 and train until the training loss jumps above 1.5 (much worse than guessing)."
+   }
+  ]
+ },
+ {
+  "id": "convolution",
+  "module": "l3-cv",
+  "title": "Convolution filters & pooling",
+  "summary": "Draw a digit or a Devanagari letter, slide a 3×3 filter over it, and see how edge, blur and sharpen kernels, stride, padding, ReLU and max-pooling change what a CNN sees.",
+  "tasks": [
+   {
+    "id": "t1",
+    "text": "Find the kernel that lights up the up-down (vertical) strokes, then tap one of the brightest pixels in its feature map to see the multiply-and-add."
+   },
+   {
+    "id": "t2",
+    "text": "Make your own horizontal-line detector: type numbers into the 3×3 kernel grid so left-right strokes light up but up-down strokes stay grey. (A preset alone does not count.)"
+   },
+   {
+    "id": "t3",
+    "text": "Switch the stride to 2 (the filter jumps 2 pixels at a time) and watch the feature map shrink to about half its width."
+   },
+   {
+    "id": "t4",
+    "text": "Turn on ReLU + 2×2 max-pool and make the final output exactly 7 × 7. (Hint: use the output-size formula.)"
    }
   ]
  }

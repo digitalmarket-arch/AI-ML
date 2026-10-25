@@ -3,6 +3,1463 @@
 window.AIM = window.AIM || {};
 window.AIM.resources = [
  {
+  "id": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
+  "title": "100 Days of Machine Learning: Days 15-22 (data gathering and EDA) and Days 34-44 (dates, missing values, outliers)",
+  "creator": "CampusX (Nitish Singh)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLKnIA16_Rmvbr7zKYQuBfsVkjoLcJgxHH",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics",
+   "l1-numpy-pandas",
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "reading CSV, JSON, SQL and API data into Pandas",
+   "web scraping into a DataFrame",
+   "descriptive statistics",
+   "univariate analysis",
+   "bivariate analysis",
+   "pandas profiling",
+   "handling dates and times",
+   "missing-value imputation (complete-case, numerical, categorical, KNN, iterative)",
+   "outlier removal (z-score, IQR, percentiles)"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube; notebooks free on GitHub",
+  "why": "The best-known Hindi ML series. Its early days are a complete, practical EDA workflow and its later days cover missing data and outliers, each with a matching notebook.",
+  "caveats": "You only need some days of a long ML playlist: Days 15-22 for EDA and Days 34-44 for dates, missing values and outliers. Later days move on to ML models. Recorded around 2021-22 (not confirmed); pandas-profiling has since been renamed ydata-profiling.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLKnIA16_Rmvbr7zKYQuBfsVkjoLcJgxHH",
+  "videoId": ""
+ },
+ {
+  "id": "krish-naik-hindi-ai-engineers-vs-ml-engineers-vs-data-sc",
+  "title": "AI Engineers Vs ML Engineers Vs Data Scientist",
+  "creator": "Krish Naik Hindi",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=auuJjEKFjuk",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics"
+  ],
+  "topics": [
+   "AI career paths",
+   "AI engineer vs ML engineer vs data scientist",
+   "skills needed"
+  ],
+  "approxHours": 0.5,
+  "cost": "Free on YouTube",
+  "why": "Explains, in Hinglish, the main AI job roles and how they differ. This helps a founder or career-switcher choose a path.",
+  "caveats": "URL NOT INDEPENDENTLY VERIFIED: it comes only from the proposer's search. The channel URL https://www.youtube.com/@krishnaikhindi is verified (Krish Naik's own README) and can be used as a fallback. Job-market advice changes quickly. The length is an estimate.",
+  "year": 0,
+  "status": "unverified",
+  "listId": "",
+  "videoId": "auuJjEKFjuk"
+ },
+ {
+  "id": "apna-college-complete-basics-of-ai-in-one-shot",
+  "title": "Complete Basics of AI in One Shot",
+  "creator": "Apna College",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=D1eL1EnxXXQ",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics"
+  ],
+  "topics": [
+   "what is AI",
+   "AI vs ML vs DL",
+   "generative AI basics",
+   "real-world use-cases"
+  ],
+  "approxHours": 3,
+  "cost": "Free on YouTube",
+  "why": "One long Hinglish video that explains AI basics in Apna College's simple, school-style teaching. A good first watch for someone who has never coded.",
+  "caveats": "The description promotes Apna College's paid AI/ML batch, but the video itself is free. On YouTube the title may now read 'AI Complete OneShot Course for Beginners'. The length (about 3 hours) and the upload year are not confirmed. A newer Apna College AI one-shot may exist, but its URL could not be verified, so it is not listed.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "D1eL1EnxXXQ"
+ },
+ {
+  "id": "microsoft-generative-ai-for-beginners-hindi-translation-",
+  "title": "Generative AI for Beginners (Hindi translation, Version 3)",
+  "creator": "Microsoft",
+  "platform": "GitHub",
+  "type": "course",
+  "url": "https://github.com/microsoft/generative-ai-for-beginners/blob/main/translations/hi/README.md",
+  "firstVideoUrl": "",
+  "language": "hindi",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics"
+  ],
+  "topics": [
+   "introduction to generative AI and LLMs",
+   "comparing LLMs",
+   "responsible AI",
+   "prompt engineering basics",
+   "low-code AI apps"
+  ],
+  "approxHours": 10,
+  "cost": "Free (open source on GitHub)",
+  "why": "An official Microsoft course with a full Hindi text translation. The 'Learn' lessons, such as 01 (Intro to GenAI and LLMs), 03 (Using GenAI Responsibly) and 04 (Prompt Engineering), work for non-coders and cover AI ethics.",
+  "caveats": "Only the lesson text is in Hindi. The short lesson videos (aka.ms links) are in English, and lessons 19-21 have no video yet. 'Build' lessons (06 onwards) need Python or TypeScript and an API key, so save them for later. The Hindi files are machine-assisted translations (Co-op Translator), so some phrasing is awkward.",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "krish-naik-uploader-not-confirmed-ai-learning-path-for-2",
+  "title": "AI Learning Path For 2026 - Data Science, Generative and Agentic AI Roadmap",
+  "creator": "Krish Naik (uploader not confirmed)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=uaRKRE8oDZ4",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics"
+  ],
+  "topics": [
+   "AI career roadmap 2026",
+   "data science vs generative AI vs agentic AI paths",
+   "free learning resources"
+  ],
+  "approxHours": 0.5,
+  "cost": "Free on YouTube",
+  "why": "A current (2026) roadmap of the AI career paths that helps a beginner see where this course leads.",
+  "caveats": "URL AND UPLOADER NOT VERIFIED. Krish Naik's text roadmap is a verified alternative: GitHub repo krishnaik06/Complete-RoadMap-To-Learn-AI ('AI Mastery Roadmap 2025', with Data Science, GenAI and Agentic AI paths). Roadmap videos often promote paid courses.",
+  "year": 0,
+  "status": "unverified",
+  "listId": "",
+  "videoId": "uaRKRE8oDZ4"
+ },
+ {
+  "id": "krish-naik-uploader-not-confirmed-ai-vs-ml-vs-dl-vs-gene",
+  "title": "AI vs ML vs DL vs Generative AI",
+  "creator": "Krish Naik (uploader not confirmed)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=gHXENP57beg",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics"
+  ],
+  "topics": [
+   "AI vs ML vs DL vs Generative AI",
+   "how the fields nest inside each other"
+  ],
+  "approxHours": 0.3,
+  "cost": "Free on YouTube",
+  "why": "A short, intuitive explanation of the most common beginner confusion, said to come from one of India's most popular AI educators.",
+  "caveats": "URL AND UPLOADER NOT VERIFIED: even the proposer's search result did not show the channel name. Check it before publishing. The proposer's 'Agentic AI' follow-up link was also unverified and has been dropped.",
+  "year": 0,
+  "status": "unverified",
+  "listId": "",
+  "videoId": "gHXENP57beg"
+ },
+ {
+  "id": "indiaai-mission-government-of-india-yuva-ai-for-all-gove",
+  "title": "YUVA AI for ALL (Government of India national AI literacy course)",
+  "creator": "IndiaAI Mission, Government of India",
+  "platform": "Website",
+  "type": "course",
+  "url": "https://www.newsonair.gov.in/government-launches-yuva-ai-for-all-free-national-ai-learning-course",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics"
+  ],
+  "topics": [
+   "what is AI",
+   "everyday AI use-cases in India",
+   "responsible and ethical AI use"
+  ],
+  "approxHours": 4.5,
+  "cost": "Free; free Government of India certificate on completion (as reported)",
+  "why": "A free, self-paced Government of India AI-literacy course for ordinary citizens, set in an Indian context and with an official certificate.",
+  "caveats": "NOT VERIFIED BY ME. The URL is a news announcement (All India Radio), not the enrolment page. Enrolment is reportedly through FutureSkills Prime or iGOT Karmayogi. Hindi availability was not confirmed. Reportedly launched in November 2025.",
+  "year": 2025,
+  "status": "unverified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "deeplearning-ai-andrew-ng-ai-for-everyone",
+  "title": "AI For Everyone",
+  "creator": "DeepLearning.AI (Andrew Ng)",
+  "platform": "Coursera (audit)",
+  "type": "course",
+  "url": "https://www.coursera.org/learn/ai-for-everyone",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics"
+  ],
+  "topics": [
+   "AI terminology",
+   "what ML can and cannot do",
+   "choosing AI projects",
+   "building AI teams",
+   "AI and society, bias and ethics"
+  ],
+  "approxHours": 6,
+  "cost": "Free to audit; certificate paid",
+  "why": "Andrew Ng's classic non-technical course for business people and founders. It teaches how to think about AI projects and what AI can realistically do.",
+  "caveats": "Recorded in 2019, before ChatGPT, so follow it with 'Generative AI for Everyone'. Pick the free 'audit' option when enrolling; Coursera sometimes hides it. The exact Coursera URL was not re-verified. The course itself is confirmed via the DeepLearning.AI page https://www.deeplearning.ai/ai-for-everyone/, an older link that may redirect.",
+  "year": 2019,
+  "status": "partial",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "3blue1brown-grant-sanderson-but-what-is-a-neural-network",
+  "title": "But what is a neural network? (Deep Learning, chapter 1)",
+  "creator": "3Blue1Brown (Grant Sanderson)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=aircAruvnKk",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics"
+  ],
+  "topics": [
+   "how models learn from data",
+   "neurons and layers",
+   "intuition for neural networks"
+  ],
+  "approxHours": 0.3,
+  "cost": "Free on YouTube",
+  "why": "The most famous visual explanation of what a neural network is. It shows how a model 'learns' from data without the viewer writing any code.",
+  "caveats": "Uses some light maths (weights and sums); non-coders can follow the visuals and skip the formulas. From 2017 but timeless. The text version on 3blue1brown.com includes an interactive digit-recognition demo; that page's URL was not separately verified.",
+  "year": 2017,
+  "status": "verified",
+  "listId": "",
+  "videoId": "aircAruvnKk"
+ },
+ {
+  "id": "andrej-karpathy-deep-dive-into-llms-like-chatgpt",
+  "title": "Deep Dive into LLMs like ChatGPT",
+  "creator": "Andrej Karpathy",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=7xTGNNLPyMI",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics",
+   "l4-finetuning"
+  ],
+  "topics": [
+   "pretraining",
+   "tokenization",
+   "supervised fine-tuning / instruction tuning",
+   "RLHF intuition",
+   "reasoning models and RL",
+   "hallucinations"
+  ],
+  "approxHours": 3.5,
+  "cost": "Free on YouTube",
+  "why": "A general-audience talk that makes the full training pipeline (pretraining, SFT, RL/RLHF) intuitive for non-coders. It is a strong conceptual base before LoRA and DPO.",
+  "caveats": "About 3.5 hours long. Recorded in early 2025. The URL is unconfirmed by the checker; the verified 1-hour Karpathy talk is a shorter substitute.",
+  "year": 2025,
+  "status": "unverified",
+  "listId": "",
+  "videoId": "7xTGNNLPyMI"
+ },
+ {
+  "id": "university-of-helsinki-minnalearn-originally-reaktor-ele",
+  "title": "Elements of AI",
+  "creator": "University of Helsinki & MinnaLearn (originally Reaktor)",
+  "platform": "Website",
+  "type": "course",
+  "url": "https://www.elementsofai.com",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics"
+  ],
+  "topics": [
+   "what is AI",
+   "AI problem solving",
+   "real-world AI",
+   "machine learning basics",
+   "neural networks",
+   "implications and ethics of AI",
+   "interactive exercises"
+  ],
+  "approxHours": 30,
+  "cost": "Free (free certificate of completion)",
+  "why": "The best-known interactive AI-literacy course. It needs no programming or advanced maths and has hands-on exercises in every chapter, so it suits learners who want interactive study.",
+  "caveats": "Text-based, not video. It is offered in many European languages, but no Hindi version was found. It was written in 2018, before ChatGPT, so it barely covers generative AI; pair it with the GenAI resources below.",
+  "year": 2018,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "deeplearning-ai-andrew-ng-generative-ai-for-everyone",
+  "title": "Generative AI for Everyone",
+  "creator": "DeepLearning.AI (Andrew Ng)",
+  "platform": "Coursera (audit)",
+  "type": "course",
+  "url": "https://www.coursera.org/learn/generative-ai-for-everyone",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics"
+  ],
+  "topics": [
+   "what generative AI is and how it works",
+   "LLM use-cases",
+   "prompting",
+   "GenAI project lifecycle",
+   "responsible AI"
+  ],
+  "approxHours": 5,
+  "cost": "Free to audit on Coursera; certificate paid",
+  "why": "The GenAI follow-up to AI for Everyone. Its short videos need no coding and explain what tools like ChatGPT can and cannot do, which suits a non-technical founder.",
+  "caveats": "Launched in late 2023. Model names and tool examples are dated by 2026, but the concepts hold. It covers agents and MCP lightly or not at all. Pick the 'audit' option to learn for free.",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "3blue1brown-grant-sanderson-large-language-models-explai",
+  "title": "Large Language Models explained briefly",
+  "creator": "3Blue1Brown (Grant Sanderson)",
+  "platform": "Website",
+  "type": "video",
+  "url": "https://www.3blue1brown.com/lessons/mini-llm/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics"
+  ],
+  "topics": [
+   "what an LLM is",
+   "next-word prediction",
+   "pre-training and RLHF",
+   "transformers and attention (intuition)"
+  ],
+  "approxHours": 0.2,
+  "cost": "Free",
+  "why": "A short, beautifully animated explainer, originally made for a Computer History Museum exhibit. It gives a non-coder an accurate mental model of how ChatGPT-style models work.",
+  "caveats": "Very short, so use it as the hook rather than the whole lesson. 3Blue1Brown's own site repo gives the YouTube video ID as LPZh9BOjkQs; the proposer's YouTube link (WMcwoIyK4DA) does not match it and has been dropped.",
+  "year": 2024,
+  "status": "partial",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "google-creative-lab-teachable-machine-train-your-own-ai-",
+  "title": "Teachable Machine (train your own AI model in the browser, no code)",
+  "creator": "Google Creative Lab",
+  "platform": "Website",
+  "type": "tool",
+  "url": "https://teachablemachine.withgoogle.com/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics"
+  ],
+  "topics": [
+   "what training data is",
+   "training an image/sound/pose classifier",
+   "testing a model",
+   "interactive (in-browser, no code)"
+  ],
+  "approxHours": 1,
+  "cost": "Free",
+  "why": "A fully interactive, no-code tool. A non-coder trains a real image or sound classifier with a webcam or microphone in minutes and sees first-hand how examples become a model, which is the most hands-on way to 'get' machine learning on day one.",
+  "caveats": "English interface (no Hindi confirmed). A webcam or microphone helps but is optional, since images can be uploaded. It is a toy for building intuition, not a full course. The hours are an estimate.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "andrej-karpathy-1hr-talk-intro-to-large-language-models",
+  "title": "[1hr Talk] Intro to Large Language Models",
+  "creator": "Andrej Karpathy",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=zjkBMFhNj_g",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-ai-basics",
+   "l4-llm-apps",
+   "l4-finetuning"
+  ],
+  "topics": [
+   "what an LLM is",
+   "pretraining vs fine-tuning stages",
+   "tool use",
+   "LLM security (jailbreaks, prompt injection)"
+  ],
+  "approxHours": 1,
+  "cost": "Free on YouTube",
+  "why": "A famous one-hour, non-technical talk that explains how LLMs are built (pretraining, then fine-tuning) and used. It is ideal for a non-coder before building apps or learning LoRA.",
+  "caveats": "Recorded in late 2023, so model examples are dated, but the big-picture explanation still holds.",
+  "year": 2023,
+  "status": "verified",
+  "listId": "",
+  "videoId": "zjkBMFhNj_g"
+ },
+ {
+  "id": "codewithharry-on-replit-100-days-of-code-hindi-python-co",
+  "title": "100 Days of Code (Hindi) - Python Course (interactive Replit edition)",
+  "creator": "CodeWithHarry on Replit",
+  "platform": "Replit",
+  "type": "practice",
+  "url": "https://replit.com/learn/code-with-harry-100-doc",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-python"
+  ],
+  "topics": [
+   "daily Python lessons",
+   "in-browser coding exercises",
+   "interactive (in-browser)"
+  ],
+  "approxHours": 0,
+  "cost": "Free at time of listing; Replit plans change often, so check before relying on it",
+  "why": "An interactive, in-browser version of CodeWithHarry's 100 Days of Code. Learners code each day's lesson without installing Python.",
+  "caveats": "Replit has changed its free plan and its 'Learn' pages several times, so this page may be moved or limited in 2026. Needs a free Replit account. If it is unavailable, use Google Colab with the YouTube series.",
+  "year": 0,
+  "status": "partial",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "chai-aur-code-hitesh-choudhary-chai-aur-python",
+  "title": "Chai aur Python",
+  "creator": "Chai aur Code (Hitesh Choudhary)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLu71SKxNbfoBsMugTFALhdLlZ5VOqCg2s",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-python",
+   "l1-tools"
+  ],
+  "topics": [
+   "basics",
+   "conditionals",
+   "loops and iteration tools",
+   "functions and scopes",
+   "OOP",
+   "decorators",
+   "error handling",
+   "SQLite and APIs",
+   "virtual environments",
+   "Jupyter notebooks"
+  ],
+  "approxHours": 15,
+  "cost": "Free on YouTube; code free on GitHub",
+  "why": "Hitesh Choudhary's calm, question-driven Hindi series goes deeper than most beginner playlists, into scopes, decorators, venv and Jupyter. A good second Hindi option after CodeWithHarry.",
+  "caveats": "The first-video URL was not verified, so start from the top of the playlist. The code is in the GitHub repo hiteshchoudhary/chai-aur-python. The hours are an estimate.",
+  "year": 2024,
+  "status": "verified",
+  "listId": "PLu71SKxNbfoBsMugTFALhdLlZ5VOqCg2s",
+  "videoId": ""
+ },
+ {
+  "id": "krish-naik-hindi-python-in-hindi-complete-python-playlis",
+  "title": "Python In Hindi (complete Python playlist)",
+  "creator": "Krish Naik Hindi",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/watch?v=MJd9d9Mpxg0&list=PLTDARY42LDV4qqiJd1Z1tShm3mp9-rP4v",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=MJd9d9Mpxg0&list=PLTDARY42LDV4qqiJd1Z1tShm3mp9-rP4v",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-python"
+  ],
+  "topics": [
+   "Python basics",
+   "data structures",
+   "control flow",
+   "functions",
+   "OOP",
+   "Python for data science"
+  ],
+  "approxHours": 12,
+  "cost": "Free on YouTube",
+  "why": "Python taught in Hinglish with a data-science focus by Krish Naik, a good fit for learners who already know they want to go into AI/ML.",
+  "caveats": "The playlist is linked through its first video, exactly as in Krish Naik's own README. Recorded around 2022-23. The hours are an estimate.",
+  "year": 2022,
+  "status": "verified",
+  "listId": "PLTDARY42LDV4qqiJd1Z1tShm3mp9-rP4v",
+  "videoId": "MJd9d9Mpxg0"
+ },
+ {
+  "id": "shradha-khapra-apna-college-python-language-full-course-",
+  "title": "Python Language Full Course (2025-26)",
+  "creator": "Shradha Khapra (Apna College)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-python"
+  ],
+  "topics": [
+   "variables and data types",
+   "strings",
+   "lists and tuples",
+   "dictionaries and sets",
+   "loops",
+   "functions and recursion",
+   "file I/O",
+   "OOP"
+  ],
+  "approxHours": 10,
+  "cost": "Free on YouTube; notes free on the Apna College site",
+  "why": "A recently refreshed (2025-26) Hinglish lecture series with free notes and practice questions, paced for college students and non-CS beginners.",
+  "caveats": "The videos promote Apna College's paid batches. The first-lecture URL was not verified. The proposer's separate one-shot link was not verified and has been dropped. The hours are an estimate.",
+  "year": 2025,
+  "status": "verified",
+  "listId": "PLGjplNEQ1it8-0CmoljS5yeV-GlKSUEt0",
+  "videoId": ""
+ },
+ {
+  "id": "codewithharry-haris-ali-khan-python-tutorial-for-absolut",
+  "title": "Python Tutorial For Absolute Beginners in Hindi (100 Days of Code)",
+  "creator": "CodeWithHarry (Haris Ali Khan)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLu0W_9lII9agwh1XjRt242xIpHhPT2llg",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-python"
+  ],
+  "topics": [
+   "variables and data types",
+   "strings, lists, dicts, sets",
+   "if/else and loops",
+   "functions",
+   "exceptions",
+   "modules, pip and virtual environments",
+   "OOP",
+   "file handling",
+   "mini projects"
+  ],
+  "approxHours": 40,
+  "cost": "Free on YouTube (notes and code free on codewithharry.com)",
+  "why": "India's most-watched Hindi Python course. Each short video is one 'day', so it builds a daily habit and covers the full module syllabus from zero to OOP.",
+  "caveats": "PLAYLIST URL NOT INDEPENDENTLY VERIFIED: it comes from the proposer's search summary only. The series itself is confirmed by the Replit edition listed in free-courses-hi.md. Recorded in 2022-23. Some videos use Replit, whose free tier has changed; Google Colab or VS Code work too. The hours are an estimate. The first-video URL was removed because it was unverified.",
+  "year": 2023,
+  "status": "unverified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "codewithharry-haris-ali-khan-the-ultimate-python-course-",
+  "title": "The Ultimate Python Course (one-shot, with code, projects and problem sets)",
+  "creator": "CodeWithHarry (Haris Ali Khan)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://youtu.be/UrsmFxEIp5k",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-python"
+  ],
+  "topics": [
+   "modules, comments and pip",
+   "variables and data types",
+   "strings",
+   "lists and tuples",
+   "dictionaries and sets",
+   "conditionals",
+   "loops",
+   "functions",
+   "OOP",
+   "file I/O",
+   "projects and problem sets"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube; source code, projects and problem sets free on GitHub",
+  "why": "CodeWithHarry's single-video Python course, linked from his own GitHub repo. That repo has chapter-wise code, projects and problem sets, so learners can practise alongside the video.",
+  "caveats": "Long one-shot format; it helps to watch in chapters. The length and upload year were not confirmed. The companion repo is CodeWithHarry/The-Ultimate-Python-Course on GitHub.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "UrsmFxEIp5k"
+ },
+ {
+  "id": "swaroop-c-h-a-byte-of-python-free-book",
+  "title": "A Byte of Python (free book)",
+  "creator": "Swaroop C H",
+  "platform": "Book",
+  "type": "book",
+  "url": "https://python.swaroopch.com",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l1-python"
+  ],
+  "topics": [
+   "installation",
+   "basics",
+   "operators",
+   "control flow",
+   "functions",
+   "modules",
+   "data structures",
+   "OOP",
+   "input/output",
+   "exceptions"
+  ],
+  "approxHours": 10,
+  "cost": "Free online (CC BY-SA)",
+  "why": "A short, friendly free book by an Indian author for absolute beginners, used worldwide for years. Ideal for learners who prefer reading to video.",
+  "caveats": "Text-only. Some setup instructions may lag behind the newest Python releases.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "krish-naik-complete-python-playlist-english",
+  "title": "Complete Python Playlist (English)",
+  "creator": "Krish Naik",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLZoTAELRMXVNUL99R4bDlVYsncUNvwUBB",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=bPrmA1SEN2k&list=PLZoTAELRMXVNUL99R4bDlVYsncUNvwUBB",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l1-python"
+  ],
+  "topics": [
+   "Python basics",
+   "data structures",
+   "functions",
+   "OOP",
+   "Python for data science"
+  ],
+  "approxHours": 15,
+  "cost": "Free on YouTube",
+  "why": "Krish Naik's English Python series. It leads straight into his ML and GenAI playlists, a natural on-ramp for an AI-focused learner.",
+  "caveats": "Older recordings, so the Python version and tooling are dated but still correct. The hours are an estimate.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLZoTAELRMXVNUL99R4bDlVYsncUNvwUBB",
+  "videoId": "bPrmA1SEN2k"
+ },
+ {
+  "id": "telusko-navin-reddy-python-for-beginners-full-course",
+  "title": "Python for Beginners (Full Course)",
+  "creator": "Telusko (Navin Reddy)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLsyeobzWxl7poL9JTVyndKe62ieoN-MZ3",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l1-python"
+  ],
+  "topics": [
+   "variables and data types",
+   "operators",
+   "lists, tuples, sets, dicts",
+   "loops and conditionals",
+   "functions",
+   "modules",
+   "OOP",
+   "exceptions",
+   "file handling"
+  ],
+  "approxHours": 20,
+  "cost": "Free on YouTube",
+  "why": "Navin Reddy's patient, step-by-step Indian-English teaching has made this one of India's most popular Python playlists. Short numbered videos let beginners progress topic by topic.",
+  "caveats": "Recorded around 2018-19, so the IDE and installation screens look dated, though the Python concepts are unchanged. The first-video URL was not verified. The proposer's link to a newer 2026 playlist was unverified and has been dropped.",
+  "year": 2019,
+  "status": "verified",
+  "listId": "PLsyeobzWxl7poL9JTVyndKe62ieoN-MZ3",
+  "videoId": ""
+ },
+ {
+  "id": "deeplearning-ai-andrew-ng-ai-python-for-beginners",
+  "title": "AI Python for Beginners",
+  "creator": "DeepLearning.AI (Andrew Ng)",
+  "platform": "DeepLearning.AI",
+  "type": "course",
+  "url": "https://www.deeplearning.ai/short-courses/ai-python-for-beginners/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-python",
+   "l1-tools"
+  ],
+  "topics": [
+   "Python basics for AI",
+   "variables, lists, dicts, loops, functions",
+   "calling LLMs from Python",
+   "using an AI chatbot as a coding assistant",
+   "interactive (in-browser notebooks)"
+  ],
+  "approxHours": 5,
+  "cost": "Free on the DeepLearning.AI platform at time of listing (account required)",
+  "why": "Andrew Ng teaches Python from zero with an AI assistant built into the in-browser notebooks. This matches how non-coders will actually write code in 2026 and gets to AI use-cases quickly.",
+  "caveats": "Covers fewer core topics than a full course (light on OOP, venv and files), so pair it with a Hindi series or CS50P. DeepLearning.AI's paid-membership options have changed over time; check that the course is still free to take.",
+  "year": 2024,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "al-sweigart-automate-the-boring-stuff-with-python-3rd-ed",
+  "title": "Automate the Boring Stuff with Python, 3rd Edition (free online book)",
+  "creator": "Al Sweigart",
+  "platform": "Book",
+  "type": "book",
+  "url": "https://automatetheboringstuff.com/3e/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-python"
+  ],
+  "topics": [
+   "Python basics",
+   "flow control",
+   "functions",
+   "lists and dicts",
+   "strings",
+   "files",
+   "automating Excel, PDFs, email and web tasks"
+  ],
+  "approxHours": 30,
+  "cost": "Free to read online (CC BY-NC-SA)",
+  "why": "Very practical for founders: it teaches Python by automating everyday office tasks (spreadsheets, files, web), which keeps non-programmers motivated.",
+  "caveats": "The 3rd edition (2025) is current. Paper and ebook copies are paid, but the website is free.",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "harvard-university-david-j-malan-cs50-s-introduction-to-",
+  "title": "CS50's Introduction to Programming with Python (CS50P)",
+  "creator": "Harvard University (David J. Malan)",
+  "platform": "Harvard OpenCourseWare / edX",
+  "type": "course",
+  "url": "https://cs50.harvard.edu/python/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-python"
+  ],
+  "topics": [
+   "functions and variables",
+   "conditionals",
+   "loops",
+   "exceptions",
+   "libraries and pip",
+   "unit tests",
+   "file I/O",
+   "regular expressions",
+   "object-oriented programming",
+   "auto-graded problem sets"
+  ],
+  "approxHours": 40,
+  "cost": "Free (free CS50 certificate; paid verified edX certificate optional)",
+  "why": "Harvard's world-famous beginner course, with outstanding lectures, auto-graded problem sets and a final project. It is highly interactive and gives real proof of skill for a portfolio.",
+  "caveats": "The main lectures are the 2022 edition, still current for core Python. Submitting problem sets needs a free GitHub/edX login. Fast-paced for absolute beginners, so it works well after a Hindi series.",
+  "year": 2022,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "kaggle-colin-morris-kaggle-learn-python",
+  "title": "Kaggle Learn: Python",
+  "creator": "Kaggle (Colin Morris)",
+  "platform": "Kaggle",
+  "type": "practice",
+  "url": "https://www.kaggle.com/learn/python",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-python",
+   "l1-tools"
+  ],
+  "topics": [
+   "syntax and variables",
+   "functions",
+   "booleans and conditionals",
+   "lists",
+   "loops and comprehensions",
+   "strings and dicts",
+   "external libraries",
+   "Kaggle Notebooks",
+   "interactive (in-browser)"
+  ],
+  "approxHours": 5,
+  "cost": "Free (free certificate)",
+  "why": "Short, hands-on lessons that run entirely in free Kaggle Notebooks in the browser. They teach Python and notebook use at the same time, the setup used later for ML.",
+  "caveats": "Assumes a little prior exposure, so it is best done after a beginner video series. Needs a free Kaggle account.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "university-of-helsinki-python-programming-mooc-2025",
+  "title": "Python Programming MOOC 2025",
+  "creator": "University of Helsinki",
+  "platform": "Website",
+  "type": "practice",
+  "url": "https://programming-25.mooc.fi",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-python"
+  ],
+  "topics": [
+   "variables and input",
+   "conditionals",
+   "loops",
+   "functions",
+   "lists, dicts, tuples",
+   "files and exceptions",
+   "modules",
+   "OOP",
+   "auto-graded exercises"
+  ],
+  "approxHours": 100,
+  "cost": "Free",
+  "why": "One of the most rigorous free interactive Python courses. Hundreds of auto-graded exercises teach beginners real programming habits through practice.",
+  "caveats": "Text-based and demanding, with a large workload. Later parts expect a local editor setup. This is the 2025 edition; a newer yearly edition may exist at a similar mooc.fi address. The hours are a rough estimate.",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "corey-schafer-python-tutorials-full-python-playlist",
+  "title": "Python Tutorials (full Python playlist)",
+  "creator": "Corey Schafer",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PL-osiE80TeTt2d9bfVyTiXJA-UTHn6WwU",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-python"
+  ],
+  "topics": [
+   "install and setup",
+   "strings, numbers, lists, dicts",
+   "conditionals and loops",
+   "functions",
+   "modules",
+   "OOP",
+   "file handling",
+   "virtual environments"
+  ],
+  "approxHours": 15,
+  "cost": "Free on YouTube",
+  "why": "Widely regarded as the clearest English Python tutorials on YouTube, with no fluff. This master playlist runs from beginner basics to intermediate topics.",
+  "caveats": "Many videos date from 2016-2019, so the install screens look old, but the content is still accurate. OOP is also in its own verified playlist: https://www.youtube.com/playlist?list=PL-osiE80TeTsqhIuOqKhwlXsIBIdSeYtc. The hours are an estimate.",
+  "year": 2017,
+  "status": "verified",
+  "listId": "PL-osiE80TeTt2d9bfVyTiXJA-UTHn6WwU",
+  "videoId": ""
+ },
+ {
+  "id": "dr-charles-severance-university-of-michigan-python-for-e",
+  "title": "Python for Everybody (PY4E)",
+  "creator": "Dr. Charles Severance (University of Michigan)",
+  "platform": "Website",
+  "type": "course",
+  "url": "https://www.py4e.com/lessons",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-python"
+  ],
+  "topics": [
+   "variables and expressions",
+   "conditionals",
+   "functions",
+   "loops",
+   "strings",
+   "files",
+   "lists",
+   "dictionaries",
+   "tuples",
+   "regular expressions",
+   "web data and databases",
+   "auto-graded exercises"
+  ],
+  "approxHours": 30,
+  "cost": "Free (videos, free book, auto-graded exercises)",
+  "why": "Built for people with zero programming background. It has gentle video lectures, a free textbook and free auto-graded exercises on the site.",
+  "caveats": "Older production style and a slow pace. The later networking and database chapters go beyond this module. An interactive Runestone edition is listed in free-programming-interactive-tutorials-en.md.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "freecodecamp-org-freecodecamp-python-certification-inter",
+  "title": "freeCodeCamp Python Certification (interactive)",
+  "creator": "freeCodeCamp.org",
+  "platform": "freeCodeCamp",
+  "type": "practice",
+  "url": "https://www.freecodecamp.org/learn/python-v9/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-python"
+  ],
+  "topics": [
+   "Python syntax",
+   "data structures",
+   "functions",
+   "OOP",
+   "algorithms",
+   "certification projects",
+   "interactive (in-browser)"
+  ],
+  "approxHours": 0,
+  "cost": "Free, including the certification",
+  "why": "A fully interactive, in-browser Python curriculum with step-by-step lessons, workshops, labs and quizzes, ending in a free certificate. Nothing needs to be installed.",
+  "caveats": "Text and exercise based, with few videos. Part of freeCodeCamp's newer v9 full-stack curriculum. The certificate requires 5 projects plus an exam. The total hours were not stated, so they are set to 0 (unknown).",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "alex-hall-open-source-futurecoder-interactive-python-cou",
+  "title": "futurecoder (interactive Python course for complete beginners)",
+  "creator": "Alex Hall (open source)",
+  "platform": "Website",
+  "type": "practice",
+  "url": "https://futurecoder.io",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-python"
+  ],
+  "topics": [
+   "first programs",
+   "variables and strings",
+   "loops",
+   "conditionals",
+   "lists",
+   "functions",
+   "debugging with hints",
+   "interactive (in-browser)"
+  ],
+  "approxHours": 0,
+  "cost": "Free (100% free, open source, no account needed)",
+  "why": "A fully interactive, in-browser Python course designed to reduce frustration for absolute beginners. Learners must run code in the built-in editor to advance, and they get hints and a debugger when they are stuck. It needs no installation and suits a phone-tethered or low-end laptop.",
+  "caveats": "English only (no Hindi confirmed). Text-based with no videos. It covers the fundamentals but not OOP or venv in depth, so pair it with a Hindi video series.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "apna-college-shradha-khapra-complete-git-and-github-tuto",
+  "title": "Complete Git and GitHub Tutorials for Beginners",
+  "creator": "Apna College (Shradha Khapra)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=Ez8F0nW6S-w",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-tools"
+  ],
+  "topics": [
+   "what is Git",
+   "GitHub account and repos",
+   "clone, add, commit, push",
+   "branches and merge",
+   "pull requests",
+   "resolving merge conflicts"
+  ],
+  "approxHours": 1,
+  "cost": "Free on YouTube",
+  "why": "A compact, beginner-friendly Hinglish one-shot covering everything needed to put projects on GitHub. One of the most-watched Git tutorials in India.",
+  "caveats": "Uses Git on the command line, so absolute beginners should watch a basic terminal video first. The length is an estimate.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "Ez8F0nW6S-w"
+ },
+ {
+  "id": "chai-aur-code-hitesh-choudhary-complete-git-and-github-c",
+  "title": "Complete git and GitHub course in Hindi",
+  "creator": "Chai aur Code (Hitesh Choudhary)",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=q8EevlEpQ2A",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-tools"
+  ],
+  "topics": [
+   "Git internals basics",
+   "commits, branches, merge",
+   "GitHub workflow",
+   "SSH keys",
+   "pull requests"
+  ],
+  "approxHours": 2,
+  "cost": "Free on YouTube",
+  "why": "A more thorough Hindi Git course from industry veteran Hitesh Choudhary. It explains why Git works the way it does, not just which commands to type.",
+  "caveats": "Longer than the Apna College and CodeWithHarry one-shots. The length is an estimate.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "q8EevlEpQ2A"
+ },
+ {
+  "id": "codewithharry-git-github-tutorial-for-beginners-in-hindi",
+  "title": "Git & GitHub Tutorial For Beginners In Hindi",
+  "creator": "CodeWithHarry",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=gwWKnnCMQ5c",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-tools"
+  ],
+  "topics": [
+   "Git basics",
+   "commits and staging",
+   "GitHub remote repos",
+   "push and pull",
+   "branching"
+  ],
+  "approxHours": 1,
+  "cost": "Free on YouTube",
+  "why": "A single-video Git and GitHub crash course in Hindi from India's biggest Hindi coding channel, in the same style as his Python course.",
+  "caveats": "An older recording, so the GitHub UI and the default branch name (master vs main) may differ slightly from today's. The length is an estimate.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "gwWKnnCMQ5c"
+ },
+ {
+  "id": "saima-academy-jupyter-tutorials-hindi-list",
+  "title": "Jupyter Tutorials (Hindi list)",
+  "creator": "Saima Academy",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLBx2L_ikudBO7s6SQZaMDCtbyrjQ-04a8",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-tools"
+  ],
+  "topics": [
+   "Jupyter notebook basics",
+   "running cells",
+   "markdown cells"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "The only Jupyter tutorial in the free-programming-books Hindi course list, which partly fills the gap for a Hindi-medium Jupyter/notebook intro.",
+  "caveats": "NOT PREVIEWED: the content quality, recording year, exact topics and exact language (Hindi or Urdu-leaning) are unknown. Preview it before featuring it. The same skills transfer to Google Colab.",
+  "year": 0,
+  "status": "partial",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "codewithharry-linux-tutorial-for-beginners-in-hindi",
+  "title": "Linux Tutorial For Beginners in Hindi",
+  "creator": "CodeWithHarry",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=_tCY-c-sPZc",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-tools"
+  ],
+  "topics": [
+   "command line basics",
+   "navigating folders",
+   "files and permissions",
+   "common Linux commands"
+  ],
+  "approxHours": 1,
+  "cost": "Free on YouTube",
+  "why": "A Hindi introduction to the terminal and command line, which non-coders need before using Git, pip and venv.",
+  "caveats": "Linux-focused; Windows users can follow along with Git Bash or WSL. An older recording. The length is an estimate.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "_tCY-c-sPZc"
+ },
+ {
+  "id": "kunal-kushwaha-complete-git-and-github-tutorial",
+  "title": "Complete Git and GitHub Tutorial",
+  "creator": "Kunal Kushwaha",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=apGV9Kg7ics",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l1-tools"
+  ],
+  "topics": [
+   "Git basics",
+   "GitHub",
+   "branches",
+   "pull requests",
+   "open-source contribution workflow",
+   "GitHub portfolio"
+  ],
+  "approxHours": 1,
+  "cost": "Free on YouTube",
+  "why": "Kunal Kushwaha's well-known Indian-English Git tutorial. It focuses on the real open-source contribution workflow (fork, branch, PR), which is how a learner builds a GitHub portfolio.",
+  "caveats": "Recorded around 2021, and a few UI details have changed since. The length is an estimate.",
+  "year": 2021,
+  "status": "verified",
+  "listId": "",
+  "videoId": "apGV9Kg7ics"
+ },
+ {
+  "id": "krish-naik-git-and-github-tutorials-english-playlist-hin",
+  "title": "Git and Github Tutorials (English playlist; Hindi one-shot also available)",
+  "creator": "Krish Naik",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/watch?v=GW7B6vwktPA&list=PLZoTAELRMXVOSsBerFZKsdCaA4RYr4RGW",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=GW7B6vwktPA&list=PLZoTAELRMXVOSsBerFZKsdCaA4RYr4RGW",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l1-tools"
+  ],
+  "topics": [
+   "Git basics",
+   "GitHub repos",
+   "branching",
+   "using Git in data science projects"
+  ],
+  "approxHours": 2,
+  "cost": "Free on YouTube",
+  "why": "Git taught for data-science and ML learners, matching Krish Naik's later project-based playlists. A Hinglish version is also verified: https://www.youtube.com/watch?v=8KtY8ihZ8ME.",
+  "caveats": "Older recordings. The length is an estimate.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLZoTAELRMXVOSsBerFZKsdCaA4RYr4RGW",
+  "videoId": "GW7B6vwktPA"
+ },
+ {
+  "id": "mit-missing-semester-agentic-coding-missing-semester-202",
+  "title": "Agentic Coding (Missing Semester 2026 lecture)",
+  "creator": "MIT Missing Semester",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/watch?v=sTdz6PZoAnw",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l1-tools"
+  ],
+  "topics": [
+   "AI coding agents",
+   "Claude Code, OpenAI Codex, opencode",
+   "AGENTS.md and skills",
+   "subagents and MCP servers",
+   "context management",
+   "risks of trusting AI output"
+  ],
+  "approxHours": 1,
+  "cost": "Free on YouTube",
+  "why": "A very current (January 2026) university lecture on using AI coding assistants well and safely. This is how a non-coder founder is likely to write much of their code.",
+  "caveats": "Assumes basic comfort with the terminal and Git. Tools change fast, so check each tool's docs for current features. This lecture is also part of the verified 2026 playlist above, which is the fallback if this link fails.",
+  "year": 2026,
+  "status": "partial",
+  "listId": "",
+  "videoId": "sTdz6PZoAnw"
+ },
+ {
+  "id": "visual-studio-code-microsoft-official-channel-getting-st",
+  "title": "Getting Started with Visual Studio Code",
+  "creator": "Visual Studio Code (Microsoft, official channel)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLj6YeMhvp2S5UgiQnBfvD7XgOMKs3O_G6",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-tools"
+  ],
+  "topics": [
+   "installing VS Code",
+   "editor basics",
+   "extensions",
+   "integrated terminal",
+   "source control in VS Code"
+  ],
+  "approxHours": 1,
+  "cost": "Free on YouTube",
+  "why": "Short official videos from the VS Code team on setting up and using the editor most AI and Python developers use.",
+  "caveats": "The VS Code UI changes monthly, and newer AI and Copilot features may not appear in older clips. No verified Hindi VS Code video was found.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLj6YeMhvp2S5UgiQnBfvD7XgOMKs3O_G6",
+  "videoId": ""
+ },
+ {
+  "id": "github-github-skills-introduction-to-github-interactive",
+  "title": "GitHub Skills: Introduction to GitHub (interactive)",
+  "creator": "GitHub",
+  "platform": "GitHub",
+  "type": "practice",
+  "url": "https://skills.github.com",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-tools"
+  ],
+  "topics": [
+   "repositories",
+   "branches",
+   "commits",
+   "pull requests",
+   "merging",
+   "profile README / portfolio",
+   "interactive (real repo, bot-guided)"
+  ],
+  "approxHours": 1,
+  "cost": "Free",
+  "why": "GitHub's own hands-on courses run inside real repositories, guided by a bot. The first course takes under an hour and ends with a profile README for the learner's GitHub portfolio.",
+  "caveats": "Needs a free GitHub account. Use a public repo so it does not consume Actions minutes. The skills.github.com landing page may redirect to GitHub's newer learning site, but the course repo skills/introduction-to-github still works through its 'Copy Exercise' button.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "google-google-colab-welcome-notebook-and-free-cloud-pyth",
+  "title": "Google Colab (Welcome notebook and free cloud Python)",
+  "creator": "Google",
+  "platform": "Website",
+  "type": "tool",
+  "url": "https://colab.research.google.com",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-tools"
+  ],
+  "topics": [
+   "running Python in the browser",
+   "notebooks",
+   "free GPU/TPU",
+   "saving to Google Drive",
+   "sharing notebooks",
+   "built-in AI assistance",
+   "interactive (in-browser)"
+  ],
+  "approxHours": 1,
+  "cost": "Free tier (paid Colab plans optional)",
+  "why": "Opening Colab shows an interactive 'Welcome to Colab' notebook, so learners can run their first Python code within a minute with zero installation, which suits non-coders and low-end laptops.",
+  "caveats": "Free GPU time is limited and sessions time out. Needs a Google account. The interface and bundled AI features change often.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "corey-schafer-jupyter-notebook-tutorial-introduction-set",
+  "title": "Jupyter Notebook Tutorial: Introduction, Setup, and Walkthrough",
+  "creator": "Corey Schafer",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://www.youtube.com/embed/HW29067qVWk",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-tools"
+  ],
+  "topics": [
+   "what Jupyter is",
+   "installing and launching",
+   "cells, markdown and code",
+   "keyboard shortcuts",
+   "magic commands"
+  ],
+  "approxHours": 0.5,
+  "cost": "Free on YouTube",
+  "why": "A clear walkthrough of Jupyter notebooks (the format Colab and Kaggle also use) from one of the best Python teachers on YouTube.",
+  "caveats": "URL NOT INDEPENDENTLY VERIFIED, and it is in embed form. From 2016, using the classic Jupyter interface; Colab, JupyterLab and VS Code notebooks look different but work the same way.",
+  "year": 2016,
+  "status": "unverified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "peter-cottle-open-source-learn-git-branching-interactive",
+  "title": "Learn Git Branching (interactive visual Git game)",
+  "creator": "Peter Cottle (open source)",
+  "platform": "Website",
+  "type": "practice",
+  "url": "https://pcottle.github.io/learnGitBranching/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-tools"
+  ],
+  "topics": [
+   "commits",
+   "branches",
+   "merge vs rebase",
+   "remote repos",
+   "visualising Git history",
+   "interactive (in-browser)"
+  ],
+  "approxHours": 3,
+  "cost": "Free",
+  "why": "A browser sandbox where learners type real Git commands and watch the commit tree change. It is the most interactive way to understand branching and merging.",
+  "caveats": "Simulated Git, not a real repo, so pair it with GitHub Skills for real practice. Also served at https://learngitbranching.js.org (verified). A Hindi interface was not confirmed.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "microsoft-mastering-github-copilot-free-course",
+  "title": "Mastering GitHub Copilot (free course)",
+  "creator": "Microsoft",
+  "platform": "GitHub",
+  "type": "course",
+  "url": "https://github.com/microsoft/Mastering-GitHub-Copilot-for-Paired-Programming",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-tools"
+  ],
+  "topics": [
+   "getting started with Copilot",
+   "Copilot Agent Mode",
+   "Copilot with Python",
+   "Copilot CLI",
+   "Copilot coding agent",
+   "MCP with Copilot",
+   "Copilot for data science"
+  ],
+  "approxHours": 10,
+  "cost": "Course free; needs a GitHub Copilot plan (the README links a free sign-up; paid plans optional)",
+  "why": "A structured, multi-module Microsoft course on working with an AI pair programmer, from beginner to advanced, including Agent Mode and MCP. A skill every 2026 learner needs.",
+  "caveats": "Text and lab based, with no videos. Only the first lesson is beginner level; the rest are intermediate or advanced. The README says an active Copilot subscription is required and links 'Sign up for free', so expect free-tier usage limits. The ideas carry over to Claude Code, Cursor and others.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "mit-anish-athalye-jon-gjengset-jose-javier-gonzalez-orti",
+  "title": "The Missing Semester of Your CS Education (IAP 2026)",
+  "creator": "MIT (Anish Athalye, Jon Gjengset, Jose Javier Gonzalez Ortiz)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLyzOVJj3bHQunmnnTXrNbZnBaCA-ieK4L",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l1-tools"
+  ],
+  "topics": [
+   "the shell",
+   "command-line environment",
+   "development environment and editors",
+   "version control (Git)",
+   "debugging and profiling",
+   "code quality",
+   "shipping code",
+   "agentic coding"
+  ],
+  "approxHours": 10,
+  "cost": "Free (videos and lecture notes at missing.csail.mit.edu)",
+  "why": "MIT's well-known course on the everyday tools no one teaches: shell, editors, Git and debugging. The 2026 edition adds a lecture on AI coding agents, so it is current.",
+  "caveats": "Fast and dense for a non-coder, so take it after the Hindi Git and terminal videos. Community translations exist (Bengali, Kannada and others) but not Hindi. The 2020 playlist (https://www.youtube.com/playlist?list=PLyzOVJj3bHQuloKGG59rS43e29ro7I57J, also verified) covers shell and Git in more depth. The first-video URL is left empty because only its ID (MSgoeuMqUmU) appears in MIT's repo.",
+  "year": 2026,
+  "status": "verified",
+  "listId": "PLyzOVJj3bHQunmnnTXrNbZnBaCA-ieK4L",
+  "videoId": ""
+ },
+ {
   "id": "prof-abhay-gopal-bhatt-indian-statistical-institute-delh",
   "title": "Introduction to Probability & Statistics (in Hindi)",
   "creator": "Prof. Abhay Gopal Bhatt, Indian Statistical Institute Delhi (NPTEL/SWAYAM)",
@@ -1032,6 +2489,846 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
+  "id": "campusx-nitish-singh-campusx-data-science-mentorship-pro",
+  "title": "CampusX Data Science Mentorship Program (DSMP) 2022-23: public YouTube sessions",
+  "creator": "CampusX (Nitish Singh)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLKnIA16_RmvbAlyx4_rdtR66B7EHX5k3z",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-numpy-pandas",
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "Python fundamentals",
+   "NumPy",
+   "Pandas",
+   "data visualisation"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube (the full mentorship program itself was paid)",
+  "why": "Long live-class recordings in which Nitish Singh explains the data stack from first principles in clear Hinglish. Useful for Hindi speakers who want more depth than short tutorials.",
+  "caveats": "Which sessions are public is NOT confirmed: the program's public GitHub repo only contains session1 (Python fundamentals) and session2 (operators, if-else, loops), and I could not check the playlist's video list. Sessions are long (often around 2 hours). Paid-program tasks and some later sessions may not be on YouTube.",
+  "year": 2023,
+  "status": "partial",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "codewithharry-python-data-science-and-big-data-tutorials",
+  "title": "Python Data Science and Big Data Tutorials In Hindi",
+  "creator": "CodeWithHarry",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLu0W_9lII9agK8pojo23OHiNz3Jm6VQCH",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-numpy-pandas"
+  ],
+  "topics": [
+   "NumPy basics",
+   "Pandas basics",
+   "intro to data science with Python"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "CodeWithHarry is often the first teacher for Indian beginners. This is a gentle Hindi warm-up on the Python data libraries before the deeper CampusX or Rishabh Mishra material.",
+  "caveats": "An older series from before pandas 2.x; it may be short or unfinished (the 'Big Data' part in particular). Use it as a warm-up, not a full course. The video list was not checked. Spoken Hindi with English terms, so labelled Hinglish.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLu0W_9lII9agK8pojo23OHiNz3Jm6VQCH",
+  "videoId": ""
+ },
+ {
+  "id": "rishabh-mishra-python-libraries-playlist-pandas-for-begi",
+  "title": "Python Libraries playlist: Pandas for beginners (Hindi)",
+  "creator": "Rishabh Mishra",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLdOKnrf8EcP169c-IjEbxgGqnpeXgkJKp",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-numpy-pandas"
+  ],
+  "topics": [
+   "creating DataFrames",
+   "reading and saving CSV",
+   "selecting rows and columns (loc/iloc)",
+   "filtering",
+   "adding, updating and deleting rows and columns",
+   "sorting",
+   "working with dates",
+   "handling missing values",
+   "groupby aggregation",
+   "concat and merge (joins)",
+   "pivot table practice (homework)"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube; code notes free on his website",
+  "why": "A slow, beginner-friendly Hindi walkthrough of the Pandas an analyst actually uses, with a free notebook to code along. A good first Pandas course for someone who has never coded.",
+  "caveats": "Only the Pandas notebook's topics were checked; the rest of the playlist may cover other libraries (NumPy, Matplotlib) but that is not confirmed. Spoken Hindi with English technical terms (Hinglish). The notebook has an 'AI and ChatGPT' section, so it is fairly recent.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLdOKnrf8EcP169c-IjEbxgGqnpeXgkJKp",
+  "videoId": ""
+ },
+ {
+  "id": "codebasics-dhaval-patel-codebasics-pandas-tutorial-serie",
+  "title": "Codebasics Pandas tutorial series (channel playlists page)",
+  "creator": "Codebasics (Dhaval Patel)",
+  "platform": "YouTube",
+  "type": "channel",
+  "url": "https://www.youtube.com/channel/UCh9nVJoWXmFb7sLApWGcLPQ/playlists",
+  "firstVideoUrl": "",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l1-numpy-pandas"
+  ],
+  "topics": [
+   "DataFrame basics",
+   "different ways of creating DataFrames",
+   "read/write CSV and Excel",
+   "missing data: fillna, dropna, interpolate, replace",
+   "groupby",
+   "concat and merge",
+   "pivot, melt, stack, crosstab",
+   "time series: DatetimeIndex, date_range, holidays, to_datetime, periods, time zones, shift/lag",
+   "reading from SQL"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "Short videos in clear Indian English, one concept per video. Especially strong on missing data, reshaping and dates, which beginners often find confusing.",
+  "caveats": "The exact Pandas playlist URL could not be verified, so this opens the channel's Playlists tab; pick the Pandas tutorial playlist there. Recorded on older pandas (about 2017-18), so a few functions have changed (for example DataFrame.append was removed in pandas 2.0).",
+  "year": 0,
+  "status": "partial",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "nicolas-p-rougier-100-numpy-exercises-with-hints-and-sol",
+  "title": "100 NumPy exercises (with hints and solutions)",
+  "creator": "Nicolas P. Rougier",
+  "platform": "GitHub",
+  "type": "practice",
+  "url": "https://github.com/rougier/numpy-100",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l1-numpy-pandas"
+  ],
+  "topics": [
+   "array creation",
+   "indexing and slicing",
+   "broadcasting",
+   "vectorised operations",
+   "random and linear algebra routines"
+  ],
+  "approxHours": 0,
+  "cost": "Free (runs in the browser on Binder or locally; MIT licence)",
+  "why": "The standard NumPy drill set. It turns watching into doing and builds real fluency with arrays and broadcasting.",
+  "caveats": "Text only. Difficulty rises quickly, so start after a NumPy intro video.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "keith-galli-complete-python-pandas-data-science-tutorial",
+  "title": "Complete Python Pandas Data Science Tutorial (2024 updated edition)",
+  "creator": "Keith Galli",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://youtu.be/2uvysYbKdjM?si=8UnGt0bwLwo-eEQL",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-numpy-pandas"
+  ],
+  "topics": [
+   "creating DataFrames",
+   "loading CSV, Parquet and Excel",
+   "inspecting data",
+   "filtering incl. string/regex",
+   "adding, removing and renaming columns",
+   "merge and concat",
+   "handling nulls",
+   "value_counts, groupby, pivot tables",
+   "cumulative sums, rolling windows, rank, shift",
+   "PyArrow backend"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube; notebook and cheat sheet free on GitHub",
+  "why": "One of the few full Pandas tutorials updated for 2024 best practices (including the PyArrow backend), with a notebook and cheat sheet to code along.",
+  "caveats": "A single long video, not a playlist. The code is in tutorial.ipynb in the GitHub repo.",
+  "year": 2024,
+  "status": "verified",
+  "listId": "",
+  "videoId": "2uvysYbKdjM"
+ },
+ {
+  "id": "kaggle-rachael-tatman-maintained-by-alexis-cook-kaggle-l",
+  "title": "Kaggle Learn: Data Cleaning",
+  "creator": "Kaggle (Rachael Tatman; maintained by Alexis Cook)",
+  "platform": "Kaggle",
+  "type": "course",
+  "url": "https://www.kaggle.com/learn/data-cleaning",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-numpy-pandas",
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "handling missing values",
+   "scaling and normalization",
+   "parsing dates",
+   "character encodings",
+   "inconsistent data entry"
+  ],
+  "approxHours": 4,
+  "cost": "Free (free Kaggle account); free certificate of completion",
+  "why": "Interactive practice on the messy-data problems real projects start with, especially missing values and date parsing.",
+  "caveats": "Text plus exercises, no video.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "kaggle-kaggle-learn-pandas",
+  "title": "Kaggle Learn: Pandas",
+  "creator": "Kaggle",
+  "platform": "Kaggle",
+  "type": "course",
+  "url": "https://www.kaggle.com/learn/pandas",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-numpy-pandas"
+  ],
+  "topics": [
+   "creating, reading and writing",
+   "indexing, selecting and assigning",
+   "summary functions and maps",
+   "grouping and sorting",
+   "data types and missing values",
+   "renaming and combining"
+  ],
+  "approxHours": 4,
+  "cost": "Free (free Kaggle account); free certificate of completion",
+  "why": "Interactive, auto-checked exercises that run in the browser, so there is nothing to install. The best hands-on practice to pair with any video series.",
+  "caveats": "Text plus exercises, no video. Short; does not cover pivot or dates in depth.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "jake-vanderplas-python-data-science-handbook-free-online",
+  "title": "Python Data Science Handbook (free online edition)",
+  "creator": "Jake VanderPlas",
+  "platform": "Website",
+  "type": "book",
+  "url": "https://jakevdp.github.io/PythonDataScienceHandbook/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l1-numpy-pandas",
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "NumPy arrays and broadcasting",
+   "Pandas data manipulation",
+   "hierarchical indexing, merge/join, aggregation, pivot tables",
+   "time series",
+   "Matplotlib visualisation"
+  ],
+  "approxHours": 0,
+  "cost": "Free to read online (text CC BY-NC-ND, code MIT)",
+  "why": "A clear, free book whose broadcasting and Pandas chapters are among the best explanations anywhere; every chapter is a runnable notebook.",
+  "caveats": "The free online edition was written and tested with Python 3.5 (about 2016), so a few pandas and Matplotlib APIs have changed since.",
+  "year": 2016,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "wes-mckinney-creator-of-pandas-python-for-data-analysis-",
+  "title": "Python for Data Analysis, 3rd Edition (free online book)",
+  "creator": "Wes McKinney (creator of pandas)",
+  "platform": "Website",
+  "type": "book",
+  "url": "https://wesmckinney.com/book/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l1-numpy-pandas",
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "NumPy basics and vectorised computation",
+   "getting started with pandas",
+   "data loading: CSV, Excel, JSON, databases",
+   "data cleaning and preparation",
+   "join, combine, reshape",
+   "plotting and visualisation",
+   "groupby and aggregation",
+   "time series"
+  ],
+  "approxHours": 0,
+  "cost": "Free to read online",
+  "why": "The definitive reference, written by the creator of pandas, free online with chapter notebooks. Read the matching chapter whenever a video leaves you confused.",
+  "caveats": "A book, not a video, and dense for complete beginners. The companion notebooks pin pandas 2.0.3.",
+  "year": 2022,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "data-school-kevin-markham-python-pandas-q-a-video-series",
+  "title": "Python pandas Q&A video series (30 lessons + 8 bonus)",
+  "creator": "Data School (Kevin Markham)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PL5-da3qGB5ICCsgW1MxlZ0Hq8LL5U3u9y",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=yzIMircGU5I&list=PL5-da3qGB5ICCsgW1MxlZ0Hq8LL5U3u9y&index=1",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-numpy-pandas"
+  ],
+  "topics": [
+   "reading tabular files",
+   "selecting, filtering, sorting",
+   "groupby",
+   "string methods and dtypes",
+   "missing values",
+   "index and loc/iloc",
+   "dates and times",
+   "duplicates",
+   "merge and MultiIndex",
+   "apply",
+   "SettingWithCopyWarning"
+  ],
+  "approxHours": 12,
+  "cost": "Free on YouTube; the updated 'Pandas in 30 days' course is also free",
+  "why": "Each short video answers one practical 'How do I...?' question, with free datasets and notebooks. A classic, highly regarded pandas series.",
+  "caveats": "Recorded about 2016-2019 on older pandas; some advice (inplace, append) has changed in pandas 2.x. The 30 core videos take about 6 hours and the 8 bonus videos about 6 more. The README points to an updated free version at courses.dataschool.io/pandas-in-30-days.",
+  "year": 2019,
+  "status": "verified",
+  "listId": "PL5-da3qGB5ICCsgW1MxlZ0Hq8LL5U3u9y",
+  "videoId": "yzIMircGU5I"
+ },
+ {
+  "id": "freecodecamp-freecodecamp-data-analysis-with-python-cert",
+  "title": "freeCodeCamp Data Analysis with Python Certification",
+  "creator": "freeCodeCamp",
+  "platform": "freeCodeCamp",
+  "type": "course",
+  "url": "https://www.freecodecamp.org/learn/data-analysis-with-python/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-numpy-pandas",
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "NumPy",
+   "Pandas",
+   "data cleaning",
+   "Matplotlib",
+   "Seaborn",
+   "project-based data analysis"
+  ],
+  "approxHours": 0,
+  "cost": "Free, including certificate",
+  "why": "A free, project-based track where you build and submit real analysis and visualisation projects, giving portfolio work and a free certificate.",
+  "caveats": "freeCodeCamp's 2026 README lists only the new v9 certifications and does not mention this one, so it may now be a legacy track. Check that it still accepts project submissions. The course videos are from about 2020 and use older pandas.",
+  "year": 2020,
+  "status": "partial",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "rishabh-mishra-complete-sql-tutorial-for-beginners-in-hi",
+  "title": "Complete SQL Tutorial for Beginners in Hindi",
+  "creator": "Rishabh Mishra",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLdOKnrf8EcP17p05q13WXbHO5Z_JfXNpw",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "beginner",
+  "modules": [
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "SELECT, WHERE, ORDER BY",
+   "aggregate functions and GROUP BY",
+   "JOINs",
+   "SQL for data analysis"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube; notes on GitHub",
+  "why": "The most recommended free SQL course in Hindi: clear, analyst-focused and built for complete beginners.",
+  "caveats": "Whether it covers window functions was not checked; for those, add Kaggle Advanced SQL or Data With Baraa. Topic list is the usual beginner syllabus, not checked video by video.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLdOKnrf8EcP17p05q13WXbHO5Z_JfXNpw",
+  "videoId": ""
+ },
+ {
+  "id": "microsoft-data-science-for-beginners-microsoft-hindi-tra",
+  "title": "Data Science for Beginners (Microsoft): Hindi translation",
+  "creator": "Microsoft",
+  "platform": "GitHub",
+  "type": "course",
+  "url": "https://github.com/microsoft/Data-Science-For-Beginners/blob/main/translations/hi/README.md",
+  "firstVideoUrl": "",
+  "language": "hindi",
+  "level": "beginner",
+  "modules": [
+   "l1-eda-viz-sql",
+   "l1-numpy-pandas"
+  ],
+  "topics": [
+   "working with relational data (SQL basics)",
+   "working with Python and Pandas",
+   "data preparation",
+   "visualising quantities, distributions, proportions and relationships",
+   "making meaningful visualisations"
+  ],
+  "approxHours": 0,
+  "cost": "Free",
+  "why": "A rare structured data-science curriculum in Hindi text, with quizzes and assignments. It covers SQL basics and how to choose the right chart, complementing the video courses.",
+  "caveats": "Text lessons, not videos. The Hindi is produced automatically by Microsoft's Co-op Translator GitHub Action, so some wording may be awkward. The original English site is microsoft.github.io/Data-Science-For-Beginners.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "rishabh-mishra-sql-interview-questions-playlist-hindi",
+  "title": "SQL Interview Questions playlist (Hindi)",
+  "creator": "Rishabh Mishra",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLdOKnrf8EcP1y_LPEv7uBpzoRmlATjCVr",
+  "firstVideoUrl": "",
+  "language": "hinglish",
+  "level": "intermediate",
+  "modules": [
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "interview-style SQL problems",
+   "joins and aggregations in practice"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "The next step after the basics: solving interview-style questions in Hindi builds the problem-solving fluency that tutorials alone do not.",
+  "caveats": "The exact question list was not checked. Do the beginner SQL playlist first.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLdOKnrf8EcP1y_LPEv7uBpzoRmlATjCVr",
+  "videoId": ""
+ },
+ {
+  "id": "krish-naik-exploratory-data-analysis-eda-detailed-playli",
+  "title": "Exploratory Data Analysis (EDA) Detailed Playlist",
+  "creator": "Krish Naik",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/watch?v=ioN1jcWxbv8&list=PLZoTAELRMXVPQyArDHyQVjQxjj_YmEuO9",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=ioN1jcWxbv8&list=PLZoTAELRMXVPQyArDHyQVjQxjj_YmEuO9",
+  "language": "indian-english",
+  "level": "intermediate",
+  "modules": [
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "EDA workflow on real datasets",
+   "univariate and bivariate analysis",
+   "Pandas, Matplotlib and Seaborn for EDA",
+   "missing values and outliers"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "Krish Naik walks through end-to-end EDA on real datasets in Indian English, and recommends this playlist himself in his 2024 and 2025 roadmaps.",
+  "caveats": "Content list and upload years were not checked. The link is the playlist entry video the creator gives (assumed to be the first lesson). Krish also links a live 'EDA and Feature Engineering' playlist: https://www.youtube.com/playlist?list=PLZoTAELRMXVPzj1D0i_6ajJ6gyD22b3jh.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLZoTAELRMXVPQyArDHyQVjQxjj_YmEuO9",
+  "videoId": "ioN1jcWxbv8"
+ },
+ {
+  "id": "krish-naik-mysql-sql-playlist",
+  "title": "MySQL / SQL Playlist",
+  "creator": "Krish Naik",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLZoTAELRMXVNMRWlVf0bDDSxNEn38u9Cl",
+  "firstVideoUrl": "https://www.youtube.com/watch?v=us1XyayQ6fU&list=PLZoTAELRMXVNMRWlVf0bDDSxNEn38u9Cl",
+  "language": "indian-english",
+  "level": "beginner",
+  "modules": [
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "MySQL setup",
+   "basic SQL queries",
+   "SQL for data science workflows"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "Indian-English SQL from a trusted data-science teacher; a good first look at SQL in a data-science context.",
+  "caveats": "An older series that may be basic. Window-function coverage not checked; use Kaggle Advanced SQL or Data With Baraa for those. His roadmap README still lists a Hindi SQL playlist as 'Coming Soon'.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLZoTAELRMXVNMRWlVf0bDDSxNEn38u9Cl",
+  "videoId": "us1XyayQ6fU"
+ },
+ {
+  "id": "alex-the-analyst-alex-freberg-data-analyst-bootcamp-sql-",
+  "title": "Data Analyst Bootcamp (SQL, Excel, Tableau, Power BI, Python, Pandas)",
+  "creator": "Alex The Analyst (Alex Freberg)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLUaB-1hjhk8FE_XZ87vPPSfHqb6OcM0cF",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-eda-viz-sql",
+   "l1-numpy-pandas"
+  ],
+  "topics": [
+   "SQL basics to advanced",
+   "Pandas: reading files, filtering, indexing, groupby, merge/join/concat",
+   "data cleaning in Pandas",
+   "EDA in Pandas",
+   "visualising data in Pandas",
+   "portfolio projects"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube; honor-system completion certificate free on his GitHub",
+  "why": "A friendly, job-focused analyst path that teaches SQL and Pandas through real portfolio projects. Good for a non-coder who wants practical skills fast.",
+  "caveats": "The playlist mixes many tools (Excel, Tableau, Power BI); pick the SQL and Python/Pandas sections. That the Pandas videos are inside this bootcamp playlist was not directly confirmed. The certificate is self-issued on the honor system and is not an accredited credential.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLUaB-1hjhk8FE_XZ87vPPSfHqb6OcM0cF",
+  "videoId": ""
+ },
+ {
+  "id": "claus-o-wilke-fundamentals-of-data-visualization-free-on",
+  "title": "Fundamentals of Data Visualization (free online book)",
+  "creator": "Claus O. Wilke",
+  "platform": "Website",
+  "type": "book",
+  "url": "https://clauswilke.com/dataviz/",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "choosing the right chart",
+   "visualising distributions, proportions and relationships",
+   "colour and design principles",
+   "common chart mistakes",
+   "telling a story with data"
+  ],
+  "approxHours": 0,
+  "cost": "Free to read online",
+  "why": "The best free guide to making charts that are honest and persuasive. It covers the data-storytelling part of this module, which coding tutorials skip.",
+  "caveats": "The figures were made in R/ggplot2, but the book shows no code; the principles apply equally to Matplotlib, Seaborn and Plotly.",
+  "year": 2019,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "kaggle-alexis-cook-kaggle-learn-advanced-sql-incl-window",
+  "title": "Kaggle Learn: Advanced SQL (incl. window/analytic functions)",
+  "creator": "Kaggle (Alexis Cook)",
+  "platform": "Kaggle",
+  "type": "course",
+  "url": "https://www.kaggle.com/learn/advanced-sql",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "JOINs and UNIONs",
+   "analytic (window) functions",
+   "nested and repeated data",
+   "writing efficient queries"
+  ],
+  "approxHours": 4,
+  "cost": "Free (free Kaggle account); free certificate of completion",
+  "why": "Hands-on practice with window functions, the SQL topic beginners usually lack, and with writing efficient queries.",
+  "caveats": "BigQuery dialect. Take Intro to SQL first.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "kaggle-alexis-cook-kaggle-learn-data-visualization-seabo",
+  "title": "Kaggle Learn: Data Visualization (Seaborn)",
+  "creator": "Kaggle (Alexis Cook)",
+  "platform": "Kaggle",
+  "type": "course",
+  "url": "https://www.kaggle.com/learn/data-visualization",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "Seaborn basics",
+   "line charts",
+   "bar charts and heatmaps",
+   "scatter plots",
+   "distributions",
+   "choosing plot types and custom styles",
+   "final project"
+  ],
+  "approxHours": 4,
+  "cost": "Free (free Kaggle account); free certificate of completion",
+  "why": "Interactive, auto-checked practice in the browser that teaches which chart to use when, ending with a mini-project on your own dataset.",
+  "caveats": "Text plus exercises, no video. Seaborn only (no Plotly).",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "kaggle-kaggle-learn-intro-to-sql",
+  "title": "Kaggle Learn: Intro to SQL",
+  "creator": "Kaggle",
+  "platform": "Kaggle",
+  "type": "course",
+  "url": "https://www.kaggle.com/learn/intro-to-sql",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "getting started with SQL and BigQuery",
+   "SELECT, FROM, WHERE",
+   "GROUP BY, HAVING, COUNT",
+   "ORDER BY",
+   "AS and WITH (CTEs)",
+   "joining data"
+  ],
+  "approxHours": 3,
+  "cost": "Free (free Kaggle account); free certificate of completion",
+  "why": "Write real SQL against large public datasets straight from the browser, with instant feedback.",
+  "caveats": "Uses Google BigQuery's SQL dialect, so syntax differs slightly from MySQL and PostgreSQL. Text plus exercises.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "keith-galli-matplotlib-tutorial-videos-two-parts",
+  "title": "Matplotlib tutorial videos (two parts)",
+  "creator": "Keith Galli",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://youtu.be/DAQNHzOcO5A",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "Matplotlib line and bar charts",
+   "labelling and styling plots",
+   "plotting data from Pandas"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube",
+  "why": "A video introduction to Matplotlib from the same teacher as the sales-data EDA project. It fills the visualisation gap, because most other picks here are text-based.",
+  "caveats": "Part 2 is at https://youtu.be/0P7QnIQDBJY. Exact video titles, length and year were not checked; probably recorded around 2019, so some styling defaults differ in current Matplotlib. The topics are inferred from the README.",
+  "year": 0,
+  "status": "partial",
+  "listId": "",
+  "videoId": "DAQNHzOcO5A"
+ },
+ {
+  "id": "data-with-baraa-sql-exploratory-data-analysis-eda-projec",
+  "title": "SQL Exploratory Data Analysis (EDA) Project",
+  "creator": "Data With Baraa",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://youtu.be/6cJ5Ji8zSDg",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "EDA with SQL",
+   "exploring dimensions and measures",
+   "date-range exploration",
+   "magnitude and ranking analysis",
+   "turning queries into business insights"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube; materials free on GitHub",
+  "why": "Shows how analysts explore a real business dataset using only SQL, linking the SQL and EDA halves of this module.",
+  "caveats": "Do the SQL basics first. A follow-up 'Advanced Data Analytics' video is at https://youtu.be/2jGhQpbzHes. The sub-topics listed were not checked against the video.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": "6cJ5Ji8zSDg"
+ },
+ {
+  "id": "data-with-baraa-baraa-khatib-salkini-sql-full-course-zer",
+  "title": "SQL Full Course: Zero to Hero (playlist version)",
+  "creator": "Data With Baraa (Baraa Khatib Salkini)",
+  "platform": "YouTube",
+  "type": "playlist",
+  "url": "https://www.youtube.com/playlist?list=PLNcg_FV9n7qZY_2eAtUzEUulNjTJREhQe",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "SELECT, filtering, sorting",
+   "JOINs and set operators",
+   "SQL functions",
+   "GROUP BY and aggregates",
+   "window functions",
+   "subqueries and CTEs",
+   "views and performance basics"
+  ],
+  "approxHours": 30,
+  "cost": "Free on YouTube; paid certificate versions on Udemy and his academy",
+  "why": "A very visual, step-by-step SQL course that goes from zero to advanced topics such as window functions, with every query, database and slide free on GitHub.",
+  "caveats": "Uses Microsoft SQL Server (T-SQL), so syntax differs slightly from MySQL and PostgreSQL. About 30 hours is based on the course's Udemy listing. A single-video version is at https://youtu.be/SSKVgrwhzus.",
+  "year": 0,
+  "status": "verified",
+  "listId": "PLNcg_FV9n7qZY_2eAtUzEUulNjTJREhQe",
+  "videoId": ""
+ },
+ {
+  "id": "sqlbolt-sqlbolt-interactive-sql-lessons",
+  "title": "SQLBolt: interactive SQL lessons",
+  "creator": "SQLBolt",
+  "platform": "Website",
+  "type": "practice",
+  "url": "http://sqlbolt.com",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "beginner",
+  "modules": [
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "SELECT queries",
+   "filtering and sorting",
+   "multi-table JOINs",
+   "aggregates and GROUP BY",
+   "INSERT, UPDATE, DELETE",
+   "creating and altering tables"
+  ],
+  "approxHours": 0,
+  "cost": "Free, no sign-up",
+  "why": "Short lessons, each followed by an exercise solved in the browser: the fastest way for a non-coder to get comfortable typing SQL.",
+  "caveats": "Text only. Does not cover window functions. Topic list is from general knowledge of the site, not re-checked.",
+  "year": 0,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
+  "id": "keith-galli-solving-real-world-data-science-tasks-with-p",
+  "title": "Solving real world data science tasks with Python Pandas (sales data EDA)",
+  "creator": "Keith Galli",
+  "platform": "YouTube",
+  "type": "video",
+  "url": "https://youtu.be/eMOA1pPVUc4",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "intermediate",
+  "modules": [
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "cleaning: NaNs, dtype conversion, to_datetime",
+   "concatenating many CSVs",
+   "string parsing into new columns",
+   "apply and groupby",
+   "answering five business questions",
+   "Matplotlib bar and line charts with labels"
+  ],
+  "approxHours": 0,
+  "cost": "Free on YouTube; data and code on GitHub",
+  "why": "A famous project-style video that answers five real business questions from 12 months of sales data: the clearest way to see a full EDA workflow end to end.",
+  "caveats": "Recorded around 2019, so some pandas idioms are older.",
+  "year": 2019,
+  "status": "verified",
+  "listId": "",
+  "videoId": "eMOA1pPVUc4"
+ },
+ {
+  "id": "uc-berkeley-uc-berkeley-data-100-principles-and-techniqu",
+  "title": "UC Berkeley Data 100: Principles and Techniques of Data Science",
+  "creator": "UC Berkeley",
+  "platform": "Website",
+  "type": "course",
+  "url": "https://ds100.org",
+  "firstVideoUrl": "",
+  "language": "english",
+  "level": "advanced",
+  "modules": [
+   "l1-eda-viz-sql"
+  ],
+  "topics": [
+   "pandas at scale",
+   "data cleaning and EDA",
+   "visualisation principles",
+   "SQL for data science",
+   "sampling and data quality"
+  ],
+  "approxHours": 0,
+  "cost": "Free (lecture videos, notes and notebooks on the course site)",
+  "why": "A rigorous university course for when you want depth. It treats EDA, visualisation and SQL as one coherent discipline, with excellent notes.",
+  "caveats": "University pace that assumes comfort with Python; later lectures move into ML modelling. Each semester has its own page (for example https://ds100.org/fa25/lectures/01/). A Fall 2024 lecture playlist is at https://www.youtube.com/playlist?list=PLIygTcviGPKBzDKR72ILypzPQZ_Cz6HcH.",
+  "year": 2025,
+  "status": "verified",
+  "listId": "",
+  "videoId": ""
+ },
+ {
   "id": "krish-naik-hindi-generative-ai-crash-course-with-langcha",
   "title": "Generative AI Crash Course with LangChain in 3 Hours (Hindi)",
   "creator": "Krish Naik Hindi",
@@ -1596,35 +3893,6 @@ window.AIM.resources = [
   "videoId": ""
  },
  {
-  "id": "andrej-karpathy-1hr-talk-intro-to-large-language-models",
-  "title": "[1hr Talk] Intro to Large Language Models",
-  "creator": "Andrej Karpathy",
-  "platform": "YouTube",
-  "type": "video",
-  "url": "https://www.youtube.com/watch?v=zjkBMFhNj_g",
-  "firstVideoUrl": "",
-  "language": "english",
-  "level": "beginner",
-  "modules": [
-   "l4-llm-apps",
-   "l4-finetuning"
-  ],
-  "topics": [
-   "what an LLM is",
-   "pretraining vs fine-tuning stages",
-   "tool use",
-   "LLM security (jailbreaks, prompt injection)"
-  ],
-  "approxHours": 1,
-  "cost": "Free on YouTube",
-  "why": "A famous one-hour, non-technical talk that explains how LLMs are built (pretraining, then fine-tuning) and used. It is ideal for a non-coder before building apps or learning LoRA.",
-  "caveats": "Recorded in late 2023, so model examples are dated, but the big-picture explanation still holds.",
-  "year": 2023,
-  "status": "verified",
-  "listId": "",
-  "videoId": "zjkBMFhNj_g"
- },
- {
   "id": "krish-naik-hindi-finetuning-llm-lora-and-qlora-technique",
   "title": "Finetuning LLM - LoRA and QLoRA Techniques (Hindi)",
   "creator": "Krish Naik Hindi",
@@ -1709,36 +3977,6 @@ window.AIM.resources = [
   "status": "verified",
   "listId": "PLqGkIjcOyrGnjyBHl4GE2S9kX47X96FH-",
   "videoId": ""
- },
- {
-  "id": "andrej-karpathy-deep-dive-into-llms-like-chatgpt",
-  "title": "Deep Dive into LLMs like ChatGPT",
-  "creator": "Andrej Karpathy",
-  "platform": "YouTube",
-  "type": "video",
-  "url": "https://www.youtube.com/watch?v=7xTGNNLPyMI",
-  "firstVideoUrl": "",
-  "language": "english",
-  "level": "beginner",
-  "modules": [
-   "l4-finetuning"
-  ],
-  "topics": [
-   "pretraining",
-   "tokenization",
-   "supervised fine-tuning / instruction tuning",
-   "RLHF intuition",
-   "reasoning models and RL",
-   "hallucinations"
-  ],
-  "approxHours": 3.5,
-  "cost": "Free on YouTube",
-  "why": "A general-audience talk that makes the full training pipeline (pretraining, SFT, RL/RLHF) intuitive for non-coders. It is a strong conceptual base before LoRA and DPO.",
-  "caveats": "About 3.5 hours long. Recorded in early 2025. The URL is unconfirmed by the checker; the verified 1-hour Karpathy talk is a shorter substitute.",
-  "year": 2025,
-  "status": "unverified",
-  "listId": "",
-  "videoId": "7xTGNNLPyMI"
  },
  {
   "id": "hugging-face-hugging-face-llm-course-chapter-11-supervis",

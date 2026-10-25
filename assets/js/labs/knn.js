@@ -152,7 +152,7 @@
         'The background shows that vote for every spot: deeper colour means more of the K neighbours agree, and the thin line is the <em>decision boundary</em> (where the prediction flips). ' +
         'Move over the map, or drag on a phone, to see any spot’s neighbours.</p>' +
         '<div class="lab-body">' +
-          '<div class="stack-sm">' +
+          '<div class="stack-sm" id="' + P + 'left">' +
             '<div class="lab-canvas-wrap" id="' + P + 'wrap"><canvas id="' + P + 'plot" tabindex="0" role="img" aria-label="Map of past loans" style="outline-offset:-3px;cursor:crosshair"></canvas></div>' +
             '<div class="lab-legend" id="' + P + 'legend"></div>' +
             '<p class="small" id="' + P + 'readout" style="min-height:3.2em"></p>' +
@@ -163,8 +163,6 @@
               '<div class="stat"><div class="k">Leave-one-out</div><div class="v" id="' + P + 'sloo">—</div></div>' +
               '<div class="stat"><div class="k">Past loans</div><div class="v" id="' + P + 'sn">—</div></div>' +
             '</div>' +
-            '<p class="small muted"><strong style="color:var(--ink)">Training accuracy</strong> checks each loan with the loan itself allowed to vote. <strong style="color:var(--ink)">Leave-one-out accuracy</strong> hides one loan, predicts it from all the others, and repeats for every loan. It is the fairer test, because no loan gets to vote for itself.</p>' +
-            '<p class="kbd-hint">Keyboard: focus the map, move the probe with the arrow keys (Shift for bigger steps), press Enter to add a loan there (or remove the one under the probe) and Delete to remove the nearest loan.</p>' +
           '</div>' +
           '<div class="lab-controls">' +
             '<div class="control"><label for="' + P + 'k">Neighbours who vote (K) <output id="' + P + 'kout" for="' + P + 'k">' + START_K + '</output></label>' +
@@ -186,8 +184,10 @@
             '<div class="stack-sm"><h4>Your tasks</h4><ul class="lab-tasks" id="' + P + 'tasks">' + tasksHtml + '</ul></div>' +
           '</div>' +
         '</div>' +
-        '<div class="stack-sm">' +
-          '<div class="row-between"><h4>Accuracy for each K you try</h4>' +
+        // explanation, accuracy chart and keyboard hint: under the map on wide screens, below the controls on phones
+        '<div class="stack-sm" id="' + P + 'more">' +
+          '<p class="small muted"><strong style="color:var(--ink)">Training accuracy</strong> checks each loan with the loan itself allowed to vote. <strong style="color:var(--ink)">Leave-one-out accuracy</strong> hides one loan, predicts it from all the others, and repeats for every loan. It is the fairer test, because no loan gets to vote for itself.</p>' +
+          '<div class="row-between" style="margin-top:8px"><h4>Accuracy for each K you try</h4>' +
             '<button type="button" class="btn btn-sm" id="' + P + 'fill" aria-pressed="false">Show every K</button></div>' +
           '<p class="small muted">K = 1, 5 and 25 are filled in to start. Every K you choose with the slider is added. Where does leave-one-out accuracy peak?</p>' +
           '<div class="lab-legend">' +
@@ -195,12 +195,14 @@
             legendItem(swatch('ring', 'none', 'var(--muted)', 1.6), 'Training (loans vote for themselves)') +
           '</div>' +
           '<div class="lab-canvas-wrap" id="' + P + 'cwrap" style="aspect-ratio:16/5;min-height:150px;max-height:220px"><canvas id="' + P + 'chart" role="img" aria-label="Accuracy for each K tried"></canvas></div>' +
+          '<p class="kbd-hint">Keyboard: focus the map, move the probe with the arrow keys (Shift for bigger steps), press Enter to add a loan there (or remove the one under the probe) and Delete to remove the nearest loan.</p>' +
         '</div>' +
         '<p class="small muted"><strong style="color:var(--ink)">Why it matters in real ML:</strong> KNN simply remembers past examples, so it lives or dies by scaling the features, choosing the distance and picking K with a fair test such as leave-one-out or cross-validation: too small a K memorises noise, too big a K blurs away real patterns.</p>' +
       '</div>';
 
     function $(id) { return root.querySelector('#' + P + id); }
-    var wrap = $('wrap'), canvas = $('plot'), cwrap = $('cwrap'), chart = $('chart');
+    var wrap = $('wrap'), canvas = $('plot'), cwrap = $('cwrap'), chart = $('chart'), leftCol = $('left'), more = $('more');
+    var body = root.querySelector('.lab-body');
     var g = canvas.getContext('2d'), gc = chart.getContext('2d');
     var elLegend = $('legend'), elReadout = $('readout'), elLive = $('live');
     var elSK = $('sk'), elSTr = $('str'), elSLoo = $('sloo'), elSN = $('sn');
@@ -980,6 +982,17 @@
     if (mql) { if (mql.addEventListener) mql.addEventListener('change', onTheme); else if (mql.addListener) mql.addListener(onTheme); }
     on(document, 'themechange', onTheme);
 
+    // style.css stacks .lab-body into one column at 820px; then the chart moves below the controls,
+    // so on a phone the K slider sits close enough to the map to watch both.
+    var mqNarrow = window.matchMedia ? window.matchMedia('(max-width: 820px)') : null;
+    function placeMore() {
+      if (destroyed) return;
+      if (mqNarrow && mqNarrow.matches) { if (more.previousElementSibling !== body) body.parentNode.insertBefore(more, body.nextSibling); }
+      else if (more.parentNode !== leftCol) leftCol.appendChild(more);
+    }
+    if (mqNarrow) { if (mqNarrow.addEventListener) mqNarrow.addEventListener('change', placeMore); else if (mqNarrow.addListener) mqNarrow.addListener(placeMore); }
+    placeMore();
+
     var curAspect = null;
     function wantAspect() { return wrap.getBoundingClientRect().width < 520 ? '1 / 1' : ''; }
     function applyAspect() {
@@ -1027,6 +1040,7 @@
         rafId = 0; aspectRaf = 0;
         if (ro) ro.disconnect();
         if (mql) { if (mql.removeEventListener) mql.removeEventListener('change', onTheme); else if (mql.removeListener) mql.removeListener(onTheme); }
+        if (mqNarrow) { if (mqNarrow.removeEventListener) mqNarrow.removeEventListener('change', placeMore); else if (mqNarrow.removeListener) mqNarrow.removeListener(placeMore); }
         listeners.forEach(function (l) { l[0].removeEventListener(l[1], l[2], l[3]); });
         listeners = [];
         root.innerHTML = '';
