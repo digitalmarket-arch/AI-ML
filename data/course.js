@@ -1864,7 +1864,8 @@ window.AIM.modules = [
     "note": "Do the permutation importance and SHAP lessons to explain your tree model's predictions; no Hindi or Indian-English option for SHAP was found."
    }
   ],
-  "best": "campusx-nitish-singh-100-days-of-machine-learning-days-1"
+  "best": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
+  "figs": true
  },
  {
   "id": "l2-unsupervised",
@@ -2003,7 +2004,8 @@ window.AIM.modules = [
     "note": "Read the 'In Depth' chapters on k-means, PCA and manifold learning and run each notebook yourself."
    }
   ],
-  "best": "campusx-nitish-singh-100-days-of-machine-learning-days-1"
+  "best": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
+  "figs": true
  },
  {
   "id": "l2-feature-eng",

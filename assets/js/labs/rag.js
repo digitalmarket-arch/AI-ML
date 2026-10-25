@@ -555,7 +555,7 @@
       return { status: A.status, intro: intro, main: html, short: short };
     }
     function renderText() {
-      var chunks = R.chunks, n = chunks.length, i;
+      var chunks = R.chunks, n = chunks.length;
       elSizeO.textContent = S.size;
       elOvO.textContent = S.overlap;
       elKO.textContent = S.k;
@@ -710,72 +710,81 @@
       });
       g.restore();
     }
-    function draw() {
-      rafId = 0;
-      if (destroyed || !R || dims.w < 2) return;
-      var T = readTheme(), G = geom(), dpr = dims.dpr, chunks = R.chunks, i;
-      g.setTransform(dpr, 0, 0, dpr, 0, 0);
-      g.fillStyle = rgbStr(T.surface);
-      g.fillRect(0, 0, dims.w, dims.h);
-      // chunk bars
-      for (i = 0; i < chunks.length; i++) {
-        var c = chunks[i], lane = i % 2, fill = chunkFill(T, i);
-        g.fillStyle = rgbStr(fill);
-        g.strokeStyle = rgbStr(T.ink, T.dark ? 0.28 : 0.2);
-        g.lineWidth = 1;
+    function drawBars(T, G) {
+      g.strokeStyle = rgbStr(T.ink, T.dark ? 0.28 : 0.2);
+      g.lineWidth = 1;
+      R.chunks.forEach(function (c, ci) {
+        g.fillStyle = rgbStr(chunkFill(T, ci));
         pieces(G, c.start, c.end).forEach(function (pc) {
-          rr(pc[1] + 0.5, laneY(G, pc[0], lane) + 0.5, Math.max(1, pc[2] - pc[1] - 1), G.laneH - 1, 3);
+          rr(pc[1] + 0.5, laneY(G, pc[0], ci % 2) + 0.5, Math.max(1, pc[2] - pc[1] - 1), G.laneH - 1, 3);
           g.fill(); g.stroke();
         });
-      }
-      // section starts: a thin line and the section number
+      });
+    }
+    // section starts: a thin line through the lanes and the section number above
+    function drawSections(T, G) {
       g.font = '600 10px ' + T.font;
       g.textBaseline = 'top'; g.textAlign = 'left';
       doc.sections.forEach(function (sec, si) {
-        var r = Math.floor(sec.start / G.wpr), x = G.padX + (sec.start - r * G.wpr) * G.ppw, y0 = G.padTop + r * (G.rowH + G.rowGap);
-        g.fillStyle = rgbStr(T.muted, 0.55);
-        g.fillRect(Math.round(x) - 0.5, y0 + 1, 1, G.labelH - 1 + 2 * G.laneH + G.laneGap);
+        var r = Math.floor(sec.start / G.wpr), x = Math.round(G.padX + (sec.start - r * G.wpr) * G.ppw), y0 = G.padTop + r * (G.rowH + G.rowGap);
+        g.fillStyle = rgbStr(T.muted, 0.7);
+        g.fillRect(x - 0.5, y0 + 1, 1, G.labelH - 1 + 2 * G.laneH + G.laneGap);
         g.fillStyle = rgbStr(T.muted);
-        g.fillText(String(si + 1), Math.round(x) + 2, y0);
+        g.fillText(String(si + 1), x + 2, y0);
       });
-      // words of the question: a tick inside every chunk that contains the word
-      var step = S.size - S.overlap, tw = Math.max(1, Math.min(2, G.ppw * 0.75));
+    }
+    // every word of the question: a tick inside each chunk that contains it, dark or light, whichever shows up better
+    function drawTicks(T, G) {
+      var chunks = R.chunks, step = S.size - S.overlap, tw = Math.max(1, Math.min(2, G.ppw * 0.75));
       for (var w = 0; w < doc.N; w++) {
         if (!isMatch(doc.words[w])) continue;
-        var r = Math.floor(w / G.wpr), x = G.padX + (w - r * G.wpr) * G.ppw + G.ppw / 2 - tw / 2;
+        var row = Math.floor(w / G.wpr), x = G.padX + (w - row * G.wpr) * G.ppw + G.ppw / 2 - tw / 2;
         for (var ci = Math.max(0, Math.ceil((w - S.size + 1) / step)); ci <= Math.floor(w / step) && ci < chunks.length; ci++) {
           if (w < chunks[ci].start || w >= chunks[ci].end) continue;
-          var f = chunkFill(T, ci), tc = contrast(f, T.ink) >= contrast(f, T.surface) ? T.ink : T.surface;
-          g.fillStyle = rgbStr(tc);
-          g.fillRect(x, laneY(G, r, ci % 2) + 2, tw, G.laneH - 4);
+          var f = chunkFill(T, ci);
+          g.fillStyle = rgbStr(contrast(f, T.ink) >= contrast(f, T.surface) ? T.ink : T.surface);
+          g.fillRect(x, laneY(G, row, ci % 2) + 2, tw, G.laneH - 4);
         }
       }
-      // the answer
-      if (R.A) {
-        g.fillStyle = rgbStr(T.ok);
-        pieces(G, R.A.span[0], R.A.span[1]).forEach(function (pc) {
-          var y = laneY(G, pc[0], 1) + G.laneH + G.ansGap;
-          rr(pc[1], y, Math.max(2, pc[2] - pc[1]), G.ansH, 2); g.fill();
-        });
-      }
-      // retrieved chunks: outline + rank badge
-      R.got.forEach(function (ci) { outlineChunk(G, ci, rgbStr(T.ink), 1.6, 0.5); });
-      if (S.hover >= 0 && S.hover !== S.insp) outlineChunk(G, S.hover, rgbStr(T.indigo), 1.5, 2, [3, 2]);
-      if (S.insp >= 0 && S.insp < chunks.length) outlineChunk(G, S.insp, rgbStr(T.indigo), 2.2, 2.5);
+    }
+    function drawAnswer(T, G) {
+      if (!R.A) return;
+      g.fillStyle = rgbStr(T.ok);
+      pieces(G, R.A.span[0], R.A.span[1]).forEach(function (pc) {
+        rr(pc[1], laneY(G, pc[0], 1) + G.laneH + G.ansGap, Math.max(2, pc[2] - pc[1]), G.ansH, 2);
+        g.fill();
+      });
+    }
+    function drawBadges(T, G) {
       g.font = '700 10px ' + T.font;
       g.textAlign = 'center'; g.textBaseline = 'middle';
       R.got.forEach(function (ci, j) {
-        var c = chunks[ci], pc = pieces(G, c.start, c.end), first = pc[0];
-        // put the badge on the longest piece, near its start
-        pc.forEach(function (p) { if (p[2] - p[1] > first[2] - first[1] + 1) first = p; });
-        var cx = Math.min(first[1] + 9, (first[1] + first[2]) / 2 + 0.01), cy = laneY(G, first[0], ci % 2) + G.laneH / 2;
-        cx = clamp(cx, 8, dims.w - 8);
+        var c = R.chunks[ci], pcs = pieces(G, c.start, c.end), best = pcs[0];
+        // the badge goes on the longest piece of the chunk, near its start
+        pcs.forEach(function (pc) { if (pc[2] - pc[1] > best[2] - best[1] + 1) best = pc; });
+        var cx = clamp(Math.min(best[1] + 9, (best[1] + best[2]) / 2), 8, dims.w - 8), cy = laneY(G, best[0], ci % 2) + G.laneH / 2;
         g.beginPath(); g.arc(cx, cy, 7, 0, Math.PI * 2);
         g.fillStyle = rgbStr(T.indigo); g.fill();
         g.lineWidth = 1.5; g.strokeStyle = rgbStr(T.surface); g.stroke();
         g.fillStyle = rgbStr(T.onIndigo);
         g.fillText(String(j + 1), cx, cy + 0.5);
       });
+    }
+    function draw() {
+      rafId = 0;
+      if (destroyed || !R || dims.w < 2) return;
+      var T = readTheme(), G = geom();
+      g.setTransform(dims.dpr, 0, 0, dims.dpr, 0, 0);
+      g.fillStyle = rgbStr(T.surface);
+      g.fillRect(0, 0, dims.w, dims.h);
+      drawBars(T, G);
+      drawSections(T, G);
+      drawTicks(T, G);
+      drawAnswer(T, G);
+      R.got.forEach(function (ci) { outlineChunk(G, ci, rgbStr(T.ink), 1.6, 0.5); });
+      if (S.hover >= 0 && S.hover !== S.insp) outlineChunk(G, S.hover, rgbStr(T.indigo), 1.5, 2, [3, 2]);
+      if (S.insp >= 0 && S.insp < R.chunks.length) outlineChunk(G, S.insp, rgbStr(T.indigo), 2.2, 2.5);
+      drawBadges(T, G);
     }
     function requestDraw() { if (!rafId && !destroyed) rafId = requestAnimationFrame(draw); }
 
