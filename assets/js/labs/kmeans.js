@@ -347,7 +347,7 @@
               '<button type="button" class="btn" id="' + P + 'reinit">Re-initialise (new starting centres)</button>' +
             '</div></div>' +
             '<div class="row small"><input type="checkbox" id="' + P + 'regions" checked><label for="' + P + 'regions">Tint the area each centre “owns”</label></div>' +
-            '<div class="stack-sm"><h4>Your tasks</h4><ul class="lab-tasks" id="' + P + 'tasks">' + tasksHtml + '</ul></div>' +
+            '<div class="stack-sm"><h2 class="lab-h">Your tasks</h2><ul class="lab-tasks" id="' + P + 'tasks">' + tasksHtml + '</ul></div>' +
           '</div>' +
         '</div>' +
         '<p class="small muted"><strong style="color:var(--ink)">Why it matters in real ML:</strong> shops, banks and apps group customers like this to plan offers, but K-Means only finds round, similar-sized groups and can get stuck, so people check K with an elbow chart, use k-means++ and run several restarts.</p>' +

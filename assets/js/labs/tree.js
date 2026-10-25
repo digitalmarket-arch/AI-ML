@@ -316,7 +316,7 @@
     treeSvg.style.maxWidth = 'none';
     treeBox.appendChild(treeSvg);
     body.appendChild(h('div', { class: 'stack-sm', style: 'grid-column:1' }, [
-      h('div', { class: 'row-between' }, [h('h4', { text: 'Inside the tree' }), treeHead]),
+      h('div', { class: 'row-between' }, [h('h2', { class: 'lab-h', text: 'Inside the tree' }), treeHead]),
       treeCap,
       treeBox
     ]));

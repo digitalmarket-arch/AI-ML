@@ -250,7 +250,7 @@
               '<div style="' + CHECK_ROW + '"><input type="checkbox" id="' + P + 'showtest" checked><label for="' + P + 'showtest">Show the test rings</label></div>' +
               '<div style="' + CHECK_ROW + '"><input type="checkbox" id="' + P + 'showgaps"><label for="' + P + 'showgaps">Show each test ring’s error (its gap to the curve)</label></div>' +
             '</div>' +
-            '<div class="stack-sm"><h4>Your tasks</h4><ul class="lab-tasks" id="' + P + 'tasks">' + tasksHtml + '</ul></div>' +
+            '<div class="stack-sm"><h2 class="lab-h">Your tasks</h2><ul class="lab-tasks" id="' + P + 'tasks">' + tasksHtml + '</ul></div>' +
           '</div>' +
         '</div>' +
         '<p class="small muted"><strong style="color:var(--ink)">Why it matters in real ML:</strong> every real model, from a crop-yield predictor to a bank’s loan model, is chosen by watching the gap between training and test error: pick the simplest model that does well on unseen data, and get more data when it overfits. (In real projects you choose settings like the degree on a separate <em>validation</em> set and open the test set only once, at the very end.)</p>' +

@@ -11,6 +11,8 @@ The site is interactive:
 - **Tough projects.** Each project has a client-style brief, Indian datasets, milestones, a rubric and stretch goals, ending with two grand capstones.
 - **Progress tracking, notes, a study planner and a jargon glossary** with Hindi terms. Everything is saved in your own browser; there are no accounts and no tracking.
 
+**What's inside:** 4 levels, 27 modules, 428 free resources (409 with verified links), 350 quiz questions, 81 auto-graded coding exercises, 12 labs, 18 projects and 180 glossary terms.
+
 The four levels are named in Sanskrit:
 
 | Level | Name | Focus |

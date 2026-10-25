@@ -217,7 +217,7 @@
               '<button type="button" class="btn btn-sm btn-ghost" data-r="clear">Clear means</button>' +
             '</div>' +
             '<div class="stack-sm">' +
-              '<h4 class="small" style="font-size:.92rem">Your runs for this population</h4>' +
+              '<h2 class="lab-h small" style="font-size:.92rem">Your runs for this population</h2>' +
               '<div class="table-wrap"><table class="simple" style="font-size:.88rem">' +
                 '<thead><tr><th scope="col" ' + th + '>n</th><th scope="col" ' + th + '>Means</th><th scope="col" ' + th + '>SD of means</th><th scope="col" ' + th + '>\u03C3/\u221An</th></tr></thead>' +
                 '<tbody data-r="runs"></tbody>' +
@@ -225,7 +225,7 @@
               '<p class="small muted" data-r="finding"></p>' +
             '</div>' +
             '<div class="stack-sm">' +
-              '<h4 class="small" style="font-size:.92rem">Tasks</h4>' +
+              '<h2 class="lab-h small" style="font-size:.92rem">Tasks</h2>' +
               '<ul class="lab-tasks">' + taskHtml + '</ul>' +
             '</div>' +
           '</div>' +

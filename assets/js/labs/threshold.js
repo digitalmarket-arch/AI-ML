@@ -153,14 +153,14 @@
     root.innerHTML =
       '<div class="lab">' +
         '<p class="lab-note"><strong>What you are seeing:</strong> a fraud model has given each of 10,000 UPI payments a <em>fraud score</em> from 0 (looks safe) to 1 (looks like fraud). ' +
-        'The <b>top hump</b> shows where the genuine payments landed and the <b>bottom hump</b> shows the frauds. The humps overlap, so no cut-off is perfect. ' +
+        'The <b>top hump</b> shows where the genuine payments landed and the <b>bottom hump</b> shows the frauds (each hump is stretched to the same height, so the rare frauds are easy to see). The humps overlap, so no cut-off is perfect. ' +
         'The <em>threshold</em> (the yellow line) is your cut-off: every payment scoring at or above it is <em>flagged</em> (held, and the customer gets a call). ' +
         'Drag the line and watch the four kinds of result, the scores and the ₹ cost change.</p>' +
         '<div class="lab-body">' +
           '<div class="stack">' +
             '<div class="stack-sm">' +
               '<div class="lab-canvas-wrap" id="' + P + 'dwrap" style="aspect-ratio:2/1;min-height:270px;max-height:420px">' +
-                '<canvas id="' + P + 'dist" role="img" tabindex="0" aria-describedby="' + P + 'kbd" aria-label="Score humps" style="touch-action:pan-y;cursor:ew-resize;outline-offset:-3px"></canvas></div>' +
+                '<canvas id="' + P + 'dist" role="img" tabindex="0" aria-describedby="' + P + 'tip ' + P + 'kbd" aria-label="Score humps" style="touch-action:pan-y;cursor:ew-resize;outline-offset:-3px"></canvas></div>' +
               '<div class="lab-legend">' +
                 legendItem(swArea('var(--series-1)'), 'Genuine payments (top): <b class="num" id="' + P + 'lg">9,800</b>') +
                 legendItem(swArea('var(--series-2)'), 'Frauds (bottom): <b class="num" id="' + P + 'lf">200</b>') +
@@ -208,7 +208,7 @@
                     '<button type="button" data-curve="pr" aria-pressed="false">Precision–recall</button>' +
                   '</div></div>' +
                 '<div class="lab-canvas-wrap" id="' + P + 'rwrap" style="aspect-ratio:1/1;max-height:400px">' +
-                  '<canvas id="' + P + 'roc" role="img" tabindex="0" aria-describedby="' + P + 'kbd" aria-label="ROC curve" style="cursor:pointer;outline-offset:-3px"></canvas></div>' +
+                  '<canvas id="' + P + 'roc" role="img" tabindex="0" aria-describedby="' + P + 'tip ' + P + 'kbd" aria-label="ROC curve" style="cursor:pointer;outline-offset:-3px"></canvas></div>' +
                 '<div class="lab-legend">' +
                   legendItem(swLine('var(--series-4)', false, 2.5), 'Every threshold') +
                   legendItem(swDot('var(--haldi)'), 'Your threshold') +
@@ -230,7 +230,7 @@
               '</div>' +
               '<p class="small" id="' + P + 'csum"></p>' +
               '<div class="lab-canvas-wrap" id="' + P + 'kwrap" style="aspect-ratio:5/2;min-height:220px;max-height:320px">' +
-                '<canvas id="' + P + 'cost" role="img" tabindex="0" aria-describedby="' + P + 'kbd" aria-label="Cost chart" style="touch-action:pan-y;cursor:ew-resize;outline-offset:-3px"></canvas></div>' +
+                '<canvas id="' + P + 'cost" role="img" tabindex="0" aria-describedby="' + P + 'tip ' + P + 'kbd" aria-label="Cost chart" style="touch-action:pan-y;cursor:ew-resize;outline-offset:-3px"></canvas></div>' +
               '<div class="lab-legend">' +
                 legendItem(swArea('var(--series-1)'), 'False alarms × <b class="num" id="' + P + 'lfa">₹50</b>') +
                 legendItem(swArea('var(--series-2)'), 'Missed frauds × <b class="num" id="' + P + 'lmi">₹5,000</b>') +
@@ -251,8 +251,10 @@
               '<button type="button" class="btn btn-primary" id="' + P + 'sweep">Sweep 1 → 0</button>' +
               '<button type="button" class="btn" id="' + P + 'reset">Reset</button>' +
             '</div>' +
-            '<p class="kbd-hint" id="' + P + 'kbd">Drag or tap any chart to move the threshold. Keyboard: Tab to a chart, then use the arrow keys (hold Shift for steps of 0.10). “Sweep” slides the threshold from 1 down to 0 so you can watch every number change.</p>' +
-            '<div class="stack-sm"><h4>Your tasks</h4><ul class="lab-tasks">' + tasksHtml + '</ul></div>' +
+            // the tap / sweep tip stays visible on phones; .kbd-hint (keyboard only) is hidden on touch screens by style.css
+            '<div style="display:flex;flex-direction:column;gap:4px"><p class="small muted" id="' + P + 'tip" style="margin:0">Drag or tap any chart to move the threshold. “Sweep” slides the threshold from 1 down to 0 so you can watch every number change.</p>' +
+            '<p class="kbd-hint" id="' + P + 'kbd" style="margin:0">Keyboard: Tab to a chart, then use the arrow keys (hold Shift for steps of 0.10).</p></div>' +
+            '<div class="stack-sm"><h2 class="lab-h">Your tasks</h2><ul class="lab-tasks">' + tasksHtml + '</ul></div>' +
           '</div>' +
         '</div>' +
         '<p class="small muted"><strong style="color:var(--ink)">Why it matters in real ML:</strong> a classifier only gives a score; people choose the threshold. Fraud, spam and disease-screening teams choose it from the ₹ cost of each kind of mistake, not from accuracy, and they compare models with ROC-AUC or precision–recall curves before picking one.</p>' +
@@ -283,7 +285,7 @@
     function setDefaults() { for (var k in DEF) if (Object.prototype.hasOwnProperty.call(DEF, k)) S[k] = DEF[k]; }
     setDefaults();
     var M = {
-      Nf: 0, Ng: 0, best: 0, auc: 0.5, ap: 0,
+      Nf: 0, Ng: 0, best: 0, flat: false, auc: 0.5, ap: 0,
       tp: new Float64Array(STEPS + 1), fp: new Float64Array(STEPS + 1), cost: new Float64Array(STEPS + 1),
       rocX: new Float64Array(CURVE_N + 1), rocY: new Float64Array(CURVE_N + 1), prec: new Float64Array(CURVE_N + 1)
     };
@@ -324,6 +326,9 @@
         if (M.cost[i] < M.cost[best]) best = i;
       }
       M.best = best;
+      var lo = Infinity, hi = -Infinity;
+      for (i = 0; i <= STEPS; i++) { if (M.cost[i] < lo) lo = M.cost[i]; if (M.cost[i] > hi) hi = M.cost[i]; }
+      M.flat = hi - lo < 0.5;   // e.g. both costs set to ₹0: every threshold costs the same
       M.auc = Phi(S.sep / Math.SQRT2);
       // smooth curves: walk the log-odds cut-off from +Z_SPAN (flag nothing) to -Z_SPAN (flag everything)
       var ap = 0;
@@ -346,8 +351,6 @@
     }
     // costs are whole rupees, so this is an exact match (several thresholds can tie for cheapest)
     function atCheapest(i) { return M.cost[i] <= M.cost[M.best] + 0.5; }
-    // a flat cost curve (e.g. both costs set to ₹0) has no real cheapest point to find
-    function costIsFlat() { var lo = Infinity, hi = -Infinity; for (var i = 0; i <= STEPS; i++) { if (M.cost[i] < lo) lo = M.cost[i]; if (M.cost[i] > hi) hi = M.cost[i]; } return hi - lo < 0.5; }
 
     /* ---------- text ---------- */
     function messageHTML(c) {
@@ -411,8 +414,9 @@
 
       cm.TN.textContent = fmtInt(c.tn); cm.FP.textContent = fmtInt(c.fp);
       cm.FN.textContent = fmtInt(c.fn); cm.TP.textContent = fmtInt(c.tp);
-      cm.kFP.textContent = '× ' + fmtRs(S.cFa) + ' = ' + fmtRs(c.fp * S.cFa);
-      cm.kFN.textContent = '× ' + fmtRs(S.cMiss) + ' = ' + fmtRs(c.fn * S.cMiss);
+      // fmtRsStat switches to lakh / crore above ₹9,99,999 so huge costs still fit a phone-width cell
+      cm.kFP.textContent = '× ' + fmtRsStat(S.cFa) + ' = ' + fmtRsStat(c.fp * S.cFa);
+      cm.kFN.textContent = '× ' + fmtRsStat(S.cMiss) + ' = ' + fmtRsStat(c.fn * S.cMiss);
       cm.hn.textContent = fmtInt(c.tn + c.fn); cm.hf.textContent = fmtInt(c.flagged);
       cm.rg.textContent = fmtInt(Ng); cm.rf.textContent = fmtInt(Nf);
 
@@ -431,7 +435,8 @@
 
       elCsum.innerHTML = 'At threshold <b>' + tStr + '</b> the mistakes cost <b>' + fmtRs(c.cost) + '</b> (' +
         count(c.fn, 'missed fraud', 'missed frauds') + ' × ' + fmtRs(S.cMiss) + ' + ' + count(c.fp, 'false alarm', 'false alarms') + ' × ' + fmtRs(S.cFa) + '). ' +
-        (cheapest ? '<b style="color:var(--ok)">This is the cheapest threshold.</b>' :
+        (M.flat ? 'Every threshold costs the same, so there is no cheapest one to find. Give each kind of mistake a ₹ cost above zero.' :
+          cheapest ? '<b style="color:var(--ok)">This is the cheapest threshold.</b>' :
           'Cheapest: <b>' + fmtRs(best.cost) + '</b> at threshold <b>' + fmtT(M.best) + '</b> (★), which saves ' + fmtRs(c.cost - best.cost) + '.');
 
       CV.dist.cv.setAttribute('aria-label', 'Score chart. Top: ' + fmtInt(Ng) + ' genuine payments; bottom: ' + fmtInt(Nf) + ' frauds. Threshold ' + tStr + ': ' +
@@ -439,7 +444,7 @@
       CV.roc.cv.setAttribute('aria-label', pr
         ? 'Precision–recall curve, area ' + M.ap.toFixed(3) + '. Your threshold: recall ' + pct(c.rec) + ', precision ' + (c.prec == null ? 'not defined' : pct(c.prec)) + '.'
         : 'ROC curve, AUC ' + M.auc.toFixed(3) + '. Your threshold: false-alarm rate ' + pct(c.fpr) + ', recall ' + pct(c.rec) + '.');
-      CV.cost.cv.setAttribute('aria-label', 'Total cost of mistakes for every threshold. Lowest is ' + fmtRs(best.cost) + ' at ' + fmtT(M.best) +
+      CV.cost.cv.setAttribute('aria-label', 'Total cost of mistakes for every threshold. ' + (M.flat ? 'Every threshold costs the same' : 'Lowest is ' + fmtRs(best.cost) + ' at ' + fmtT(M.best)) +
         '. Your threshold ' + tStr + ' costs ' + fmtRs(c.cost) + '.');
     }
 
@@ -447,7 +452,7 @@
       if (kind === 'sweep') return;
       var c = cur(S.ti);
       if (S.rate === 1 && c.flagged === 0) completeTask('t1');
-      if (kind === 't' && atCheapest(S.ti) && !costIsFlat()) completeTask('t2');
+      if (kind === 't' && atCheapest(S.ti) && !M.flat) completeTask('t2');
       if (kind === 't' && S.ti > 0 && c.rec >= RECALL_GOAL) completeTask('t3');
       if (M.auc >= AUC_GOAL) completeTask('t4');
     }
@@ -716,7 +721,7 @@
       g.strokeStyle = T.s4; g.lineWidth = 2.5; g.lineJoin = 'round'; g.stroke();
 
       // cheapest (star) and current (dot) thresholds
-      var b = curvePoint(M.best);
+      var b = M.flat ? null : curvePoint(M.best);
       if (b) { starPath(g, X(b.x), Y(b.y), 9); g.fillStyle = T.ok; g.fill(); g.strokeStyle = T.surface; g.lineWidth = 1.5; g.stroke(); }
       var p = curvePoint(S.ti);
       if (p) {
@@ -747,7 +752,7 @@
       function Y(val) { return y1 - val / yMax * (y1 - y0); }
       // grid
       g.lineWidth = 1; g.font = '11px ' + T.font;
-      for (v = 0; v <= yMax + step * 0.01; v += step) {
+      for (v = 0; v <= (maxC > 0 ? yMax : 0) + step * 0.01; v += step) {   // all ₹0: just the ₹0 line
         var gy = Math.round(Y(v)) + 0.5;
         g.strokeStyle = T.line; g.beginPath(); g.moveTo(x0, gy); g.lineTo(x1, gy); g.stroke();
         g.fillStyle = T.muted; g.textAlign = 'right'; g.textBaseline = 'middle'; g.fillText(fmtRsShort(v), x0 - 6, gy);
@@ -773,18 +778,20 @@
       g.beginPath(); g.moveTo(tx, y0); g.lineTo(tx, y1); g.stroke();
       // cheapest
       var bx = X(M.best / STEPS), by = Y(M.cost[M.best]);
-      starPath(g, bx, by, 9); g.fillStyle = T.ok; g.fill(); g.strokeStyle = T.surface; g.lineWidth = 1.5; g.stroke();
+      if (!M.flat) { starPath(g, bx, by, 9); g.fillStyle = T.ok; g.fill(); g.strokeStyle = T.surface; g.lineWidth = 1.5; g.stroke(); }
       g.beginPath(); g.arc(tx, Y(M.cost[S.ti]), 6, 0, Math.PI * 2);
       g.fillStyle = T.haldi; g.fill(); g.strokeStyle = T.ink; g.lineWidth = 1.5; g.stroke();
-      g.font = '700 11.5px ' + T.font;
-      var cl = 'cheapest ' + fmtT(M.best), cw = Math.ceil(g.measureText(cl).width) + 10;
-      var cx = M.best === S.ti ? bx - cw / 2 : bx < tx ? bx + 4 - cw : bx - 4;
-      cx = clamp(cx, x0 + 2, x1 - cw - 2);
-      var cy = Math.max(y0, by - 34);
-      rrect(g, cx, cy, cw, 18, 5);
-      g.globalAlpha = 0.9; g.fillStyle = T.surface; g.fill(); g.globalAlpha = 1;
-      g.fillStyle = T.ok; g.textAlign = 'left'; g.textBaseline = 'middle';
-      g.fillText(cl, cx + 5, cy + 9.5);
+      if (!M.flat) {   // label the cheapest threshold (a flat ₹0 curve has none)
+        g.font = '700 11.5px ' + T.font;
+        var cl = 'cheapest ' + fmtT(M.best), cw = Math.ceil(g.measureText(cl).width) + 10;
+        var cx = M.best === S.ti ? bx - cw / 2 : bx < tx ? bx + 4 - cw : bx - 4;
+        cx = clamp(cx, x0 + 2, x1 - cw - 2);
+        var cy = Math.max(y0, by - 34);
+        rrect(g, cx, cy, cw, 18, 5);
+        g.globalAlpha = 0.9; g.fillStyle = T.surface; g.fill(); g.globalAlpha = 1;
+        g.fillStyle = T.ok; g.textAlign = 'left'; g.textBaseline = 'middle';
+        g.fillText(cl, cx + 5, cy + 9.5);
+      }
       // axis title
       g.font = '600 12px ' + T.font; g.fillStyle = T.ink; g.textAlign = 'center'; g.textBaseline = 'alphabetic';
       g.fillText('Threshold', X(0.5), y1 + 33);

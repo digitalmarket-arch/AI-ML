@@ -234,7 +234,7 @@
                 '<button type="button" class="btn btn-sm" id="' + P + 'resetdata">Reset data</button>' +
               '</div></div>' +
             '<div class="small" style="display:grid;grid-template-columns:20px minmax(0,1fr);gap:8px;align-items:start"><input type="checkbox" id="' + P + 'showbest" style="margin:3px 0 0"><label for="' + P + 'showbest">Show the best possible line (worked out exactly with algebra)</label></div>' +
-            '<div class="stack-sm"><h4>Your tasks</h4><ul class="lab-tasks" id="' + P + 'tasks">' + tasksHtml + '</ul></div>' +
+            '<div class="stack-sm"><h2 class="lab-h">Your tasks</h2><ul class="lab-tasks" id="' + P + 'tasks">' + tasksHtml + '</ul></div>' +
           '</div>' +
         '</div>' +
         '<p class="small muted"><strong style="color:var(--ink)">Why it matters in real ML:</strong> almost every model, from this straight line to the huge networks behind chatbots, learns by this same downhill walk; the learning rate is one of the first settings engineers tune, and stochastic (or mini-batch: a small handful of examples per step) steps are how they train on millions of examples quickly.</p>' +
