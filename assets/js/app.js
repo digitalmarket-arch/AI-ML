@@ -279,14 +279,33 @@
     var prev = all[gi - 1], next = all[gi + 1];
     var html = '<div class="wrap stack">' + crumbs([['Home', 'home'], ['Level ' + m.level + ' ' + (l ? l.name : ''), 'level-' + m.level], ['Module ' + modNo(m)]]) +
       '<header class="row-between"><div class="stack-sm"><span class="eyebrow">Module ' + modNo(m) + (m.hours ? ' · about ' + m.hours + ' hours' : '') + '</span><h1>' + esc(m.title) + '</h1></div>' + ring(moduleProgress(m)) + '</header>' +
-      '<div class="tabs" role="tablist">' + tabs.map(function (t) { return '<button role="tab" type="button" data-tab="' + t[0] + '" aria-selected="' + (t[0] === tab) + '">' + esc(t[1]) + '</button>'; }).join('') + '</div>' +
-      '<div class="two-col"><div class="tab-panel" id="tabpanel" role="tabpanel"></div><aside class="stack">' + moduleSide(m) +
+      '<div class="tabs" role="tablist" aria-label="Module sections">' + tabs.map(function (t) { return '<button role="tab" type="button" id="tab-' + t[0] + '" aria-controls="tabpanel" data-tab="' + t[0] + '" aria-selected="' + (t[0] === tab) + '" tabindex="' + (t[0] === tab ? '0' : '-1') + '">' + esc(t[1]) + '</button>'; }).join('') + '</div>' +
+      '<div class="two-col"><div class="tab-panel" id="tabpanel" role="tabpanel" aria-labelledby="tab-' + tab + '"></div><aside class="stack"><div class="stack" id="mod-side" data-mod="' + esc(m.id) + '">' + moduleSide(m) + '</div>' +
       '<div class="row-between">' + (prev ? '<a class="btn btn-sm" href="#m-' + esc(prev.id) + '">← ' + esc(modNo(prev)) + '</a>' : '<span></span>') + (next ? '<a class="btn btn-sm" href="#m-' + esc(next.id) + '">' + esc(modNo(next)) + ' →</a>' : '') + '</div></aside></div></div>';
     setView(html, m.title);
-    main.querySelectorAll('[data-tab]').forEach(function (b) {
-      b.addEventListener('click', function () { moduleTab[id] = b.getAttribute('data-tab'); viewModule(id, moduleTab[id]); });
+    var tabBtns = Array.prototype.slice.call(main.querySelectorAll('[data-tab]'));
+    tabBtns.forEach(function (b, i) {
+      b.addEventListener('click', function () { switchTab(b.getAttribute('data-tab')); });
+      b.addEventListener('keydown', function (ev) {
+        var j = ev.key === 'ArrowRight' ? i + 1 : ev.key === 'ArrowLeft' ? i - 1 : ev.key === 'Home' ? 0 : ev.key === 'End' ? tabBtns.length - 1 : null;
+        if (j === null) return;
+        ev.preventDefault(); j = (j + tabBtns.length) % tabBtns.length; switchTab(tabBtns[j].getAttribute('data-tab'), true);
+      });
     });
+    function switchTab(t, focus) {
+      moduleTab[id] = t;
+      currentCleanup.forEach(function (f) { try { f(); } catch (e) {} }); currentCleanup = [];
+      tabBtns.forEach(function (b) { var on = b.getAttribute('data-tab') === t; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; if (on && focus) b.focus(); });
+      var panel = document.getElementById('tabpanel'); panel.setAttribute('aria-labelledby', 'tab-' + t);
+      renderModuleTab(m, t, panel);
+    }
     renderModuleTab(m, tab, document.getElementById('tabpanel'));
+  }
+  function refreshSide() {
+    var el = document.getElementById('mod-side'); if (!el) return;
+    var m = modById[el.getAttribute('data-mod')]; if (!m) return;
+    el.innerHTML = moduleSide(m);
+    var r = main.querySelector('header .ring'); if (r) { var p = moduleProgress(m); r.style.setProperty('--p', p); r.setAttribute('data-label', p + '%'); r.setAttribute('aria-label', p + '% complete'); }
   }
   function moduleSide(m) {
     var parts = moduleParts(m), done = S().modules[m.id] && S().modules[m.id].done;
@@ -351,7 +370,7 @@
   function recordQuiz(key, score) {
     var q = S().quiz[key] || { best: 0, attempts: 0 };
     q.best = Math.max(q.best, score); q.attempts++; q.last = score; q.at = C.today();
-    S().quiz[key] = q; C.logActivity(); C.save();
+    S().quiz[key] = q; C.logActivity(); C.save(); refreshSide();
     C.toast(score >= 70 ? 'Quiz passed with ' + score + '%. बढ़िया!' : 'Scored ' + score + '%. Review and try again.');
   }
 
@@ -360,7 +379,7 @@
     if (!meta || !root) return;
     var st = S(); st.labs[meta.id] = st.labs[meta.id] || {};
     var ctx = {
-      onTaskDone: function (tid) { if (!st.labs[meta.id][tid]) { st.labs[meta.id][tid] = true; C.logActivity(); C.save(); C.toast('Lab task complete'); } },
+      onTaskDone: function (tid) { if (!st.labs[meta.id][tid]) { st.labs[meta.id][tid] = true; C.logActivity(); C.save(); C.toast('Lab task complete'); refreshSide(); } },
       isTaskDone: function (tid) { return !!st.labs[meta.id][tid]; }
     };
     var alive = true, inst = null;
@@ -450,7 +469,7 @@
           }).join('');
           if (all.length && ok === all.length) {
             line('ok', '\nAll ' + all.length + ' checks passed in ' + ((Date.now() - started) / 1000).toFixed(1) + ' s. बढ़िया!\n');
-            if (!(S().ex[e.id] && S().ex[e.id].done)) { S().ex[e.id] = { done: true, at: C.today() }; C.logActivity(); C.save(); C.toast('Exercise solved'); }
+            if (!(S().ex[e.id] && S().ex[e.id].done)) { S().ex[e.id] = { done: true, at: C.today() }; C.logActivity(); C.save(); C.toast('Exercise solved'); refreshSide(); }
           } else if (all.length) line('info', '\n' + ok + ' of ' + all.length + ' checks passed. Read the hints above.\n');
         }
       }).catch(function (err) { clearTimeout(slow); bStop.hidden = true; out.innerHTML = ''; line('err', String(err.message || err) + '\n'); });
@@ -760,7 +779,7 @@
   document.addEventListener('change', function (ev) {
     var t = ev.target, a = t.getAttribute && t.getAttribute('data-action'), id = t.getAttribute && t.getAttribute('data-id'), st = S();
     if (!a) return;
-    if (a === 'watched') { if (t.checked) { st.watched[id] = C.today(); C.logActivity(); } else delete st.watched[id]; C.save(); }
+    if (a === 'watched') { if (t.checked) { st.watched[id] = C.today(); C.logActivity(); } else delete st.watched[id]; C.save(); refreshSide(); }
     else if (a === 'pstep') { var p = st.projects[id] = st.projects[id] || {}; p.steps = p.steps || {}; p.steps[t.getAttribute('data-i')] = t.checked; if (t.checked) C.logActivity(); C.save(); }
     else if (a === 'prub') { var q = st.projects[id] = st.projects[id] || {}; q.rubric = q.rubric || {}; q.rubric[t.getAttribute('data-i')] = Number(t.value); C.save(); updateRubric(projById[id], q); }
   });

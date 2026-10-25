@@ -118,6 +118,8 @@
   function fmtTemp(v) { return String(Math.round(v * 100) / 100) + ' °C'; }
   function fmtFeat(f, v) { return f === 0 ? fmtRain(v) : fmtTemp(v); }
   function pct(a) { return (a * 100).toFixed(1) + '%'; }
+  function farms(n) { return n + (n === 1 ? ' farm' : ' farms'); }
+  function tfarms(n) { return n + (n === 1 ? ' training farm' : ' training farms'); }
   function cls(y) { return y ? '<b style="color:var(--series-4)">good</b>' : '<b style="color:var(--series-2)">poor</b>'; }
 
   /* ---------- small DOM helpers ---------- */
@@ -563,7 +565,7 @@
 
     /* ---------- tree diagram (SVG, colours via CSS variables so it follows the theme) ---------- */
     var LSP = 74, LV = 56, PADX = 14, PADY = 14, IW = 124, IH = 38, LW = 64, LH = 50;
-    var nodeEls = [], edgeEls = [], diagramPath = [], diagramScale = 1;
+    var nodeEls = [], edgeEls = [], diagramPath = [], diagramScale = 1, diagramWide = false;
     function nodeStyle(n, hot) {
       if (n.leaf) {
         var col = n.pred ? 'var(--series-4)' : 'var(--series-2)';
@@ -591,6 +593,7 @@
       var hgt = PADY * 2 + tree.depth * LV + LH;
       while (treeSvg.firstChild) treeSvg.removeChild(treeSvg.firstChild);
       treeSvg.setAttribute('width', Math.floor(w * sc)); treeSvg.setAttribute('height', Math.ceil(hgt * sc));
+      diagramWide = Math.floor(w * sc) > boxW + 1;
       treeSvg.setAttribute('viewBox', '0 0 ' + w + ' ' + hgt);
       nodeEls = []; edgeEls = []; diagramPath = [];
       var gEdges = sv('g'), gNodes = sv('g');
@@ -709,12 +712,12 @@
       } else if (probe.kind === 'node') {
         var nn = cur.tree.nodes[probe.id];
         html = nn.leaf
-          ? 'This leaf covers ' + regionText(nn) + '. It holds ' + nn.n + ' training farms (' + nn.c1 + ' good, ' + nn.c0 + ' poor), Gini ' + nn.g.toFixed(2) + ', so it predicts ' + cls(nn.pred) + '.'
-          : 'This box asks: is ' + (nn.f === 0 ? 'rain' : 'temperature') + ' ≤ ' + fmtFeat(nn.f, nn.thr) + '? ' + nn.n + ' training farms reach it (' + nn.c1 + ' good, ' + nn.c0 + ' poor, Gini ' + nn.g.toFixed(2) + '). Yes goes left, no goes right.';
+          ? 'This leaf covers ' + regionText(nn) + '. It holds ' + tfarms(nn.n) + ' (' + nn.c1 + ' good, ' + nn.c0 + ' poor), Gini ' + nn.g.toFixed(2) + ', so it predicts ' + cls(nn.pred) + '.'
+          : 'This box asks: is ' + (nn.f === 0 ? 'rain' : 'temperature') + ' ≤ ' + fmtFeat(nn.f, nn.thr) + '? ' + tfarms(nn.n) + (nn.n === 1 ? ' reaches' : ' reach') + ' it (' + nn.c1 + ' good, ' + nn.c0 + ' poor, Gini ' + nn.g.toFixed(2) + '). Yes goes left, no goes right.';
       } else {
         var x = probeX(), leaf = leafOf(cur.tree, x);
         var where = fmtRain(x[0]) + ' of rain, ' + fmtTemp(x[1]);
-        var treeSays = 'leaf of ' + leaf.n + ' farms (Gini ' + leaf.g.toFixed(2) + ') that says ' + cls(leaf.pred);
+        var treeSays = 'leaf of ' + farms(leaf.n) + ' (Gini ' + leaf.g.toFixed(2) + ') that says ' + cls(leaf.pred);
         var fv = st.forest ? forestVote(cur.trees, x) : null;
         if (probe.kind === 'pt') {
           var p = (probe.set === 'train' ? train : test)[probe.i];
@@ -757,7 +760,8 @@
       if (coach.innerHTML !== msg) coach.innerHTML = msg;
       treeHead.textContent = cur.tree.leaves + ' leaves · depth ' + cur.tree.depth;
       treeCap.textContent = (st.forest ? 'This is the single tree, shown for comparison (the map shows the forest\'s vote). ' : '') +
-        'Each box asks a yes/no question: yes goes left, no goes right. n = training farms that reach the box. Gini impurity = how mixed they are (0 = all one kind, 0.5 = half and half). Hover a box to light up its area on the map.';
+        'Each box asks a yes/no question: yes goes left, no goes right. n = training farms that reach the box. Gini impurity = how mixed they are (0 = all one kind, 0.5 = half and half). Hover a box to light up its area on the map.' +
+        (diagramWide ? ' This tree is wider than the box: scroll sideways to see all of it.' : '');
       canvas.setAttribute('aria-label', 'Map of ' + (train.length + test.length) + ' farms: rainfall across, temperature up. ' +
         (st.forest ? 'Shaded by the vote of ' + st.nTrees + ' trees; forest test accuracy ' + pct(cur.fte) + '.' : 'Shaded boxes are the ' + cur.tree.leaves + ' leaves of a depth ' + cur.tree.depth + ' tree; test accuracy ' + pct(cur.te) + '.'));
     }
@@ -896,7 +900,19 @@
 
     var ro = null;
     if (window.ResizeObserver) {
-      ro = new ResizeObserver(function () { if (destroyed) return; resize(); invalidate(); });
+      ro = new ResizeObserver(function (entries) {
+        if (destroyed) return;
+        for (var i = 0; i < entries.length; i++) {
+          if (entries[i].target !== wrap) continue;
+          var r = canvas.getBoundingClientRect();
+          if (Math.abs(r.width - W) > 0.5 || Math.abs(r.height - H) > 0.5) {
+            resize(); readColors();
+            if (dirtyHeat) renderHeat();
+            draw(); // canvas only: no layout changes inside the observer
+          }
+        }
+        invalidate();
+      });
       ro.observe(wrap);
       ro.observe(treeBox);
     } else {

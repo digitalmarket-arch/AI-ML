@@ -191,7 +191,7 @@
               '<p class="small muted" data-r="popdesc"></p>' +
             '</div>' +
             '<div class="control">' +
-              '<label for="' + P + 'n"><span>Sample size <i>n</i> <span class="muted" style="font-weight:400">(values per sample)</span></span><output for="' + P + 'n" data-r="nout" style="white-space:nowrap"></output></label>' +
+              '<label for="' + P + 'n"><span>Sample size <i>n</i></span><output for="' + P + 'n" data-r="nout" style="white-space:nowrap"></output></label>' +
               '<input type="range" id="' + P + 'n" min="1" max="50" step="1" value="10">' +
               '<div class="row" role="group" aria-label="Quick sample sizes" style="gap:4px"><span class="small muted">Quick:</span>' + quickHtml + '</div>' +
             '</div>' +
@@ -401,7 +401,7 @@
           var large = partners[i] < st.n ? { n: st.n, sd: rs.sd } : { n: partners[i], sd: b.sd };
           var ratio = large.sd / small.sd;
           st.finding[p.id] = 'n = ' + small.n + ' \u2192 ' + large.n + ' (4\u00D7 bigger): SD of means went ' + p.fmtSD(small.sd) + ' \u2192 ' + p.fmtSD(large.sd) +
-            ' (\u00D7' + ratio.toFixed(2) + '). ' + (ratio >= 0.4 && ratio <= 0.62 ? 'Four times the sample, about half the spread, because \u221A4 = 2.' : 'Theory says \u00D70.50; collect more means to steady it.');
+            ' (\u00D7' + ratio.toFixed(2) + '). ' + (ratio >= 0.4 && ratio <= 0.62 ? 'Four times the sample, about half the spread, because \u221A4\u00A0=\u00A02.' : 'Theory says \u00D70.50; collect more means to steady it.');
           if (ratio >= 0.4 && ratio <= 0.62) markDone('t3');
         }
       }
@@ -419,7 +419,7 @@
         b.setAttribute('aria-pressed', on ? 'true' : 'false');
       });
       if (+slider.value !== st.n) slider.value = String(st.n);
-      setText(el.nout, 'nout', 'n = ' + st.n);
+      setText(el.nout, 'nout', 'n = ' + st.n + (st.n === 1 ? ' value' : ' values') + ' per sample');
       setHTML(el.popdesc, 'popdesc', p.desc);
       curveBox.checked = st.showCurve;
       syncStats();
