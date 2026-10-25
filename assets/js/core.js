@@ -8,7 +8,7 @@
   var memory = null;
   function blank() {
     return { v: 1, prefs: { lang: 'hi', theme: 'system' }, watched: {}, quiz: {}, ex: {}, code: {}, labs: {},
-      projects: {}, modules: {}, notes: {}, last: null, log: {}, pos: {} };
+      projects: {}, modules: {}, notes: {}, last: null, log: {}, pos: {}, read: {} };
   }
   // Make any stored or restored object safe to use: right shapes, numbers that are numbers.
   function normalize(d) {
@@ -35,6 +35,13 @@
       if (!p || typeof p !== 'object') { delete d.pos[x]; return; }
       var num = function (v) { v = Number(v); return isFinite(v) && v > 0 ? v : 0; };
       d.pos[x] = { i: Math.floor(num(p.i)), n: Math.floor(num(p.n)), s: Math.floor(num(p.s)), t: num(p.t) };
+    });
+    // lesson cards ticked as read: read[moduleId][cardKey] = the date it was ticked
+    Object.keys(d.read).forEach(function (m) {
+      var r = d.read[m];
+      if (!r || typeof r !== 'object' || Array.isArray(r)) { delete d.read[m]; return; }
+      Object.keys(r).forEach(function (k) { if (!r[k] || typeof r[k] === 'object') delete r[k]; else r[k] = String(r[k]).slice(0, 10); });
+      if (!Object.keys(r).length) delete d.read[m];
     });
     d.v = 1;
     return d;
@@ -100,6 +107,10 @@
     keys(b.labs).forEach(function (k) {
       var x = a.labs[k] = a.labs[k] && typeof a.labs[k] === 'object' ? a.labs[k] : {};
       keys(b.labs[k]).forEach(function (t) { if (b.labs[k][t] && !x[t]) x[t] = b.labs[k][t]; });
+    });
+    keys(b.read).forEach(function (m) {
+      var x = a.read[m] = isObj(a.read[m]) ? a.read[m] : {};
+      keys(b.read[m]).forEach(function (k) { x[k] = earlier(x[k], b.read[m][k]); });
     });
     keys(b.projects).forEach(function (k) {
       var y = b.projects[k], x = a.projects[k];

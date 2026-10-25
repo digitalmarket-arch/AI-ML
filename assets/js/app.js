@@ -50,8 +50,10 @@
           svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', f.alt || f.title || 'Diagram'); svg.setAttribute('focusable', 'false');
         }
         var key = el.querySelector('[data-sec="' + (f.after || 'overview') + '"]') ? (f.after || 'overview') : 'overview';
-        var anchor = lastAt[key] || el.querySelector('[data-sec="' + key + '"]');
+        var sec = el.querySelector('[data-sec="' + key + '"]'), inCard = sec && sec.querySelector('.read-body');
+        var anchor = lastAt[key] || (inCard ? null : sec);
         if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(fig, anchor.nextSibling);
+        else if (inCard) inCard.appendChild(fig);
         else el.firstChild.appendChild(fig);
         lastAt[key] = fig;
       });
@@ -79,8 +81,64 @@
   function levelName(lv) { var l = levelById[lv]; return l ? l.name : 'Level ' + lv; }
 
   /* ---------- progress maths ---------- */
+  /* ---------- lesson cards: the Overview tab is a stack of cards, each with a "Got it" tick ---------- */
+  var READ_SECS = [['overview', 'The big idea'], ['outcomes', 'You will be able to'], ['studySteps', 'Study plan'], ['keyTerms', 'Key terms'], ['indiaExample', 'In India'], ['commonMistakes', 'Common mistakes'], ['selfCheck', 'Check yourself (open tasks)']];
+  function readCards(m) {
+    return READ_SECS.filter(function (x) { var v = m[x[0]]; return x[0] === 'overview' || (Array.isArray(v) ? v.length > 0 : !!v); }).map(function (x) { return { key: x[0], title: x[1] }; });
+  }
+  function readDone(m) { var r = S().read[m.id] || {}; return readCards(m).filter(function (c) { return r[c.key]; }).length; }
+  function listHTML(arr, ordered) {
+    var tag = ordered ? 'ol' : 'ul';
+    return '<' + tag + '>' + (arr || []).map(function (x) { return '<li>' + inline(x) + '</li>'; }).join('') + '</' + tag + '>';
+  }
+  function readBtnHTML(m, key, done) {
+    return '<button type="button" class="btn btn-sm read-btn' + (done ? ' is-on' : ' btn-primary') + '" data-action="read-card" data-id="' + esc(m.id) + '" data-key="' + esc(key) + '" aria-pressed="' + done + '">' + (done ? '<span aria-hidden="true">✓ </span>' : '') + 'Got it</button>' +
+      '<span class="small muted">' + (done ? 'Read. Press again if you want to come back to it.' : 'Press when you have understood this card.') + '</span>';
+  }
+  function readCardHTML(m, c, i, n, body, done) {
+    return '<section class="card read-card stack-sm' + (done ? ' is-read' : '') + '" data-sec="' + esc(c.key) + '" id="read-' + esc(c.key) + '" aria-labelledby="read-h-' + esc(c.key) + '">' +
+      '<div class="read-head"><h2 class="h-sub" id="read-h-' + esc(c.key) + '" tabindex="-1">' + esc(c.title) + '</h2><span class="small muted num">Card ' + (i + 1) + ' of ' + n + '</span></div>' +
+      '<div class="read-body prose stack-sm">' + body + '</div>' +
+      '<div class="read-foot">' + readBtnHTML(m, c.key, done) + '</div></section>';
+  }
+  function readProgressInner(m) {
+    var cards = readCards(m), r = S().read[m.id] || {}, n = cards.length, d = readDone(m);
+    var next = cards.filter(function (c) { return !r[c.key]; })[0];
+    return '<div class="row-between"><strong>Lesson cards read: <span class="num">' + d + ' of ' + n + '</span></strong>' +
+      (next && d ? '<button type="button" class="btn btn-sm" data-action="read-next" data-id="' + esc(m.id) + '">Next unread card ↓</button>' : '') + '</div>' +
+      bar(n ? Math.round(d / n * 100) : 0, 'Lesson cards read') +
+      '<p class="small muted">' + (n && d === n ? 'You have read every card in this lesson. Next: <a href="#m-' + esc(m.id) + '~watch">watch the best pick</a>.' : 'Read each card, then press <strong>Got it</strong> at its end. Your ticks count towards this module\'s progress and are saved like the rest of it.') + '</p>';
+  }
+  // after "Got it": scroll to the next unread card (wrapping to the top), or to the summary when all are read
+  function readGoNext(mid, afterKey) {
+    var m = modById[mid]; if (!m) return;
+    var cards = readCards(m), r = S().read[mid] || {}, i0 = afterKey ? cards.map(function (c) { return c.key; }).indexOf(afterKey) + 1 : 0;
+    var next = cards.slice(i0).concat(cards.slice(0, i0)).filter(function (c) { return !r[c.key]; })[0];
+    var box = document.getElementById(next ? 'read-' + next.key : 'read-progress'), focusEl = next ? document.getElementById('read-h-' + next.key) : box;
+    if (!box || !focusEl) return;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    box.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    try { focusEl.focus({ preventScroll: true }); } catch (e) { focusEl.focus(); }
+  }
+  // redraw the ticks and the summary in place (after a tick here, or progress arriving from another device)
+  function readRefresh(m, live) {
+    if (!m || !document.getElementById('read-progress')) return;
+    var r = S().read[m.id] || {};
+    readCards(m).forEach(function (c) {
+      var card = document.getElementById('read-' + c.key), on = !!r[c.key]; if (!card) return;
+      var f = card.querySelector('.read-foot'), btn = f && f.querySelector('.read-btn');
+      if (card.classList.contains('is-read') === on && btn && btn.getAttribute('aria-pressed') === String(on)) return;
+      var hadFocus = f && f.contains(document.activeElement);
+      card.classList.toggle('is-read', on);
+      if (f) { f.innerHTML = readBtnHTML(m, c.key, on); if (hadFocus) { var nb = f.querySelector('.read-btn'); if (nb) nb.focus(); } }
+    });
+    document.getElementById('read-progress').innerHTML = readProgressInner(m);
+    var lv = document.getElementById('read-live'); if (lv && live) lv.textContent = live;
+  }
   function moduleParts(m) {
     var st = S(), parts = [];
+    var rc = readCards(m);
+    if (rc.length) { var rd = readDone(m); parts.push({ k: 'Read the lesson cards', done: rd === rc.length, n: rd, of: rc.length }); }
     // the watch step counts as done when the best pick, or any recommended alternative video or course, is finished
     var mp = mainPicks(m);
     if (mp.main) {
@@ -353,7 +411,7 @@
       featureCard('Tests and tough projects', nQ + ' quiz questions, four level tests and ' + D.projects.length + ' portfolio projects built on Indian data and problems.', '#projects', 'See the projects') +
       '</div></section>' +
       '<section class="stack"><div class="section-title"><h2>How each module works</h2></div><ol class="stack-sm prose">' +
-      '<li><strong>Read the overview.</strong> Plain-English explanation, key terms and a study plan.</li>' +
+      '<li><strong>Read the lesson cards.</strong> Short plain-English cards with diagrams, key terms and a study plan. Press Got it after each card to track your reading.</li>' +
       '<li><strong>Watch.</strong> The best pick, from an Indian teacher in Hindi, Hinglish or Indian English, plus other options if a teacher does not click for you.</li>' +
       '<li><strong>Play with the lab.</strong> Every module has a lab that lets you feel the idea before you code it.</li>' +
       '<li><strong>Practise.</strong> Solve small Python exercises right on the page.</li>' +
@@ -517,14 +575,17 @@
         if (mm && modById[mm[1]]) return '<a href="#m-' + esc(mm[1]) + '">' + esc(modNo(modById[mm[1]]) + ' ' + modById[mm[1]].title) + '</a>' + (mm[2] ? ' <span class="muted">' + inline(mm[2].replace(/^[:,\-–—\s]+/, '')) + '</span>' : '');
         return inline(p);
       });
-      el.innerHTML = '<div class="stack-lg">' + (pre.length ? '<div class="callout callout-indigo small"><strong>Before this:</strong> ' + pre.join('; ') + '</div>' : '') + '<div class="prose stack" data-sec="overview">' + (m.overview ? '<p>' + inline(m.overview) + '</p>' : '<p>' + esc((m.topics || []).join(', ')) + '</p>') +
-        (m.whyItMatters ? '<div class="callout callout-indigo"><strong>Why it matters:</strong> ' + inline(m.whyItMatters) + '</div>' : '') + '</div>' +
-        listBlock('You will be able to', m.outcomes, false, 'outcomes') +
-        listBlock('Study plan', m.studySteps, true, 'studySteps') +
-        (m.keyTerms && m.keyTerms.length ? '<section class="stack-sm" data-sec="keyTerms"><h2 class="h-sub">Key terms</h2><dl>' + m.keyTerms.map(function (k) { return '<div class="gloss-term"><dt>' + esc(k.term) + '</dt><dd>' + inline(k.meaning) + '</dd></div>'; }).join('') + '</dl></section>' : '') +
-        (m.indiaExample ? '<section class="stack-sm" data-sec="indiaExample"><h2 class="h-sub">In India</h2><p class="prose">' + inline(m.indiaExample) + '</p></section>' : '') +
-        listBlock('Common mistakes', m.commonMistakes, false, 'commonMistakes') +
-        listBlock('Check yourself (open tasks)', m.selfCheck, false, 'selfCheck') +
+      var cards = readCards(m), rmap = S().read[m.id] || {};
+      var body = {
+        overview: '<p>' + (m.overview ? inline(m.overview) : esc((m.topics || []).join(', '))) + '</p>' + (m.whyItMatters ? '<div class="callout callout-indigo"><strong>Why it matters:</strong> ' + inline(m.whyItMatters) + '</div>' : ''),
+        outcomes: listHTML(m.outcomes), studySteps: listHTML(m.studySteps, true),
+        keyTerms: '<dl>' + (m.keyTerms || []).map(function (k) { return '<div class="gloss-term"><dt>' + esc(k.term) + '</dt><dd>' + inline(k.meaning) + '</dd></div>'; }).join('') + '</dl>',
+        indiaExample: '<p>' + inline(m.indiaExample || '') + '</p>',
+        commonMistakes: listHTML(m.commonMistakes), selfCheck: listHTML(m.selfCheck)
+      };
+      el.innerHTML = '<div class="stack-lg">' + (pre.length ? '<div class="callout callout-indigo small"><strong>Before this:</strong> ' + pre.join('; ') + '</div>' : '') +
+        '<div><div class="card read-progress stack-sm" id="read-progress" tabindex="-1">' + readProgressInner(m) + '</div><p class="visually-hidden" aria-live="polite" id="read-live"></p></div>' +
+        '<div class="stack read-cards">' + cards.map(function (c, i) { return readCardHTML(m, c, i, cards.length, body[c.key], !!rmap[c.key]); }).join('') + '</div>' +
         listBlock('Topics covered', m.topics, false, 'topics') +
         '</div>';
       if (m.figs) placeFigures(m, el);
@@ -1018,7 +1079,7 @@
     setView('<div class="wrap stack-lg">' + crumbs([['Home', 'home'], ['My progress']]) +
       '<header class="row-between"><div class="stack-sm"><h1>My progress</h1><p class="muted">' + (cloudOn() && K.status().user ? 'Saved in this browser and backed up to your account.' : cloudOn() ? 'Saved in this browser. Sign in to back it up and use it on other devices, or download a copy below.' : 'Saved only in this browser on this device. Export it to keep a backup or move devices.') + '</p></div>' + ring(overallProgress()) + '</header>' +
       (overallProgress() === 0 && !Object.keys(st.quiz).length ? '<div class="callout row-between"><span>Nothing here yet. Your first step takes about 30 minutes.</span><a class="btn btn-primary" href="#start">Start here</a></div>' : '') +
-      '<div class="lab-stats">' + stat('Course complete', overallProgress() + '%') + stat('Day streak', C.streak()) + stat('Exercises solved', solved + '/' + D.exercises.length) + stat('Quizzes passed', passed) + stat('Lab tasks', labTasks) + stat('Projects done', projDone + '/' + D.projects.length) + stat('Videos & courses ticked', Object.keys(st.watched).filter(function (k) { return resById[k]; }).length) + '</div>' +
+      '<div class="lab-stats">' + stat('Course complete', overallProgress() + '%') + stat('Day streak', C.streak()) + stat('Lesson cards read', D.modules.reduce(function (n, m) { return n + readDone(m); }, 0) + '/' + D.modules.reduce(function (n, m) { return n + readCards(m).length; }, 0)) + stat('Exercises solved', solved + '/' + D.exercises.length) + stat('Quizzes passed', passed) + stat('Lab tasks', labTasks) + stat('Projects done', projDone + '/' + D.projects.length) + stat('Videos & courses ticked', Object.keys(st.watched).filter(function (k) { return resById[k]; }).length) + '</div>' +
       (continueList(1).length ? '<section class="card stack-sm"><h2 class="h-sub">Continue watching</h2>' + continueHTML(5) + '</section>' : '') +
       '<section class="stack">' + D.levels.map(function (l) { return '<div class="stack-sm"><div class="row-between"><a href="#level-' + l.id + '"><strong>Level ' + l.id + ' · ' + esc(l.name) + '</strong></a><span class="num small">' + levelProgress(l.id) + '%</span></div>' + bar(levelProgress(l.id), 'Level ' + l.id + ' progress') + '</div>'; }).join('') + '</section>' +
       '<div class="two-col"><section class="stack"><h2>Quizzes</h2>' + quizTable() + '</section><aside class="stack">' +
@@ -1041,7 +1102,7 @@
   function accountBody(st) {
     if (!st.enabled) return '<div class="callout">Sign-in is not switched on for this copy of the site. Your progress is saved in this browser. To move it to another device, use <a href="#progress">My progress</a> and its Backup box.</div>';
     var privacy = '<section class="stack-sm"><h2 class="h-sub">What is saved, and who can see it</h2><ul class="prose small">' +
-      '<li>Only your course progress: ticks, quiz scores, lab tasks, exercise answers and drafts, notes, project checklists and links, flashcard scores, where you stopped each video, and your study plan and display settings, together with your Google account ID.</li>' +
+      '<li>Only your course progress: ticks (including lesson cards read), quiz scores, lab tasks, exercise answers and drafts, notes, project checklists and links, flashcard scores, where you stopped each video, and your study plan and display settings, together with your Google account ID.</li>' +
       '<li>Your name and email come from Google so you can see which account you used. No password is ever seen by this site.</li>' +
       '<li>It is stored with Google Firebase in Mumbai, India. Each account can read and write only its own copy. The site owner can see the stored data and the name and email of each account in the Firebase console, and uses them only to run this site. Nothing is sold, shared or used for ads.</li>' +
       '<li>You can delete your cloud copy below at any time. That removes your progress; to also remove your sign-in record, ask on <a href="https://github.com/digitalmarket-arch/AI-ML/issues" target="_blank" rel="noopener">GitHub</a> and give the account ID shown on this page when you are signed in (do not post your email).</li>' +
@@ -1101,7 +1162,7 @@
     var ae = document.activeElement, h = (location.hash || '').replace(/^#/, '') || 'home', cleared = !!(ev.detail && ev.detail.cleared);
     if (h === 'account') return; // it redraws itself from the sign-in status
     var typing = ae && /^(TEXTAREA|INPUT|SELECT)$/.test(ae.tagName) && ae.type !== 'checkbox' && ae.type !== 'radio';
-    if (!cleared && (typing || !/^(home|start|roadmap|level-\d|labs|practice|projects|tests|progress|career|faq)$/.test(h))) { refreshSide(); C.toast('Progress from your other device has been added'); return; }
+    if (!cleared && (typing || !/^(home|start|roadmap|level-\d|labs|practice|projects|tests|progress|career|faq)$/.test(h))) { refreshSide(); var sideEl = document.getElementById('mod-side'); readRefresh(sideEl && modById[sideEl.getAttribute('data-mod')]); C.toast('Progress from your other device has been added'); return; }
     var y = window.scrollY; route(); window.scrollTo(0, y);
   });
 
@@ -1124,6 +1185,19 @@
       }
       else { cloudDeleteArmed = false; K.deleteCloudCopy().catch(function () { C.toast('Could not delete the cloud copy. Check your connection and try again.'); }); }
     }
+    else if (a === 'read-card') {
+      var rkey = t.getAttribute('data-key'), rmod = modById[id];
+      if (rmod && rkey) {
+        var rm = st.read[id] && typeof st.read[id] === 'object' ? st.read[id] : (st.read[id] = {}), ron = !rm[rkey];
+        if (ron) { rm[rkey] = C.today(); C.logActivity(); } else delete rm[rkey];
+        if (!Object.keys(rm).length) delete st.read[id];
+        C.save(); refreshSide();
+        var rn = readCards(rmod).length, rd2 = readDone(rmod);
+        readRefresh(rmod, (ron ? 'Marked as read. ' : 'Marked as not read. ') + rd2 + ' of ' + rn + ' cards read.' + (ron && rd2 === rn ? ' You have read the whole lesson.' : ''));
+        if (ron) readGoNext(id, rkey);
+      }
+    }
+    else if (a === 'read-next') { readGoNext(id, null); }
     else if (a === 'mod-done') { var cur = st.modules[id] && st.modules[id].done; st.modules[id] = { done: !cur, at: C.today() }; if (!cur) C.logActivity(); C.save(); C.toast(cur ? 'Module marked as not complete' : 'Module complete. Next one!'); refreshSide(); }
     else if (a === 'pdone') { var p = st.projects[id] = st.projects[id] || {}; p.done = !p.done; if (p.done) C.logActivity(); C.save(); C.toast(p.done ? 'Project complete. Add it to your portfolio!' : 'Project marked as in progress'); t.textContent = p.done ? 'Completed ✓ (undo)' : 'Mark project complete'; t.className = 'btn ' + (p.done ? '' : 'btn-haldi'); }
     else if (a === 'export') { var txt = JSON.stringify(st); try { navigator.clipboard.writeText(txt).then(function () { C.toast('Progress copied'); }, function () { fallbackCopy(txt); }); } catch (e) { fallbackCopy(txt); } }
