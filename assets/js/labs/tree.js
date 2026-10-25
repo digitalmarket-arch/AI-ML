@@ -813,13 +813,14 @@
       recompute();
       if (dirtyHeat) renderHeat();
       draw();
-      if (diagramTree !== cur.tree || Math.abs(treeBoxW - diagramW) > 1) buildDiagram();
+      var rebuilt = false;
+      if (diagramTree !== cur.tree || Math.abs(treeBoxW - diagramW) > 1) { buildDiagram(); rebuilt = true; }
       var target = updateDiagramHighlight();
       drawChart();
       updateStats();
       updateReadout();
       checkTasks();
-      scrollDiagramTo(scrollDiagram ? target : null);
+      scrollDiagramTo(scrollDiagram || rebuilt ? target : null); // keep the lit-up path in view
       scrollDiagram = false;
     }
     function invalidate() { if (!raf && !destroyed) raf = requestAnimationFrame(frame); }

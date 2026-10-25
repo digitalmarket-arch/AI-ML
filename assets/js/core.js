@@ -195,8 +195,8 @@
     this.root.querySelectorAll('[data-q]').forEach(function (b) {
       b.addEventListener('click', function () {
         var a = b.getAttribute('data-q');
-        if (a === 'prev') { self.i = Math.max(0, self.i - 1); self.render(); }
-        if (a === 'next') { self.i = Math.min(n - 1, self.i + 1); self.render(); }
+        if (a === 'prev') { self.i = Math.max(0, self.i - 1); self.render(); self.reveal(); }
+        if (a === 'next') { self.i = Math.min(n - 1, self.i + 1); self.render(); self.reveal(); }
         if (a === 'finish') self.finish(false);
       });
     });
@@ -225,7 +225,12 @@
       '<strong>' + (timeUp ? 'Time is up. ' : '') + correct + ' of ' + this.qs.length + ' correct. ' + (passed ? 'Passed. शाबाश!' : 'Pass mark is 70%. Review the explanations below and try again.') + '</strong>' +
       '<div class="row"><button class="btn btn-primary" data-q="retry">Try again</button></div></div></div>' +
       '<h3>Review your answers</h3><div class="stack-sm">' + review + '</div></div>';
-    this.root.querySelector('[data-q="retry"]').addEventListener('click', function () { self.start(); });
+    this.root.querySelector('[data-q="retry"]').addEventListener('click', function () { self.start(); self.reveal(); });
+    this.reveal();
+  };
+  Quiz.prototype.reveal = function () {
+    var r = this.root.getBoundingClientRect();
+    if (r.top < 70 || r.top > window.innerHeight * 0.6) this.root.scrollIntoView({ block: 'start', behavior: 'smooth' });
   };
 
   window.AIM_CORE = {

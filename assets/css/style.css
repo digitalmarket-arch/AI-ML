@@ -292,6 +292,7 @@ textarea { width: 100%; min-height: 120px; resize: vertical; line-height: 1.5; }
 
 /* ---------- quiz ---------- */
 .quiz { display: flex; flex-direction: column; gap: 18px; }
+#quizroot, #testroot, .ex, section[id], [id^="exwrap-"] { scroll-margin-top: 80px; }
 .q { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
 .q-text { font-weight: 600; margin-bottom: 10px; }
 .q-text pre { margin-top: 8px; font-weight: 400; }

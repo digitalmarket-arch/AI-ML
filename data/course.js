@@ -121,7 +121,44 @@ window.AIM.levels = [
   "meaning": "Proficiency",
   "title": "Deep Learning & Deployment",
   "weeks": "12–14",
-  "glyph": "प्रा"
+  "glyph": "प्रा",
+  "intro": "Prāvīṇya (प्रावीण्यम्, 'proficiency') is where you move from classic machine learning to deep learning (machine learning with neural networks that have many layers), and learn to put models in front of real users. You will build a neural network from scratch, then use PyTorch (the most widely used deep learning library) to train models that understand images and text, including Indian languages, and use Hugging Face (a free hub of ready-made models and the Python libraries to use them) to fine-tune transformers, the model design behind BERT, ChatGPT and most modern AI. Finally, you will wrap a model in an API, package it with Docker and deploy it free on the internet. This level is for anyone who has finished Level 2 (Abhyāsa) or can already train and evaluate a scikit-learn model. By the end, you can build, fine-tune and ship a working image or text AI product for a client, and explain what happens inside it.",
+  "outcomes": [
+   "You will be able to explain how a neural network learns (forward pass, loss, backpropagation, optimiser) and code a small one yourself in NumPy.",
+   "You will be able to write a complete PyTorch training loop with batches, a GPU and saved checkpoints, and debug a model that is not learning.",
+   "You will be able to fine-tune a pretrained image model on a client's own photos and run object detection with YOLO.",
+   "You will be able to turn text, including Indian-language and Hinglish text, into numbers with TF-IDF and embeddings, and explain RNNs, LSTMs and attention.",
+   "You will be able to use Hugging Face pipelines and fine-tune a BERT-style model to classify text in English or an Indian language.",
+   "You will be able to serve a model through a FastAPI endpoint and a Gradio or Streamlit demo, package it with Docker, and deploy it on a free tier.",
+   "You will be able to track experiments with MLflow, version data with DVC, run automatic tests with GitHub Actions, and watch a live model for data drift."
+  ],
+  "howToStudy": "Deep learning needs a GPU (a graphics chip that does thousands of calculations at once), so do all heavy training in Google Colab or Kaggle notebooks, which give free GPU time with usage limits; save checkpoints to Google Drive or push to GitHub often, because free sessions disconnect without warning. Before you train on a full dataset, make the model learn a tiny sample of 10–20 examples first; if it cannot, you have a bug, and you have just saved hours. Use the three labs (Neural Network, Convolution and Tokenizer) to see each idea move before you read the code, and print the shape of your data (the size of each dimension) at every step, because shape mistakes cause most errors at this level. Pick one client-style project early, such as sorting product photos or Hindi customer messages, and grow it module by module, so that by l3-mlops you have something worth deploying. If you can give only 5 hours a week, take two weeks for every week in the plan.",
+  "weeklyPlan": [
+   {
+    "weeks": "1–2",
+    "focus": "If the chain rule or gradient descent feels rusty, revisit [1.5 Linear Algebra & Calculus (intuition first)](#m-l1-linalg-calc) and [2.2 Regression & Gradient Descent](#m-l2-regression) first (~2 h). Then [3.1 Neural Networks from Scratch](#m-l3-nn-basics) (~18 h). Week 1: perceptron, multilayer perceptron, activation functions, forward pass, loss functions and the Neural Network lab. Week 2: backpropagation by hand, optimisers, regularisation, vanishing gradients, and your NumPy network from scratch."
+   },
+   {
+    "weeks": "3–4",
+    "focus": "[3.2 PyTorch (and Keras) in Practice](#m-l3-pytorch) (~16 h). Week 3: tensors, autograd, Dataset and DataLoader, and the training loop. Week 4: GPU training, saving and loading, debugging, and the Keras overview. Use the spare ~4 h to rebuild your [3.1 Neural Networks from Scratch](#m-l3-nn-basics) network in PyTorch and turn it into your reusable training template."
+   },
+   {
+    "weeks": "5–7",
+    "focus": "[3.3 Computer Vision](#m-l3-cv) (~24 h). Week 5: convolutions, pooling, the Convolution lab, and LeNet, VGG and ResNet. Week 6: data augmentation, transfer learning and fine-tuning on your own photos. Week 7: YOLO, U-Net, OpenCV and Vision Transformers. Use the spare ~6 h to polish your fine-tuning notebook into a portfolio piece on GitHub."
+   },
+   {
+    "weeks": "8–9",
+    "focus": "[3.4 Natural Language Processing](#m-l3-nlp) (~18 h). Week 8: preprocessing, tokenisation, a TF-IDF baseline and word embeddings. Week 9: RNN, LSTM, GRU, sequence-to-sequence, attention and Indian-language tools. Spare ~2 h: collect a small labelled text dataset (for example real customer messages, with names and phone numbers removed) to reuse in [3.5 Transformers & Hugging Face](#m-l3-transformers)."
+   },
+   {
+    "weeks": "10–11",
+    "focus": "[3.5 Transformers & Hugging Face](#m-l3-transformers) (~20 h). Week 10: self-attention, positional encoding, BERT vs GPT, tokenizers and the Tokenizer lab. Week 11: Hugging Face pipelines and datasets, and fine-tuning a BERT-style model on your text dataset."
+   },
+   {
+    "weeks": "12–14",
+    "focus": "[3.6 Deployment & MLOps](#m-l3-mlops) (~24 h). Week 12: FastAPI, Gradio or Streamlit, and Docker. Week 13: MLflow, DVC and GitHub Actions. Week 14: deploy on Hugging Face Spaces or Render and add monitoring. Use the spare ~6 h on a Level 3 project (deploy your best image or text model as a live demo with an API), then take the 20-question level test and revisit any module where your quiz score was below 70%. If the project needs more time, add a week or two; that is normal."
+   }
+  ]
  },
  {
   "id": 4,
@@ -1466,7 +1503,89 @@ window.AIM.modules = [
    "regularisation: dropout, batch norm, weight decay",
    "vanishing/exploding gradients"
   ],
-  "lab": "neuralnet"
+  "lab": "neuralnet",
+  "overview": "A neural network is a stack of simple maths units called neurons: each one multiplies its inputs by weights (importance numbers), adds them up, and passes the total through an activation function (a small rule that decides how strongly it 'fires'). Think of a hiring panel: junior interviewers each score one aspect of a candidate, a senior combines their scores, and a manager makes the final call; after every bad hire, everyone adjusts how much they trust each signal. Training works the same way: the forward pass makes a guess, the loss function measures how wrong it was, backpropagation (the chain rule from calculus) works out how each weight should change, and an optimiser such as SGD or Adam makes that change. You will build a small network from scratch in NumPy, so nothing in PyTorch feels like magic later, and learn the tricks (dropout, batch normalisation, weight decay) that stop networks memorising their data or getting stuck.",
+  "whyItMatters": "Every modern AI product, from face unlock on your phone to Google Translate and ChatGPT, is a neural network trained with this same loop of guess, measure and adjust. When a client's model refuses to learn or memorises its training data, these basics let you find the cause instead of guessing.",
+  "outcomes": [
+   "You will be able to draw a multilayer perceptron and explain, step by step, how it turns inputs into a prediction.",
+   "You will be able to choose a suitable activation function (ReLU, sigmoid, softmax) and loss function (mean squared error, cross-entropy) for a given problem.",
+   "You will be able to work through backpropagation by hand for a tiny network using the chain rule.",
+   "You will be able to code and train a two-layer network in NumPy that beats logistic regression on curved (non-linear) data.",
+   "You will be able to compare SGD, momentum and Adam, and explain what the learning rate controls.",
+   "You will be able to use dropout, batch normalisation and weight decay to reduce overfitting, and explain why each one helps.",
+   "You will be able to recognise vanishing and exploding gradients from a training curve and name two fixes for each."
+  ],
+  "prerequisites": [
+   "l2-regression",
+   "l2-classification",
+   "l1-linalg-calc",
+   "l1-numpy-pandas"
+  ],
+  "hours": 18,
+  "keyTerms": [
+   {
+    "term": "Neuron",
+    "meaning": "A tiny unit that multiplies each input by a weight, adds them up with a bias (a constant), and passes the total through an activation function."
+   },
+   {
+    "term": "Perceptron",
+    "meaning": "The simplest neural network: a single neuron that draws one straight line to separate two classes."
+   },
+   {
+    "term": "Multilayer perceptron (MLP)",
+    "meaning": "Neurons arranged in layers where each layer's outputs feed the next; the layers between input and output are called hidden layers."
+   },
+   {
+    "term": "Activation function",
+    "meaning": "A rule applied after each neuron's sum, such as ReLU (keep positive numbers, turn negatives into 0), that lets the network learn curved patterns."
+   },
+   {
+    "term": "Loss function",
+    "meaning": "A single number that says how wrong the predictions are, such as mean squared error for numbers or cross-entropy for categories."
+   },
+   {
+    "term": "Backpropagation",
+    "meaning": "The method that uses the chain rule to calculate, for every weight, how much the loss would change if that weight changed a little (its gradient)."
+   },
+   {
+    "term": "Learning rate",
+    "meaning": "The size of each correction step; too small and training crawls, too large and the loss jumps around or blows up."
+   },
+   {
+    "term": "Adam",
+    "meaning": "A popular optimiser (the rule that updates the weights) that adjusts the step size for each weight automatically and usually works well with default settings."
+   },
+   {
+    "term": "Dropout",
+    "meaning": "Randomly switching off some neurons during training so the network cannot depend on any single one, which reduces overfitting."
+   },
+   {
+    "term": "Vanishing gradient",
+    "meaning": "When the correction signal shrinks as it travels back through many layers, so the early layers almost stop learning."
+   }
+  ],
+  "studySteps": [
+   "If the chain rule or gradient descent feels rusty, spend 30–60 minutes revisiting [1.5 Linear Algebra & Calculus (intuition first)](#m-l1-linalg-calc) and [2.2 Regression & Gradient Descent](#m-l2-regression) before you start.",
+   "Watch the Watch & read lessons on the perceptron, multilayer perceptrons, activation functions, the forward pass and loss functions; draw each network on paper as you go.",
+   "Watch the backpropagation lessons twice: once to follow along, and once with pen and paper, doing every chain-rule step yourself.",
+   "Open the Lab and change one setting at a time (for example the number of hidden neurons, the activation or the learning rate); write down when the network fits well, fails to fit, or becomes unstable.",
+   "Watch the lessons on SGD, momentum, Adam, dropout, batch normalisation, weight decay and vanishing gradients, then do the Practice exercises in the browser (they use NumPy, so you write the maths yourself).",
+   "Take the quiz (aim for 70%+), then do the Self-check tasks in Colab; the NumPy network from scratch is the most important one."
+  ],
+  "selfCheck": [
+   "On paper, take a network with 2 inputs, 2 hidden neurons (ReLU) and 1 output (sigmoid). Choose small weights, do one forward pass for one example, compute the binary cross-entropy loss, then backpropagate to find the gradient of one first-layer weight.",
+   "In Colab, code a two-layer network in NumPy only (no PyTorch), train it on scikit-learn's make_moons data, plot the loss curve, and show that it beats logistic regression on the same data.",
+   "Train your network with learning rates 0.001, 0.1 and 10; plot the three loss curves on one chart and explain in two sentences what happened in each case.",
+   "Make your network overfit on purpose (many hidden neurons, few examples), then add dropout or weight decay and show the gap between training and validation accuracy shrinking.",
+   "Explain to a non-technical client, in five sentences and without maths, how a neural network 'learns from its mistakes'."
+  ],
+  "commonMistakes": [
+   "Leaving out the activation function in hidden layers. Without it, every layer is a straight-line calculation, so even ten layers act like one simple linear model; use ReLU in hidden layers.",
+   "Pairing the wrong output and loss. Use sigmoid with binary cross-entropy for yes/no answers, softmax with cross-entropy for several classes, and no activation with mean squared error for predicting a number.",
+   "Feeding unscaled inputs. If one feature is in lakhs of rupees and another is between 0 and 1, training becomes slow or unstable; standardise your features first, as you did in l2-feature-eng."
+  ],
+  "indiaExample": "Google's flood forecasting work began in 2018 with a pilot in the Patna region of Bihar, in partnership with India's Central Water Commission, and its Flood Hub service now shows flood forecasts for river areas across India. Its current forecasting model is a neural network (a type called LSTM, which you will meet in l3-nlp) trained on past river and weather data, and it learns through the same forward pass, loss and backpropagation loop you build in this module, only at a much larger scale.",
+  "tip": "Check your backpropagation code with a gradient check: nudge one weight by a tiny amount (say 0.0001), see how much the loss changes, divide by the nudge, and compare that with the gradient your code calculated. If the two numbers differ a lot, your backprop has a bug."
  },
  {
   "id": "l3-pytorch",
@@ -1480,7 +1599,88 @@ window.AIM.modules = [
    "saving/loading models",
    "Keras/TensorFlow overview",
    "debugging training: learning-rate finder, overfitting a batch"
-  ]
+  ],
+  "overview": "PyTorch is a free Python library, first built at Facebook (now Meta) and now run by the PyTorch Foundation, that does the heavy lifting of deep learning: it stores data as tensors (multi-dimensional arrays, like NumPy arrays that can run on a GPU) and calculates all the gradients automatically with a feature called autograd. If l3-nn-basics was cooking by grinding every masala by hand, PyTorch is a well-stocked kitchen: you still follow the same recipe (forward pass, loss, backward pass, update), but the tools are ready. You will learn the pieces almost every PyTorch project uses: a Dataset and a DataLoader to feed data in batches, an `nn.Module` to define the model, and a training loop you can reuse for years. You will also train on free GPUs in Colab and Kaggle, save and reload models, take a short tour of Keras (a simpler, higher-level library), and learn the debugging habits that save the most time.",
+  "whyItMatters": "PyTorch is the library behind most deep learning research code and most models on Hugging Face, so it is what you will read and write in every later module. For an agency, one clean PyTorch training template becomes the starting point for every client project, whether it sorts product photos or customer messages.",
+  "outcomes": [
+   "You will be able to create tensors, move them to a GPU, and explain how autograd calculates gradients.",
+   "You will be able to wrap your own data (a CSV file or a folder of images) in a Dataset and load it in shuffled batches with a DataLoader.",
+   "You will be able to write a full training and validation loop from memory, with `model.train()`, `model.eval()` and `torch.no_grad()` in the right places.",
+   "You will be able to train on a free GPU in Colab or Kaggle and keep your work safe when the session disconnects.",
+   "You will be able to save and reload a model's weights, and resume training from a checkpoint.",
+   "You will be able to read a short Keras model and map each line to the same idea in PyTorch.",
+   "You will be able to debug a model that is not learning by overfitting one batch and running a learning-rate finder."
+  ],
+  "prerequisites": [
+   "l3-nn-basics",
+   "l1-python",
+   "l1-tools"
+  ],
+  "hours": 16,
+  "keyTerms": [
+   {
+    "term": "Tensor",
+    "meaning": "A multi-dimensional array of numbers, like a NumPy array, that can live on a GPU and keep track of gradients."
+   },
+   {
+    "term": "Autograd",
+    "meaning": "PyTorch's automatic gradient engine: it records every operation you do and calculates all the gradients when you call `loss.backward()`."
+   },
+   {
+    "term": "GPU",
+    "meaning": "A graphics processor that does thousands of simple calculations at once, which makes training neural networks many times faster than on a normal CPU."
+   },
+   {
+    "term": "Dataset",
+    "meaning": "A PyTorch class that knows how many examples you have and how to fetch example number i."
+   },
+   {
+    "term": "DataLoader",
+    "meaning": "A helper that takes a Dataset and serves it in shuffled mini-batches (small groups of examples, such as 32 at a time)."
+   },
+   {
+    "term": "Epoch",
+    "meaning": "One full pass of the model through all the training data."
+   },
+   {
+    "term": "nn.Module",
+    "meaning": "The base class for every PyTorch model: you create the layers in `__init__` and write the forward pass in `forward`."
+   },
+   {
+    "term": "state_dict",
+    "meaning": "A dictionary holding all of a model's learned weights; this is what you normally save to a file."
+   },
+   {
+    "term": "Checkpoint",
+    "meaning": "A saved snapshot of the model, the optimiser and the epoch number, so you can resume training after a crash or a disconnect."
+   },
+   {
+    "term": "Keras",
+    "meaning": "A high-level deep learning library that builds models from ready-made layers in very few lines; Keras 3 can run on TensorFlow, JAX or PyTorch."
+   }
+  ],
+  "studySteps": [
+   "Watch the Watch & read lessons on tensors and autograd; type every example into a Colab notebook and print the `.shape` of every tensor you create.",
+   "Watch the lessons on Dataset, DataLoader and the training loop, then rewrite your NumPy network from [3.1 Neural Networks from Scratch](#m-l3-nn-basics) in PyTorch and train it on the same data.",
+   "Switch the Colab runtime to a GPU (Runtime → Change runtime type), move the model and every batch with `.to(device)`, and compare how long one epoch takes on CPU and on GPU.",
+   "Watch the lessons on saving and loading, the Keras overview and debugging; practise the 'overfit one batch' check and a learning-rate finder on your own model.",
+   "Do the Practice exercises in the browser (they practise batches, shapes and training-loop logic in NumPy, because PyTorch does not run inside a browser), then take the quiz (aim for 70%+).",
+   "Finish the Self-check tasks in Colab and push your reusable training-template notebook to GitHub."
+  ],
+  "selfCheck": [
+   "Create a tensor x = 2.0 with `requires_grad=True`, compute y = 3x² + 2x, call `y.backward()`, and check that the gradient PyTorch gives matches the derivative you work out by hand.",
+   "Write a Dataset class for a CSV file of your choice (for example a used-car price dataset from Kaggle), load it with a DataLoader of batch size 32, and print the shape of one batch of inputs and labels.",
+   "Train an MLP on Fashion-MNIST (it comes with torchvision) on a GPU, save the model with the best validation accuracy, restart the runtime, reload it and show that you get the same accuracy.",
+   "Make your model reach almost zero loss on one batch of 16 examples. Then add one bug on purpose (for example, remove `optimizer.zero_grad()`) and describe how the loss curve changes.",
+   "Build the same small classifier in Keras in about ten lines, and list three differences you notice compared with your PyTorch version."
+  ],
+  "commonMistakes": [
+   "Forgetting `optimizer.zero_grad()` in each step. PyTorch adds new gradients on top of old ones by default, so training goes haywire; clear the gradients at the start of every training step.",
+   "Evaluating while the model is still in training mode. Dropout and batch normalisation behave differently during training, so call `model.eval()` and use `torch.no_grad()` for validation, then call `model.train()` before training again.",
+   "Getting 'expected all tensors to be on the same device' errors. Create one `device` variable at the top of the notebook and move the model and every batch to it."
+  ],
+  "indiaExample": "AI4Bharat, a research lab at IIT Madras, trained IndicTrans2, an open-source translation model for all 22 scheduled Indian languages, using fairseq, a toolkit built on PyTorch. The models are also published on Hugging Face, so you can load one in a Colab notebook and translate English to Hindi or Tamil with the skills from this module: tensors, a device, `model.eval()` and batches.",
+  "tip": "Keep one clean training-template notebook (load data → build model → train loop → evaluate → save) and copy it for every new project. Most beginner bugs come from rewriting the training loop from scratch each time."
  },
  {
   "id": "l3-cv",
@@ -1496,7 +1696,88 @@ window.AIM.modules = [
    "OpenCV basics",
    "Vision Transformers (intro)"
   ],
-  "lab": "convolution"
+  "lab": "convolution",
+  "overview": "Computer vision (CV) means teaching computers to understand images and video. A CNN (convolutional neural network) examines a photo the way a quality checker inspects a saree for defects: sliding a small magnifying glass across the cloth patch by patch, first noticing edges and colours, then patterns, then whole shapes. That sliding glass is a convolution (a small grid of learned numbers, called a filter, moved across the image), and pooling shrinks the result so each deeper layer sees a bigger area. You will learn the classic designs (LeNet, VGG, ResNet), how data augmentation and transfer learning (starting from a model already trained on millions of images) give good results from a few hundred photos, and three core tasks: classification (what is in the image), object detection with YOLO (what is where), and segmentation with U-Net (which pixels belong to what). You will finish with OpenCV for everyday image handling and a short introduction to Vision Transformers.",
+  "whyItMatters": "Image models power face check-in at airports (as in DigiYatra), quality checks on factory lines, crop and pest detection for farmers, and document reading for KYC at banks and fintechs. For an agency, fine-tuning a pretrained model on a client's own photos is one of the fastest ways to deliver a working AI product.",
+  "outcomes": [
+   "You will be able to explain what a convolution, filter, stride, padding and pooling do, and calculate the output size of a convolution layer.",
+   "You will be able to build and train a small CNN in PyTorch that clearly beats an MLP on the same image dataset.",
+   "You will be able to explain why ResNet's skip connections let very deep networks train.",
+   "You will be able to fine-tune a pretrained model on a few hundred of your own photos, using data augmentation.",
+   "You will be able to run a pretrained YOLO model on images and video, and explain bounding boxes, IoU and mAP (mean average precision, the standard detection score).",
+   "You will be able to explain how U-Net segmentation works and when a client needs segmentation rather than detection.",
+   "You will be able to read, resize, crop and draw on images with OpenCV, and explain how a Vision Transformer looks at an image differently from a CNN."
+  ],
+  "prerequisites": [
+   "l3-pytorch",
+   "l3-nn-basics",
+   "l2-metrics-tuning"
+  ],
+  "hours": 24,
+  "keyTerms": [
+   {
+    "term": "Convolution",
+    "meaning": "Sliding a small grid of numbers (a filter) over an image and computing a weighted sum at each position, which highlights features such as edges."
+   },
+   {
+    "term": "Filter (kernel)",
+    "meaning": "The small grid of learned numbers, often 3×3, that a convolution slides across the image; each filter learns to spot one kind of pattern."
+   },
+   {
+    "term": "Pooling",
+    "meaning": "Shrinking a feature map, for example by keeping only the largest value in each 2×2 patch (max pooling), which makes the network faster and less sensitive to small shifts."
+   },
+   {
+    "term": "CNN",
+    "meaning": "Convolutional neural network: a network built mainly from convolution and pooling layers, the standard design for images for many years."
+   },
+   {
+    "term": "ResNet",
+    "meaning": "A family of deep CNNs, introduced in 2015, that use skip connections (shortcuts that add a block's input to its output) so networks with 50 or more layers can still train."
+   },
+   {
+    "term": "Data augmentation",
+    "meaning": "Creating extra training images by flipping, rotating, cropping or changing the brightness of the ones you have, so the model copes with real-world variety."
+   },
+   {
+    "term": "Transfer learning",
+    "meaning": "Starting from a model already trained on a large dataset such as ImageNet and re-training it, fully or partly, on your own smaller dataset."
+   },
+   {
+    "term": "Object detection",
+    "meaning": "Finding each object in an image and drawing a labelled box around it, such as 'helmet' or 'no helmet'."
+   },
+   {
+    "term": "IoU (Intersection over Union)",
+    "meaning": "How much a predicted box overlaps the true box, from 0 (no overlap) to 1 (a perfect match)."
+   },
+   {
+    "term": "Segmentation",
+    "meaning": "Labelling every pixel of an image with a class, such as road, vehicle or person, instead of only drawing boxes."
+   }
+  ],
+  "studySteps": [
+   "Watch the Watch & read lessons on convolutions, padding, stride and pooling, then open the Lab and try different filters on an image; note which ones pick out edges and which ones blur or sharpen.",
+   "Watch the lessons on CNN architecture and on LeNet, VGG and ResNet, then build a small CNN in PyTorch on CIFAR-10 in Colab with a GPU.",
+   "Watch the lessons on data augmentation and transfer learning, then fine-tune a pretrained ResNet from torchvision on a small dataset of your own (about 100–200 photos per class).",
+   "Watch the lessons on YOLO, U-Net, OpenCV and Vision Transformers, and run a pretrained YOLO model on a photo or a short video of an Indian street.",
+   "Do the Practice exercises in the browser (for example, computing a convolution with NumPy), then take the quiz (aim for 70%+).",
+   "Complete the Self-check tasks and push your fine-tuning notebook to GitHub as a portfolio piece."
+  ],
+  "selfCheck": [
+   "By hand, apply a 3×3 edge filter to a 5×5 grid of numbers with stride 1 and no padding; write down the 3×3 result and explain why the output is smaller than the input.",
+   "Train a small CNN and an MLP on CIFAR-10 for the same number of epochs, report both test accuracies, and explain the difference in three sentences.",
+   "Collect 100–200 photos per class for a two- or three-class problem a client might have (for example 'ripe' vs 'unripe' tomatoes, or 'damaged' vs 'intact' parcels), fine-tune a pretrained model with augmentation, and show the confusion matrix on held-back photos. Do not use photos of people without their consent: under India's DPDP Act a face is personal data.",
+   "Run a pretrained YOLO model on five photos of a busy Indian road and note what it misses or mislabels; standard YOLO models are trained on the COCO dataset's 80 everyday classes, which do not include 'autorickshaw'. Write what labelled data you would collect to fix this.",
+   "Use OpenCV to load an image, convert it to grayscale, resize it, draw a rectangle and some text on it, and save it. Then write one paragraph on how a Vision Transformer, which cuts an image into small patches and compares every patch with every other, differs from a CNN."
+  ],
+  "commonMistakes": [
+   "Training a CNN from scratch on a few hundred photos. With small data, start from a pretrained model and fine-tune it; it trains faster and is usually far more accurate.",
+   "Preparing images differently at prediction time. A pretrained model expects images resized and normalised exactly as in training, so reuse the same transforms (minus the random augmentation) when you predict.",
+   "Building on a model without checking its licence. Ultralytics YOLO is released under the AGPL-3.0 licence, and Ultralytics asks you to buy an Enterprise licence to use it inside a closed commercial product; check the licence of every model and library before you build a paid client product on it."
+  ],
+  "indiaExample": "Wadhwani AI, an independent non-profit institute in India, built a pest-monitoring system for cotton farmers. Pests such as the pink bollworm are caught in traps; a farmer or field worker photographs the trap with a phone app, an object detection model finds and counts each pest, and the count helps decide whether spraying is needed. The team described the system in a 2020 KDD conference paper, 'Pest management in cotton farms: an AI-system case study from the global South', and released an open dataset of pest images with bounding boxes.",
+  "tip": "Spend more effort on data than on the model: 200 clean, correctly labelled photos taken in the client's real conditions (their lighting, their phones, their backgrounds) usually beat 2,000 random images from the internet."
  },
  {
   "id": "l3-nlp",
@@ -1509,7 +1790,88 @@ window.AIM.modules = [
    "RNN, LSTM, GRU",
    "sequence-to-sequence and attention",
    "NLP for Indian languages (IndicNLP, AI4Bharat)"
-  ]
+  ],
+  "overview": "Natural Language Processing (NLP) means teaching computers to work with human language: reading reviews, sorting complaints, translating and answering questions. Computers only understand numbers, so the first job is turning text into numbers, a bit like a shopkeeper who first counts which words appear most often in customer notes (bag of words and TF-IDF), and later learns which words mean similar things, like 'cheap', 'sasta' and 'affordable' (word embeddings). You will clean and tokenise text (split it into pieces), build classic text classifiers, use Word2Vec and GloVe embeddings, and then learn RNNs, LSTMs and GRUs, networks that read a sentence word by word while keeping a running memory. You will finish with sequence-to-sequence models and attention, the idea that led to transformers, and with tools built for Indian languages by AI4Bharat and the Indic NLP Library.",
+  "whyItMatters": "Support-ticket routing, review analysis, spam filters, resume screening and translation for Indian-language users are all NLP problems that agencies are asked to solve. India has 22 scheduled languages, and many people type Hindi and other languages in Roman letters (as in Hinglish), so knowing how to handle Indian-language text is a real business advantage.",
+  "outcomes": [
+   "You will be able to clean and tokenise English and Hindi text, and explain why each cleaning step helps or hurts.",
+   "You will be able to build a TF-IDF plus logistic regression text classifier as a strong, cheap baseline.",
+   "You will be able to explain word embeddings, find similar words with pretrained Word2Vec, GloVe or fastText vectors, and spot the biases they can carry.",
+   "You will be able to explain how an RNN reads a sequence and why LSTMs and GRUs cope better with long sentences.",
+   "You will be able to train a small LSTM text classifier in PyTorch and compare it honestly with your TF-IDF baseline.",
+   "You will be able to explain sequence-to-sequence models and attention, using translation as the example.",
+   "You will be able to use the Indic NLP Library and AI4Bharat resources to process text in an Indian language."
+  ],
+  "prerequisites": [
+   "l3-pytorch",
+   "l2-classification",
+   "l2-metrics-tuning"
+  ],
+  "hours": 18,
+  "keyTerms": [
+   {
+    "term": "Tokenisation",
+    "meaning": "Splitting text into pieces called tokens, such as words or parts of words, that a model can count or look up."
+   },
+   {
+    "term": "Stop words",
+    "meaning": "Very common words such as 'the', 'is' or 'hai' that are sometimes removed because they carry little meaning on their own."
+   },
+   {
+    "term": "Bag of words",
+    "meaning": "Representing a document by counting how often each word appears in it, ignoring word order."
+   },
+   {
+    "term": "TF-IDF",
+    "meaning": "Term Frequency–Inverse Document Frequency: a word score that is high when a word is frequent in this document but rare across all the documents."
+   },
+   {
+    "term": "Word embedding",
+    "meaning": "A list of numbers (a vector) for each word, learned so that words used in similar contexts, like 'doctor' and 'nurse', get similar vectors."
+   },
+   {
+    "term": "Word2Vec",
+    "meaning": "A method published by Google researchers in 2013 that learns word embeddings by predicting a word from its neighbours, or its neighbours from the word."
+   },
+   {
+    "term": "RNN (recurrent neural network)",
+    "meaning": "A network that reads a sequence one step at a time and passes a hidden state (its running memory) on to the next step."
+   },
+   {
+    "term": "LSTM (Long Short-Term Memory)",
+    "meaning": "An RNN with gates (learned switches) that decide what to remember and what to forget, so it copes with longer sequences; a GRU is a simpler cousin."
+   },
+   {
+    "term": "Sequence-to-sequence (seq2seq)",
+    "meaning": "A model with an encoder that reads an input sequence and a decoder that writes an output sequence, as in translation."
+   },
+   {
+    "term": "Attention",
+    "meaning": "A method that lets the decoder look back at all the input words and focus on the most relevant ones at each step, instead of relying on one memory vector."
+   }
+  ],
+  "studySteps": [
+   "Watch the Watch & read lessons on text preprocessing, tokenisation, bag of words and TF-IDF, then build a TF-IDF plus logistic regression classifier on a review dataset in Colab.",
+   "Watch the word embedding lessons, then load pretrained word vectors (for example with the gensim library) and try 'most similar words' and 'king − man + woman' analogies yourself.",
+   "Watch the lessons on RNNs, LSTMs and GRUs; draw how the hidden state moves from word to word, then train a small LSTM classifier in PyTorch.",
+   "Watch the lessons on sequence-to-sequence models and attention, and explain attention to a friend using an English-to-Hindi translation example.",
+   "Install the Indic NLP Library in Colab and tokenise and normalise a paragraph in Hindi or your own language, then do the Practice exercises in the browser (for example, computing TF-IDF step by step).",
+   "Take the quiz (aim for 70%+) and complete the Self-check tasks."
+  ],
+  "selfCheck": [
+   "Take five short customer messages (mix English and Hinglish), tokenise them by hand, build the bag-of-words table on paper, and compute the TF-IDF score of one word.",
+   "Build a TF-IDF plus logistic regression classifier for a labelled text dataset (for example product reviews marked positive or negative), report the F1 score, and list the 10 words that push predictions most strongly towards each class.",
+   "Train an LSTM classifier on the same data and compare it with your TF-IDF baseline on score, training time and effort; write which one you would deliver to a client, and why.",
+   "Using pretrained word vectors, find examples where a word's nearest neighbours show a gender or other bias, and write how that bias could harm a resume-screening tool.",
+   "Use the Indic NLP Library to split a Hindi or Tamil paragraph into sentences and words, and note two ways Indian-language text differs from English (for example script, spelling variants, or the same words typed in Roman letters)."
+  ],
+  "commonMistakes": [
+   "Jumping straight to deep learning. For short-text classification, TF-IDF with logistic regression is fast, cheap and often close to an LSTM, so always build it first as your baseline.",
+   "Cleaning away the meaning. Removing stop words such as 'not' or 'nahi' can flip a review's meaning ('not good'), so check what your cleaning removes, especially for sentiment tasks.",
+   "Assuming English tools work for Indian languages. Many English tokenisers and stop-word lists break on Devanagari or Tamil script and on Hinglish typed in Roman letters; use tools built for Indian languages, such as the Indic NLP Library, and test on real messages from your users."
+  ],
+  "indiaExample": "AI4Bharat at IIT Madras builds open tools for Indian languages, including IndicTrans2 (a translation model for all 22 scheduled languages) and IndicFT (fastText word embeddings for 11 Indian languages), while the Indic NLP Library handles tokenisation, normalisation and script conversion for Indian scripts. The Government of India's Bhashini mission runs ULCA, a platform for sharing and using Indian-language datasets and models, so that public services and apps can work in the user's own language.",
+  "tip": "Before any modelling, read 100 real messages from your client's users. You will find the Hinglish, spelling variants, emojis and short forms ('pls', 'kb aayega') that decide which cleaning and tokenisation choices make sense."
  },
  {
   "id": "l3-transformers",
@@ -1523,7 +1885,87 @@ window.AIM.modules = [
    "fine-tuning BERT for classification",
    "tokenizers (BPE, WordPiece)"
   ],
-  "lab": "tokenizer"
+  "lab": "tokenizer",
+  "overview": "A transformer is the neural network design behind BERT, GPT, Gemini, Claude and most modern AI. Its key idea, self-attention, works like a meeting where every word in a sentence can look at every other word and decide whom to listen to: in 'The bank near the river flooded', the word 'bank' pays attention to 'river' and so understands it is not a money bank. Because all the words are processed at the same time, transformers train much faster on GPUs than RNNs do, and positional encoding (extra numbers that tell the model each word's position) keeps track of word order. You will learn the difference between encoder models such as BERT (good at understanding and classifying text) and decoder models such as GPT (good at generating text), how tokenizers such as BPE and WordPiece split text into sub-word pieces, and how to load, run and fine-tune these models with the Hugging Face libraries in a few lines of code.",
+  "whyItMatters": "Most text products an agency builds today, from ticket classification and resume parsing to chatbots, start from a pretrained transformer on Hugging Face rather than a model trained from scratch. For a fixed task such as sorting messages, a small fine-tuned BERT-style model can be cheaper and faster per request than a large paid LLM API, and it keeps the client's data under your control.",
+  "outcomes": [
+   "You will be able to explain self-attention using queries, keys and values, and why multi-head attention runs several attention 'views' at once.",
+   "You will be able to explain why transformers need positional encoding and how they differ from RNNs.",
+   "You will be able to choose between an encoder (BERT-style) and a decoder (GPT-style) model for a given business task.",
+   "You will be able to use Hugging Face pipelines to run sentiment analysis, named entity recognition (finding names, places and organisations), translation or summarisation in a few lines.",
+   "You will be able to fine-tune a BERT-style model for text classification with the Hugging Face Trainer and evaluate it on a held-out test set.",
+   "You will be able to explain how BPE and WordPiece tokenizers work, and why Indian-language text often needs more tokens than English with tokenizers trained mostly on English.",
+   "You will be able to read a model card and check a model's training data, languages, licence and limits before using it for a client."
+  ],
+  "prerequisites": [
+   "l3-nlp",
+   "l3-pytorch"
+  ],
+  "hours": 20,
+  "keyTerms": [
+   {
+    "term": "Transformer",
+    "meaning": "A neural network design, introduced in the 2017 paper 'Attention Is All You Need', built mainly from attention layers instead of convolutions or recurrence."
+   },
+   {
+    "term": "Self-attention",
+    "meaning": "A layer where each token compares itself with every other token and builds a new representation as a weighted mix of them."
+   },
+   {
+    "term": "Query, key and value",
+    "meaning": "Three vectors made from each token: the query asks 'what am I looking for?', the key says 'what do I contain?', and the value is the information passed on."
+   },
+   {
+    "term": "Multi-head attention",
+    "meaning": "Several self-attention 'heads' running side by side, so the model can track different relationships, such as grammar and meaning, at the same time."
+   },
+   {
+    "term": "Positional encoding",
+    "meaning": "Numbers added to each token's embedding to tell the model where that token sits in the sentence."
+   },
+   {
+    "term": "Encoder (BERT)",
+    "meaning": "A transformer that reads the whole text in both directions to understand it; BERT, released by Google in 2018, is the best-known example."
+   },
+   {
+    "term": "Decoder (GPT)",
+    "meaning": "A transformer that predicts the next token using only the tokens before it, which makes it good at generating text."
+   },
+   {
+    "term": "Fine-tuning",
+    "meaning": "Training a pretrained model a little more on your own labelled data so that it does your specific task well."
+   },
+   {
+    "term": "BPE (byte-pair encoding)",
+    "meaning": "A tokenizer method that starts from single characters and repeatedly merges the most frequent pairs into sub-word tokens; GPT models use a version of it."
+   },
+   {
+    "term": "WordPiece",
+    "meaning": "A similar sub-word tokenizer used by BERT, which marks a piece that continues a word with '##', as in 'play' + '##ing'."
+   }
+  ],
+  "studySteps": [
+   "Watch the Watch & read lessons on self-attention, multi-head attention and positional encoding, and work through one tiny attention calculation with three words on paper.",
+   "Open the Lab and tokenise an English sentence, a Hindi sentence and a Hinglish sentence; compare how many tokens each becomes and where the splits fall.",
+   "Watch the lessons on encoders vs decoders (BERT vs GPT) and on BPE and WordPiece tokenizers.",
+   "Work through the Hugging Face transformers, datasets and pipelines lessons in Colab, and run at least three pipelines (for example sentiment, named entity recognition and translation) on your own sentences.",
+   "Fine-tune a small BERT-style model (for example DistilBERT for English, or MuRIL for Indian languages) for text classification on a GPU, and compare it with your TF-IDF baseline from [3.4 Natural Language Processing](#m-l3-nlp).",
+   "Do the Practice exercises in the browser, take the quiz (aim for 70%+), and complete the Self-check tasks."
+  ],
+  "selfCheck": [
+   "For the sentence 'Ravi paid the bill', make up small two-number query, key and value vectors for each word, compute the attention weights for 'paid' with a softmax, and explain in plain words what the weights mean.",
+   "Tokenise the same sentence in English, Hindi (Devanagari) and Hinglish with the BERT and GPT-2 tokenizers from Hugging Face; count the tokens, and explain why the counts differ and what that means for cost and speed.",
+   "Fine-tune a BERT-style model on a labelled text dataset (for example customer complaints by category), report accuracy and F1 on a held-out test set, and show three examples it gets wrong with your guess at why.",
+   "For five business tasks (lead-message classification, drafting replies, extracting invoice fields, review sentiment, writing product descriptions), say whether you would start with an encoder or a decoder model, and why.",
+   "Pick one model on the Hugging Face Hub and summarise its model card in five lines: training data, languages, licence, known limits, and whether you could use it in a paid client product."
+  ],
+  "commonMistakes": [
+   "Using a different tokenizer from the one the model was trained with. Always load the tokenizer and the model from the same name with `AutoTokenizer` and the matching `AutoModel` class.",
+   "Ignoring the maximum input length. BERT-style models usually accept at most 512 tokens and cut off longer text, so check your text lengths and split long documents into chunks.",
+   "Fine-tuning with too high a learning rate or too many epochs. Pretrained models are easy to damage, so start with a small learning rate (2e-5 to 5e-5 is the usual range for BERT) and 2–4 epochs, and watch the validation score."
+  ],
+  "indiaExample": "Google released MuRIL (Multilingual Representations for Indian Languages), a BERT model pretrained on 17 Indian languages and on transliterated text (Indian languages written in Roman letters), which matters because many Indians type Hindi or Tamil in English script. AI4Bharat at IIT Madras released IndicBERT, another model for Indian languages. Both are free on the Hugging Face Hub, so you can fine-tune them with exactly the steps in this module, for example to sort customer messages in Hindi or Marathi into categories.",
+  "tip": "For classification jobs, try a small fine-tuned encoder model before reaching for a large LLM API: it can run on a cheap CPU server, gives the same answer for the same input every time, and the client's data never has to leave your control."
  },
  {
   "id": "l3-mlops",
@@ -1538,7 +1980,88 @@ window.AIM.modules = [
    "CI/CD with GitHub Actions",
    "cloud deployment on free tiers (Hugging Face Spaces, Render)",
    "monitoring and data drift"
-  ]
+  ],
+  "overview": "A model in a notebook helps nobody; deployment means putting it where real users and apps can use it, and MLOps (machine learning operations) means keeping it working reliably after launch. Think of a cloud kitchen: the recipe (your model) is only the start; you also need an order window (an API, so other apps can send requests), a standard sealed box (a Docker container, so it runs the same everywhere), a recipe register (MLflow, to record which experiment produced which model), dated ingredient batches (DVC, to version your data), an automatic quality check before every change goes live (CI/CD with GitHub Actions), and regular tasting to notice when customers' tastes change (monitoring for data drift). You will serve a model with FastAPI or Flask, build quick demos with Streamlit and Gradio, package it with Docker, and deploy it on free tiers such as Hugging Face Spaces and Render. By the end you will have a live, shareable AI app, which is the most convincing thing you can show a client.",
+  "whyItMatters": "Clients pay for working products, not notebooks: a lead-scoring API plugged into their CRM, the backend of a WhatsApp bot, or a demo link they can open on their phone. Monitoring matters because customer behaviour in India shifts around festivals like Diwali and big online sale seasons, and a model trained on ordinary months can quietly get worse at exactly those times.",
+  "outcomes": [
+   "You will be able to wrap a trained model in a FastAPI endpoint that accepts JSON, checks the input, and returns predictions.",
+   "You will be able to build a shareable demo of a model with Gradio or Streamlit in under 50 lines of code.",
+   "You will be able to write a Dockerfile, build an image, and run your model API inside a container.",
+   "You will be able to log experiments (settings, metrics and model files) with MLflow and pick the best run.",
+   "You will be able to version a dataset with DVC alongside your code in Git.",
+   "You will be able to set up a GitHub Actions workflow that runs your tests on every push.",
+   "You will be able to deploy a demo on Hugging Face Spaces or Render, and set up basic monitoring for errors, response time and data drift."
+  ],
+  "prerequisites": [
+   "l3-pytorch",
+   "l2-feature-eng",
+   "l1-tools"
+  ],
+  "hours": 24,
+  "keyTerms": [
+   {
+    "term": "Deployment",
+    "meaning": "Putting a trained model on a server or device so that real users or other software can send it inputs and get predictions back."
+   },
+   {
+    "term": "API",
+    "meaning": "Application Programming Interface: a fixed way for one program to ask another for something, for example by sending JSON (a simple text format for data) to a web address."
+   },
+   {
+    "term": "FastAPI",
+    "meaning": "A modern Python library for building APIs quickly, with automatic input checking and a built-in documentation page at /docs."
+   },
+   {
+    "term": "Gradio and Streamlit",
+    "meaning": "Python libraries that turn a function or script into a simple web app with text boxes, buttons and file uploads, ideal for demos."
+   },
+   {
+    "term": "Docker container",
+    "meaning": "A packaged, isolated box holding your code, libraries and settings, so the app runs the same on any machine."
+   },
+   {
+    "term": "MLflow",
+    "meaning": "An open-source tool that records each training run's settings, metrics and model files, so you can compare runs and reproduce the best one."
+   },
+   {
+    "term": "DVC (Data Version Control)",
+    "meaning": "A tool that tracks versions of large data and model files next to your Git code, without putting the big files inside Git itself."
+   },
+   {
+    "term": "CI/CD",
+    "meaning": "Continuous integration and continuous delivery: automatically testing, and optionally deploying, your code every time you push a change."
+   },
+   {
+    "term": "Data drift",
+    "meaning": "When the data a live model receives starts to differ from the data it was trained on, so its predictions can quietly get worse."
+   },
+   {
+    "term": "Latency",
+    "meaning": "The time a model takes to answer one request, usually measured in milliseconds."
+   }
+  ],
+  "studySteps": [
+   "Watch the Watch & read lessons on serving models with FastAPI (or Flask); save a model from an earlier module, build a `/predict` endpoint, and test it from the automatic `/docs` page.",
+   "Build a Gradio or Streamlit demo for the same model and deploy it on Hugging Face Spaces; the free CPU Basic hardware is enough for small models.",
+   "Watch the Docker lessons, write a Dockerfile for your FastAPI app, run it on your laptop (with Docker Desktop) or in GitHub Codespaces, then deploy the container on Render's free tier.",
+   "Watch the MLflow and DVC lessons; log at least five training runs of one model to MLflow and put its dataset under DVC.",
+   "Watch the CI/CD and monitoring lessons; add a GitHub Actions workflow that runs a few tests on every push, and log each request's inputs and response time so you can check for drift later.",
+   "Do the Practice exercises in the browser (for example input checks and a simple drift check in Python), take the quiz (aim for 70%+), and complete the Self-check tasks."
+  ],
+  "selfCheck": [
+   "Deploy one of your Level 3 models (image or text) as a FastAPI service inside Docker, and write a README with one `curl` command that anyone can copy to get a prediction.",
+   "Put a Gradio demo of the same model on Hugging Face Spaces and share the link with three people; note the inputs that broke it, and fix at least one.",
+   "Log a small hyperparameter search (trying several settings) to MLflow, take a screenshot of the run comparison, and explain in three sentences why you chose the winning run.",
+   "Write a GitHub Actions workflow that runs `pytest` on every push, add a test that fails on purpose, and confirm that the workflow catches it.",
+   "Simulate drift: compare your training data with a 'new month' of data in which one feature's average has shifted, using a simple check (compare means and histograms, or run a Kolmogorov–Smirnov test from scipy), and write the alert you would set up for a client."
+  ],
+  "commonMistakes": [
+   "Loading the model inside the prediction function. That reloads it on every request and makes the API slow; load it once when the app starts.",
+   "Skipping input checks. Real users send empty fields, wrong types and huge files, so use FastAPI's Pydantic models to validate inputs and return clear error messages instead of crashing.",
+   "Promising a client always-on service on a free tier. A Hugging Face Spaces app on free CPU Basic hardware goes to sleep after 48 hours without visitors, and Render's free web services spin down after about 15 minutes idle, so the next request is slow; for paid work, quote a small always-on server and include its monthly cost, plus 18% GST on your invoice to Indian clients."
+  ],
+  "indiaExample": "AI4Bharat at IIT Madras publishes live demos of its Indian-language models on Hugging Face Spaces, built with Gradio, such as Indic Parler-TTS (text-to-speech in Indian languages), which is exactly the Gradio-plus-Spaces route in this module. At national scale, the Government of India's Bhashini mission offers Indian-language translation and speech models as APIs that other apps call, the same 'model behind an API' pattern you build here with FastAPI.",
+  "tip": "Deploy something rough in the first week of this module and then improve it. A live link with a plain Gradio page teaches you more about real-world problems (slow starts, odd inputs, missing libraries) than a perfect notebook, and it is what clients actually click on."
  },
  {
   "id": "l4-llm-internals",

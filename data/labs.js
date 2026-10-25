@@ -14,7 +14,7 @@ window.AIM.labs = [
    },
    {
     "id": "t2",
-    "text": "Choose Household income (skewed), set n to 30 or more and collect 1,000 means. Spot the bell shape (try “Zoom in”)."
+    "text": "Choose Income (right-skewed), set n to 30 or more and collect 1,000 means. Spot the bell shape (try “Zoom in”)."
    },
    {
     "id": "t3",
