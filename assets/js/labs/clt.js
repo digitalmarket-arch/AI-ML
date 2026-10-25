@@ -161,11 +161,11 @@
 
     root.innerHTML =
       '<div class="lab">' +
-        '<p class="lab-note"><strong>What you are seeing:</strong> the top chart is a whole <em>population</em> (every household, every student, or every possible die roll). ' +
-        'Each time you draw a <em>sample</em> (a random handful of <i>n</i> values, shown as yellow dots), we work out its <em>mean</em> (average) and drop it into the bottom chart. ' +
-        '<em>SD</em> means standard deviation: how far values typically sit from the average. ' +
-        'The <strong>Central Limit Theorem</strong> (CLT) predicts that, once <i>n</i> is big enough, the sample means pile up into a bell shape (a <em>normal</em> curve) centred on the population mean \u03BC, with an SD of only \u03C3/\u221An (\u03C3 is the population SD). ' +
-        'The red curve, written N(\u03BC,\u00A0\u03C3/\u221An), draws that prediction. Collect many means and see if they agree.</p>' +
+        '<p class="lab-note"><strong>What you are seeing:</strong> the top chart is a whole <em>population</em> (every household, student or die roll). ' +
+        'A <em>sample</em> is a random handful of <i>n</i> values (yellow dots); its <em>mean</em> (average) drops into the bottom chart. ' +
+        '<em>SD</em> (standard deviation) is how far values typically sit from the average. ' +
+        'The <strong>Central Limit Theorem</strong> (CLT) predicts that, for big enough <i>n</i>, the means form a bell shape (a <em>normal</em> curve) centred on the population mean \u03BC, with SD \u03C3/\u221An (\u03C3 = population SD). ' +
+        'The red curve N(\u03BC,\u00A0\u03C3/\u221An) draws that prediction.</p>' +
         '<div class="lab-body">' +
           '<div class="stack-sm">' +
             '<div class="lab-canvas-wrap"><canvas role="img" tabindex="0" aria-label="Central Limit Theorem lab chart" aria-describedby="' + P + 'hint" style="outline-offset:-3px"></canvas></div>' +

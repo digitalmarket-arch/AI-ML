@@ -12,7 +12,7 @@
   var MAX_TRY = 300;
   var MAX_H = 1400; // tallest the text picture may grow (px)
   var STEP_MS = 110; // "Merge 10" plays one merge every STEP_MS
-  var FLASH_MS = 800; // how long a freshly merged token glows
+  var MAX_PX = 3500000; // cap on canvas backing-store pixels (keeps tall pictures light on phones)
   var T1_MERGES = 20, T2_LIMIT = 2.5, T4_MERGES = 30;
 
   var EN_LINES = [
@@ -247,6 +247,9 @@
   function lum(c) { return (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) / 255; }
   function hash(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h; }
 
+  var lastHtml = new WeakMap();
+  function setHtml(node, html) { if (lastHtml.get(node) !== html) { lastHtml.set(node, html); node.innerHTML = html; } }
+
   function el(tag, attrs, kids) {
     var n = document.createElement(tag);
     if (attrs) {
@@ -276,8 +279,8 @@
     var k = 0, segs = segsAt(C, 0), curTokens = C.startTokens;
     var curF = C.fert0, ghostF = null, ghostK = 0;
     var selTok = null, cursor = -1, hover = -1, focused = false;
-    var flashTok = null, flashT0 = 0;
-    var anim = null, raf = 0, needLayout = true;
+    var justTok = null; // token made by the latest single merge step (drawn with a yellow fill)
+    var anim = null, raf = 0, needLayout = true, pendingScroll = false;
     var tryEdited = false, corpusTimer = 0, shownK = 0;
     var theme = null;
 
@@ -305,7 +308,7 @@
       el('span', { style: '--c: var(--series-1)', text: 'EN English' }),
       el('span', { style: '--c: var(--series-2)', text: 'HI Hindi (Devanagari)' }),
       el('span', { style: '--c: var(--series-4)', text: 'HG Hinglish (Hindi in English letters)' }),
-      el('span', { style: '--c: var(--haldi)', text: 'yellow outline = next pair to merge' })
+      el('span', { style: '--c: var(--haldi)', text: 'yellow fill = just merged, yellow outline = next pair' })
     ]);
     left.appendChild(legend);
 
@@ -471,7 +474,7 @@
     /* ---------- state changes ---------- */
     function setK(nk, flash) {
       nk = clamp(nk, 0, C.merges.length);
-      if (flash && nk === k + 1) { flashTok = C.merges[nk - 1].tok; flashT0 = performance.now(); } else if (nk !== k) flashTok = null;
+      if (flash && nk === k + 1) justTok = C.merges[nk - 1].tok; else if (nk !== k) justTok = null;
       k = nk;
       if (selTok !== null && C.madeBy.has(selTok) && C.madeBy.get(selTok).rank > k) { selTok = null; cursor = -1; }
       update();
@@ -540,7 +543,7 @@
       stopAnim();
       C = buildCorpus(corpusTa.value);
       k = Math.min(k, C.merges.length);
-      selTok = null; cursor = -1; hover = -1; flashTok = null; shownK = k;
+      selTok = null; cursor = -1; hover = -1; justTok = null; shownK = k;
       segs = segsAt(C, k);
       buildFert();
       buildRows();
@@ -605,7 +608,7 @@
       } else if (M === 0) h = 'No pair of neighbouring tokens appears twice yet, so there is nothing to learn. Add more text.';
       else h = '<b>Training finished after ' + plural(M, 'merge') + ':</b> no pair of neighbouring tokens appears twice any more. ' +
         'Real tokenizers keep going for 30,000 to 200,000 tokens because they learn from billions of words.';
-      info.innerHTML = h;
+      setHtml(info, h);
     }
     function tokenInfo(tok) {
       var n = countTok(tok), m = C.madeBy.get(tok), s;
@@ -681,13 +684,13 @@
           s += ' At a made-up price of ₹1 per 1,000 tokens, 1,000 words cost about <b>₹' + en.f.toFixed(2) + '</b> in English and <b>₹' + hi.f.toFixed(2) + '</b> in Hindi.';
         }
       } else s = 'Add at least one English line and one Hindi (Devanagari) line to the training text to compare them.';
-      fertText.innerHTML = s;
+      setHtml(fertText, s);
       if (ghostF && ghostF.hi.w && hi.w) {
         ghostText.hidden = false;
-        ghostText.innerHTML = '<b style="color:var(--ink)">Black marks:</b> the same sentences cut by the “Mostly English” tokenizer with ' + plural(ghostK, 'merge') +
+        setHtml(ghostText, '<b style="color:var(--ink)">Black marks:</b> the same sentences cut by the “Mostly English” tokenizer with ' + plural(ghostK, 'merge') +
           (ghostK < k ? ' (all it could learn)' : '') + '. Hindi: ' + ghostF.hi.f.toFixed(2) + ' → <b style="color:var(--ink)">' + hi.f.toFixed(2) + '</b> tokens per word' +
           (en.w ? '; English: ' + ghostF.en.f.toFixed(2) + ' → <b style="color:var(--ink)">' + en.f.toFixed(2) + '</b>' : '') +
-          '. The merges are now shared between two languages.';
+          '. The merges are now shared between two languages.');
       } else ghostText.hidden = true;
     }
 
@@ -732,14 +735,14 @@
       if (k < M) {
         var m = C.merges[k];
         nextLi.style.display = 'grid';
-        nextLi.innerHTML = '<span style="font-weight:700;color:var(--ink)">next #' + (k + 1) + '</span><span style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;min-width:0">' +
-          chipHtml(m.a) + '<span aria-hidden="true">+</span>' + chipHtml(m.b) + '<span aria-hidden="true">→</span>' + chipHtml(m.tok) + '</span><span class="mono">×' + m.count + '</span>';
+        setHtml(nextLi, '<span style="font-weight:700;color:var(--ink)">next #' + (k + 1) + '</span><span style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;min-width:0">' +
+          chipHtml(m.a) + '<span aria-hidden="true">+</span>' + chipHtml(m.b) + '<span aria-hidden="true">→</span>' + chipHtml(m.tok) + '</span><span class="mono">×' + m.count + '</span>');
       } else {
         nextLi.style.display = 'block';
-        nextLi.textContent = M ? 'Done: no pair appears twice any more.' : 'Nothing to merge yet: no pair appears twice.';
+        setHtml(nextLi, M ? 'Done: no pair appears twice any more.' : 'Nothing to merge yet: no pair appears twice.');
       }
       mergeCount.textContent = k + ' of ' + M;
-      if (k > shownK) mlist.scrollTop = mlist.scrollHeight;
+      if (k > shownK) { pendingScroll = true; requestDraw(); }
       shownK = k;
       markRows(false);
     }
@@ -794,12 +797,12 @@
       });
       if (!lines.length) html = '<p class="small muted">Type something above to see how this tokenizer cuts it.</p>';
       else if (lines.length > 6) html += '<p class="small muted">Only the first 6 lines are shown.</p>';
-      tryOut.innerHTML = html;
+      setHtml(tryOut, html);
       var note = 'Dotted line = word not in the training text.';
       if (unkTotal) note += ' Dashed red boxes are characters never seen in training: they become [UNK] (“unknown”). Byte-level tokenizers avoid this by falling back to raw bytes.';
       if (tryEdited && hit) note = '<b>“' + esc(hit) + '” never appeared in the training text</b>, yet the tokenizer still handles it by reusing pieces it learned. ' + note;
       else if (tryEdited && stuck) note = '“' + esc(stuck) + '” is new, but no learned piece fits it yet, so it falls apart into single characters. Do more merges, or try a word that shares parts with the training text. ' + note;
-      tryNote.innerHTML = note;
+      setHtml(tryNote, note);
       if (tryEdited && hit) complete('t3');
     }
     function onTryInput() { tryEdited = true; renderTry(); }
@@ -870,8 +873,7 @@
     }
     function layoutAll() {
       needLayout = false;
-      var r = wrap.getBoundingClientRect();
-      var width = r.width - wrap.clientLeft * 2;
+      var width = lastW > 0 ? lastW : wrap.clientWidth;
       if (!(width > 0)) return false;
       // the picture is exactly as tall as the text: the merge buttons sit beside it (wide screens) or above it
       // (phones), so the shrinking text never moves a button under the learner's finger
@@ -880,7 +882,7 @@
       else { chips = []; paraBoxes = []; pairs = []; LM = metrics(width); }
       var hNeed = Math.min(MAX_H, Math.max(160, hk));
       if (hNeed !== curH) { curH = hNeed; wrap.style.height = (hNeed + wrap.clientTop * 2) + 'px'; }
-      dpr = Math.min(window.devicePixelRatio || 1, 3);
+      dpr = Math.min(window.devicePixelRatio || 1, 3, Math.sqrt(MAX_PX / (width * hNeed)));
       W = width; H = hNeed;
       var bw = Math.round(W * dpr), bh = Math.round(H * dpr);
       if (canvas.width !== bw) canvas.width = bw;
@@ -901,7 +903,7 @@
       g.arcTo(x, y, x + w, y, r);
       g.closePath();
     }
-    function draw(now) {
+    function draw() {
       if (!W || !H) return;
       var t = theme, m = LM;
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -924,8 +926,6 @@
         g.fillStyle = col; g.fillText(LANG[p.lang] ? LANG[p.lang].tag : '··', p.tagX + p.tagW / 2, p.top + m.h / 2 + 0.5);
       });
       // token chips
-      var fl = 0;
-      if (flashTok !== null) { fl = 1 - (now - flashT0) / FLASH_MS; if (fl <= 0) { fl = 0; flashTok = null; } else if (fl > 1) fl = 1; }
       var dim = selTok !== null;
       g.font = fontStr(m.fs); g.textAlign = 'left'; g.textBaseline = 'middle';
       var spW = textW(SP), i, c;
@@ -936,7 +936,7 @@
         g.globalAlpha = a;
         rr(c.x + 0.5, c.y + 0.5, c.w - 1, c.h - 1, 4);
         g.fillStyle = col.fill; g.fill();
-        if (fl && c.tok === flashTok) { g.globalAlpha = a * fl * 0.75; g.fillStyle = t.haldi; g.fill(); g.globalAlpha = a; }
+        if (!dim && c.tok === justTok) { g.globalAlpha = 0.5; g.fillStyle = t.haldi; g.fill(); g.globalAlpha = a; }
         g.lineWidth = 1; g.strokeStyle = col.edge; g.stroke();
         var tx = c.x + m.px, ty = c.y + c.h / 2 + 0.5, rest = c.tok;
         if (rest.charAt(0) === SP) { g.fillStyle = t.muted; g.fillText(SP, tx, ty); tx += spW; rest = rest.slice(1); }
@@ -983,8 +983,9 @@
         if (k >= anim.target || k >= C.merges.length) anim = null;
       }
       if (needLayout) layoutAll();
-      draw(ts);
-      if (anim || flashTok !== null) requestDraw();
+      draw();
+      if (pendingScroll) { pendingScroll = false; mlist.scrollTop = mlist.scrollHeight; }
+      if (anim) requestDraw();
     }
     function requestDraw() { if (!raf && alive) raf = requestAnimationFrame(frame); }
     function relayout() { needLayout = true; requestDraw(); }
@@ -1117,16 +1118,18 @@
       stats.style.gridTemplateColumns = narrowStats ? 'repeat(2, minmax(0, 1fr))' : 'repeat(4, minmax(0, 1fr))';
     }
     var lastW = -1;
-    function onResize() {
-      var w = wrap.getBoundingClientRect().width;
-      if (Math.abs(w - lastW) < 0.5) return; // only width matters; height is ours
+    function onResize(entries) {
+      // only the width matters (the height is ours); reading it here means drawing never forces a layout
+      var e = entries && entries[0], w = e && e.contentRect ? e.contentRect.width : wrap.clientWidth;
+      if (Math.abs(w - lastW) < 0.5) return;
       lastW = w;
       onStatsWidth();
       relayout(); // runs in the next animation frame, never inside the observer callback
     }
     var ro = null;
+    function onWinResize() { onResize(null); }
     if (window.ResizeObserver) { ro = new ResizeObserver(onResize); ro.observe(wrap); }
-    else window.addEventListener('resize', onResize);
+    else window.addEventListener('resize', onWinResize);
 
     place();
     buildFert();
@@ -1157,7 +1160,7 @@
         document.removeEventListener('themechange', onTheme);
         if (mo) mo.disconnect();
         if (fonts) fonts.removeEventListener('loadingdone', onFonts);
-        if (ro) ro.disconnect(); else window.removeEventListener('resize', onResize);
+        if (ro) ro.disconnect(); else window.removeEventListener('resize', onWinResize);
         root.innerHTML = '';
       }
     };
