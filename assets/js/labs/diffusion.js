@@ -17,14 +17,14 @@
   var NPTS = 400;               // dots in Part 2
   var VIEW_H = 2.3;             // Part 2 shows y from -2.3 to 2.3 (x wider on wide screens)
   var STEP_STOPS = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000];
-  var MARK_HI = 0.16, MARK_LO = 0.0016;  // an honest "picture gone" mark has alpha-bar between these
+  var MARK_HI = 0.2, MARK_LO = 0.0016;   // an honest "picture gone" mark has alpha-bar between these
   var NOISE_SEED = 2024, DEFAULT_SEED = 42, START_T = 200;
   var PLAY_RATE = T / 6;        // Play sweeps t from 0 to 1,000 in about 6 seconds
 
   var TASKS = [
     { id: 't1', text: 'Part 1: slide t up and, for each schedule, press its “gone” button at the first t where you can no longer make out the picture. Which schedule keeps the picture longer?' },
     { id: 't2', text: 'Part 2: press Run and bring the noise back to the pattern: at least 90% of the dots inside the shaded band, spread over at least 90% of the shape.' },
-    { id: 't3', text: 'Part 2: cut the sampling steps to 10 (or fewer) and run again with the same pattern and schedule. Compare with your many-step run: fewer dots land on the pattern.' },
+    { id: 't3', text: 'Part 2: after a run with many steps (200 or more), cut the sampling steps to 10 or fewer and run again with the same pattern and schedule. See the result get worse: fewer dots on the pattern, or less of the shape covered.' },
     { id: 't4', text: 'Part 2: tick “Show score arrows” and sample from pure noise down to t = 100 or lower with the arrows showing. Watch where they point early on, and near the end.' }
   ];
 
@@ -52,28 +52,30 @@
   }
   var SUP = { '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹', '-': '⁻' };
   function sup(n) { return String(n).split('').map(function (c) { return SUP[c] || c; }).join(''); }
-  function fmtSci(v) {
+  // compact = no spaces around ×, so the number fits on one line inside a narrow stat box on phones
+  function fmtSci(v, compact) {
     var e = Math.floor(Math.log10(v)), m = v / Math.pow(10, e);
     if (m >= 9.95) { m /= 10; e++; }
-    return m.toFixed(1) + ' × 10' + sup(e);
+    return m.toFixed(1) + (compact ? '×10' : ' × 10') + sup(e);
   }
   // alpha-bar: a share between 0 and 1
-  function fmtAb(v) {
+  function fmtAb(v, compact) {
     if (v >= 0.9995) return '1.00';
     if (v >= 0.1) return v.toFixed(2);
     if (v >= 0.001) return v.toPrecision(2);
     if (v <= 0) return '0';
-    return fmtSci(v);
+    return fmtSci(v, compact);
   }
-  function fmtSnr(v) {
+  function fmtSnr(v, compact) {
     if (!isFinite(v)) return '∞';
     if (v >= 100) return fmtIN(Math.round(v));
     if (v >= 10) return v.toFixed(1);
     if (v >= 1) return v.toFixed(2);
     if (v >= 0.001) return v.toPrecision(2);
     if (v <= 0) return '0';
-    return fmtSci(v);
+    return fmtSci(v, compact);
   }
+  function stepsWord(n) { return fmtIN(n) + (n === 1 ? ' step' : ' steps'); }
   function pct(v) { var p = v * 100; return (p > 0 && p < 9.95 ? p.toFixed(1) : String(Math.round(p))) + '%'; }
   function pctInt(v) { return Math.round(v * 100) + '%'; }
 
@@ -329,7 +331,7 @@
         '<div class="stack-sm" id="' + P + 'left">' +
           '<h2 class="lab-h" id="' + P + 'head">Part 1: adding noise (the forward process)</h2>' +
           '<p class="small muted" data-p="1">Both noisy pictures use the same noise ε (epsilon: one fixed grid of random numbers) and the same recipe, ' +
-            '<span style="white-space:nowrap">x<sub>t</sub> = √ᾱ<sub>t</sub> · x<sub>0</sub> + √(1 − ᾱ<sub>t</sub>) · ε</span>, where x<sub>0</sub> is the clean picture and ᾱ<sub>t</sub> (say “alpha-bar”) is the share of the mix that is still picture. ' +
+            '<span style="white-space:nowrap">x<sub>t</sub> = √ᾱ<sub>t</sub> · x<sub>0</sub> + √(1 − ᾱ<sub>t</sub>) · ε</span>, where x<sub>0</sub> is the clean picture and ᾱ<sub>t</sub> (say “alpha-bar”) is the share of the mix that is still picture (the clean pixels are multiplied by √ᾱ<sub>t</sub>, so ᾱ<sub>t</sub> = 0.25 means the picture is at half strength). ' +
             'Only the <em>noise schedule</em> (the plan for how fast noise is added) differs. <b>Linear</b> adds a bit more fresh noise at every step (β, the fresh noise per step, grows in a straight line from 0.0001 to 0.02). <b>Cosine</b> follows a gentle cosine curve instead.</p>' +
           '<p class="small muted" data-p="2" hidden>Each dot starts as pure noise at ' + TEQ + '1,000. At every step the <em>sampler</em> (the code that runs the process backwards) moves each dot a little along the <em>score</em>: the direction in which the data becomes more likely, like walking uphill towards the crowd. It also adds a small random kick, except on the last step. ' +
             '<b>A real diffusion model learns this score with a neural network trained on millions of pictures.</b> Here we built the data ourselves from a known recipe (a <em>mixture of Gaussians</em>: lots of small round blobs of dots placed along a shape), so the lab can use the exact formula instead.</p>' +
@@ -338,7 +340,7 @@
             '<div data-p="1">' + legend([['--series-2', 'Linear (dashed line)'], ['--series-1', 'Cosine (solid line)'], ['--ink', 'Now, and your “gone” marks']]) + '</div>' +
             '<div data-p="2" hidden>' + legend([['--series-1', 'Generated dots'], ['--haldi', 'Pattern band (the real data)'], ['--series-4', 'Score arrows']]) + '</div>' +
             '<div class="callout callout-indigo small" id="' + P + 'msg" role="status" aria-live="polite" style="min-height:3.2em"></div>' +
-            '<div class="lab-stats" data-p="1" style="grid-template-columns:repeat(auto-fit,minmax(96px,1fr))">' + stat('t', 'Step t') + stat('alin', 'Linear ᾱ', true) + stat('acos', 'Cosine ᾱ', true) + '</div>' +
+            '<div class="lab-stats" data-p="1" style="grid-template-columns:repeat(auto-fit,minmax(100px,1fr))">' + stat('t', 'Step t') + stat('alin', 'Linear ᾱ', true) + stat('acos', 'Cosine ᾱ', true) + '</div>' +
             '<p class="small muted" data-p="1" id="' + P + 'eq">&nbsp;</p>' +
             '<div class="lab-stats" data-p="2" hidden style="grid-template-columns:repeat(auto-fit,minmax(132px,1fr))">' + stat('stp', 'Step') + stat('t2', 'Noise level t') + stat('on', 'On the pattern') + stat('cov', 'Shape covered') + '</div>' +
             '<p class="small muted" data-p="2" hidden>“On the pattern” counts the dots inside the band. “Shape covered” is the share of the shape with at least one dot nearby. Pure noise already touches much of the shape by luck, and piling every dot on one spot gives a high “on the pattern” score, so a good result needs both numbers high.</p>' +
@@ -451,10 +453,11 @@
     function updateStats1() {
       var al = abAt('lin', S.t), ac = abAt('cos', S.t);
       stT.textContent = fmtIN(S.t);
-      stAl.textContent = fmtAb(al); stAls.textContent = 'SNR ' + fmtSnr(snrOf(al));
-      stAc.textContent = fmtAb(ac); stAcs.textContent = 'SNR ' + fmtSnr(snrOf(ac));
+      stAl.textContent = fmtAb(al, true); stAls.textContent = 'SNR ' + fmtSnr(snrOf(al), true);
+      stAc.textContent = fmtAb(ac, true); stAcs.textContent = 'SNR ' + fmtSnr(snrOf(ac), true);
       elEq.innerHTML = 'At t = ' + fmtIN(S.t) + ': linear x<sub>t</sub> = ' + Math.sqrt(al).toFixed(2) + ' × x<sub>0</sub> + ' + Math.sqrt(1 - al).toFixed(2) + ' × ε; ' +
-        'cosine x<sub>t</sub> = ' + Math.sqrt(ac).toFixed(2) + ' × x<sub>0</sub> + ' + Math.sqrt(1 - ac).toFixed(2) + ' × ε. SNR (signal-to-noise ratio) = ᾱ ÷ (1 − ᾱ): above 1 the picture is stronger than the noise.';
+        'cosine x<sub>t</sub> = ' + Math.sqrt(ac).toFixed(2) + ' × x<sub>0</sub> + ' + Math.sqrt(1 - ac).toFixed(2) + ' × ε. SNR (signal-to-noise ratio) = ᾱ ÷ (1 − ᾱ): above 1 the picture is stronger than the noise. ' +
+        'The SNR chart uses a log scale (each grid line is 100 times the one below it), so very small values still show.';
       elTout.textContent = fmtIN(S.t);
       elT.setAttribute('aria-valuetext', 't = ' + fmtIN(S.t));
     }
@@ -586,14 +589,14 @@
       } else {
         html = 'Finished in ' + stepsTxt + ': only ' + pctInt(q.on) + ' of the dots landed on the pattern. Each big jump has to guess the clean point from a very noisy one, so many dots end up between the lines or in a blurry smear.';
       }
-      if (S2 <= 10 && rec.many) html += ' (With ' + fmtIN(rec.many.S) + ' steps: ' + pctInt(rec.many.on) + ' on the pattern, ' + pctInt(rec.many.cov) + ' covered.)';
-      if (S2 >= 200 && rec.few && !done.t3) html += ' (With ' + fmtIN(rec.few.S) + ' steps: ' + pctInt(rec.few.on) + ' on the pattern, ' + pctInt(rec.few.cov) + ' covered.)';
+      if (S2 <= 10 && rec.many) html += ' (With ' + stepsWord(rec.many.S) + ': ' + pctInt(rec.many.on) + ' on the pattern, ' + pctInt(rec.many.cov) + ' covered.)';
+      if (S2 >= 200 && rec.few && !done.t3) html += ' (With ' + stepsWord(rec.few.S) + ': ' + pctInt(rec.few.on) + ' on the pattern, ' + pctInt(rec.few.cov) + ' covered.)';
       if (rec.many && rec.few && !done.t3) {
         if (score1(rec.few) < score1(rec.many)) {
           completeTask('t3');
           html += ' <b>Task done:</b> fewer steps gave worse samples. That is the trade-off every image generator faces: more steps give better pictures, but you wait longer.';
         } else {
-          html += ' This time ' + fmtIN(rec.few.S) + ' steps did about as well. Try 5 steps, or the linear schedule, to see a clear drop.';
+          html += ' This time ' + stepsWord(rec.few.S) + ' did about as well. Try 5 steps, or the linear schedule, to see a clear drop.';
         }
       } else if (S2 <= 10 && !rec.many && !done.t3) {
         html += ' To compare, run it once with many steps (200 or more), keeping the same pattern and schedule.';
@@ -708,8 +711,9 @@
         g.strokeStyle = TH.muted; g.setLineDash([3, 3]);
         g.beginPath(); g.moveTo(c.px, y1); g.lineTo(c.px + c.pw, y1); g.stroke();
         g.setLineDash([]);
-        g.fillStyle = TH.muted; g.textAlign = 'right'; g.textBaseline = 'bottom';
-        g.fillText('signal = noise', c.px + c.pw - 4, y1 - 2);
+        // label at the left, just under the line: both curves are above it there, and the "gone" marks are further right
+        g.fillStyle = TH.muted; g.textAlign = 'left'; g.textBaseline = 'top';
+        g.fillText('signal = noise', c.px + 6, y1 + 3);
       }
       g.strokeStyle = TH.muted; g.beginPath(); g.moveTo(c.px + 0.5, c.py); g.lineTo(c.px + 0.5, c.py + c.ph + 0.5); g.lineTo(c.px + c.pw, c.py + c.ph + 0.5); g.stroke();
       // curves
@@ -729,6 +733,7 @@
       });
       g.setLineDash([]);
       // the learner's "gone" marks
+      var tags = [];
       ['lin', 'cos'].forEach(function (sched) {
         var mt = S.marks[sched];
         if (mt == null) return;
@@ -736,10 +741,20 @@
         g.beginPath(); g.moveTo(mx, my - 6); g.lineTo(mx + 6, my); g.lineTo(mx, my + 6); g.lineTo(mx - 6, my); g.closePath();
         g.fillStyle = sched === 'lin' ? TH.series2 : TH.series1; g.fill();
         g.lineWidth = 1.5; g.strokeStyle = TH.ink; g.stroke();
-        g.font = font(11, '600'); g.textBaseline = 'middle'; g.textAlign = 'left';
-        var lw = g.measureText('gone').width, lx = clamp(mx - lw / 2, c.px + 2, c.px + c.pw - lw - 2), ly = Math.max(c.py + 9, my - 16);
-        g.fillStyle = TH.surface; g.globalAlpha = 0.9; g.fillRect(lx - 3, ly - 8, lw + 6, 16); g.globalAlpha = 1;
-        g.fillStyle = TH.ink; g.fillText('gone', lx, ly);
+        tags.push({ mx: mx, my: my });
+      });
+      g.font = font(11, '600'); g.textBaseline = 'middle'; g.textAlign = 'left';
+      var lw = g.measureText('gone').width;
+      tags.forEach(function (tg) { tg.lx = clamp(tg.mx - lw / 2, c.px + 2, c.px + c.pw - lw - 2); tg.ly = Math.max(c.py + 9, tg.my - 16); });
+      if (tags.length === 2 && Math.abs(tags[0].lx - tags[1].lx) < lw + 8 && Math.abs(tags[0].ly - tags[1].ly) < 17) {
+        // two marks close together: stack the labels so they never overlap (the higher diamond's label goes on top)
+        var up = tags[0].my <= tags[1].my ? tags[0] : tags[1], dn = up === tags[0] ? tags[1] : tags[0];
+        up.ly = Math.min(up.ly, dn.ly) - 17;
+        if (up.ly < c.py + 9) { up.ly = c.py + 9; dn.ly = up.ly + 17; }
+      }
+      tags.forEach(function (tg) {
+        g.fillStyle = TH.surface; g.globalAlpha = 0.9; g.fillRect(tg.lx - 3, tg.ly - 8, lw + 6, 16); g.globalAlpha = 1;
+        g.fillStyle = TH.ink; g.fillText('gone', tg.lx, tg.ly);
       });
       // current t
       var cx = Math.round(chartX(c, S.t)) + 0.5;

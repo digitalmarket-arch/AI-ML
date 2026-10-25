@@ -371,7 +371,7 @@
       '<p class="lab-note"><strong>What you are seeing:</strong> the history of a small project, <em>Chai Price Predictor</em>, drawn as a graph. ' +
       'Each circle is a <em>commit</em> (a saved snapshot of every file in the project) with a short id such as a1f, and each line joins a commit to its <em>parent</em> (the commit it was made from). ' +
       'Time runs from left to right. The tags are <em>branches</em> (movable name tags that point at one commit), and <em>HEAD</em> marks the branch you are on right now. ' +
-      'Every button is a real Git command: press one and the command appears in the terminal, while the graph and the files change just as they would on your own computer.</p>' +
+      'Each command button runs a real Git command: press one and the command appears in the terminal, while the graph and the files change just as they would on your own computer.</p>' +
       '<div class="lab-body">' +
         '<div class="stack-sm" id="' + P + 'left">' +
           '<div class="lab-canvas-wrap" id="' + P + 'wrap" role="region" tabindex="0" aria-label="Commit graph. Use the Left and Right arrow keys to step through the commits. It scrolls sideways when it gets long." style="aspect-ratio:auto;overflow-x:auto;overflow-y:hidden">' +
