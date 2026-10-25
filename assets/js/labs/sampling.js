@@ -287,7 +287,7 @@
       '<div class="lab">' +
         '<p class="lab-note"><strong>What you are seeing:</strong> a tiny language model (a program that guesses the next word) that learned from ' + CORPUS.length + ' short sentences about India when this page opened. ' +
         'It reads and writes <em>tokens</em> (small pieces of text; here every word and full stop is one token). ' +
-        'For the next token it gives each of the ' + M.V + ' words it knows a score called a <em>logit</em>: the log of how many times that word came after the last two words. ' +
+        'For the next token it gives each of the ' + M.V + ' words it knows a score called a <em>logit</em>: ln (the natural log) of how many times that word came after the last two words. A count of 1 gives 0 and every doubling adds 0.69, so ln(2) = 0.69 and ln(4) = 1.39. ' +
         '<em>Softmax(logits ÷ T)</em> turns the scores into chances that add up to 100%, where T is the <em>temperature</em>. Then <em>top-k</em> and <em>top-p</em> cross out unlikely words, and a dice roll picks one of the words left. ' +
         'ChatGPT-style models do exactly this, just with a far smarter way of scoring. Click a bar to see its maths, or click a coloured word to see the choice it came from.</p>' +
         '<div class="lab-body">' +
@@ -296,7 +296,7 @@
               '<input type="text" id="' + P + 'prompt" value="' + esc(DEF.prompt) + '" autocomplete="off" autocapitalize="none" spellcheck="false" aria-describedby="' + P + 'pmsg">' +
               '<p class="small muted" id="' + P + 'pmsg"></p>' +
               '<div class="row" role="group" aria-label="Example prompts"><span class="small muted">Try:</span>' + exHtml + '</div></div>' +
-            '<div class="row-between" style="margin-top:6px"><h4>Text so far</h4><span class="small muted num" id="' + P + 'tcount"></span></div>' +
+            '<div class="row-between" style="margin-top:6px"><h2 class="lab-h">Text so far</h2><span class="small muted num" id="' + P + 'tcount"></span></div>' +
             '<div id="' + P + 'text" style="background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;font-size:1.08rem;line-height:2;min-height:4.6em;max-height:15em;overflow-y:auto"></div>' +
             '<div class="lab-legend" aria-label="Colour of a generated word: the chance it had when it was picked"><i style="font-style:normal;font-weight:600">Chance when picked:</i>' + legendHtml + '</div>' +
             '<p class="small" id="' + P + 'prev"></p>' +
@@ -312,6 +312,7 @@
             '<div class="lab-legend">' +
               '<span style="--c:var(--series-1)">thick bar: final chance after top-k and top-p</span>' +
               '<span style="--c:var(--muted)">thin line: chance from softmax(logit ÷ T), before the cuts</span>' +
+              '<i style="font-style:normal"><em>grey italic count</em>: a tiny stand-in for a word never seen there</i>' +
             '</div>' +
             '<p class="small" id="' + P + 'readout" style="min-height:4.8em"></p>' +
             '<div class="row"><button type="button" class="btn btn-sm" id="' + P + 'use">Use this word</button>' +
@@ -345,7 +346,7 @@
               '<div class="row"><input type="number" id="' + P + 'seed" min="0" max="99999" step="1" value="' + DEF.seed + '" style="width:7em" aria-describedby="' + P + 'shelp">' +
                 '<button type="button" class="btn btn-sm" id="' + P + 'replay">Replay this seed</button></div>' +
               '<p class="small muted" id="' + P + 'shelp">The dice are not truly random: the same seed always gives the same rolls. Replay restarts the dice and the text, so the same settings give the same text again.</p></div>' +
-            '<div class="stack-sm"><h4>Your tasks</h4><ul class="lab-tasks" id="' + P + 'tasks">' + tasksHtml + '</ul></div>' +
+            '<div class="stack-sm"><h2 class="lab-h">Your tasks</h2><ul class="lab-tasks" id="' + P + 'tasks">' + tasksHtml + '</ul></div>' +
           '</div>' +
         '</div>' +
         '<div class="callout callout-indigo small"><strong>Softmax(logits ÷ T) in plain words:</strong> divide every logit by T, raise e (about 2.718) to each result, then divide each one by the total so all the chances add up to 100%. ' +
@@ -354,7 +355,7 @@
         '<details class="fold"><summary>See the ' + CORPUS.length + ' training sentences and all ' + M.V + ' words the model knows</summary><div class="stack-sm">' +
           '<ol class="small" style="columns:2 17em;column-gap:28px;margin:0">' + sentHtml + '</ol>' +
           '<p class="small"><strong>Vocabulary:</strong> <span class="muted">' + esc(M.alpha.join(', ')) + '</span></p></div></details>' +
-        '<p class="small muted"><strong style="color:var(--ink)">Why it matters in real ML:</strong> every chatbot and LLM API (application programming interface: the way apps talk to a model) works like this, scoring every token and then letting temperature, top-k and top-p decide how adventurous the pick is. Teams use low temperature for steady, repeatable answers (customer support, code, reading fields off an invoice) and higher values for brainstorming and stories; push it too far and, just like here, the model starts picking junk tokens.</p>' +
+        '<p class="small muted"><strong style="color:var(--ink)">Why it matters in real ML:</strong> every chatbot and LLM (large language model) API (application programming interface: the way apps talk to a model) works like this, scoring every token and then letting temperature, top-k and top-p decide how adventurous the pick is. Teams use low temperature for steady, repeatable answers (customer support, code, reading fields off an invoice) and higher values for brainstorming and stories; push it too far and, just like here, the model starts picking junk tokens.</p>' +
       '</div>';
 
     function $(id) { return root.querySelector('#' + P + id); }
@@ -374,7 +375,8 @@
       T: DEF.T, k: DEF.k, p: DEF.p, mem: DEF.mem, seed: DEF.seed,
       prompt: [], gen: [], prev: null, rng: mulberry32(DEF.seed),
       dist: null, sel: -1, hover: -1, view: -1, viewD: null,
-      anim: null, genLeft: 0, nextAt: 0, generating: false
+      anim: null, genLeft: 0, nextAt: 0, generating: false,
+      pTouched: false   // t4 needs the learner to have moved top-p (default settings alone often leave 3 words)
     };
     var done = {};
     var dims = { w: 1, h: 1, dpr: 1 };
@@ -457,13 +459,13 @@
           }
         }
       }
-      // t1: this run and the last run, same prompt, both greedy (T <= 0.1), identical first 15 tokens
+      // t1: this run and the last run, same prompt, both greedy (T = 0), identical first 15 tokens
       var pv = S.prev;
       if (pv && !pv.example && arrEq(pv.prompt, S.prompt) && pv.gen.length >= GEN_N) {
         var ok = true;
         for (i = 0; i < GEN_N; i++) {
           var a = pv.gen[i], b = run[i];
-          if (a.w !== b.w || a.manual || b.manual || a.s.T > 0.1 || b.s.T > 0.1) { ok = false; break; }
+          if (a.w !== b.w || a.manual || b.manual || a.s.T !== 0 || b.s.T !== 0) { ok = false; break; }
         }
         if (ok) {
           setNote('<span class="chip chip-ok">Same text again</span> Greedy never rolls the dice, so the same prompt always gives the same words.');
@@ -473,7 +475,7 @@
     }
     function checkTopP() {
       var D = S.dist;
-      if (D && !D.greedy && S.p < 1 && D.nByK > 3 && D.nK === 3) completeTask('t4');
+      if (D && S.pTouched && !S.generating && !D.greedy && S.p < 1 && D.nByK > 3 && D.nK === 3) completeTask('t4');
     }
 
     /* ---------- the text box ---------- */
@@ -557,7 +559,8 @@
           ' with a chance of ' + pct(t.p) + ' (settings then: T ' + tStr(s.T) + ', top-k ' + s.k + ', top-p ' + s.p.toFixed(2) + '). ';
       }
       if (D.missed && D.type === 'bi') {
-        html += (D.missed[0] === 0 ? 'No training sentence starts with “' + esc(disp(D.missed[1])) + '”' : 'It never saw “' + esc(D.missed.map(disp).join(' ')) + '” together') +
+        if (D.missed[1] === 0) html += 'The last token is a full stop, and no training sentence goes on past its full stop, so it falls back to how sentences start. ';
+        else html += (D.missed[0] === 0 ? 'No training sentence starts with “' + esc(disp(D.missed[1])) + '”' : 'It never saw “' + esc(D.missed.map(disp).join(' ')) + '” together') +
           ', so it falls back to ' + cl + ' alone. ';
       }
       var startOnly = D.type === 'bi' && D.ctxW[0] === 0;
@@ -567,7 +570,9 @@
         html += name + (startOnly ? ' never started a sentence' : ' never came after ' + cl) + '. It gets a tiny stand-in count of ' + fcount(D.cnt[w]) + ' (called <em>smoothing</em>: based on how common it is overall, so nothing is impossible), giving a logit of ln(' + fcount(D.cnt[w]) + ') = ' + f2(D.logit[w]) + '. ';
       }
       if (D.greedy) {
-        html += 'T = 0 means greedy: no dice, the highest logit simply wins. ' + (D.order[0] === w ? 'This is the top word, so it gets 100%.' : 'It is not the top word, so it gets 0%.');
+        var tie = D.cnt[D.order[1]] === D.cnt[D.order[0]];
+        html += 'T = 0 means greedy: no dice, the highest logit simply wins' + (tie ? ' (a tie goes to the word that is most common in all the text)' : '') + '. ' +
+          (D.order[0] === w ? 'This is the top word, so it gets 100%.' : 'It is not the top word, so it gets 0%.');
       } else {
         html += 'Divided by T: ' + f2(D.logit[w]) + ' ÷ ' + s.T.toFixed(2) + ' = ' + f2(D.logit[w] / s.T) + '. Softmax gives it ' + pct(D.pb[w]) + ' of the chance. ';
         if (!D.cut[w]) html += 'It survives the cuts, and once the kept words are rescaled to add up to 100% it ends with <strong>' + pct(D.pf[w]) + '</strong>.';
@@ -584,7 +589,7 @@
       btnBack.style.display = V.mode === 'hist' ? '' : 'none';
     }
     function renderStats() {
-      var D = S.dist;
+      var D = view().D;
       elSNK.textContent = D.nK + ' of ' + M.V;
       elSTop.textContent = pct(D.pf[D.order[0]]);
       elSCtx.textContent = ctxStat(D);
@@ -639,6 +644,7 @@
       S.generating = false; S.genLeft = 0;
       btnGen.textContent = 'Generate 15 tokens';
       renderText(); renderReadout();
+      checkTopP();
       announce('Generated text: ' + S.gen.slice(-GEN_N).map(function (t) { return disp(t.w); }).join(' '));
       if (S.gen.length >= MAX_GEN) setNote('The text is full (' + MAX_GEN + ' tokens). Press “Reset prompt” to start again.');
     }
@@ -678,7 +684,7 @@
       refresh();
     }
     function replaySeed() {
-      var v = parseInt(elSeed.value, 10);
+      var raw = String(elSeed.value).trim(), v = raw === '' ? NaN : Math.floor(Number(raw));
       if (!isFinite(v)) v = S.seed;
       v = clamp(v, 0, 99999);
       elSeed.value = String(v);
@@ -802,7 +808,7 @@
       } else if (V.mode === 'hist') {
         roll = V.t.u; chosen = V.t.w; landed = true;
       }
-      var selW = selWord(V);
+      var selW = V.mode === 'anim' && S.sel < 0 ? -1 : selWord(V);
 
       // columns
       var wordW = narrow ? (W < 340 ? 60 : 72) : 124;
@@ -881,7 +887,7 @@
       g.strokeStyle = rgb(T.line); g.lineWidth = 1;
       g.beginPath(); g.moveTo(pad, Math.round(ry) + 0.5); g.lineTo(W - pad, Math.round(ry) + 0.5); g.stroke();
       g.font = 'italic ' + (fs - 1) + 'px ' + T.font; g.fillStyle = rgb(T.muted); g.textAlign = 'left';
-      g.fillText(fitText('+ ' + (D.order.length - ROWS) + ' other words' + (restKept ? ' (' + restKept + ' kept)' : ''), xLogitR - xWord + (narrow ? 0 : 10)), xWord, rcy);
+      g.fillText(fitText('+ ' + (D.order.length - ROWS) + (narrow ? ' more' : ' other words') + (restKept ? ' (' + restKept + ' kept)' : ''), xLogitR - xWord + (narrow ? 0 : 10)), xWord, rcy);
       if (restF > 0) { g.fillStyle = rgb(T.s1, 0.7); roundRect(xBar0, rcy - bh / 2 - 2, Math.max(2, restF * barW), bh, 2); g.fill(); }
       if (restB > 0) { g.fillStyle = rgb(T.muted, 0.9); g.fillRect(xBar0, rcy + bh / 2 + 1, Math.max(1.5, restB * barW), 2.5); }
       g.font = ms + 'px ' + T.mono; g.fillStyle = rgb(T.muted);
@@ -984,7 +990,7 @@
     }
     on(elTemp, 'input', function () { S.T = clamp(Math.round(parseFloat(elTemp.value) * 100) / 100 || 0, 0, 2); onSetting(); });
     on(elTopk, 'input', function () { S.k = clamp(parseInt(elTopk.value, 10) || 1, 1, 50); onSetting(); });
-    on(elTopp, 'input', function () { S.p = clamp(Math.round(parseFloat(elTopp.value) * 100) / 100 || 0.1, 0.1, 1); onSetting(); });
+    on(elTopp, 'input', function () { S.p = clamp(Math.round(parseFloat(elTopp.value) * 100) / 100 || 0.1, 0.1, 1); S.pTouched = true; onSetting(); });
     Array.prototype.forEach.call(memBtns, function (b) {
       on(b, 'click', function () { var m = +b.getAttribute('data-mem'); if (m !== S.mem) { S.mem = m; S.sel = -1; onSetting(); } });
     });

@@ -444,6 +444,8 @@
       (t.dark ? [[0.3, 0.7], [0.46, 0.85]] : [[0.15, 0.55], [0.3, 0.72]]).forEach(function (st) {
         hues.forEach(function (h) { t.fill.push(rgb(mix(h, sC, st[0]))); t.edge.push(rgb(mix(h, sC, st[1]))); });
       });
+      // "just merged" fill: a solid soft yellow that keeps the ink readable (about 11:1 light, 5:1 dark)
+      t.just = rgb(mix(parseColor(t.haldi) || [255, 204, 0], sC, 0.45));
       t.key = [t.surface, t.ink, t.muted, t.haldi].concat(t.fill).join('|');
       return t;
     }
@@ -972,8 +974,7 @@
         var on = !dim || c.tok === selTok, a = on ? 1 : 0.28, col = chipColor(c.tok);
         g.globalAlpha = a;
         rr(c.x + 0.5, c.y + 0.5, c.w - 1, c.h - 1, 4);
-        g.fillStyle = col.fill; g.fill();
-        if (!dim && c.tok === justTok) { g.globalAlpha = 0.5; g.fillStyle = t.haldi; g.fill(); g.globalAlpha = a; }
+        g.fillStyle = !dim && c.tok === justTok ? t.just : col.fill; g.fill();
         g.lineWidth = 1; g.strokeStyle = col.edge; g.stroke();
         var tx = c.x + m.px, ty = c.y + c.h / 2 + 0.5, rest = c.tok;
         if (rest.charAt(0) === SP) { g.fillStyle = t.muted; g.fillText(SP, tx, ty); tx += spW; rest = rest.slice(1); }
