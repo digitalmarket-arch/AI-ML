@@ -340,8 +340,12 @@
     try { history.replaceState(null, '', '#methods' + (page.group === 'all' ? '' : '~' + page.group)); } catch (e) {}
     apply();
   }
-  function apply() {
+  // the cards change at once; the polite status line (read out by screen readers) says the result at once after a filter
+  // button, but only when the learner pauses while typing a search, so one search is one announcement, not one per letter
+  function setStatus(msg) { var st = $('lm-status'); if (st && st.textContent !== msg) st.textContent = msg; }
+  function apply(typing) {
     if (!page) return;
+    clearTimeout(page.statusT); page.statusT = 0;
     var words = norm(query()).split(' ').filter(Boolean), gid = page.group, shown = 0;
     page.cards.forEach(function (c) {
       if (!c.el) return;
@@ -352,19 +356,20 @@
       sec.hidden = !sec.querySelector('.lm-card:not([hidden])');
     });
     var total = page.cards.length, gname = GROUP[gid] ? GROUP[gid].btn : '', q = query().trim();
-    var st = $('lm-status'), empty = $('lm-empty'), et = $('lm-empty-t');
+    var empty = $('lm-empty'), et = $('lm-empty-t');
     var msg;
     if (!shown) msg = 'No method matches "' + q + '"' + (gname ? ' in ' + gname : '') + '.';
     else if (shown === total) msg = 'Showing all ' + total + ' methods.';
     else msg = 'Showing ' + shown + ' of ' + total + ' methods' + (gname ? ': ' + gname : '') + (q ? (gname ? ',' : ':') + ' matching "' + q + '"' : '') + '.';
-    if (st && st.textContent !== msg) st.textContent = msg;
+    if (typing) { var token = page.token; page.statusT = setTimeout(function () { if (page && page.token === token) { page.statusT = 0; setStatus(msg); } }, STATUS_WAIT); }
+    else setStatus(msg);
     if (empty) { empty.hidden = !!shown; if (et) et.textContent = shown ? '' : msg + ' Try another word, or show all methods.'; }
   }
   function clearFilters() {
     var q = $('lm-q'); if (q) q.value = '';
     setGroup('all');
   }
-  function onInput(ev) { if (ev.target && ev.target.id === 'lm-q') apply(); }
+  function onInput(ev) { if (ev.target && ev.target.id === 'lm-q') apply(true); }
 
   /* ---------- in-page jumps (the hash is the route, so these scroll and focus instead of changing it) ---------- */
   // smooth for a short hop; a long one (or reduced motion) goes straight there
