@@ -607,7 +607,7 @@
     var snap = D.study && D.study.modules ? snapshot() : null;
     return '<h2 class="h-sub" id="mt-hub-plan-h">Today’s plan</h2><p class="small">Adaptive learning path</p>' +
       '<div id="mt-hub-steps">' + (snap ? stepsHTML(nextSteps(snap, 3), true) : '<p class="small muted">Working out your next steps…</p>') + '</div>' +
-      '<div class="row"><a class="btn btn-primary" href="#mastery">Open the knowledge map</a></div>';
+      '<div class="row"><a class="btn btn-primary" href="#mastery">See why these steps</a></div>';
   }
   function mapLine(snap) {
     var n = (D.modules || []).length, cur = snap.cur && snap.mods[snap.cur.id], where = '';

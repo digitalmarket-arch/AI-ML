@@ -37,6 +37,8 @@
     return t.toLowerCase().replace(/\s+/g, ' ').trim();
   }
   function guideReady() { return !!ST.guide(); } // loaded (ST.ensureGuide) and written
+  var guideTried = false; // the guide file has loaded, written or not (a guide still being written loads as null)
+  function loadGuide() { return ST.ensureGuide().then(function (g) { guideTried = true; return g; }); }
   function lastMod() { var a = A(), id = S().last; return a && id && a.modById[id] ? a.modById[id] : null; }
   function modLabel(m) { var a = A(); return (a && a.modNo ? a.modNo(m) + ' ' : '') + m.title; }
   function modHref(m, tab) { return '#m-' + m.id + '~' + tab; }
@@ -229,7 +231,7 @@
     var refl = m ? { label: 'Reflect tab', href: modHref(m, 'reflect') } : { label: 'Reflect tab (pick a module)', href: '#roadmap' };
     var where = [
       [{ label: 'Daily review', href: '#review' }, 'let the AI quiz you on a module while you answer from memory.'],
-      [refl, 'get feedback on your plain-words explanation, or let the AI question you further on a Manana answer.'],
+      [refl, 'get feedback on your plain-words explanation, or let the AI question you further on one of your step-by-step answers.'],
       [{ label: 'Mixed practice', href: '#mixed' }, 'new practice questions on your weakest topic.'],
       [{ label: 'Mistakes notebook', href: '#mistakes' }, 'ask what wrong idea led to an answer.'],
       [{ label: 'Learning journal', href: '#journal' }, 'get help with something that confused you.']
@@ -288,7 +290,7 @@
     app.onLeave(function () { if (page && page.token === token) { clearTimeout(page.statusT); page = null; } });
     var go = function () { if (page && page.token === token && $('lm-body')) draw(arg); };
     if (guideReady()) go();
-    else ST.ensureGuide().then(go, function (e) { if (page && page.token === token && $('lm-body')) drawError(e); });
+    else loadGuide().then(go, function (e) { if (page && page.token === token && $('lm-body')) drawError(e); });
   }
   ST.addRoute(/^methods(?:~([\w-]+))?$/, viewMethods, 'study');
 
@@ -407,6 +409,8 @@
   }
   function onClick(ev) {
     var t = ev.target && ev.target.closest ? ev.target : null; if (!t || !page) return;
+    var ai = t.closest('[data-ai-ask],[data-ai-copy]');
+    if (ai) { page.aiMode = ai.hasAttribute('data-ai-ask') ? 'gemini' : 'copy'; return; } // study.js then asks for the prompt
     var j = t.closest('[data-jump]');
     if (j) {
       ev.preventDefault(); ev.stopPropagation(); // handled here, not by the site-wide jump handler
@@ -420,15 +424,17 @@
     var bk = t.closest('[data-lm-back]'); if (bk) { goBack(bk); return; }
     if (t.closest('[data-lm-clear]')) { clearFilters(); var q = $('lm-q'); if (q) q.focus(); return; }
     if (t.closest('[data-lm-retry]')) {
-      var body = $('lm-body'), token = page.token; if (body) body.innerHTML = '<p class="muted">Loading the guide…</p>';
-      ST.ensureData().then(function () { if (page && page.token === token) draw(''); }, function (e) { if (page && page.token === token) drawError(e); });
+      // the button goes away while the guide loads: focus waits on the page heading, and comes back to the button if it fails again
+      var body = $('lm-body'), token = page.token; if (body) body.innerHTML = '<p class="muted" role="status">Loading the guide…</p>';
+      focusQuiet(document.querySelector('.lm-page h1'));
+      loadGuide().then(function () { if (page && page.token === token) draw(''); }, function (e) { if (page && page.token === token) { drawError(e); focusQuiet(document.querySelector('.lm-page [data-lm-retry]')); } });
     }
   }
 
   /* ---------- Study room card ---------- */
   function hubLine() {
-    if (!dataLoaded()) return 'Learning methods and a study session to follow.';
     var g = ST.guide(), n = methodsOf(g).length;
+    if (!g && !guideTried) return 'Learning methods and a study session to follow.'; // not loaded (yet)
     if (!g || !n) return 'The guide is being written. Please check back soon.';
     var steps = (Array.isArray(g.routine) ? g.routine : []).filter(function (s) { return s && s.step; });
     var mins = steps.reduce(function (s, x) { var v = Number(x.minutes); return s + (isFinite(v) && v > 0 ? v : 0); }, 0);
@@ -442,8 +448,8 @@
       '<div class="row"><a class="btn" href="#methods">Read how to learn</a></div></article>';
   });
   ST.on('hub', function () {
-    if (dataLoaded()) return;
+    if (guideReady()) return;
     var up = function () { var el = $('lm-hub-line'); if (el) el.innerHTML = hubLine(); };
-    ST.ensureData().then(up, function () {});
+    loadGuide().then(up, function () {});
   });
 })();

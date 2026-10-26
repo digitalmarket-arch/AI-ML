@@ -624,7 +624,8 @@
     var b = ev.target.closest && ev.target.closest('[data-ai-copy],[data-ai-ask]'); if (!b) return;
     var box = b.closest('.ai-box[data-ai]'); if (!box) return;
     var id = box.getAttribute('data-ai'), get = aiPrompts[id]; if (!get) return;
-    var p = get(); if (!p) return;
+    // the prompt function learns which button was pressed: Ask Gemini wants one complete reply, Copy prompt may start a chat
+    var p = get({ mode: b.hasAttribute('data-ai-ask') ? 'gemini' : 'copy' }); if (!p) return;
     if (b.hasAttribute('data-ai-copy')) { copyText(TUTOR + p); return; }
     var out = box.querySelector('.ai-out');
     if (aiAsk[id]) { aiAsk[id](b, out, p); return; }
@@ -656,9 +657,9 @@
   // every answer in a module quiz or level test is remembered (Mistakes notebook, Knowledge map, Mixed practice)
   on('answer', function (r) { if (r && r.q && r.q.id) recordAnswer(r.q.id, !!r.correct, r.sure || 0, r.mode === 'test' ? 'test' : 'quiz', r.picked); });
 
-  // Released to everyone when LIVE is true; until then it shows only in a browser that opted in
-  // (open the site once with ?study=1, or set localStorage 'aimarg.study' to '1'; ?study=0 turns it off again).
-  var LIVE = false;
+  // Released to everyone while LIVE is true. Set it to false to hide the study features again: then they show only
+  // in a browser that opted in (open the site once with ?study=1, or set localStorage 'aimarg.study' to '1'; ?study=0 undoes it).
+  var LIVE = true;
   var on_ = LIVE;
   try {
     if (/[?&]study=1\b/.test(location.search)) localStorage.setItem('aimarg.study', '1');
