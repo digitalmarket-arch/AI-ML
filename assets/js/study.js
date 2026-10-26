@@ -308,7 +308,8 @@
     if (!a) return Promise.reject(new Error('Sign in first to use AI help.'));
     aiModel = Promise.all([import(K.SDK + 'firebase-ai.js'), c.appCheckSiteKey ? import(K.SDK + 'firebase-app-check.js') : Promise.resolve(null)]).then(function (mods) {
       var ai = mods[0], ac = mods[1];
-      if (ac && c.appCheckSiteKey) { try { ac.initializeAppCheck(a, { provider: new ac.ReCaptchaV3Provider(c.appCheckSiteKey), isTokenAutoRefreshEnabled: true }); } catch (e) {} }
+      // App Check proves requests come from this site (Firebase enforces it for AI Logic); reCAPTCHA Enterprise by default, v3 if configured
+      if (ac && c.appCheckSiteKey) { try { ac.initializeAppCheck(a, { provider: c.appCheckProvider === 'v3' ? new ac.ReCaptchaV3Provider(c.appCheckSiteKey) : new ac.ReCaptchaEnterpriseProvider(c.appCheckSiteKey), isTokenAutoRefreshEnabled: true }); } catch (e) {} }
       var inst = ai.getAI(a, { backend: new ai.GoogleAIBackend() });
       return ai.getGenerativeModel(inst, { model: c.model || 'gemini-2.5-flash-lite', generationConfig: { maxOutputTokens: 800, temperature: 0.4 } });
     }, function (e) { aiModel = null; throw e; });

@@ -13,4 +13,4 @@ window.AIM_FIREBASE = {
 /* Optional AI help (Gemini through Firebase AI Logic) for signed-in learners.
    Switch it on only after enabling Firebase AI Logic with the Gemini Developer API in the Firebase console
    (see README.md > "Turn on AI help"). Every learner gets a few AI replies a day; the free tier is shared by the whole site. */
-window.AIM_AI = { enabled: false, model: "gemini-2.5-flash-lite", dailyPerPerson: 10, appCheckSiteKey: "" };
+window.AIM_AI = { enabled: false, model: "gemini-2.5-flash-lite", dailyPerPerson: 10, appCheckSiteKey: "", appCheckProvider: "enterprise" };
