@@ -161,7 +161,7 @@
         reason: (read ? esc(read + ' of ' + cards.length) + ' cards ticked so far.' : 'None of its ' + cards.length + ' cards is ticked yet.') + ' Read each one and press Got it: taking in the teaching fully is the first stage, ' + sansName('sravana') + '.',
         method: sansName('sravana') + ' · chunking' });
       if (needWatch && !watched) s1.todo.push({ id: 'watch', href: '#m-' + mid + '~watch', title: 'Watch the best pick for ' + lbl, short: 'Watch the best pick',
-        reason: 'Finish the best-pick video (or one marked Recommended) and tick it. Listen for the cues on the Watch tab.', method: sansName('sravana') + ' · dual coding' });
+        reason: 'Finish the best-pick video (or one marked Recommended) and tick it.' + (md && Array.isArray(md.sravana) && md.sravana.length ? ' Listen for the cues on the Watch tab.' : ''), method: sansName('sravana') + ' · dual coding' });
     }
     s1.line = marked && read < cards.length ? 'Done: you marked the module complete.' : s1.status === 'done' ? 'Done: lesson cards read' + (needWatch ? ' and the main lesson watched.' : '.') :
       esc(read + ' of ' + cards.length) + ' lesson cards read' + (needWatch ? (watched ? '; main lesson watched.' : '; main lesson not watched yet.') : '.');
@@ -295,7 +295,7 @@
     // 2. open mistakes in the current module
     if (cur && snap.mistakesBy[cur.id]) {
       var nm = snap.mistakesBy[cur.id];
-      add({ id: 'mistakes', href: '#mistakes', title: 'Re-test your mistakes in ' + modLabel(cur), reason: plural(nm, 'question') + ' from this module ' + (nm === 1 ? 'is' : 'are') + ' still wrong. Answer each right on two different days to fix it.', method: 'Error-based learning · personalized deliberate practice' });
+      add({ id: 'mistakes', href: '#mistakes', title: 'Re-test your mistakes in ' + modLabel(cur), short: 'Re-test your mistakes', no: A().modNo(cur), reason: plural(nm, 'question') + ' from this module ' + (nm === 1 ? 'is' : 'are') + ' still wrong. Answer each right on two different days to fix it.', method: 'Error-based learning · personalized deliberate practice' });
     }
     // 3. the current module's first missing stage, or where to go once it is done
     if (info) add(info.path.length ? info.path[0] : forward(snap, cur));
@@ -393,7 +393,7 @@
       'At least ' + RET_CARDS + ' of the module’s review cards reviewed, a predicted recall of ' + pc(RET_AVG) + ' or more, and at least one card you have held for ' + RET_DAYS + ' days. This one takes weeks.'
     ];
     return '<section class="card stack-sm mt-ladder" id="mt-ladder" aria-labelledby="mt-ladder-h"><h2 class="h-sub" id="mt-ladder-h">The five stages</h2>' +
-      '<p class="small">Progressive skill mastery: a module moves from first hearing to lasting memory. Each stage is checked on its own, so you can reach stage 3 before stage 2; “Stage 2 of 5” means stages 1 and 2 are both done.</p>' +
+      '<p class="small"><a href="#methods~38">Progressive skill mastery</a>: a module moves from first hearing to lasting memory. Each stage is checked on its own, so you can reach stage 3 before stage 2; “Stage 2 of 5” means stages 1 and 2 are both done.</p>' +
       '<ol class="mt-ladder-l">' + STAGES.map(function (s, i) { return '<li><strong>' + esc(s.label) + '</strong>' + (s.sa ? ' · ' + sansName(s.sa) : '') + ': ' + rows[i] + '</li>'; }).join('') + '</ol>' +
       '<p class="small muted">The names come from the Vedic way of learning: ' + ST.sans('sravana') + ', ' + ST.sans('manana') + ', ' + ST.sans('abhyasa') + ' and ' + ST.sans('smarana') + '. ' + HOW + '</p></section>';
   }
@@ -410,7 +410,7 @@
         '<p class="small mt-weak-do">What to do: ' + weakLinks(a, mixedOk).map(function (l) { return '<a href="' + esc(l.href) + '">' + esc(l.label) + '</a>'; }).join(' · ') + '</p></li>';
     }).join('') + '</ol>' + (snap.weak.length > SHOW_WEAK ? '<p class="small muted">And ' + plural(snap.weak.length - SHOW_WEAK, 'more weak topic') + ' in the modules below.</p>' : '');
     return '<section class="card stack-sm mt-weakbox" id="mt-weakbox" aria-labelledby="mt-weak-h"><h2 class="h-sub" id="mt-weak-h">Weak spots</h2>' +
-      '<p class="small muted">Knowledge gap detection, from your own quiz answers. A topic is weak when you got less than ' + pc(WEAK_ACC) + ' right (at least ' + WEAK_MIN + ' answers) or it has an open mistake; strong at ' + pc(STRONG_ACC) + ' or more (at least ' + STRONG_MIN + ' answers). Accuracy averages your right tries with how many questions you got right the last time.</p>' +
+      '<p class="small muted"><a href="#methods~33">Knowledge gap detection</a>, from your own quiz answers. A topic is weak when you got less than ' + pc(WEAK_ACC) + ' right (at least ' + WEAK_MIN + ' answers) or it has an open mistake; strong at ' + pc(STRONG_ACC) + ' or more (at least ' + STRONG_MIN + ' answers). Accuracy averages your right tries with how many questions you got right the last time.</p>' +
       body + (list.length && !mixedOk ? '<p class="small muted">Mixed practice opens once you have started two modules.</p>' : '') + '</section>';
   }
   function calHTML(snap) {
@@ -430,14 +430,14 @@
         return '<li><span class="mt-cal-k">' + SURE[k] + '</span><span class="num mt-cal-v">' + (g.n ? 'right ' + g.r + ' of ' + g.n + ' (' + pc(g.r / g.n) + ')' : 'not used') + '</span></li>';
       }).join('') + '</ul><p class="small">' + esc(meaning) + '</p><p class="small muted">From the last rated answer to each of ' + plural(c.n, 'question') + '.</p>';
     }
-    return '<section class="card stack-sm mt-calbox" id="mt-cal" aria-labelledby="mt-cal-h"><h2 class="h-sub" id="mt-cal-h">How sure you were</h2><p class="small muted">Metacognitive learning: knowing what you know.</p>' + body + '</section>';
+    return '<section class="card stack-sm mt-calbox" id="mt-cal" aria-labelledby="mt-cal-h"><h2 class="h-sub" id="mt-cal-h">How sure you were</h2><p class="small muted"><a href="#methods~12">Metacognitive learning</a>: knowing what you know.</p>' + body + '</section>';
   }
   function retHTML(snap) {
     var r = snap.ret, body;
     if (r.n < RET_SHOW) body = '<p class="small">Predicted recall appears after you have reviewed ' + RET_SHOW + ' cards in <a href="#review">Daily review</a>. You have reviewed ' + r.n + ' so far.</p>';
     else body = '<div class="lab-stats"><div class="stat"><div class="k">Predicted recall</div><div class="v" id="mt-ret-v">' + pc(r.avg) + '</div></div><div class="stat"><div class="k">Cards reviewed</div><div class="v">' + r.n + '</div></div><div class="stat"><div class="k">Held ' + RET_DAYS + '+ days</div><div class="v">' + snap.long + '</div></div></div>' +
       '<p class="small">The chance you would remember a card if asked today, averaged over the cards you have reviewed. It falls a little each day and rises when you review.</p>';
-    return '<section class="card stack-sm mt-retbox" id="mt-ret" aria-labelledby="mt-ret-h"><h2 class="h-sub" id="mt-ret-h">Memory</h2><p class="small muted">Long-term retention tracking with ' + sansName('smarana') + '.</p>' + body +
+    return '<section class="card stack-sm mt-retbox" id="mt-ret" aria-labelledby="mt-ret-h"><h2 class="h-sub" id="mt-ret-h">Memory</h2><p class="small muted"><a href="#methods~40">Long-term retention tracking</a> with ' + sansName('smarana') + '.</p>' + body +
       '<div class="row"><a class="btn btn-sm" href="#review">' + (snap.today ? 'Daily review: ' + plural(snap.today, 'card') + ' today' : 'Open daily review') + '</a></div></section>';
   }
   function countStage(snap, i) { return (D.modules || []).filter(function (m) { return snap.mods[m.id].stages[i].status === 'done'; }).length; }
@@ -475,7 +475,7 @@
     var snap = snapshot();
     root.innerHTML = (page.fail ? '<div class="callout" role="alert">' + esc(page.fail) + ' Reflect stages and topics show again when it loads.</div>' : '') +
       '<section class="card stack mt-next" id="mt-next" aria-labelledby="mt-next-h"><div class="stack-sm"><h2 class="h-sub" id="mt-next-h">Your next steps</h2>' +
-      '<p class="small muted">An adaptive learning path: worked out from what you have done, so it changes as you study. Each step says why.</p></div>' + stepsHTML(nextSteps(snap, 3)) + '</section>' +
+      '<p class="small muted">An <a href="#methods~26">adaptive learning path</a>: worked out from what you have done, so it changes as you study. Each step says why.</p></div>' + stepsHTML(nextSteps(snap, 3)) + '</section>' +
       summaryHTML(snap) + weakHTML(snap) + ladderHTML() + modsHTML(snap) +
       '<div class="grid mt-pair">' + calHTML(snap) + retHTML(snap) + '</div>';
   }

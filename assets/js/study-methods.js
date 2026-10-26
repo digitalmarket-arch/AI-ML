@@ -200,10 +200,10 @@
         '</ul></div></details>' +
       '</div>' +
       groups.map(function (gr) {
-        return '<section class="stack lm-group" data-lm-group="' + esc(gr.g.id) + '" aria-labelledby="lm-g-' + esc(gr.g.id) + '">' +
+        return '<div class="stack lm-group" data-lm-group="' + esc(gr.g.id) + '">' +
           '<div class="stack-sm"><h3 class="lm-group-h" id="lm-g-' + esc(gr.g.id) + '">' + esc(gr.g.title) + '</h3>' +
           '<p class="small muted">' + esc(range(gr.items)) + (gr.g.sub ? '. ' + esc(gr.g.sub) : '') + '</p></div>' +
-          '<div class="lm-cards">' + gr.items.map(function (x) { return cardHTML(x, m); }).join('') + '</div></section>';
+          '<div class="lm-cards">' + gr.items.map(function (x) { return cardHTML(x, m); }).join('') + '</div></div>';
       }).join('') +
       '<div class="empty stack-sm lm-empty" id="lm-empty" hidden><p id="lm-empty-t"></p><div><button type="button" class="btn btn-sm" data-lm-clear>Show all methods</button></div></div>' +
       '</section>';
@@ -216,7 +216,7 @@
   function aiHTML(meths, m) {
     var refl = m ? { label: 'Reflect tab', href: modHref(m, 'reflect') } : { label: 'Reflect tab (pick a module)', href: '#roadmap' };
     var where = [
-      [{ label: 'Daily review', href: '#review' }, 'Ask AI to quiz me on a module, from memory.'],
+      [{ label: 'Daily review', href: '#review' }, 'let the AI quiz you on a module while you answer from memory.'],
       [refl, 'check your plain-words explanation, or let the AI question you further.'],
       [{ label: 'Mixed practice', href: '#mixed' }, 'new practice questions on your weakest topic.'],
       [{ label: 'Mistakes notebook', href: '#mistakes' }, 'ask why an answer was wrong.'],
@@ -355,8 +355,10 @@
   function onInput(ev) { if (ev.target && ev.target.id === 'lm-q') apply(); }
 
   /* ---------- in-page jumps (the hash is the route, so these scroll and focus instead of changing it) ---------- */
+  // smooth for a short hop; a long one (or reduced motion) goes straight there
   function scrollToEl(el, block) {
-    try { el.scrollIntoView({ block: block || 'start', behavior: reduceMQ && reduceMQ.matches ? 'auto' : 'smooth' }); } catch (e) { el.scrollIntoView(); }
+    var far = Math.abs(el.getBoundingClientRect().top) > 2.5 * (window.innerHeight || 800);
+    try { el.scrollIntoView({ block: block || 'start', behavior: far || (reduceMQ && reduceMQ.matches) ? 'instant' : 'smooth' }); } catch (e) { el.scrollIntoView(); }
   }
   function focusQuiet(el) { if (!el) return; if (!el.hasAttribute('tabindex') && !/^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/.test(el.tagName)) el.setAttribute('tabindex', '-1'); try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); } }
   function setOpen(card, open) {
@@ -408,18 +410,18 @@
 
   /* ---------- Study room card ---------- */
   function hubLine() {
-    if (!dataLoaded()) return 'What each method is, how strong the evidence is, and where on this site to use it.';
+    if (!dataLoaded()) return 'Learning methods and a study session to follow.';
     var g = ST.guide(), n = methodsOf(g).length;
     if (!g || !n) return 'The guide is being written. Please check back soon.';
     var steps = (Array.isArray(g.routine) ? g.routine : []).filter(function (s) { return s && s.step; });
     var mins = steps.reduce(function (s, x) { var v = Number(x.minutes); return s + (isFinite(v) && v > 0 ? v : 0); }, 0);
-    return esc(plural(n, 'method')) + ', each with how strong the evidence is and where to use it here' +
-      (steps.length ? ', and a study session of ' + esc(plural(steps.length, 'step')) + (mins ? ' (about ' + mins + ' minutes)' : '') + ' that uses them.' : '.');
+    return esc(plural(n, 'method')) + (steps.length ? ' · a ' + steps.length + '-step study session' + (mins ? ', about ' + mins + ' minutes' : '') : '') + '.';
   }
   ST.addHubCard(90, function () {
     return '<article class="card lm-hub" aria-labelledby="lm-hub-h"><h2 class="h-sub" id="lm-hub-h">How to learn</h2>' +
       '<p class="small">Learning science, ' + ST.sans('sravana', { meaning: false }) + ', ' + ST.sans('manana', { meaning: false }) + ' and other Vedic practices, and AI help</p>' +
-      '<p class="small muted" id="lm-hub-line">' + hubLine() + '</p>' +
+      '<p class="small muted">What each method is, how strong the evidence for it is, and where on this site to use it.</p>' +
+      '<p id="lm-hub-line">' + hubLine() + '</p>' +
       '<div class="row"><a class="btn" href="#methods">Read how to learn</a></div></article>';
   });
   ST.on('hub', function () {

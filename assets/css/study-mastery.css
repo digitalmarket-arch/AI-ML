@@ -15,7 +15,6 @@
 /* Home: Today card (short, so the rest of Home stays near) */
 .mt-today { gap: 10px; }
 .mt-today-top { gap: 4px 12px; }
-.mt-today-links { color: var(--muted); }
 .mt-invite { margin: 0; color: var(--muted); }
 .mt-today-map { margin-left: 4px; }
 @media (max-width: 560px) {
@@ -79,6 +78,7 @@
 .mt-pair > section { height: auto; }
 
 /* My progress: stats that link to their pages */
+.mt-stats { grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); }
 a.mt-stat { display: block; text-decoration: none; color: var(--ink); border: 1px solid transparent; }
 a.mt-stat:hover { border-color: var(--indigo); }
 a.mt-stat .k, a.mt-stat .v { display: block; }

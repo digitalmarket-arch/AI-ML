@@ -77,7 +77,7 @@
 
 /* AI help */
 .lm-ai { scroll-margin-top: 10px; }
-.lm-ai-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); }
+.lm-ai-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); align-items: start; }
 .lm-ai-facts, .lm-ai-where { display: flex; flex-direction: column; gap: 8px; }
 .lm-ai-try { border-top: 1px solid var(--line); padding-top: 14px; }
 .lm-pick { display: flex; flex-direction: column; gap: 4px; max-width: 520px; }
