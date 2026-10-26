@@ -642,7 +642,7 @@
   function viewHub() {
     var A = app();
     A.setView('<div class="wrap stack-lg">' + A.crumbs([['Home', 'home'], ['Study room']]) +
-      '<header class="stack-sm"><h1>Study room</h1><p class="lede muted prose">Tools built on well-researched learning methods (recall instead of rereading, spaced review, mixed practice, reflection and focused sessions), alongside the Vedic study practices of ' + sans('smarana', { meaning: false }) + ', ' + sans('manana', { meaning: false }) + ' and ' + sans('dharana', { meaning: false }) + ' alongside them.</p>' +
+      '<header class="stack-sm"><h1>Study room</h1><p class="lede muted prose">Tools built on well-researched learning methods (recall instead of rereading, spaced review, mixed practice, reflection and focused sessions), alongside the Vedic study practices of ' + sans('smarana', { meaning: false }) + ', ' + sans('manana', { meaning: false }) + ' and ' + sans('dharana', { meaning: false }) + '.</p>' +
       '<p class="prose"><strong>New here?</strong> Open a module and read its lesson cards first. Each card you tick goes into Daily review; come back here when you have done a little.</p>' +
       '<div class="row"><a class="btn" href="#methods">How to learn: the 40 methods</a></div></header>' +
       '<div class="grid study-hub" id="study-hub"><p class="muted" role="status">Loading…</p></div></div>', 'Study room');

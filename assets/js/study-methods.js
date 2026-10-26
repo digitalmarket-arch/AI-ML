@@ -1,5 +1,6 @@
 /* AI Marg study feature: How to learn: the 40 learning methods and where the site uses each.
-   Uses window.AIM_STUDY (assets/js/study.js) and window.AIM_APP (assets/js/app.js).
+   Uses window.AIM_STUDY (assets/js/study.js) and window.AIM_APP (assets/js/app.js). study.js loads this file for #methods
+   and the Study room; the guide itself (data/study/guide.js) is loaded with ST.ensureGuide when the page needs it.
    Route #methods, with optional deep links: #methods~16 or #methods~sravana (one method), #methods~vedic (a group),
    #methods~routine (the study session) and #methods~ai (AI help). In-page jumps use data-jump, handled here. */
 (function () {
@@ -10,6 +11,7 @@
   var A = function () { return window.AIM_APP; };
   var S = function () { return C.state; };
   var $ = function (id) { return document.getElementById(id); };
+  var STATUS_WAIT = 600; // while the learner types a search, the result count is announced once they pause
 
   var GROUPS = [
     { id: 'science', btn: 'Science-based', title: 'Science-based methods', sub: 'From learning science: research on how memory and attention work.' },
@@ -34,7 +36,7 @@
     try { t = t.normalize('NFD').replace(/[̀-ͯ]/g, ''); } catch (e) {}
     return t.toLowerCase().replace(/\s+/g, ' ').trim();
   }
-  function dataLoaded() { return !!(D.study); }
+  function guideReady() { return !!ST.guide(); } // loaded (ST.ensureGuide) and written
   function lastMod() { var a = A(), id = S().last; return a && id && a.modById[id] ? a.modById[id] : null; }
   function modLabel(m) { var a = A(); return (a && a.modNo ? a.modNo(m) + ' ' : '') + m.title; }
   function modHref(m, tab) { return '#m-' + m.id + '~' + tab; }
@@ -208,31 +210,41 @@
       '<div class="empty stack-sm lm-empty" id="lm-empty" hidden><p id="lm-empty-t"></p><div><button type="button" class="btn btn-sm" data-lm-clear>Show all methods</button></div></div>' +
       '</section>';
   }
+  // whether Ask Gemini is there for this learner; redrawn when sign-in changes (ST.on('signin') below). The Ask buttons
+  // themselves show how many replies are left, so this line names no number that could go out of date.
   function aiStateHTML() {
-    if (ST.aiOn()) { var left = ST.aiLeft(); return 'You are signed in, so <strong>Ask Gemini</strong> buttons appear next to Copy prompt. You have ' + esc(plural(left, 'reply', 'replies')) + ' left today.'; }
+    if (ST.aiOn()) return 'You are signed in, so <strong>Ask Gemini</strong> buttons appear next to Copy prompt. Each one shows how many replies you have left today.';
     if (ST.aiOffered()) return '<a href="#account">Sign in with Google</a> to see <strong>Ask Gemini</strong> buttons next to Copy prompt.';
-    return 'Ask Gemini is switched off on this site at the moment, so you will see only Copy prompt. It works just as well.';
+    return 'Ask Gemini is switched off on this site at the moment, so you will see only Copy prompt. Copy prompt works with any AI app you already use.';
   }
+  function drawAIState() {
+    var el = $('lm-ai-state'); if (!el) return;
+    var html = aiStateHTML(); if (el._lm === html) return; // unchanged: leave it (and any focus inside it) alone
+    var had = el.contains(document.activeElement);
+    el.innerHTML = html; el._lm = html;
+    if (had) { var f = el.querySelector('a') || $('lm-ai-h'); if (f) focusQuiet(f); }
+  }
+  ST.on('signin', drawAIState);
   function aiHTML(meths, m) {
     var refl = m ? { label: 'Reflect tab', href: modHref(m, 'reflect') } : { label: 'Reflect tab (pick a module)', href: '#roadmap' };
     var where = [
       [{ label: 'Daily review', href: '#review' }, 'let the AI quiz you on a module while you answer from memory.'],
-      [refl, 'check your plain-words explanation, or let the AI question you further.'],
+      [refl, 'get feedback on your plain-words explanation, or let the AI question you further on a Manana answer.'],
       [{ label: 'Mixed practice', href: '#mixed' }, 'new practice questions on your weakest topic.'],
-      [{ label: 'Mistakes notebook', href: '#mistakes' }, 'ask why an answer was wrong.'],
+      [{ label: 'Mistakes notebook', href: '#mistakes' }, 'ask what wrong idea led to an answer.'],
       [{ label: 'Learning journal', href: '#journal' }, 'get help with something that confused you.']
     ];
     return '<section class="card stack lm-ai" id="lm-ai" aria-labelledby="lm-ai-h" data-lm-target data-origin="AI help on this site">' +
       '<div class="stack-sm"><h2 class="h-sub" id="lm-ai-h" tabindex="-1" data-lm-focus>AI help on this site</h2>' + backBtn() +
-      '<p class="prose">Some tools can pass your work to an AI tutor: to quiz you, check an explanation, question you further or explain a mistake. AI help is always optional. Every tool on this site also works without it.</p></div>' +
+      '<p class="prose">Some tools can pass your work to an AI tutor: to quiz you, give feedback on an explanation, question you further or explain a mistake. AI help is always optional. Every tool on this site also works without it.</p></div>' +
       '<div class="lm-ai-grid">' +
         '<div class="card-flat stack-sm"><h3 class="h-sub3">Copy prompt: free, with any AI app</h3>' +
-          '<p class="small">Press <strong>Copy prompt for your AI app</strong>. The site writes the whole request for you: a short tutor instruction, the lesson or question, and your own answer when the tool is about it. Paste it into ChatGPT, Gemini, Claude or any AI chat app you already use. It costs nothing here and needs no sign-in. The app you paste into has its own limits and privacy rules, so read what you paste first.</p></div>' +
+          '<p class="small">Press <strong>Copy prompt for your AI app</strong>. The site writes the whole request for you: a short tutor instruction, the lesson or question, and your own answer when the tool is about it. A prompt that quizzes you leaves the answers out, so you still answer from memory. Paste it into ChatGPT, Gemini, Claude or any AI chat app you already use. It costs nothing here and needs no sign-in. The app you paste into has its own limits and privacy rules, so read what you paste first.</p></div>' +
         '<div class="card-flat stack-sm"><h3 class="h-sub3">Ask Gemini: for signed-in learners</h3>' +
           '<p class="small" id="lm-ai-state">' + aiStateHTML() + '</p>' +
           '<ul class="small lm-ai-facts">' +
-            '<li><strong>A few replies a day.</strong> Each signed-in learner gets a small number every day; the button shows how many are left. The free allowance is shared by everyone on the site, so on a busy day it can run out early. Copy prompt still works then.</li>' +
-            '<li><strong>What is sent to Google.</strong> Ask Gemini sends only the prompt: the same text Copy prompt gives you, which can include your own writing, such as an explanation or a journal note. It goes to Google\'s Gemini model through Firebase, the Google service that also runs sign-in here. Google\'s terms for its free Gemini service allow it to use what is sent to improve its products, and people at Google may read some of it. So never type personal details such as your phone number, address, Aadhaar number or a password into a box you send to AI.</li>' +
+            '<li><strong>A few replies a day.</strong> Each signed-in learner gets a small number every day, counted on all your devices together; the button shows how many are left. A reply counts only when it arrives. The free allowance is shared by everyone on the site, so on a busy day it can run out early. Copy prompt still works then.</li>' +
+            '<li><strong>What is sent to Google.</strong> Ask Gemini sends the prompt the tool writes: much the same text Copy prompt gives you, which can include your own writing, such as an explanation or a journal note. Some prompts also carry the course\'s own answers, so Gemini can check you without showing them to you straight away. It goes to Google\'s Gemini model through Firebase, the Google service that also runs sign-in here. Google\'s terms for its free Gemini service allow it to use what is sent to improve its products, and people at Google may read some of it. So never type personal details such as your phone number, address, Aadhaar number or a password into a box you send to AI.</li>' +
             '<li><strong>AI can be wrong.</strong> It can sound sure and still make mistakes, or explain an idea differently from the lesson. Check its answer against the lesson cards, and trust the site\'s own quizzes and model answers first.</li>' +
           '</ul></div>' +
       '</div>' +
@@ -240,44 +252,43 @@
         return '<li>' + linkHTML(w[0]) + ': ' + esc(w[1]) + '</li>';
       }).join('') + '</ul></div>' +
       (meths.length ? '<div class="stack-sm lm-ai-try"><h3 class="h-sub3">Try it: ask an AI tutor to coach you in one method</h3>' +
-        '<p class="small muted">Pick a method. The prompt asks the AI for three short steps to use it in the next 15 minutes' + (m ? ' on ' + esc(modLabel(m)) : '') + ', then checks on you one question at a time.</p>' +
+        '<p class="small muted" id="lm-ai-try-d">Pick a method. The prompt asks the AI for three short steps to use it in the next 15 minutes' + (m ? ' on ' + esc(modLabel(m)) : '') + '. With Copy prompt, the AI app then checks on you one question at a time' +
+          (ST.aiOffered() ? '; Ask Gemini gives the steps here, with one question to check yourself afterwards' : '') + '.</p>' +
         '<div class="lm-pick"><label for="lm-ai-pick">Method</label><select id="lm-ai-pick">' + meths.map(function (x) {
           return '<option value="' + esc(String(x.n)) + '">' + esc(x.n + '. ' + plainName(x)) + '</option>';
         }).join('') + '</select></div>' +
-        ST.aiHTML('lm-ai-try', 'Ask Gemini to coach me') + '</div>' : '') +
+        ST.aiHTML('lm-ai-try', 'Ask Gemini to coach me', 'coaching in the method you picked') + '</div>' : '') +
       '</section>';
   }
-  function coachPrompt(x, m) {
+  // mode 'copy': for a chat in another AI app, which can wait for the learner's answers; 'gemini': one reply on this page,
+  // where the learner cannot answer back, so it ends with a question to ask themselves instead
+  function coachPrompt(x, m, mode) {
     if (!x) return '';
     return 'I am a beginner learning AI and machine learning on AI Marg, a free course site. Coach me to use one study method for the next 15 minutes.\n\n' +
       'Method: ' + plainName(x) + '\n' +
       (x.short ? 'In short: ' + x.short + '\n' : '') +
       (x.tryNow ? 'A first try on the site: ' + x.tryNow + '\n' : '') +
-      (m ? 'Topic: the module "' + modLabel(m) + '". Base your steps and question on it.\n' : 'Topic: ask me first which topic I am studying.\n') +
-      '\nGive me 3 short steps to do now. Then ask me one question at a time to check that I am using the method well, and wait for my answer before you go on.';
+      (m ? 'Topic: the module "' + modLabel(m) + '". Base your steps and question on it.\n' : mode === 'gemini' ? 'Topic: any beginner topic in AI and machine learning; keep the steps general enough for any module.\n' : 'Topic: ask me first which topic I am studying.\n') +
+      (mode === 'gemini' ? '\nGive me 3 short steps to do now. Then give me one short question to ask myself afterwards, to check that I used the method well. I cannot reply to you here, so do not wait for an answer.'
+        : '\nGive me 3 short steps to do now. Then ask me one question at a time to check that I am using the method well, and wait for my answer before you go on.');
   }
 
   /* ---------- the page ---------- */
-  var page = null; // { token, meths, byN, m, group, last: {from, to} }
+  var page = null; // { token, meths, byN, m, group, last: {from, to}, cards, statusT (search announcement timer), aiMode }
   function viewMethods(match) {
     var arg = match && match[1] ? String(match[1]) : '';
-    var app = A();
-    if (!app) { // the first page drawn on load runs before AIM_APP exists: draw just after
-      setTimeout(function () { var h = (location.hash || '').replace(/^#/, ''); if (A() && /^methods(~|$)/.test(h)) viewMethods(match); }, 0);
-      return;
-    }
-    var token = {};
-    page = { token: token, meths: [], byN: {}, m: lastMod(), group: 'all', last: null, cards: [] };
+    var app = A(), token = {};
+    page = { token: token, meths: [], byN: {}, m: lastMod(), group: 'all', last: null, cards: [], statusT: 0, aiMode: 'copy' };
     app.setView('<div class="wrap stack-lg lm-page">' + app.crumbs([['Home', 'home'], ['Study room', 'study'], ['How to learn']]) +
       '<header class="stack-sm"><h1>How to learn</h1></header>' +
-      '<div id="lm-body" class="stack-lg">' + (dataLoaded() ? '' : '<p class="muted">Loading the guide…</p>') + '</div></div>', 'How to learn');
+      '<div id="lm-body" class="stack-lg">' + (guideReady() ? '' : '<p class="muted" role="status">Loading the guide…</p>') + '</div></div>', 'How to learn');
     var root = app.main.querySelector('.lm-page');
     root.addEventListener('click', onClick);
     root.addEventListener('input', onInput);
-    app.onLeave(function () { if (page && page.token === token) page = null; });
+    app.onLeave(function () { if (page && page.token === token) { clearTimeout(page.statusT); page = null; } });
     var go = function () { if (page && page.token === token && $('lm-body')) draw(arg); };
-    if (dataLoaded()) go();
-    else ST.ensureData().then(go, function (e) { if (page && page.token === token && $('lm-body')) drawError(e); });
+    if (guideReady()) go();
+    else ST.ensureGuide().then(go, function (e) { if (page && page.token === token && $('lm-body')) drawError(e); });
   }
   ST.addRoute(/^methods(?:~([\w-]+))?$/, viewMethods, 'study');
 
@@ -307,7 +318,8 @@
       return { x: x, el: el, text: norm([x.n, x.name, x.roman, x.sa, x.short, x.what, ev.note, (EVID[ev.level] || [''])[0], x.tryNow, gt,
         methodLinks(x, m).map(function (l) { return l.label; }).join(' ')].join(' ')) };
     });
-    ST.bindAI(body, 'lm-ai-try', function () { var sel = $('lm-ai-pick'); return coachPrompt(sel ? page && page.byN[Number(sel.value)] : null, m); });
+    // which button was pressed (Copy prompt or Ask Gemini) is noted by onClick, which runs before study.js handles the click
+    ST.bindAI(body, 'lm-ai-try', function () { var sel = $('lm-ai-pick'); return page ? coachPrompt(sel ? page.byN[Number(sel.value)] : null, m, page.aiMode) : ''; });
     // a deep link: one method, a group, or a section
     if (!arg) return;
     if (GROUP[arg]) { setGroup(arg); return; }

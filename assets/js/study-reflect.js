@@ -196,7 +196,7 @@
         if (rate) rate.hidden = true;
         done.innerHTML = statusHTML(sid);
       } else if (g < 2) { // Again: read the card again and try once more
-        done.innerHTML = '<span aria-hidden="true">↻ </span>Not yet, and that is useful to know. Close the recall check to read the card again, then try once more. It is also in today\'s <a href="#review">Daily review</a>.';
+        done.innerHTML = '<span aria-hidden="true">↻ </span>Not yet, and that is useful to know. Close the recall check to read the card again, then try once more. The card is in your <a href="#review">Daily review</a>, so it will come back.';
       } else {
         if (rate) rate.hidden = true;
         done.innerHTML = '<span aria-hidden="true">✓ </span>Saved. ' + esc(dueText(entry, true)) + ' Remembering it after a gap is what makes it stick. <a href="#review">Daily review</a>';
