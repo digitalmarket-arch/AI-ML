@@ -159,20 +159,10 @@
     var b = cover.querySelector('[data-rf="reveal"]');
     if (b) { b.setAttribute('aria-expanded', String(on)); setBtnText(b, on ? 'Hide the card again' : 'Reveal the card'); }
   }
-  // A rating here comes right after reading, so it is a learning step, not a spaced review: Again keeps the question due in
-  // today's Daily review; Hard, Good or Easy bring it back tomorrow, whatever the grade; nothing is added to the review log.
-  // A question already in spaced review keeps the schedule Daily review gave it, and one the learner removed stays out.
-  function learnStep(id, g) {
-    var c = srsOf(id);
-    if (c && (c.off || c.reps)) return c;
-    if (ST.learnStep) return ST.learnStep(id, g); // the scheduler's own learning step, once study.js has one (same rules)
-    if (!c) ST.enroll([id]);
-    if (g < 2) { C.logActivity(); C.save(); return srsOf(id); }
-    // the scheduler's one-day first step is what a first review graded Hard gives; its review-log entry is taken back
-    var e = ST.schedule(id, 2);
-    ST.logReview(-1, -1); C.save();
-    return e;
-  }
+  // A rating here comes right after reading, so it is a learning step, not a spaced review (the scheduler's ST.learnStep):
+  // Again keeps the question due in today's Daily review; Hard, Good or Easy bring it back tomorrow, whatever the grade, and
+  // record how hard it felt; nothing is added to the review log. A question already in spaced review keeps the schedule
+  // Daily review gave it, and one the learner removed stays out (ST.learnStep leaves both unchanged).
   document.addEventListener('click', function (ev) {
     if (!ev.target.closest) return;
     // open or close a recall check: the card text above it hides or comes back, and the check stays where it was on screen
@@ -201,7 +191,7 @@
       var sid = rcId(box.getAttribute('data-mid'), box.getAttribute('data-rf-check'));
       var rate = box.querySelector('.rf-rate'), done = box.querySelector('.rf-rated');
       if (!done) return;
-      var before = rcState(sid), entry = before === 'new' ? learnStep(sid, g) : null;
+      var before = rcState(sid), entry = before === 'new' ? ST.learnStep(sid, g) : null;
       if (!entry || entry.off) { // taken out of Daily review, or put into spaced review on another device meanwhile
         if (rate) rate.hidden = true;
         done.innerHTML = statusHTML(sid);

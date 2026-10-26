@@ -12,6 +12,7 @@ The site is interactive:
 - **81 original diagrams** in the module readings (about 3 per module), drawn for this course with Indian examples, each checked by a second reviewer who recomputed the numbers. They follow light and dark mode and load only when a module is opened.
 - **Publish and share projects:** upload a finished project to your own GitHub repository from the project page (with a README written for you), then share it on LinkedIn with a ready-made post.
 - **Lesson cards.** Each module's reading is split into short cards (the big idea, goals, study plan, key terms, an Indian example, common mistakes and self-check tasks). Press **Got it** after each card; the ticks count towards the module's progress.
+- **A Study room built on research-backed learning methods and Vedic study practices:** Daily review (spaced repetition, Smaraṇa), recall and Why? checks on lesson cards, a Reflect tab per module (Feynman box, Manana questions, Japa rounds, Nididhyāsana), Śravaṇa listening cues and summaries, focus sessions (Dhāraṇā, with an optional Dhyāna breath and a Vairāgya distraction-free mode), a Svādhyāya journal, mixed practice with confidence ratings, a mistakes notebook, a knowledge map with next steps, and a **How to learn** page that explains all 40 methods and how strong the evidence is for each.
 - **Progress tracking, notes, a study planner and a jargon glossary** in plain English. Everything is saved in your own browser, with optional Google sign-in to back up and sync progress across devices. No ads and no tracking.
 
 **What's inside:** 4 levels, 27 modules, 428 free resources (409 with verified links), 350 quiz questions, 81 auto-graded coding exercises, 27 labs, 18 projects and 180 glossary terms. All text on the site is in English; Hindi and Hinglish appear only in the videos.
@@ -64,6 +65,25 @@ Without this, the site works fully and each learner's progress stays in their ow
 These config values are not secret (every Firebase web app shows them to the browser); the rules from step 6 are what keep each learner's data private. The free plan allows about 50,000 reads and 20,000 writes a day. That covers a few hundred daily learners because the site syncs a few seconds after a change (at most twice a minute), sends a playing video's position only every few minutes or when the learner switches away from the tab, and skips the write when nothing has changed.
 
 **Privacy:** the cloud copy holds each learner's course progress and Google account ID; their name and email are visible to you in the Firebase console. Learners can delete their cloud copy themselves from the Account page; that removes their progress but not their sign-in record, so if someone asks you to delete everything, also delete them under **Authentication → Users**. If you run this for real users in India, keep a short privacy notice in line with the Digital Personal Data Protection Act, 2023 (what you collect, why, and how to ask for deletion).
+
+### Turn on AI help: the "Ask Gemini" buttons (optional, free tier, about 15 minutes)
+
+Every learner already gets **Copy prompt for your AI app** next to the study tools: it copies a ready-made prompt for ChatGPT, Gemini, Claude or any AI app (₹0, nothing to set up). This step adds an **Ask Gemini** button inside the site for signed-in learners, using Google's Gemini through your Firebase project (Firebase AI Logic). Sign-in (above) must be on first.
+
+1. In the [Firebase console](https://console.firebase.google.com), open your project, then **Build → AI Logic → Get started**, and choose the **Gemini Developer API** (it works on the free Spark plan, with no billing). Follow the guided steps. If they offer to set up App Check, accept.
+2. Create a reCAPTCHA key (it proves requests really come from your site): open the [Google Cloud console](https://console.cloud.google.com) with the same project selected, search for **reCAPTCHA** in the top bar, press **Create key**, choose **Website**, add the domain `digitalmarket-arch.github.io`, and create it. Copy the key ID. The free tier covers 10,000 checks a month without billing.
+3. Back in Firebase, open **Build → App Check → Apps**, pick your web app, choose **reCAPTCHA Enterprise**, paste the key and save. Under **App Check → APIs**, check that **Firebase AI Logic** is **Enforced** (Firebase now turns this on for AI Logic).
+4. Edit `assets/js/firebase-config.js` and change the `window.AIM_AI` line to:
+
+   ```js
+   window.AIM_AI = { enabled: true, model: "gemini-2.5-flash-lite", dailyPerPerson: 10, appCheckSiteKey: "PASTE-YOUR-KEY-ID", appCheckProvider: "enterprise" };
+   ```
+
+   Commit the change. A minute later, signed-in learners see **Ask Gemini** buttons (for example on a module's **Reflect** tab).
+
+**Limits and cost:** the free tier gives the whole site a limited number of Gemini replies a day (the limit is per project, not per learner; check the current figure for your project in [Google AI Studio](https://aistudio.google.com)). `dailyPerPerson` stops one learner from using it all; it is counted in the learner's browser, so App Check is what really protects the quota. When the quota runs out, learners see a plain message and can still use Copy prompt. On the Spark plan there is no bill. If Google retires the model, change `model` to a current one.
+
+**Privacy:** whatever a learner sends with Ask Gemini goes to Google, and on the free tier Google may use it to improve its products. The site says this next to the buttons; mention it in your privacy notice too.
 
 ### Preview on your own computer
 

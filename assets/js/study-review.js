@@ -9,10 +9,9 @@
   var A = function () { return window.AIM_APP; };
   var S = function () { return C.state; };
   var $ = function (id) { return document.getElementById(id); };
-  var noop = function () {};
 
   var READ_ORDER = ['overview', 'outcomes', 'studySteps', 'keyTerms', 'indiaExample', 'commonMistakes', 'selfCheck'];
-  var NEW_DEFAULT = 15, NEW_MIN = 5, NEW_MAX = 50;
+  var NEW_MIN = 5, NEW_MAX = 50, NEW_STEP = 5; // the choices of the "New cards a day" setting (study.js keeps the value within 5 to 50)
   var AGAIN_GAP = 3;          // a forgotten card comes back after this many other cards (or at the end)
   var MIN_CARDS = 5;          // reviewed cards needed before the predicted recall is shown
   var MIN_WEEK_REVIEWS = 10;  // reviews in the last 8 weeks needed before the weekly chart is shown
@@ -24,29 +23,10 @@
     if (!p.study || typeof p.study !== 'object' || Array.isArray(p.study)) p.study = {};
     return p.study;
   }
-  function newPerDay() {
-    var n = Math.round(Number(prefs().newPerDay));
-    return isFinite(n) && n >= NEW_MIN && n <= NEW_MAX ? n : NEW_DEFAULT;
-  }
-  // new cards this device graded for the first time today (kept only to catch the case below)
-  function newSeenToday() {
-    var x = prefs().newToday;
-    return x && x.day === ST.today() && Array.isArray(x.ids) ? x.ids.filter(function (i) { return typeof i === 'string'; }) : [];
-  }
-  function setNewSeen(ids) { prefs().newToday = { day: ST.today(), ids: ids.slice(-200) }; }
-  // New cards used today, on all of the learner's devices: cards graded once, today (from the synced review cards,
-  // ST.newGradedOn), plus new cards graded more than once today, which ST.newGradedOn no longer sees (forgotten, then
-  // remembered in the same session): those this device graded as new today, and, from any device, cards whose first
-  // success is today after only Again grades. (The last rule also counts a card first forgotten on an earlier day; that
-  // errs on the side of fewer new cards, which is what the limit is for.)
-  function newUsedToday() {
-    var st = S(), t = ST.today(), mine = {};
-    newSeenToday().forEach(function (id) { mine[id] = 1; });
-    return ST.newGradedOn(t) + Object.keys(st.srs).filter(function (id) {
-      var c = st.srs[id];
-      return c && c.reps > 1 && c.last === t && (mine[id] || (c.first === t && c.reps === c.lapses + 1));
-    }).length;
-  }
+  // The new-card limit is study.js's one rule, shared with every page that counts cards: ST.newPerDay() is the setting,
+  // ST.newLeftToday() what is left of it today on all the learner's devices (a new card counts on the day of its first
+  // grade, whatever the grade, so one forgotten and then remembered in the same session still counts once).
+  function newPerDay() { return ST.newPerDay(); }
 
   /* ---------- study content: a module's recall questions are loaded when one of its cards is needed ---------- */
   var modState = {}; // moduleId -> 'ok' (loaded), 'none' (no study content yet), 'fail' (did not load; tried again next time)
@@ -75,7 +55,6 @@
     return p.kind === 'rc' && !modState[p.mid];
   }
   function ktIds(m) { return (m.keyTerms || []).map(function (t, i) { return 'kt:' + m.id + ':' + i; }); }
-  function hasRecall(mid, key) { var md = ST.modData(mid); return !!(md && md.cards && md.cards[key]); }
   function orderKey(id) {
     var p = parts(id), app = A(), m = app && app.modById[p.mid];
     var ci = p.kind === 'rc' ? READ_ORDER.indexOf(p.key) : 20 + (Number(p.key) || 0);
@@ -102,7 +81,7 @@
     due.forEach(function (id) { var d = st.srs[id].due, last = byDay[byDay.length - 1]; if (!last || last.d !== d) byDay.push(last = { d: d, ids: [] }); last.ids.push(id); });
     due = [].concat.apply([], byDay.map(function (b) { return interleave(b.ids); }));
     fresh = interleave(fresh.sort(function (x, y) { return orderKey(x) - orderKey(y); }));
-    var quota = Math.max(0, newPerDay() - newUsedToday());
+    var quota = ST.newLeftToday();
     return { due: due, fresh: fresh, newToday: fresh.slice(0, quota), quota: quota, active: active };
   }
   // the next day with work after today: reviews already planned, or new cards that wait for tomorrow
@@ -142,32 +121,17 @@
   function focusEl(el) { if (!el) return; try { el.focus({ preventScroll: false }); } catch (e) { el.focus(); } }
 
   /* ---------- lesson cards ticked with Got it are in the review ---------- */
-  // Every ticked lesson card adds its recall question (and the Key terms card the module's key terms). This is worked out
-  // from the saved progress each time (no one-time flag), so ticks made before this feature existed, on a device without it,
-  // or brought in by a restore or a sync all reach the review. A card the learner removed keeps its 'off' entry and is never
-  // brought back here. New cards carry no time stamp (ST.enroll), so they never replace review history from another device.
-  function catchUp() {
-    var app = A(); if (!app) return Promise.resolve(0);
-    var st = S(), kt = [], rc = [], mids = {};
-    (D.modules || []).forEach(function (m) {
-      app.readCards(m).forEach(function (c) {
-        if (!app.readOn(m.id, c.key)) return;
-        if (c.key === 'keyTerms') ktIds(m).forEach(function (id) { if (!st.srs[id]) kt.push(id); });
-        var id = 'rc:' + m.id + ':' + c.key;
-        if (!st.srs[id]) { rc.push({ id: id, mid: m.id, key: c.key }); mids[m.id] = 1; }
-      });
-    });
-    if (!kt.length && !rc.length) return Promise.resolve(0);
-    return loadMods(Object.keys(mids)).then(function () {
-      var st2 = S();
-      var ids = rc.filter(function (x) { return hasRecall(x.mid, x.key); }).map(function (x) { return x.id; }).concat(kt)
-        .filter(function (id) { return !st2.srs[id]; });
-      return ids.length ? ST.enroll(ids) : 0;
-    });
-  }
+  // Every ticked lesson card adds its recall question (and the Key terms card the module's key terms). study.js keeps this
+  // rule (ST.enrollTicked): it works it out from the saved progress (no one-time flag) whenever a page that counts cards is
+  // drawn and after a restore or a sync, so ticks made before this feature existed or on another device all reach the
+  // review. A card the learner removed keeps its 'off' entry and is never brought back; new cards carry no time stamp, so
+  // they never replace review history from another device. A recall question whose module has no study content yet waits
+  // in the review unseen (live() leaves it out of every count) and appears once the content does.
+  function catchUp() { return ST.enrollTicked(); }
   // what a page needs before it counts cards: ticked cards added, and the content of every module with recall cards
   function prepare(withStarted) {
-    return catchUp().catch(noop).then(function () { return loadMods(srsMods().concat(withStarted ? ST.startedModules() : [])); });
+    try { catchUp(); } catch (e) { if (window.console) console.error(e); }
+    return loadMods(srsMods().concat(withStarted ? ST.startedModules() : []));
   }
 
   function footNote(m, key, text) {
@@ -178,16 +142,17 @@
     if (!el) { el = document.createElement('span'); el.className = 'small rv-added'; foot.appendChild(el); }
     el.innerHTML = '<span aria-hidden="true">✓ </span>' + text;
   }
+  // Got it on a lesson card: its cards join the review at once (by study.js's rule above), and the card's footer says so.
+  // A card the learner removed stays removed (it can be added again with "Add a module").
   ST.on('card-read', function (m, key, on) {
     if (!on || !m || !key) return;
+    var ids = ['rc:' + m.id + ':' + key].concat(key === 'keyTerms' ? ktIds(m) : []), had = {}, st = S();
+    ids.forEach(function (id) { had[id] = !!st.srs[id]; });
+    catchUp();
     loadMods([m.id]).then(function () {
-      var ids = (hasRecall(m.id, key) ? ['rc:' + m.id + ':' + key] : []).concat(key === 'keyTerms' ? ktIds(m) : []);
-      // a card the learner removed stays removed (it can be added again with "Add a module")
-      var st = S(), before = ids.filter(function (id) { return st.srs[id] && !st.srs[id].off; }).length;
-      ids = ids.filter(function (id) { return !(st.srs[id] && st.srs[id].off); });
-      if (!ids.length) return;
-      var n = ST.enroll(ids);
-      footNote(m, key, n ? 'Added ' + plural(n, 'card') + ' to your <a href="#review">daily review</a>.' : before ? 'Already in your <a href="#review">daily review</a>.' : '');
+      var st2 = S(), shown = ids.filter(function (id) { return st2.srs[id] && !st2.srs[id].off && ST.reviewItem(id); }); // cards the review can show
+      var n = shown.filter(function (id) { return !had[id]; }).length;
+      footNote(m, key, n ? 'Added ' + plural(n, 'card') + ' to your <a href="#review">daily review</a>.' : shown.length ? 'Already in your <a href="#review">daily review</a>.' : '');
       refreshHub();
     });
   });
@@ -259,7 +224,7 @@
   function drawToday(focusHead) {
     var box = $('rv-today'); if (!box) return;
     var npd = newPerDay(), opts = '';
-    for (var i = NEW_MIN; i <= NEW_MAX; i += 5) opts += '<option value="' + i + '"' + (i === npd ? ' selected' : '') + '>' + i + '</option>';
+    for (var i = NEW_MIN; i <= NEW_MAX; i += NEW_STEP) opts += '<option value="' + i + '"' + (i === npd ? ' selected' : '') + '>' + i + '</option>';
     box.classList.remove('rv-narrow');
     box.innerHTML = '<div class="row-between"><h2 class="h-sub" id="rv-today-h" tabindex="-1">Today\'s review</h2>' +
       '<div class="row rv-npd"><label for="rv-npd" class="small">New cards a day</label><select id="rv-npd">' + opts + '</select></div></div>' +
@@ -345,11 +310,10 @@
   function grade(g) {
     if (!sess || !sess.shown || !(g >= 1 && g <= 4)) return;
     var id = sess.queue[0], st = S(), t = ST.today(); if (!id) return;
-    var prev = st.srs[id] ? JSON.parse(JSON.stringify(st.srs[id])) : null, seen = newSeenToday();
-    sess.undo = { id: id, day: t, prev: prev, ok: g >= 2 ? 1 : 0, prevSeen: seen.slice(),
+    var prev = st.srs[id] ? JSON.parse(JSON.stringify(st.srs[id])) : null;
+    sess.undo = { id: id, day: t, prev: prev, ok: g >= 2 ? 1 : 0,
       queue: sess.queue.slice(), cleared: Object.assign({}, sess.cleared), first: Object.assign({}, sess.first), again: Object.assign({}, sess.again), reviews: sess.reviews };
-    if ((!prev || !prev.reps) && seen.indexOf(id) < 0) { seen.push(id); setNewSeen(seen); }
-    var entry = ST.schedule(id, g); // saves the card, this device's review count for today and the preference above
+    var entry = ST.schedule(id, g); // saves the card (a new card gets the day of its first grade, which the new-card limit counts) and this device's review count for today
     sess.reviews++;
     if (!Object.prototype.hasOwnProperty.call(sess.first, id)) sess.first[id] = g;
     sess.queue.shift();
@@ -363,9 +327,9 @@
     var u = sess && sess.undo; if (!u) return;
     var st = S();
     // the card goes back to how it was, with a fresh time so the undo also wins on the learner's other devices
+    // (a new card loses its first-grade day again, so it no longer counts against today's new-card limit)
     if (u.prev) { var e = Object.assign({}, u.prev); e.at = ST.now(); st.srs[u.id] = e; }
     ST.logReview(-1, -u.ok, u.day); // this device's own count for that day, so the next sync keeps the lower number
-    if (u.day === ST.today()) setNewSeen(u.prevSeen);
     C.save();
     sess.queue = u.queue; sess.cleared = u.cleared; sess.first = u.first; sess.again = u.again; sess.reviews = u.reviews; sess.undo = null;
     announce('Last grade undone. Grade the card again.');
@@ -472,7 +436,8 @@
     var st = S(), t = ST.today(), ret = ST.retention(), stg = { learn: 0, mat: 0, long: 0, fresh: 0 };
     Object.keys(st.srs).forEach(function (id) {
       var c = st.srs[id]; if (!c || c.off) return;
-      if (!c.reps) stg.fresh++; else if (c.s < 7) stg.learn++; else if (c.s < 21) stg.mat++; else stg.long++;
+      if (!c.reps) { if (live(id)) stg.fresh++; } // like "New cards waiting": a question whose content is not here yet is not counted
+      else if (c.s < 7) stg.learn++; else if (c.s < 21) stg.mat++; else stg.long++;
     });
     var reviewed = stg.learn + stg.mat + stg.long;
     var recall = ret.avg != null && ret.n >= MIN_CARDS
@@ -656,10 +621,4 @@
       '<div class="row"><a class="btn btn-primary" href="#review">' + (n ? 'Start review' : 'Open daily review') + '</a></div></article>';
   });
   ST.on('hub', function () { prepare(false).then(refreshHub); });
-
-  // ticked lesson cards without a review card are added as soon as this feature loads
-  (function start(tries) {
-    if (!A()) { if (tries < 40) setTimeout(function () { start(tries + 1); }, 50); return; }
-    catchUp().then(function (n) { if (!n) return; refreshHub(); if (page && !sess && $('rv-main')) redraw(); }, noop);
-  })(0);
 })();

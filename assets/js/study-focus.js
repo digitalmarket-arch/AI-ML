@@ -833,10 +833,8 @@
   else { applyDfm(); updateChip(); tick(); }
   // this script loads after the first page is drawn: mark what distraction-free mode hides there too
   if (A() && A().main) tagPage(A().main);
-  // Work-around: when a stored session made study.js start loading this script before the first page was routed, study.js
-  // took the feature as loaded and #focus / #journal showed "Page not found". Route once more if no focus page was drawn
-  // (when study.js loaded this script for the route itself, it has drawn the page by now and this does nothing).
-  setTimeout(function () { if (!page && A() && /^#(focus|journal)(~|$)/.test(location.hash)) A().route(); }, 0);
+  // (#focus or #journal opened while a stored session has study.js loading this script: study.js shows "Loading…" and
+  // routes again once this script has run, so the page is drawn without help from here.)
   document.addEventListener('visibilitychange', function () { if (!document.hidden && cur) tick(); });
   window.addEventListener('pageshow', function (ev) { if (ev.persisted) { cur = readRec(); afterChange(); } });
   window.addEventListener('storage', function (ev) { // another tab started, paused or ended a session

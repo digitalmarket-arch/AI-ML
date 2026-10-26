@@ -17,11 +17,11 @@
   var RETEST_MAX = 20;      // questions per mistakes re-test
   var RECENT_DAYS = 30;     // "recently" for right answers and fixed mistakes
   var AI_QS = 5;            // questions Gemini writes for a practice test
+  var AI_TOKENS = 1536;     // Gemini's reply budget for them (a text reply in study.js gets 1,024)
   var SURE = { 3: 'Certain', 2: 'Fairly sure', 1: 'Guessing' };
   var HOW = '<a href="#methods">How these methods work</a>';
   var plural = function (n, one, many) { return n + ' ' + (n === 1 ? one : (many || one + 's')); };
   var pctOf = function (r, n) { return n ? Math.round(r / n * 100) : 0; };
-  var BAD_KEY = /^(__proto__|constructor|prototype)$/;
 
   /* ---------- device preferences (C.state.prefs.study) ---------- */
   function prefs() {
@@ -31,50 +31,22 @@
   }
   function prefN() { var n = Number(prefs().mxN); return SIZES.indexOf(n) >= 0 ? n : 10; }
   function prefLv() { var v = Number(prefs().mxLv); return v && A().levelById[v] ? v : 0; }
-  // Days a question that was never answered wrong was answered right (questions answered wrong keep their right answers
-  // since then in qa.fix, so this log fills the gap). Kept on this device and small.
-  function rightLog() {
-    var x = prefs().mxRd;
-    if (!x || typeof x !== 'object' || Array.isArray(x)) x = prefs().mxRd = {};
-    return x;
-  }
-  function logRight(log, qid, d) {
-    var cur = Array.isArray(log[qid]) ? log[qid].filter(function (x) { return typeof x === 'string'; }) : [];
-    if (cur.indexOf(d) >= 0) return false;
-    log[qid] = cur.concat(d).sort().slice(-3);
-    return true;
-  }
-  function pruneLog(log, t) { // keep it small: forget days older than "recently"
-    var ks = Object.keys(log);
-    if (ks.length > 300) ks.forEach(function (k) { var x = log[k]; if (!Array.isArray(x) || !x.length || ST.daysBetween(String(x[x.length - 1]), t) > RECENT_DAYS) delete log[k]; });
-  }
-  ST.on('qa', function (qid, entry) {
-    if (!qid || !entry || BAD_KEY.test(qid)) return;
-    var log = rightLog(), t = ST.today();
-    if (!entry.lr) delete log[qid]; else logRight(log, qid, t);
-    pruneLog(log, t);
-    C.save();
-  });
-  // Answers given while this file was not loaded (a module quiz, another device) did not reach the 'qa' handler above:
-  // add the day of each question's latest right answer, which qa still has.
-  function syncRightLog() {
-    var qa = S().qa, log = rightLog(), t = ST.today(), changed = false;
-    Object.keys(qa).forEach(function (qid) {
-      var x = qa[qid]; if (!x || x.wrongAt || !x.lr || !x.at) return;
-      var d = ST.localDay(x.at); if (!d || ST.daysBetween(d, t) > RECENT_DAYS) return;
-      if (logRight(log, qid, d)) changed = true;
-    });
-    if (changed) { pruneLog(log, t); C.save(); }
-  }
-  // distinct days, within RECENT_DAYS, the question was answered right since its last wrong answer
+  // Distinct days, within RECENT_DAYS, the question was answered right since its last wrong answer. study.js keeps the
+  // times of recent right answers of every question (qa.ok, merged across devices, also from module quizzes and level
+  // tests); answers saved before it did that still have their right answers since the last mistake (qa.fix) and the
+  // latest answer (qa.at, when it was right).
   function rightDays(qid) {
     var x = S().qa[qid], t = ST.today();
     if (!x || !x.lr) return 0;
-    var days = x.wrongAt ? (x.fix || []).map(function (f) { return ST.localDay(f); }) : (Array.isArray(rightLog()[qid]) ? rightLog()[qid] : []);
-    var seen = {};
-    days.forEach(function (d) { if (typeof d === 'string' && d && ST.daysBetween(d, t) <= RECENT_DAYS) seen[d] = 1; });
+    var times = (x.ok || []).concat(x.fix || [], x.at ? [x.at] : []), seen = {};
+    times.forEach(function (f) {
+      if (typeof f !== 'string' || (x.wrongAt && f <= x.wrongAt)) return;
+      var d = ST.localDay(f); if (d && ST.daysBetween(d, t) <= RECENT_DAYS) seen[d] = 1;
+    });
     return Object.keys(seen).length;
   }
+  // the device-only log of right days that this page kept before study.js recorded qa.ok is not needed any more
+  function dropOldLog() { var p = prefs(); if (Object.prototype.hasOwnProperty.call(p, 'mxRd')) { delete p.mxRd; C.save(); } }
 
   /* ---------- questions, modules and topics ---------- */
   // { q, set, mid, m, topic } for a quiz question id, or null when the question no longer exists
@@ -244,12 +216,11 @@
     if (typeof ans !== 'number' || !isFinite(ans) || ans % 1 !== 0 || ans < 0 || ans > 3) return null;
     return { q: q.slice(0, 500), options: opts.map(function (x) { return x.slice(0, 200); }), answer: ans, explain: ex.slice(0, 800) };
   }
-  // study.js adds this line when Gemini stopped at its length limit
-  var CUT_NOTE = /\s*\(This reply was cut short\.\)\s*$/;
+  // text: Gemini's reply; stopped: Gemini stopped at its length limit (ST.askAI with raw: true says so)
   // -> { questions: [...up to 5], dropped, error, cut (the reply stopped before the list was complete) }
-  function parseQuestions(text) {
-    var t = String(text == null ? '' : text), cut = CUT_NOTE.test(t);
-    t = t.replace(CUT_NOTE, '').replace(/```[a-zA-Z]*\s*/g, '').replace(/```/g, '').trim();
+  function parseQuestions(text, stopped) {
+    var t = String(text == null ? '' : text), cut = !!stopped;
+    t = t.replace(/```[a-zA-Z]*\s*/g, '').replace(/```/g, '').trim();
     var arr = null;
     var s = t.indexOf('['), e = t.lastIndexOf(']');
     if (s >= 0 && e > s) { try { arr = JSON.parse(t.slice(s, e + 1)); } catch (err) { arr = null; } }
@@ -282,16 +253,11 @@
   function qTextHTML(q) { return '<div class="ms-qt">' + inline(q.q) + '</div>' + (q.code ? '<pre><code>' + esc(q.code) + '</code></pre>' : ''); }
   // a question's opening words as plain text, to tell its buttons apart in a screen reader's list of buttons
   function snippet(s) { var t = String(s || '').replace(/[`*_]/g, '').replace(/\s+/g, ' ').trim(); return t.length > 60 ? t.slice(0, 57).replace(/\s+\S*$/, '') + '…' : t; }
-  // Ask Gemini buttons named after what they act on; study.js redraws them when sign-in or the replies left change
+  // what each AI box acts on ("mistake 3, What does this print?"): study.js names its buttons with it (aiHTML's third
+  // argument), and a code box that scrolls sideways in that mistake is named after it too
   var askWhat = {};
-  function nameAsk(root) {
-    Array.prototype.forEach.call(root.querySelectorAll('.ai-box[data-ai] [data-ai-ask]:not([aria-label])'), function (b) {
-      var w = askWhat[b.closest('.ai-box').getAttribute('data-ai')];
-      if (w) b.setAttribute('aria-label', b.textContent.replace(/\s+/g, ' ').trim() + ': ' + w);
-    });
-  }
   // keeps a page usable while its content changes: code boxes in the notebook that scroll sideways (long lines on a phone)
-  // get a keyboard stop, and redrawn Ask Gemini buttons keep their names. Code inside quizzes is core.js's (Quiz codeKeys).
+  // get a keyboard stop. Code inside quizzes is core.js's (Quiz codeKeys).
   var QUIZ_ROOTS = '#mx-quiz, #ms-quiz, #mx-ai-quiz';
   function watchPage(root) {
     if (!root) return;
@@ -305,7 +271,6 @@
           p.tabIndex = 0; p.setAttribute('data-mx-code', ''); p.setAttribute('role', 'region'); p.setAttribute('aria-label', 'Code for ' + (what || 'this question'));
         } else if (!wide && mine) { p.removeAttribute('tabindex'); p.removeAttribute('data-mx-code'); p.removeAttribute('role'); p.removeAttribute('aria-label'); }
       });
-      nameAsk(root);
     };
     var ob = window.MutationObserver ? new MutationObserver(fix) : null;
     if (ob) ob.observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ['open', 'hidden'] });
@@ -347,14 +312,15 @@
 
   function drawMixed() {
     var main = $('mx-main'); if (!main) return;
-    syncRightLog();
+    dropOldLog();
     main.innerHTML = '<div id="mx-top" class="stack-lg">' + setupHTML() + '</div>' +
       '<section class="stack mx-run" id="mx-run" hidden aria-labelledby="mx-run-h"><div class="row-between"><h2 class="h-sub" id="mx-run-h" tabindex="-1">Your mixed quiz</h2>' +
       '<button type="button" class="btn btn-sm btn-ghost" data-mx="settings">Change settings</button></div><p class="small muted" id="mx-run-sub"></p><div id="mx-quiz"></div></section>' +
       '<section class="card stack-sm" id="mx-cal" aria-labelledby="mx-cal-h">' + calCardInner() + '</section>' +
       '<section class="card stack-sm mx-ai" id="mx-ai" aria-labelledby="mx-ai-h">' + aiCardInner() + '</section>' +
       '<p class="small"><a href="#mistakes">Open your mistakes notebook</a> to see every question you got wrong, with the right answer and why.</p>';
-    ST.bindAI(main, 'mx-gen', copyPrompt);
+    // this box's Ask button makes a quiz, not a text reply: study.js hands the click to askGemini
+    ST.bindAI(main, 'mx-gen', copyPrompt, { onAsk: function (btn) { askGemini(btn); } });
   }
   function setupHTML() {
     var app = A(), mods = startedModules();
@@ -394,9 +360,6 @@
   }
   function onMixedClick(ev) {
     if (!mx || !ev.target.closest) return;
-    // this box's Ask button makes a quiz, not a text reply, so it is handled here and not by study.js (which answers other AI boxes)
-    var ask = ev.target.closest('.ai-box[data-ai="mx-gen"] [data-ai-ask]');
-    if (ask) { ev.stopPropagation(); askGemini(ask); return; }
     var b = ev.target.closest('[data-mx]'); if (!b) return;
     var a = b.getAttribute('data-mx');
     if (a === 'start' || a === 'again') startMixed();
@@ -404,7 +367,6 @@
   }
   function startMixed() {
     var mods = currentMods(); if (mods.length < MIN_MODULES) return;
-    syncRightLog();
     var n = prefN(), qs = pick(poolFor(mods), n);
     var used = {}; qs.forEach(function (q) { used[modOf(q)] = 1; });
     if (mx.quiz) mx.quiz.destroy();
@@ -508,8 +470,8 @@
       'Wait for my reply before you go on. After each reply, tell me if I was right and explain why in two or three short sentences, then ask the next question. ' +
       'Start easy and make them a little harder as we go. After the last question, tell me my score out of ' + AI_QS + ' and the one idea I should revise.\n\nAsk the first question now.';
   }
-  // Gemini's reply budget is about 1,000 tokens (study.js), so the questions are kept short: 5 x (25 + 4 x 10 + 30) words
-  // is under 500 words, about 650 tokens, plus the JSON around them.
+  // The questions are kept short: 5 x (25 + 4 x 10 + 30) words is under 500 words, about 650 tokens, plus the JSON around
+  // them; the reply may use up to AI_TOKENS tokens, so a slightly long reply is not cut off.
   function jsonPrompt(w) {
     return 'Write ' + AI_QS + ' new multiple-choice questions that test a beginner on ' + subjectOf(w) + ' of a free AI and machine learning course. ' + moduleBrief(w.m) + '\n' +
       'Rules: each question has exactly 4 different options and exactly one right answer. Mix easy and medium questions. Use everyday Indian examples (rupees, UPI, cricket, Indian cities) where they fit. No trick questions. ' +
@@ -519,7 +481,8 @@
       '"answer" is the position (0, 1, 2 or 3) of the right option in "options".';
   }
   function askGemini(btn) {
-    var w = weakest(), status = $('mx-ai-status'), run = $('mx-ai-run'), token = mx && mx.token;
+    if (!mx) return;
+    var w = weakest(), status = $('mx-ai-status'), run = $('mx-ai-run'), token = mx.token;
     if (!w || !status || !run || btn.disabled) return;
     btn.disabled = true;
     if (mx.aiQuiz) { mx.aiQuiz.destroy(); mx.aiQuiz = null; }
@@ -531,10 +494,11 @@
       status.tabIndex = -1; focusEl(status);
     };
     var p;
-    try { p = Promise.resolve(ST.askAI(jsonPrompt(w))); } catch (e) { p = Promise.reject(e); }
-    p.then(function (text) {
+    // json: Gemini replies with JSON only; raw: the reply comes as { text, cut } (cut: stopped at the length limit)
+    try { p = Promise.resolve(ST.askAI(jsonPrompt(w), { json: true, raw: true, maxOutputTokens: AI_TOKENS })); } catch (e) { p = Promise.reject(e); }
+    p.then(function (reply) {
       if (!mx || mx.token !== token) return;
-      var res = parseQuestions(text);
+      var res = parseQuestions(reply && reply.text, reply && reply.cut);
       if (res.error) { fail(res.error + ' Try again, or use Copy prompt with any AI app.'); return; }
       var stamp = Date.now().toString(36);
       var qs = res.questions.map(function (q, i) { return { id: 'ai-' + stamp + '-' + i, q: q.q, options: q.options, answer: q.answer, explain: q.explain, difficulty: 'AI-written' }; });
@@ -650,7 +614,6 @@
         '<ol class="ms-list">' + gr.items.map(function (i) { return itemHTML(i, ++num); }).join('') + '</ol></section>';
     }).join('') + recentHTML(fixed);
     open.forEach(function (i) { ST.bindAI(lists, 'err-' + i.q.id, function () { return errPrompt(i); }); });
-    nameAsk(lists);
   }
   function fixLine(x) {
     var fi = fixInfo(x), t = ST.today();

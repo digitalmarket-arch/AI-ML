@@ -18,7 +18,7 @@
   var WEAK_ACC = 0.6, WEAK_MIN = 2;      // weak topic: accuracy below 60% with at least 2 answers (or any open mistake)
   var STRONG_ACC = 0.85, STRONG_MIN = 3; // strong topic: 85% or more with at least 3 answers
   var CAL_MIN = 10;         // rated answers needed before the calibration summary is shown
-  var MANY_DUE = 10;        // this many reviews waiting today puts Daily review first
+  var MANY_DUE = 10;        // this many cards due again (seen before, now near forgetting) puts Daily review first; new cards can wait
   var FULL_WORDS = 4;       // a full sentence has at least 4 words: a list of key words is not an explanation
   var FEYN_SENT = 5;        // full sentences an explanation needs when its task cannot be read (every task asks for 5 to 8)
   var MANANA_NEED = 3, MANANA_WORDS = 8; // or 3 Manana answers of at least 8 words each
@@ -26,7 +26,6 @@
   var RET_SHOW = 5;         // reviewed cards needed before predicted recall is shown (as on the Daily review page)
   var MIN_MIXED = 2;        // Mixed practice needs two started modules with a quiz
   var SHOW_WEAK = 5;        // weak topics listed on the map
-  var NEW_DEFAULT = 15, NEW_MIN = 5, NEW_MAX = 50; // new review cards a day (the Daily review page's setting)
   var STAGES = [
     { n: 1, label: 'Heard', sa: 'sravana' },
     { n: 2, label: 'Reflected', sa: 'manana' },
@@ -77,24 +76,13 @@
     if (keys(st.labs).some(function (k) { return keys(st.labs[k]).some(function (t) { return st.labs[k][t]; }); })) return true;
     return keys(st.modules).some(function (k) { return st.modules[k] && st.modules[k].done; });
   }
-  // new review cards still allowed today, counted as the Daily review page counts them (study-review.js newUsedToday):
-  // new cards first graded today on any device (ST.newGradedOn), plus new cards graded more than once today
-  function newQuota() {
-    var st = S(), p = prefs(), t = ST.today(), n = Math.round(Number(p.newPerDay)), mine = {};
-    n = isFinite(n) && n >= NEW_MIN && n <= NEW_MAX ? n : NEW_DEFAULT;
-    var x = p.newToday; if (x && x.day === t && Array.isArray(x.ids)) x.ids.forEach(function (id) { if (typeof id === 'string') mine[id] = 1; });
-    var used = ST.newGradedOn(t) + Object.keys(st.srs || {}).filter(function (id) {
-      var c = st.srs[id]; return c && c.reps > 1 && c.last === t && (mine[id] || (c.first === t && c.reps === c.lapses + 1));
-    }).length;
-    return Math.max(0, n - used);
-  }
 
   /* ---------- study content: loaded in small pieces ---------- */
   // The index (topics, quiz tags and number of Feynman key ideas of every module), plus the full content of the modules
-  // whose details the map needs: those with recall cards in Daily review or a reflection, and the current module.
+  // whose details depend on it: those with a reflection (the sentences their Feynman task asks for) and the current module
+  // (its hints). Recall cards of other modules are counted without loading them, as Daily review does before it loads them.
   function needMods(extra) {
     var st = S(), app = A(), ids = {};
-    Object.keys(st.srs || {}).forEach(function (id) { var p = id.split(':'), c = st.srs[id]; if (p[0] === 'rc' && c && !c.off) ids[p[1]] = 1; });
     Object.keys(st.refl || {}).forEach(function (mid) { ids[mid] = 1; });
     if (st.last) ids[st.last] = 1;
     if (extra) ids[extra] = 1;
@@ -150,7 +138,7 @@
       if (held > b.held) b.held = held;
       if (held >= RET_DAYS) { snap.long++; b.long++; }
     });
-    snap.today = snap.due + Math.min(snap.fresh, newQuota());
+    snap.today = snap.due + Math.min(snap.fresh, ST.newLeftToday()); // new cards allowed today, on all devices (the Daily review limit)
     snap.ret = ST.retention();
     // calibration: the latest rated answer to each question (module quizzes, Mixed practice and mistakes re-tests ask "How sure?")
     var cal = { n: 0, g: { 1: { n: 0, r: 0 }, 2: { n: 0, r: 0 }, 3: { n: 0, r: 0 } } };
@@ -349,8 +337,8 @@
     var addWeak = function () { if (weakDone) return; var a = weakAction(snap, seen); if (a && out.length < max) { weakDone = true; add(a); } };
     // 0. a first visit: how the site works
     if (!snap.progress) add({ id: 'start', href: '#start', title: 'Read Start here', brief: 'How the course works. About 30 minutes.', reason: 'New here? It explains how the course works, the free tools you need and how to study well. About 30 minutes.', method: 'Progressive difficulty and scaffolding' });
-    // 1. a big pile of reviews waits
-    if (snap.today >= MANY_DUE) add(reviewAction(snap));
+    // 1. many cards are due again (new cards alone do not put review first: they wait without being forgotten)
+    if (snap.due >= MANY_DUE) add(reviewAction(snap));
     // 2. open mistakes in the current module
     if (cur && snap.mistakesBy[cur.id]) {
       var nm = snap.mistakesBy[cur.id];
@@ -367,7 +355,7 @@
     }
     // 4. the weakest topic
     addWeak();
-    // 5. a few reviews wait
+    // 5. a few reviews, or new cards, wait
     if (snap.today > 0) add(reviewAction(snap));
     // 6. open mistakes elsewhere
     if (snap.openAll > 0) add(mistakesAction(snap));
