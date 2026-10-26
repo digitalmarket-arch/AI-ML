@@ -546,19 +546,19 @@
     var m = modById[id]; if (!m) return viewNotFound();
     S().last = id; C.save();
     var l = levelById[m.level], lab = labOf(m), ex = exOf(m.id), qz = D.quizzes[m.id] || [];
-    var tabs = [['overview', 'Overview'], ['watch', 'Watch & read']];
+    var tabs = [['overview', 'Overview'], ['watch', 'Watch & read', 'Watch']];
     if (lab) tabs.push(['lab', 'Lab']);
-    if (ex.length) tabs.push(['practice', 'Practice (' + ex.length + ')']);
+    if (ex.length) tabs.push(['practice', 'Practice (' + ex.length + ')', 'Practice']);
     if (qz.length) tabs.push(['quiz', 'Quiz']);
     if (ST()) tabs.push(['reflect', 'Reflect']);
-    tabs.push(['notes', 'My notes']);
+    tabs.push(['notes', 'My notes', 'Notes']);
     var tab = tabArg || moduleTab[id] || 'overview';
     if (!tabs.some(function (t) { return t[0] === tab; })) tab = 'overview';
     var list = modulesOf(m.level), idx = list.indexOf(m), all = D.modules, gi = all.indexOf(m);
     var prev = all[gi - 1], next = all[gi + 1];
     var html = '<div class="wrap stack">' + crumbs([['Home', 'home'], ['Level ' + m.level + ' ' + (l ? l.name : ''), 'level-' + m.level], ['Module ' + modNo(m)]]) +
       '<header class="row-between"><div class="stack-sm"><span class="eyebrow">Module ' + modNo(m) + (m.hours ? ' · about ' + m.hours + ' hours' : '') + '</span><h1>' + esc(m.title) + '</h1></div>' + ring(moduleProgress(m)) + '</header>' +
-      '<div class="tabs" role="tablist" aria-label="Module sections">' + tabs.map(function (t) { return '<button role="tab" type="button" id="tab-' + t[0] + '" aria-controls="tabpanel" data-tab="' + t[0] + '" aria-selected="' + (t[0] === tab) + '" tabindex="' + (t[0] === tab ? '0' : '-1') + '">' + esc(t[1]) + '</button>'; }).join('') + '</div>' +
+      '<div class="tabs" role="tablist" aria-label="Module sections">' + tabs.map(function (t) { return '<button role="tab" type="button" id="tab-' + t[0] + '" aria-controls="tabpanel" data-tab="' + t[0] + '" aria-selected="' + (t[0] === tab) + '" tabindex="' + (t[0] === tab ? '0' : '-1') + '">' + (t[2] ? '<span class="t-long">' + esc(t[1]) + '</span><span class="t-short">' + esc(t[2]) + '</span>' : esc(t[1])) + '</button>'; }).join('') + '</div>' +
       '<div class="two-col' + (tab === 'lab' ? ' full' : '') + '" id="mod-cols"><div class="tab-panel" id="tabpanel" role="tabpanel" aria-labelledby="tab-' + tab + '"></div><aside class="stack"><div class="stack" id="mod-side" data-mod="' + esc(m.id) + '">' + moduleSide(m) + '</div>' +
       '<div class="row-between">' + (prev ? '<a class="btn btn-sm" href="#m-' + esc(prev.id) + '">← ' + esc(modNo(prev)) + '</a>' : '<span></span>') + (next ? '<a class="btn btn-sm" href="#m-' + esc(next.id) + '">' + esc(modNo(next)) + ' →</a>' : '') + '</div></aside></div></div>';
     setView(html, m.title);
@@ -925,7 +925,7 @@
       return '<tr><td><a href="#m-' + esc(m.id) + '">' + esc(modNo(m) + ' ' + m.title) + '</a></td><td class="num">' + esc(q.best) + '%</td><td class="num">' + esc(q.attempts) + '</td><td>' + (q.best >= 70 ? '<span class="chip chip-ok">passed</span>' : '<span class="chip">retry</span>') + '</td></tr>';
     });
     rows = testRows.concat(rows);
-    return rows.length ? '<div class="table-wrap"><table class="simple"><thead><tr><th>Module</th><th>Best</th><th>Attempts</th><th></th></tr></thead><tbody>' + rows.join('') + '</tbody></table></div>' : '<div class="empty">No quizzes taken yet. Every module has one.</div>';
+    return rows.length ? '<div class="table-wrap"><table class="simple"><thead><tr><th>Module</th><th>Best</th><th>Attempts</th><th><span class="visually-hidden">Result</span></th></tr></thead><tbody>' + rows.join('') + '</tbody></table></div>' : '<div class="empty">No quizzes taken yet. Every module has one.</div>';
   }
   function viewTest(lv) {
     var l = levelById[lv], q = D.quizzes['test-l' + lv]; if (!l || !q) return viewNotFound();
@@ -1136,7 +1136,7 @@
   function accountBody(st) {
     if (!st.enabled) return '<div class="callout">Sign-in is not switched on for this copy of the site. Your progress is saved in this browser. To move it to another device, use <a href="#progress">My progress</a> and its Backup box.</div>';
     var privacy = '<section class="stack-sm"><h2 class="h-sub">What is saved, and who can see it</h2><ul class="prose small">' +
-      '<li>Only your course progress: ticks (including lesson cards read), quiz scores, lab tasks, exercise answers and drafts, notes, project checklists and links, flashcard scores, where you stopped each video, and your study plan and display settings, together with your Google account ID.</li>' +
+      '<li>Only your course progress: ticks (including lesson cards read), quiz scores and answers, lab tasks, your review cards, reflections, journal entries, focus sessions, exercise answers and drafts, notes, project checklists and links, flashcard scores, where you stopped each video, and your study plan and display settings, together with your Google account ID.</li>' +
       '<li>Your name and email come from Google so you can see which account you used. No password is ever seen by this site.</li>' +
       '<li>It is stored with Google Firebase in Mumbai, India. Each account can read and write only its own copy. The site owner can see the stored data and the name and email of each account in the Firebase console, and uses them only to run this site. Nothing is sold, shared or used for ads.</li>' +
       '<li>You can delete your cloud copy below at any time. That removes your progress; to also remove your sign-in record, ask on <a href="https://github.com/digitalmarket-arch/AI-ML/issues" target="_blank" rel="noopener">GitHub</a> and give the account ID shown on this page when you are signed in (do not post your email).</li>' +
@@ -1196,7 +1196,7 @@
     var ae = document.activeElement, h = (location.hash || '').replace(/^#/, '') || 'home', cleared = !!(ev.detail && ev.detail.cleared);
     if (h === 'account') return; // it redraws itself from the sign-in status
     var typing = ae && /^(TEXTAREA|INPUT|SELECT)$/.test(ae.tagName) && ae.type !== 'checkbox' && ae.type !== 'radio';
-    if (!cleared && (typing || !/^(home|start|roadmap|level-\d|labs|practice|projects|tests|progress|career|faq)$/.test(h))) { refreshSide(); var sideEl = document.getElementById('mod-side'); readRefresh(sideEl && modById[sideEl.getAttribute('data-mod')]); C.toast('Progress from your other device has been added'); return; }
+    if (!cleared && (typing || !/^(home|start|roadmap|level-\d|labs|practice|projects|tests|progress|career|faq)$/.test(h))) { refreshSide(); var sideEl = document.getElementById('mod-side'); readRefresh(sideEl && modById[sideEl.getAttribute('data-mod')]); if (!(ev.detail && ev.detail.tab)) C.toast('Progress from your other device has been added'); return; }
     var y = window.scrollY; route(); window.scrollTo(0, y);
   });
 

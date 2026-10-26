@@ -180,7 +180,7 @@ main { padding-block: 28px 64px; flex: 1 0 auto; }
 .nav a[aria-current="page"] { color: var(--indigo); background: var(--indigo-soft); }
 .head-tools { display: flex; gap: 6px; align-items: center; }
 .site-head .menu-btn { display: none; }
-@media (max-width: 860px) {
+@media (max-width: 1100px) {
   .site-head .menu-btn { display: inline-flex; margin-left: auto; }
   .nav { display: none; position: absolute; left: 0; right: 0; top: 100%; flex-direction: column; background: var(--surface); border-bottom: 1px solid var(--line); padding: 8px max(var(--gutter), env(safe-area-inset-right, 0px)) 12px max(var(--gutter), env(safe-area-inset-left, 0px)); margin: 0; }
   .nav.open { display: flex; }
@@ -279,7 +279,8 @@ a.card:hover, a.card:focus-visible { border-color: var(--indigo); box-shadow: va
 .tabs button { font: inherit; font-weight: 600; padding: 10px 14px; border: 0; background: transparent; color: var(--muted); border-bottom: 3px solid transparent; cursor: pointer; white-space: nowrap; }
 .tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--haldi); }
 .tab-panel { padding-top: 20px; }
-@media (max-width: 560px) { .tabs { flex-wrap: wrap; overflow-x: visible; column-gap: 0; } .tabs button { padding: 10px 12px; } }
+@media (max-width: 560px) { .tabs { flex-wrap: wrap; overflow-x: visible; column-gap: 0; } .tabs button { padding: 10px 11px; } .tabs .t-long { display: none; } }
+@media (min-width: 561px) { .tabs .t-short { display: none; } }
 
 /* ---------- resources ---------- */
 .res-card { display: flex; flex-direction: column; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
@@ -409,7 +410,7 @@ details.fold > div { padding: 0 14px 14px; }
   .rubric td[data-label]::before { content: attr(data-label); display: block; font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
 }
 @media (max-width: 560px) { table.simple th, table.simple td { padding: 8px 6px; } }
-@media (max-width: 860px) { .nav { max-height: calc(100dvh - 61px); overflow-y: auto; overscroll-behavior: contain; } }
+@media (max-width: 1100px) { .nav { max-height: calc(100dvh - 61px); overflow-y: auto; overscroll-behavior: contain; } }
 @media (pointer: coarse) {
   .btn, .seg button { min-height: 44px; }
   .icon-btn { width: 44px; height: 44px; }

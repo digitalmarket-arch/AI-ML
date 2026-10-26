@@ -56,9 +56,10 @@
     return d;
   }
   function registerPart(key, spec) { parts[key] = spec; state[key] = spec.normalize(state[key]); }
+  var lastSeen = null; // the stored text this tab last wrote or read; anything else in storage came from another tab
   function load() {
     var data = null;
-    try { data = JSON.parse(window.localStorage.getItem(KEY) || 'null'); } catch (e) { data = null; }
+    try { lastSeen = window.localStorage.getItem(KEY); data = JSON.parse(lastSeen || 'null'); } catch (e) { data = null; }
     if (!data && memory) data = memory;
     return normalize(data);
   }
@@ -67,9 +68,30 @@
   // other parts (cloud sync) can listen for saves
   function onSave(fn) { saveHooks.push(fn); }
   function runHooks() { saveHooks.forEach(function (fn) { try { fn(state); } catch (e) {} }); }
+  // copy another copy's contents into the live progress object, so open pages and labs that hold parts of it keep working
+  function assignInto(dst, src) {
+    Object.keys(dst).forEach(function (k) { if (!Object.prototype.hasOwnProperty.call(src, k)) delete dst[k]; });
+    Object.keys(src).forEach(function (k) {
+      var x = dst[k], y = src[k];
+      if (x && y && typeof x === 'object' && typeof y === 'object' && !Array.isArray(x) && !Array.isArray(y)) assignInto(x, y);
+      else dst[k] = y;
+    });
+  }
+  // another tab of the site saved: merge its work into this tab (a reset or a restore there replaces this tab's copy)
+  function takeOther(text, replace) {
+    var other; try { other = JSON.parse(text); } catch (e) { return false; }
+    assignInto(state, replace ? normalize(other) : mergeState(state, other));
+    lastSeen = text;
+    return true;
+  }
   function save() {
     memory = state;
-    try { window.localStorage.setItem(KEY, JSON.stringify(state)); runHooks(); return true; }
+    try {
+      var cur = window.localStorage.getItem(KEY);
+      if (cur && lastSeen !== null && cur !== lastSeen) takeOther(cur, false); // never overwrite what another tab just saved
+      var text = JSON.stringify(state);
+      window.localStorage.setItem(KEY, text); lastSeen = text; runHooks(); return true;
+    }
     catch (e) {
       runHooks();
       if (!warned) { warned = true; setTimeout(function () { toast('This browser is not letting AI Marg save your progress (private mode or storage full). Use My progress > Download file to keep a copy.'); }, 0); }
@@ -87,8 +109,21 @@
     while (state.log[key(d)]) { n++; d.setDate(d.getDate() - 1); }
     return n;
   }
-  function resetAll() { state = normalize(blank()); save(); }
-  function replaceState(obj) { state = normalize(obj); save(); }
+  function signal(kind) { try { window.localStorage.setItem('aimarg.sync', kind + ':' + Date.now()); } catch (e) {} }
+  function resetAll() { assignInto(state, normalize(blank())); lastSeen = null; save(); signal('reset'); window.dispatchEvent(new CustomEvent('aim:progress-reset')); }
+  function replaceState(obj) { assignInto(state, normalize(obj)); lastSeen = null; save(); signal('replace'); }
+  window.addEventListener('storage', function (e) {
+    if (e.key === KEY && e.newValue && e.newValue !== lastSeen) {
+      if (takeOther(e.newValue, false)) window.dispatchEvent(new CustomEvent('aim:progress-replaced', { detail: { tab: true } }));
+    } else if (e.key === 'aimarg.sync' && /^(reset|replace):/.test(e.newValue || '')) {
+      var cur = null; try { cur = window.localStorage.getItem(KEY); } catch (x) {}
+      var reset = /^reset/.test(e.newValue);
+      if (takeOther(cur || JSON.stringify(blank()), true)) {
+        if (reset) window.dispatchEvent(new CustomEvent('aim:progress-reset'));
+        window.dispatchEvent(new CustomEvent('aim:progress-replaced', { detail: { tab: true, cleared: reset } }));
+      }
+    }
+  });
 
   // Combine progress from two devices without losing anything: ticks and solved work are kept from both,
   // quiz bests take the higher score, playback positions take the newer one, differing notes are both kept.
@@ -435,8 +470,10 @@
     this.root.querySelectorAll('[data-q]').forEach(function (b) {
       b.addEventListener('click', function () {
         var a = b.getAttribute('data-q');
-        if (a === 'prev') { self.i = Math.max(0, self.i - 1); self.render(); self.reveal(); }
-        if (a === 'next') { self.i = Math.min(n - 1, self.i + 1); self.render(); self.reveal(); }
+        if (a === 'prev' || a === 'next') {
+          self.i = a === 'prev' ? Math.max(0, self.i - 1) : Math.min(n - 1, self.i + 1); self.render(); self.reveal();
+          var qt = self.root.querySelector('.q-text'); if (qt) { qt.tabIndex = -1; try { qt.focus({ preventScroll: true }); } catch (e) { qt.focus(); } }
+        }
         if (a === 'finish') self.finish(false);
         if (a === 'check' && self.picks[q.id] != null) {
           self.answers[q.id] = self.picks[q.id];

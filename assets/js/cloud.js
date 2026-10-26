@@ -29,7 +29,7 @@
   function set(st, err) { info.state = st; info.error = err || ''; emit(); }
   function flag(on) { try { if (on) localStorage.setItem(FLAG, '1'); else localStorage.removeItem(FLAG); } catch (e) {} }
   function flagged() { try { return localStorage.getItem(FLAG) === '1'; } catch (e) { return false; } }
-  function status() { return { enabled: enabled(), state: info.state, user: info.user, lastSync: info.lastSync, error: info.error }; }
+  function status() { return { enabled: enabled(), state: info.state, user: info.user, lastSync: info.lastSync, error: info.error, trimmed: info.trimmed || 0 }; }
 
   // Firebase app + auth only (about 65 KB compressed), loaded on demand
   function load() {
@@ -90,17 +90,18 @@
   function settle() { return inflight ? inflight.then(function () {}, function () {}) : Promise.resolve(); }
 
   // noUpload: after deleting the cloud copy, do not write it straight back
+  var lastPushErr = null;
   function signOut(clearDevice, noUpload) {
     if (!fb || leaving || (deleting && !noUpload)) return Promise.resolve(false);
     leaving = true; clearTimeout(timer); timer = null;
     return settle().then(function () {
       // send the latest progress first, so nothing done on this device is lost
-      return user && !noUpload ? push().then(function () { return true; }, function () { return false; }) : true;
+      return user && !noUpload ? push().then(function () { return true; }, function (e) { lastPushErr = e; return false; }) : true;
     }).then(function (saved) {
       if (clearDevice && !saved) {
         // never wipe progress that is not safely in the account yet
         leaving = false;
-        var msg = 'Could not back up your latest progress, so nothing was removed and you are still signed in. Check your connection and try again.';
+        var msg = 'Could not back up your latest progress, so nothing was removed and you are still signed in. ' + (lastPushErr && /too big/.test(String(lastPushErr.message)) ? 'Your progress is too large for the free cloud copy: download a copy from My progress first.' : 'Check your connection and try again.');
         set('signed-in', msg); C.toast(msg);
         return false;
       }
@@ -141,11 +142,30 @@
     });
   }
   function bytes(s) { try { return new TextEncoder().encode(s).length; } catch (e) { return s.length * 3; } }
+  // the cloud copy must stay under the free document size; when it would not, leave out (in this order) code drafts,
+  // deletion markers, old review-log days and the oldest journal entries and focus sessions. They stay in this browser.
   function encode(state) {
-    var s = JSON.stringify(state);
-    if (s.length * 3 > MAX_BYTES && bytes(s) > MAX_BYTES) { var lite = JSON.parse(s); lite.code = {}; s = JSON.stringify(lite); }
-    if (s.length * 3 > MAX_BYTES && bytes(s) > MAX_BYTES) throw new Error('too big');
-    return s;
+    var s = JSON.stringify(state), fits = function (x) { return x.length * 3 <= MAX_BYTES || bytes(x) <= MAX_BYTES; };
+    info.trimmed = 0;
+    if (fits(s)) return s;
+    var lite = JSON.parse(s);
+    var dropTombs = function (o) { Object.keys(o || {}).forEach(function (k) { if (o[k] && o[k].del) delete o[k]; }); };
+    var newest = function (o, n) { var ks = Object.keys(o || {}).sort(function (x, y) { return String(o[y].at).localeCompare(String(o[x].at)); }); ks.slice(n).forEach(function (k) { delete o[k]; }); return Math.max(0, ks.length - n); };
+    var steps = [
+      function () { lite.code = {}; },
+      function () { dropTombs(lite.jr); dropTombs(lite.fs); },
+      function () { var ks = Object.keys(lite.rlog || {}).sort(); ks.slice(0, Math.max(0, ks.length - 120)).forEach(function (k) { delete lite.rlog[k]; }); },
+      function () { info.trimmed += newest(lite.fs, 200); }
+    ];
+    for (var i = 0; i < steps.length; i++) { steps[i](); s = JSON.stringify(lite); if (fits(s)) return s; }
+    // then the journal, oldest entries first, keeping as many as fit
+    var keys = Object.keys(lite.jr || {}).sort(function (x, y) { return String(lite.jr[y].at).localeCompare(String(lite.jr[x].at)); });
+    var all = lite.jr, lo = 0, hi = keys.length;
+    while (lo < hi) { var mid = Math.ceil((lo + hi) / 2), part = {}; keys.slice(0, mid).forEach(function (k) { part[k] = all[k]; }); lite.jr = part; if (fits(JSON.stringify(lite))) lo = mid; else hi = mid - 1; }
+    var keep = {}; keys.slice(0, lo).forEach(function (k) { keep[k] = all[k]; }); lite.jr = keep; info.trimmed += keys.length - lo;
+    s = JSON.stringify(lite);
+    if (fits(s)) return s;
+    throw new Error('too big');
   }
   // resolves 0 when written, or the HTTP status when another device changed the copy since it was read
   function write(s, remote, strict) {
@@ -198,7 +218,7 @@
     if (/\b403\b/.test(m)) return 'The cloud copy refused this account. The site owner must publish the Firestore security rules from the README.';
     if (/write 404/.test(m)) return 'The cloud database is not set up yet. The site owner must create the Firestore database (README, "Turn on sign-in").';
     if (/\b429\b/.test(m)) return 'The cloud is busy or its free daily limit is used up. Your progress is saved on this device and will sync later.';
-    if (/too big/.test(m)) return 'Your progress is too large to back up. Download a copy from My progress.';
+    if (/too big/.test(m)) return 'Your saved progress is too large for the free cloud copy (about 900 KB), so syncing has stopped. Download a copy from My progress, then shorten or delete long notes, journal entries or explanations.';
     if (/Failed to fetch|NetworkError|Load failed/i.test(m) || navigator.onLine === false) return 'Offline: your progress is saved on this device and will sync when you are back online.';
     return 'Could not sync just now (' + m + '). It will try again.';
   }
