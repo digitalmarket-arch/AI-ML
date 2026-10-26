@@ -1,5 +1,6 @@
 /* AI Marg study feature: Daily review (Smarana): spaced repetition of key terms and lesson-card recall questions; retention tracking.
-   Uses window.AIM_STUDY (assets/js/study.js) and window.AIM_APP (assets/js/app.js). */
+   Uses window.AIM_STUDY (assets/js/study.js) and window.AIM_APP (assets/js/app.js).
+   study.js loads this file when a page needs it (#review, the Study room, a module's lesson cards). */
 (function () {
   'use strict';
   var ST = window.AIM_STUDY; if (!ST) return; // study features are switched off in this browser
@@ -8,6 +9,7 @@
   var A = function () { return window.AIM_APP; };
   var S = function () { return C.state; };
   var $ = function (id) { return document.getElementById(id); };
+  var noop = function () {};
 
   var READ_ORDER = ['overview', 'outcomes', 'studySteps', 'keyTerms', 'indiaExample', 'commonMistakes', 'selfCheck'];
   var NEW_DEFAULT = 15, NEW_MIN = 5, NEW_MAX = 50;
@@ -26,24 +28,51 @@
     var n = Math.round(Number(prefs().newPerDay));
     return isFinite(n) && n >= NEW_MIN && n <= NEW_MAX ? n : NEW_DEFAULT;
   }
-  // new cards first reviewed today on this device (the daily limit counts cards, not presses)
+  // new cards this device graded for the first time today (kept only to catch the case below)
   function newSeenToday() {
     var x = prefs().newToday;
     return x && x.day === ST.today() && Array.isArray(x.ids) ? x.ids.filter(function (i) { return typeof i === 'string'; }) : [];
   }
   function setNewSeen(ids) { prefs().newToday = { day: ST.today(), ids: ids.slice(-200) }; }
-
-  /* ---------- cards ---------- */
-  var dataState = 'idle', dataErr = '';
-  function loadData() {
-    return ST.ensureData().then(function () { dataState = 'ok'; }, function (e) { dataState = 'fail'; dataErr = (e && e.message) || 'Study content did not load.'; });
+  // New cards used today, on all of the learner's devices: cards graded once, today (from the synced review cards,
+  // ST.newGradedOn), plus new cards graded more than once today, which ST.newGradedOn no longer sees (forgotten, then
+  // remembered in the same session): those this device graded as new today, and, from any device, cards whose first
+  // success is today after only Again grades. (The last rule also counts a card first forgotten on an earlier day; that
+  // errs on the side of fewer new cards, which is what the limit is for.)
+  function newUsedToday() {
+    var st = S(), t = ST.today(), mine = {};
+    newSeenToday().forEach(function (id) { mine[id] = 1; });
+    return ST.newGradedOn(t) + Object.keys(st.srs).filter(function (id) {
+      var c = st.srs[id];
+      return c && c.reps > 1 && c.last === t && (mine[id] || (c.first === t && c.reps === c.lapses + 1));
+    }).length;
   }
+
+  /* ---------- study content: a module's recall questions are loaded when one of its cards is needed ---------- */
+  var modState = {}; // moduleId -> 'ok' (loaded), 'none' (no study content yet), 'fail' (did not load; tried again next time)
+  function loadMods(mids) {
+    var seen = {};
+    return Promise.all((mids || []).filter(function (mid) {
+      if (!mid || seen[mid] || modState[mid] === 'ok' || modState[mid] === 'none') return false;
+      seen[mid] = 1; return true;
+    }).map(function (mid) {
+      return ST.ensureModule(mid).then(function (md) { modState[mid] = md ? 'ok' : 'none'; }, function () { modState[mid] = 'fail'; });
+    }));
+  }
+  function failedMods() { return Object.keys(modState).filter(function (k) { return modState[k] === 'fail'; }); }
   function parts(id) { var p = String(id).split(':'); return { kind: p[0], mid: p[1] || '', key: p.slice(2).join(':') }; }
-  // can this card be shown? (a recall card needs its module's study content)
+  // modules with recall cards in the review
+  function srsMods() {
+    var st = S(), out = {};
+    Object.keys(st.srs).forEach(function (id) { var p = parts(id); if (p.kind === 'rc' && st.srs[id] && !st.srs[id].off) out[p.mid] = 1; });
+    return Object.keys(out);
+  }
+  // can this card be shown? A recall card needs its module's content; until that is known the card is counted
   function live(id) {
     if (!A()) return true;
-    if (parts(id).kind === 'rc' && !D.study) return dataState !== 'fail';
-    return !!ST.reviewItem(id);
+    if (ST.reviewItem(id)) return true;
+    var p = parts(id);
+    return p.kind === 'rc' && !modState[p.mid];
   }
   function ktIds(m) { return (m.keyTerms || []).map(function (t, i) { return 'kt:' + m.id + ':' + i; }); }
   function hasRecall(mid, key) { var md = ST.modData(mid); return !!(md && md.cards && md.cards[key]); }
@@ -52,13 +81,15 @@
     var ci = p.kind === 'rc' ? READ_ORDER.indexOf(p.key) : 20 + (Number(p.key) || 0);
     return (m ? m._i : 999) * 1000 + (ci < 0 ? 19 : ci);
   }
-  function byDue(st) {
-    return function (x, y) { var a = st.srs[x], b = st.srs[y]; return a.due.localeCompare(b.due) || a.s - b.s || orderKey(x) - orderKey(y); };
+  // mix cards from different modules (interleaving): one card from each module in turn, each module keeping its own order
+  function interleave(ids) {
+    var groups = [], by = {}, out = [];
+    ids.forEach(function (id) { var mid = parts(id).mid; if (!by[mid]) { by[mid] = []; groups.push(by[mid]); } by[mid].push(id); });
+    for (var i = 0; out.length < ids.length; i++) groups.forEach(function (g) { if (i < g.length) out.push(g[i]); });
+    return out;
   }
-  function byNew(st) {
-    return function (x, y) { return String(st.srs[x].at).localeCompare(String(st.srs[y].at)) || orderKey(x) - orderKey(y); };
-  }
-  // what today's review holds: due = seen before and due now; fresh = never reviewed; newToday = the fresh cards allowed today
+  // what today's review holds: due = seen before and due now (most overdue first; cards due the same day mixed across
+  // modules); fresh = never reviewed (course order, mixed across modules); newToday = the fresh cards allowed today
   function counts() {
     var st = S(), t = ST.today(), due = [], fresh = [], active = 0;
     Object.keys(st.srs).forEach(function (id) {
@@ -66,8 +97,12 @@
       active++;
       if (!c.reps) fresh.push(id); else if (c.due <= t) due.push(id);
     });
-    due.sort(byDue(st)); fresh.sort(byNew(st));
-    var quota = Math.max(0, newPerDay() - newSeenToday().length);
+    due.sort(function (x, y) { var a = st.srs[x], b = st.srs[y]; return a.due.localeCompare(b.due) || a.s - b.s || orderKey(x) - orderKey(y); });
+    var byDay = [];
+    due.forEach(function (id) { var d = st.srs[id].due, last = byDay[byDay.length - 1]; if (!last || last.d !== d) byDay.push(last = { d: d, ids: [] }); last.ids.push(id); });
+    due = [].concat.apply([], byDay.map(function (b) { return interleave(b.ids); }));
+    fresh = interleave(fresh.sort(function (x, y) { return orderKey(x) - orderKey(y); }));
+    var quota = Math.max(0, newPerDay() - newUsedToday());
     return { due: due, fresh: fresh, newToday: fresh.slice(0, quota), quota: quota, active: active };
   }
   // the next day with work after today: reviews already planned, or new cards that wait for tomorrow
@@ -79,24 +114,8 @@
     if (waiting > 0 && (!best || best > tomorrow)) return { day: tomorrow, reviews: 0, fresh: Math.min(waiting, newPerDay()) };
     return { day: best, reviews: n, fresh: waiting > 0 && best === tomorrow ? Math.min(waiting, newPerDay()) : 0 };
   }
-
-  /* ---------- the next interval for each grade: the same sums as ST.schedule, on a copy ---------- */
-  function fnv(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; }
-  function previewDays(id, grade) {
-    var c = S().srs[id] || { s: 0, d: 5, reps: 0, lapses: 0 }, t = ST.today();
-    var d = Math.max(1, Math.min(10, (c.d || 5) + (3 - grade) * 0.7));
-    var s;
-    if (grade === 1) s = 0;
-    else if (!c.reps || !c.s) s = [0, 0, 1, 3, 6][grade];
-    else {
-      var since = c.last ? Math.max(1, ST.daysBetween(c.last, t)) : c.s;
-      var base = Math.max(c.s, Math.min(since, c.s * 2));
-      var mult = { 2: 1.2, 3: 2.3, 4: 3.3 }[grade] * (1.15 - 0.03 * d);
-      s = Math.min(365, Math.max(1, base * mult));
-    }
-    if (s >= 3) s = s * (0.95 + 0.1 * fnv(id + t));
-    return Math.round(s);
-  }
+  // days until the next review if the card got this grade now (the scheduler's own sums, nothing saved)
+  function previewDays(id, grade) { return Math.max(0, ST.daysBetween(ST.today(), ST.nextEntry(id, grade).due)); }
   function gapText(n) { return n <= 0 ? 'later today' : n === 1 ? '1 day' : n + ' days'; }
 
   /* ---------- dates ---------- */
@@ -122,20 +141,47 @@
   }
   function focusEl(el) { if (!el) return; try { el.focus({ preventScroll: false }); } catch (e) { el.focus(); } }
 
-  /* ---------- auto-add: ticking Got it on a lesson card adds its recall question (and the key terms) ---------- */
+  /* ---------- lesson cards ticked with Got it are in the review ---------- */
+  // Every ticked lesson card adds its recall question (and the Key terms card the module's key terms). This is worked out
+  // from the saved progress each time (no one-time flag), so ticks made before this feature existed, on a device without it,
+  // or brought in by a restore or a sync all reach the review. A card the learner removed keeps its 'off' entry and is never
+  // brought back here. New cards carry no time stamp (ST.enroll), so they never replace review history from another device.
+  function catchUp() {
+    var app = A(); if (!app) return Promise.resolve(0);
+    var st = S(), kt = [], rc = [], mids = {};
+    (D.modules || []).forEach(function (m) {
+      app.readCards(m).forEach(function (c) {
+        if (!app.readOn(m.id, c.key)) return;
+        if (c.key === 'keyTerms') ktIds(m).forEach(function (id) { if (!st.srs[id]) kt.push(id); });
+        var id = 'rc:' + m.id + ':' + c.key;
+        if (!st.srs[id]) { rc.push({ id: id, mid: m.id, key: c.key }); mids[m.id] = 1; }
+      });
+    });
+    if (!kt.length && !rc.length) return Promise.resolve(0);
+    return loadMods(Object.keys(mids)).then(function () {
+      var st2 = S();
+      var ids = rc.filter(function (x) { return hasRecall(x.mid, x.key); }).map(function (x) { return x.id; }).concat(kt)
+        .filter(function (id) { return !st2.srs[id]; });
+      return ids.length ? ST.enroll(ids) : 0;
+    });
+  }
+  // what a page needs before it counts cards: ticked cards added, and the content of every module with recall cards
+  function prepare(withStarted) {
+    return catchUp().catch(noop).then(function () { return loadMods(srsMods().concat(withStarted ? ST.startedModules() : [])); });
+  }
+
   function footNote(m, key, text) {
     if (!text) return;
     var side = $('mod-side'); if (side && side.getAttribute('data-mod') !== m.id) return;
-    var card = $('read-' + key), foot = card && card.querySelector('.read-foot'); if (!foot) return;
+    var card = $('read-' + key), foot = card && card.querySelector('.read-foot'); if (!foot || !foot.isConnected) return;
     var el = foot.querySelector('.rv-added');
     if (!el) { el = document.createElement('span'); el.className = 'small rv-added'; foot.appendChild(el); }
     el.innerHTML = '<span aria-hidden="true">✓ </span>' + text;
   }
   ST.on('card-read', function (m, key, on) {
     if (!on || !m || !key) return;
-    var done = function () {
-      var ids = key === 'keyTerms' ? ktIds(m) : [];
-      if (hasRecall(m.id, key)) ids.unshift('rc:' + m.id + ':' + key);
+    loadMods([m.id]).then(function () {
+      var ids = (hasRecall(m.id, key) ? ['rc:' + m.id + ':' + key] : []).concat(key === 'keyTerms' ? ktIds(m) : []);
       // a card the learner removed stays removed (it can be added again with "Add a module")
       var st = S(), before = ids.filter(function (id) { return st.srs[id] && !st.srs[id].off; }).length;
       ids = ids.filter(function (id) { return !(st.srs[id] && st.srs[id].off); });
@@ -143,35 +189,8 @@
       var n = ST.enroll(ids);
       footNote(m, key, n ? 'Added ' + plural(n, 'card') + ' to your <a href="#review">daily review</a>.' : before ? 'Already in your <a href="#review">daily review</a>.' : '');
       refreshHub();
-    };
-    ST.ensureData().then(done, done);
-  });
-
-  // one-time catch-up for cards ticked before this feature existed
-  var migTries = 0;
-  function migrate() {
-    var app = A();
-    if (!app) { if (++migTries < 40) setTimeout(migrate, 50); return; }
-    if (prefs().srsMig) return;
-    var kt = [], rc = [];
-    D.modules.forEach(function (m) {
-      app.readCards(m).forEach(function (c) {
-        if (!app.readOn(m.id, c.key)) return;
-        rc.push([m.id, c.key]);
-        if (c.key === 'keyTerms') kt = kt.concat(ktIds(m));
-      });
     });
-    if (!rc.length) { prefs().srsMig = 1; C.save(); return; }
-    ST.ensureData().then(function () {
-      var st = S(), ids = rc.filter(function (x) { return hasRecall(x[0], x[1]); }).map(function (x) { return 'rc:' + x[0] + ':' + x[1]; }).concat(kt);
-      ids = ids.filter(function (id) { return !st.srs[id]; }); // never bring back a card that was removed
-      if (ids.length) ST.enroll(ids);
-      prefs().srsMig = 1; C.save();
-      refreshHub();
-      if (page && !sess) drawAll();
-    }, function () { /* try again on the next visit */ });
-  }
-  setTimeout(migrate, 0);
+  });
 
   /* ---------- the review page (#review) ---------- */
   var page = null, sess = null;
@@ -185,8 +204,8 @@
     app.setView('<div class="wrap stack-lg rv-page">' + app.crumbs([['Home', 'home'], ['Study room', 'study'], ['Daily review']]) +
       '<header class="stack-sm"><h1>Daily review</h1>' +
       '<p class="lede prose">' + ST.sans('smarana') + '. Pulling an answer out of your memory makes it stronger than reading it again, and reviewing it just before you would forget makes it last.</p>' +
-      '<p class="small muted prose">Methods used here: active recall, adaptive spaced repetition (cards you find hard come back sooner, easy ones wait longer) and long-term retention tracking. <a href="#methods">How these methods work</a></p></header>' +
-      '<div id="rv-main" class="stack-lg"><p class="muted">Loading your review cards…</p></div></div>', 'Daily review');
+      '<p class="small muted prose">Methods used here: active recall, adaptive spaced repetition (cards you find hard come back sooner, easy ones wait longer), interleaving (cards from different modules are mixed, so you learn to tell similar ideas apart) and long-term retention tracking. <a href="#methods">How these methods work</a></p></header>' +
+      '<div id="rv-main" class="stack-lg"><p class="muted" role="status">Loading your review cards…</p></div></div>', 'Daily review');
     page = { token: token, observer: null };
     sess = null;
     $('rv-main').addEventListener('click', onClick);
@@ -198,13 +217,19 @@
       if (page && page.observer) page.observer.disconnect();
       if (page && page.token === token) { page = null; sess = null; }
     });
-    loadData().then(function () { if (page && page.token === token) drawAll(); });
+    prepare(true).then(function () { if (page && page.token === token) drawAll(); });
   }
   ST.addRoute('review', viewReview, 'study');
 
+  function loadNote() {
+    var n = failedMods().length; if (!n) return '';
+    return '<div class="callout stack-sm" role="alert"><p>The lesson-card questions of ' + plural(n, 'module') + ' did not load. Check your connection and try again. Key-term cards still work, and the other questions come back when the content loads.</p>' +
+      '<div class="row"><button type="button" class="btn btn-sm" data-rv="retry">Try again</button></div></div>';
+  }
   function drawAll() {
     var root = $('rv-main'); if (!root) return;
-    root.innerHTML = (dataState === 'fail' ? '<div class="callout" role="alert">' + esc(dataErr) + ' Key-term cards still work; lesson-card questions come back when the content loads.</div>' : '') +
+    if (page && page.observer) { page.observer.disconnect(); page.observer = null; }
+    root.innerHTML = '<div id="rv-note">' + loadNote() + '</div>' +
       '<section class="card stack rv-today" id="rv-today" aria-labelledby="rv-today-h"></section>' +
       '<p class="visually-hidden" id="rv-live" aria-live="polite"></p>' +
       '<div id="rv-more" class="stack-lg">' +
@@ -213,6 +238,22 @@
       '<section class="card stack-sm" id="rv-ai" aria-labelledby="rv-ai-h"></section></div></div>';
     drawToday(); drawRet(); drawAdd(); drawAI();
   }
+  // progress changed outside this page (another device or tab): redraw, keeping the learner's place
+  function redraw() {
+    var ae = document.activeElement, sel = null;
+    if (ae && $('rv-main') && $('rv-main').contains(ae)) {
+      sel = ae.id ? '#' + ae.id : ae.getAttribute('data-rv') ? '[data-rv="' + ae.getAttribute('data-rv') + '"]' + (ae.getAttribute('data-mid') ? '[data-mid="' + ae.getAttribute('data-mid') + '"]' : '') : null;
+    }
+    var mod = $('rv-ai-mod') && $('rv-ai-mod').value;
+    drawAll();
+    if (mod && $('rv-ai-mod')) $('rv-ai-mod').value = mod;
+    var el = sel && document.querySelector('#rv-main ' + sel);
+    if (el) focusEl(el);
+  }
+  window.addEventListener('aim:progress-replaced', function (ev) {
+    if (ev.detail && ev.detail.cleared) return; // everything was cleared: the page is drawn again by app.js
+    prepare(false).then(function () { refreshHub(); if (page && !sess && $('rv-main')) redraw(); });
+  });
 
   /* ----- today ----- */
   function drawToday(focusHead) {
@@ -239,7 +280,7 @@
     }
     var stats = '<div class="lab-stats">' + stat('Due today', cn.due.length) + stat('New today', cn.newToday.length) + stat('New cards waiting', cn.fresh.length) + stat('Cards in review', cn.active) + '</div>';
     var wait = cn.fresh.length - cn.newToday.length;
-    var expl = '<p class="small muted prose"><strong>Due today</strong>: cards you have reviewed before whose review day has come. <strong>New today</strong>: cards you have not seen yet; up to ' + npd + ' join each day so the review stays short' +
+    var expl = '<p class="small muted prose"><strong>Due today</strong>: cards you have reviewed before whose review day has come. <strong>New today</strong>: cards you have not seen yet; up to ' + npd + ' join each day (on all your devices together) so the review stays short' +
       (wait > 0 ? ', and the other ' + plural(wait, 'new card') + ' wait for the coming days' : '') + '.</p>';
     if (!n) {
       var nx = nextInfo(cn), what = [];
@@ -305,10 +346,10 @@
     if (!sess || !sess.shown || !(g >= 1 && g <= 4)) return;
     var id = sess.queue[0], st = S(), t = ST.today(); if (!id) return;
     var prev = st.srs[id] ? JSON.parse(JSON.stringify(st.srs[id])) : null, seen = newSeenToday();
-    sess.undo = { id: id, day: t, prev: prev, prevLog: st.rlog[t] ? st.rlog[t].slice() : null, prevSeen: seen.slice(),
+    sess.undo = { id: id, day: t, prev: prev, ok: g >= 2 ? 1 : 0, prevSeen: seen.slice(),
       queue: sess.queue.slice(), cleared: Object.assign({}, sess.cleared), first: Object.assign({}, sess.first), again: Object.assign({}, sess.again), reviews: sess.reviews };
     if ((!prev || !prev.reps) && seen.indexOf(id) < 0) { seen.push(id); setNewSeen(seen); }
-    var entry = ST.schedule(id, g); // saves the card, the day's log and the preference above
+    var entry = ST.schedule(id, g); // saves the card, this device's review count for today and the preference above
     sess.reviews++;
     if (!Object.prototype.hasOwnProperty.call(sess.first, id)) sess.first[id] = g;
     sess.queue.shift();
@@ -321,8 +362,9 @@
   function undo() {
     var u = sess && sess.undo; if (!u) return;
     var st = S();
+    // the card goes back to how it was, with a fresh time so the undo also wins on the learner's other devices
     if (u.prev) { var e = Object.assign({}, u.prev); e.at = ST.now(); st.srs[u.id] = e; }
-    if (u.prevLog) st.rlog[u.day] = u.prevLog; else delete st.rlog[u.day];
+    ST.logReview(-1, -u.ok, u.day); // this device's own count for that day, so the next sync keeps the lower number
     if (u.day === ST.today()) setNewSeen(u.prevSeen);
     C.save();
     sess.queue = u.queue; sess.cleared = u.cleared; sess.first = u.first; sess.again = u.again; sess.reviews = u.reviews; sess.undo = null;
@@ -377,14 +419,25 @@
     else if (a === 'stop') finish(true);
     else if (a === 'home') drawToday(true);
     else if (a === 'add') addModule(b.getAttribute('data-mid'));
+    else if (a === 'retry') retry(b);
+  }
+  function retry(b) {
+    b.disabled = true; b.textContent = 'Loading…';
+    var token = page && page.token;
+    prepare(true).then(function () {
+      if (!page || page.token !== token || sess) return;
+      drawAll();
+      announce(failedMods().length ? 'Still not loaded. Check your connection.' : 'Loaded. Every card is back.');
+      focusEl($('rv-today-h'));
+    });
   }
 
   /* ----- retention panel ----- */
   function weeks() {
-    var st = S(), t = ST.today(), w0 = weekStart(t), out = [];
+    var t = ST.today(), w0 = weekStart(t), out = [];
     for (var k = 7; k >= 0; k--) {
       var start = ST.addDays(w0, -7 * k), n = 0, ok = 0;
-      for (var i = 0; i < 7; i++) { var d = ST.addDays(start, i); if (d > t) break; var lg = st.rlog[d]; if (lg) { n += lg[0]; ok += lg[1]; } }
+      for (var i = 0; i < 7; i++) { var d = ST.addDays(start, i); if (d > t) break; var lg = ST.reviewLog(d); n += lg[0]; ok += lg[1]; }
       out.push({ start: start, n: n, ok: ok, pct: n ? Math.round(ok / n * 100) : null, now: k === 0 });
     }
     return out;
@@ -424,13 +477,13 @@
     var reviewed = stg.learn + stg.mat + stg.long;
     var recall = ret.avg != null && ret.n >= MIN_CARDS
       ? '<p class="rv-big"><span class="rv-big-v">' + Math.round(ret.avg * 100) + '%</span> <span class="muted">predicted recall today</span></p>' +
-        '<p class="small muted prose">If you were quizzed on your ' + plural(ret.n, 'reviewed card') + ' right now, you would probably remember about ' + Math.round(ret.avg * ret.n) + ' of them. The estimate comes from how long each card has rested since its last review and how strong it was then. It falls a little every day and rises when you review.</p>'
+        '<p class="small muted prose">If you were quizzed on your ' + plural(ret.n, 'reviewed card') + ' right now, you would probably remember about ' + Math.round(ret.avg * ret.n) + ' of them. The estimate comes from how long each card has rested since its last review and how strong it was then (a card you just forgot is weak and fades fast). It falls a little every day and rises when you review.</p>'
       : '<p class="rv-big"><span class="muted">Predicted recall today: not enough reviews yet.</span></p><p class="small muted prose">Review at least ' + MIN_CARDS + ' cards' + (ret.n ? ' (you have reviewed ' + ret.n + ')' : '') + ' to see how much of what you studied you would remember today.</p>';
     var stages = '<div class="lab-stats">' + stat('Learning', stg.learn, 'rv-st-learn') + stat('Maturing', stg.mat, 'rv-st-mat') + stat('Long-term', stg.long, 'rv-st-long') + stat('Not yet reviewed', stg.fresh, 'rv-st-new') + '</div>' +
       '<p class="small muted prose">Each card has a memory strength: about how many days you can wait before your chance of recalling it falls to 9 in 10. <strong>Learning</strong> cards are under 7 days, <strong>maturing</strong> cards 7 to 20 days and <strong>long-term</strong> cards 21 days or more. Cards grow stronger each time you remember them and go back to learning when you forget.</p>';
     var ws = weeks(), total = ws.reduce(function (s, w) { return s + w.n; }, 0);
     var chart = total >= MIN_WEEK_REVIEWS
-      ? '<figure class="rv-fig stack-sm">' + chartSVG(ws) + '<figcaption class="small muted">The share of your review answers graded Hard, Good or Easy (remembered) each week. A dash means no reviews that week.</figcaption></figure>' +
+      ? '<figure class="rv-fig stack-sm">' + chartSVG(ws) + '<figcaption class="small muted">The share of your review answers graded Hard, Good or Easy (remembered) each week, on all your devices. A dash means no reviews that week.</figcaption></figure>' +
         '<details class="rv-tbl"><summary>Show these numbers as a table</summary><table class="simple"><caption class="visually-hidden">Reviews remembered each week</caption><thead><tr><th scope="col">Week</th><th scope="col">Reviews</th><th scope="col">Remembered</th></tr></thead><tbody>' +
         ws.map(function (w) { return '<tr><th scope="row">' + esc(weekName(w)) + '</th><td class="num">' + w.n + '</td><td class="num">' + (w.n ? w.ok + ' (' + w.pct + '%)' : '–') + '</td></tr>'; }).join('') + '</tbody></table></details>'
       : '<p class="small muted">Not enough reviews yet: this chart appears after ' + MIN_WEEK_REVIEWS + ' reviews in the last 8 weeks (you have ' + total + ').</p>';
@@ -452,32 +505,25 @@
   }
 
   /* ----- add a module ----- */
-  function startedModules() {
-    var app = A(), st = S();
-    return D.modules.filter(function (m) {
-      if (app.readCards(m).some(function (c) { return app.readOn(m.id, c.key); })) return true;
-      if (st.quiz[m.id] && st.quiz[m.id].attempts > 0) return true;
-      return app.mainPicks(m).list.some(function (r) { return !!st.watched[r.id]; });
-    });
-  }
+  function startedMods() { var app = A(); return ST.startedModules().map(function (id) { return app.modById[id]; }).filter(Boolean); }
   function drawAdd(focusMid) {
     var box = $('rv-add'); if (!box) return;
-    var st = S(), ms = startedModules(), npd = newPerDay();
+    var st = S(), ms = startedMods(), npd = newPerDay();
     var rows = ms.map(function (m) {
       var ids = ST.moduleReviewIds(m), inRev = ids.filter(function (id) { return st.srs[id] && !st.srs[id].off; }).length, add = ids.length - inRev;
-      var soon = !ST.modData(m.id);
+      var note = ST.modData(m.id) ? '' : modState[m.id] === 'fail' ? '. Its recall questions did not load; its key terms can be added now.' : '. Recall questions for this module are coming soon; its key terms can be added now.';
       return '<li class="rv-mod"><div class="stack-sm"><a href="#m-' + esc(m.id) + '">' + esc(modLabel(m)) + '</a>' +
-        '<span class="small muted" id="rv-ms-' + esc(m.id) + '" tabindex="-1">' + inRev + ' of ' + plural(ids.length, 'card') + ' in your review' + (soon ? '. Recall questions for this module are coming soon; its key terms can be added now.' : '') + '</span></div>' +
+        '<span class="small muted" id="rv-ms-' + esc(m.id) + '" tabindex="-1">' + inRev + ' of ' + plural(ids.length, 'card') + ' in your review' + note + '</span></div>' +
         (add ? '<button type="button" class="btn btn-sm" data-rv="add" data-mid="' + esc(m.id) + '">Add ' + plural(add, 'card') + '<span class="visually-hidden"> from ' + esc(modLabel(m)) + '</span></button>' : '<span class="chip chip-ok">All in review</span>') + '</li>';
     }).join('');
     box.innerHTML = '<h2 class="h-sub" id="rv-add-h">Add a module to my review</h2>' +
       '<p class="small muted">Adds every key term and lesson-card recall question of a module you have started. New cards join your review a few at a time (up to ' + npd + ' a day).</p>' +
-      (ms.length ? '<ul class="rv-mods">' + rows + '</ul>' : '<p class="small">No modules started yet. Open one from the <a href="#roadmap">roadmap</a>: tick Got it on a lesson card, watch its video or try its quiz, and it appears here.</p>');
+      (ms.length ? '<ul class="rv-mods">' + rows + '</ul>' : '<p class="small">No modules started yet. Open one from the <a href="#roadmap">roadmap</a>: tick Got it on a lesson card, try its quiz or an exercise, or watch its video, and it appears here.</p>');
     if (focusMid) focusEl($('rv-ms-' + focusMid));
   }
   function addModule(mid) {
     var m = A().modById[mid]; if (!m) return;
-    ST.ensureData().then(function () { return true; }, function () { return false; }).then(function () {
+    loadMods([mid]).then(function () {
       if (!$('rv-add')) return;
       var n = ST.enroll(ST.moduleReviewIds(m));
       if (!sess) { var body = $('rv-today-body'); if (body) body.innerHTML = todayBody(); else drawToday(); }
@@ -489,8 +535,8 @@
   /* ----- AI-powered active recall ----- */
   function drawAI() {
     var box = $('rv-ai'); if (!box) return;
-    var app = A(), st = S(), started = startedModules();
-    var dflt = (st.last && app.modById[st.last]) ? st.last : started[0] ? started[0].id : D.modules[0] && D.modules[0].id;
+    var app = A(), st = S(), started = ST.startedModules();
+    var dflt = (st.last && app.modById[st.last]) ? st.last : started[0] ? started[0] : D.modules[0] && D.modules[0].id;
     var opts = D.levels.map(function (l) {
       return '<optgroup label="' + esc('Level ' + l.id + ' · ' + l.name) + '">' + app.modulesOf(l.id).map(function (m) {
         return '<option value="' + esc(m.id) + '"' + (m.id === dflt ? ' selected' : '') + '>' + esc(app.modNo(m) + ' ' + m.title) + '</option>';
@@ -499,9 +545,11 @@
     box.innerHTML = '<h2 class="h-sub" id="rv-ai-h">Ask AI to quiz me</h2>' +
       '<p class="small muted">Active recall with an AI tutor: it asks you 5 short questions about a module, starting with the cards you forget most. Answer from memory before you look anything up.</p>' +
       '<div class="stack-sm"><label for="rv-ai-mod" class="small"><strong>Module</strong></label><select id="rv-ai-mod">' + opts + '</select></div>' +
-      ST.aiHTML('rv-ai-box', 'Ask Gemini for 5 questions') +
-      '<p class="small muted">Copy prompt works with ChatGPT, Gemini, Claude or any AI app: paste it, then answer each question as it comes.' + (ST.aiOffered() ? ' Ask Gemini (for signed-in learners) lists the 5 questions here with each answer folded away, so you can try first.' : '') + '</p>';
+      ST.aiHTML('rv-ai-box', 'Ask Gemini for 5 questions', 'quiz questions on the module you picked') +
+      '<p class="small muted">Copy prompt works with ChatGPT, Gemini, Claude or any AI app: paste it, then answer each question as it comes. The copied text names the terms and questions but not their answers, so you still answer from memory.' +
+      (ST.aiOffered() ? ' Ask Gemini (for signed-in learners) lists the 5 questions here with each answer folded away, so you can try first.' : '') + '</p>';
     var mode = 'copy', ai = box.querySelector('[data-ai="rv-ai-box"]');
+    // which button was pressed decides the prompt (this listener runs before study.js handles the click)
     if (ai) ai.addEventListener('click', function (ev) { var t = ev.target.closest && ev.target.closest('[data-ai-ask],[data-ai-copy]'); if (t) mode = t.hasAttribute('data-ai-ask') ? 'gemini' : 'copy'; }, true);
     ST.bindAI(box, 'rv-ai-box', function () { return aiPrompt($('rv-ai-mod') && $('rv-ai-mod').value, mode); });
     var out = ai && ai.querySelector('.ai-out');
@@ -519,38 +567,75 @@
       .sort(function (a, b) { return b.c.lapses - a.c.lapses || (a.r == null ? 1 : a.r) - (b.r == null ? 1 : b.r); })
       .slice(0, 5);
   }
+  // The learner pastes a copied prompt as their own first message, so it stays on screen above every question: it names the
+  // key terms and the hardest questions but never their meanings or answers (the AI checks the answers itself). Gemini's
+  // prompt is never shown, so it carries the course's answers, and the reply folds them away.
   function aiPrompt(mid, mode) {
     var app = A(), m = app && app.modById[mid]; if (!m) return '';
-    var terms = (m.keyTerms || []).slice(0, 12).map(function (t) { return '- ' + t.term + ': ' + t.meaning; }).join('\n');
-    var weak = weakCards(m);
+    var gem = mode === 'gemini', kts = (m.keyTerms || []).slice(0, 12), weak = weakCards(m);
+    var forgot = function (x) { return x.c.lapses ? ' - I forgot this ' + (x.c.lapses === 1 ? 'once' : x.c.lapses + ' times') : ''; };
     var head = 'I am studying the module "' + m.title + '" (module ' + app.modNo(m) + ') of a free AI and machine learning course.\n\n' +
-      (terms ? 'Key terms of this module:\n' + terms + '\n\n' : '') +
-      (weak.length ? 'The review cards I find hardest (start with these):\n' + weak.map(function (x) {
-        return '- ' + x.it.front + ' (correct answer: ' + x.it.back + ')' + (x.c.lapses ? ' - I forgot this ' + (x.c.lapses === 1 ? 'once' : x.c.lapses + ' times') : '');
+      (kts.length ? (gem ? 'Key terms of this module, with the course\'s meanings:\n' + kts.map(function (t) { return '- ' + t.term + ': ' + t.meaning; }).join('\n')
+        : 'Key terms of this module (their meanings are left out on purpose, so I answer from memory):\n' + kts.map(function (t) { return '- ' + t.term; }).join('\n')) + '\n\n' : '') +
+      (weak.length ? 'The review questions I find hardest (start with these):\n' + weak.map(function (x) {
+        return '- ' + x.it.front + (gem ? ' (course answer: ' + x.it.back + ')' : '') + forgot(x);
       }).join('\n') + '\n\n' : 'I have not reviewed cards from this module yet, so use the key terms.\n\n');
-    if (mode === 'gemini') {
+    if (gem) {
       return head + 'Task: write 5 short recall questions (questions I answer from memory) about this module, starting with the cards I find hardest, then the key terms. ' +
         'Write each question on its own line as "Question 1:", "Question 2:" and so on. On the next line write "Answer:" and the answer in one or two sentences. Leave a blank line between questions. Do not use lists, headings or anything else.';
     }
     return head + 'Task: quiz me with 5 short recall questions (questions I answer from memory) about this module. Ask ONE question at a time, then stop and wait for my answer. ' +
-      'After each answer, tell me in one or two sentences whether I was right, and give the correct answer if I was not. Then ask the next question. Never show an answer before I reply. ' +
-      'Start with the cards I find hardest, then use the key terms. After my fifth answer, tell me which ideas I should review again.';
+      'After each answer, tell me in one or two sentences whether I was right, using what you know about this topic, and give the correct answer if I was not. Then ask the next question. Never show an answer before I reply. ' +
+      'Start with the questions I find hardest, then use the key terms. After my fifth answer, tell me which ideas I should review again.';
   }
-  // Gemini's "Answer:" lines are folded under "Show answer" so the learner can try first (nodes are moved, never re-parsed)
+
+  // Gemini's "Answer:" parts are folded under "Show answer" so the learner can try first. A reply often has no blank lines,
+  // so one paragraph may hold several questions: it is first split before each "Question N", then each answer is folded.
+  // Nodes are only moved, never parsed again as HTML.
+  var Q_MARK = /\b(?:question|q)\s*\d+\s*[:.)\-–]/gi, A_MARK = /\banswer\b\s*(?:\d+\s*)?[:\-–]/i;
+  function textMap(el) {
+    var w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), nodes = [], s = '', tn;
+    while ((tn = w.nextNode())) { nodes.push({ n: tn, at: s.length }); s += tn.data; }
+    return { s: s, nodes: nodes };
+  }
+  function pointAt(map, i) {
+    for (var k = map.nodes.length - 1; k >= 0; k--) if (map.nodes[k].at <= i) return [map.nodes[k].n, i - map.nodes[k].at];
+    return null;
+  }
+  // start a range at a text position; a marker that opens an inline element (as in **Question 2:**) takes the element along
+  function startAt(r, el, pt) {
+    var node = pt[0];
+    if (pt[1] === 0) { while (node.parentNode && node.parentNode !== el && !node.previousSibling) node = node.parentNode; r.setStartBefore(node); }
+    else r.setStart(pt[0], pt[1]);
+  }
+  function splitQuestions(el) {
+    var map = textMap(el), cuts = [], mm, blocks = [el];
+    Q_MARK.lastIndex = 0;
+    while ((mm = Q_MARK.exec(map.s))) if (map.s.slice(0, mm.index).trim()) cuts.push(mm.index);
+    for (var k = cuts.length - 1; k >= 0; k--) { // from the end, so earlier positions stay valid
+      var r = document.createRange(); startAt(r, el, pointAt(map, cuts[k])); r.setEnd(el, el.childNodes.length);
+      var nb = document.createElement(el.tagName); nb.appendChild(r.extractContents());
+      el.parentNode.insertBefore(nb, el.nextSibling);
+      blocks.splice(1, 0, nb);
+    }
+    return blocks;
+  }
+  function fold(el, k) {
+    var map = textMap(el), mm = A_MARK.exec(map.s); if (!mm) return false;
+    var r = document.createRange(); startAt(r, el, pointAt(map, mm.index)); r.setEnd(el, el.childNodes.length);
+    var frag = r.extractContents();
+    var det = document.createElement('details'); det.className = 'rv-fold';
+    var sum = document.createElement('summary'); sum.textContent = 'Show answer ' + k;
+    var body = document.createElement('div'); body.appendChild(frag);
+    det.appendChild(sum); det.appendChild(body); el.appendChild(det);
+    return true;
+  }
   function foldAnswers(out) {
     var reply = out.querySelector('.ai-reply:not([data-rv-fold])'); if (!reply) return;
     reply.setAttribute('data-rv-fold', '1');
     var n = 0;
     Array.prototype.slice.call(reply.querySelectorAll('p, li')).forEach(function (el) {
-      var w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), tn, hit = null, idx = -1;
-      while ((tn = w.nextNode())) { var mm = /\banswer\s*:/i.exec(tn.data); if (mm) { hit = tn; idx = mm.index; break; } }
-      if (!hit) return;
-      var r = document.createRange(); r.setStart(hit, idx); r.setEnd(el, el.childNodes.length);
-      var frag = r.extractContents();
-      var det = document.createElement('details'); det.className = 'rv-fold';
-      var sum = document.createElement('summary'); sum.textContent = 'Show answer ' + (++n);
-      var body = document.createElement('div'); body.appendChild(frag);
-      det.appendChild(sum); det.appendChild(body); el.appendChild(det);
+      splitQuestions(el).forEach(function (b) { if (fold(b, n + 1)) n++; });
     });
   }
 
@@ -570,5 +655,11 @@
       '<p id="rv-hub-n">' + hubLine(cn) + '</p>' +
       '<div class="row"><a class="btn btn-primary" href="#review">' + (n ? 'Start review' : 'Open daily review') + '</a></div></article>';
   });
-  ST.on('hub', function () { loadData().then(refreshHub); });
+  ST.on('hub', function () { prepare(false).then(refreshHub); });
+
+  // ticked lesson cards without a review card are added as soon as this feature loads
+  (function start(tries) {
+    if (!A()) { if (tries < 40) setTimeout(function () { start(tries + 1); }, 50); return; }
+    catchUp().then(function (n) { if (!n) return; refreshHub(); if (page && !sess && $('rv-main')) redraw(); }, noop);
+  })(0);
 })();

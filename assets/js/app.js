@@ -280,14 +280,15 @@
     var h = C.play(box, r, {
       getPos: function () { return S().pos[r.id] || null; },
       onPos: function (p) {
-        S().pos[r.id] = { i: Math.max(0, p.i || 0), n: Math.max(0, p.n || 0), s: Math.max(0, Math.floor(p.s || 0)), t: Date.now() };
+        C.setPos(r.id, p);
         C.save(); updatePos(r);
       },
       onComplete: function () {
         // forget the stop point: it sits at the very end, so a replay after unticking would end and re-tick at once
-        var st = S(); delete st.pos[r.id];
+        // (forgetPos keeps a timed marker, so the account copy cannot bring the old place back)
+        var st = S(); C.forgetPos(r.id);
         if (st.watched[r.id]) { C.save(); return; }
-        st.watched[r.id] = C.today(); C.logActivity(); C.save(); syncWatched(r.id, true);
+        C.setWatched(r.id, true); C.logActivity(); C.save(); syncWatched(r.id, true);
         C.toast(r.listId ? 'Playlist finished: ticked as done' : 'Video finished: ticked as done');
       }
     });
@@ -383,16 +384,36 @@
   var pendingFlush = [];
   function flushPending() { pendingFlush.slice().forEach(function (f) { try { f(); } catch (e) {} }); }
   window.addEventListener('pagehide', flushPending);
+  // Keyboard focus across a redraw: remember which control inside root has focus, and focus the same one (or the
+  // fallback) once root has been redrawn, so keyboard and screen-reader users keep their place.
+  function focusKey(root) {
+    var el = document.activeElement;
+    if (!root || !el || el === root || !root.contains(el)) return null;
+    var q = function (v) { return '"' + String(v).replace(/["\\]/g, '\\$&') + '"'; }, sel = el.tagName.toLowerCase();
+    ['data-action', 'data-id', 'data-c', 'data-tab', 'data-key', 'href', 'name'].forEach(function (a) { if (el.hasAttribute(a)) sel += '[' + a + '=' + q(el.getAttribute(a)) + ']'; });
+    if (el.id) sel = '[id=' + q(el.id) + ']';
+    return { root: root, sel: sel, i: Math.max(0, [].indexOf.call(root.querySelectorAll(sel), el)) };
+  }
+  function refocus(k, fallback) {
+    var ae = document.activeElement;
+    if (!k || (ae && ae !== document.body && document.documentElement.contains(ae))) return; // focus was not lost
+    var all = k.root.isConnected ? k.root.querySelectorAll(k.sel) : [], el = all[k.i] || all[0] || (typeof fallback === 'function' ? fallback() : fallback);
+    if (!el) return;
+    if (!el.matches('a[href], button, input, select, textarea, summary, [tabindex]')) el.setAttribute('tabindex', '-1');
+    el.focus({ preventScroll: true });
+  }
+  // quiet: a background redraw (progress arrived from another device or tab) keeps focus, scroll and the menu as they are
+  var quiet = false;
   function setView(html, title) {
     flushPending(); pendingFlush = [];
     currentCleanup.forEach(function (f) { try { f(); } catch (e) {} });
     currentCleanup = [];
-    try { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); } catch (e) {}
+    if (!quiet) { try { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); } catch (e) {} }
     main.innerHTML = html;
     document.title = (title ? title + ' · ' : '') + (D.site.name || 'AI Marg');
     var h1 = main.querySelector('h1');
-    if (h1) { h1.setAttribute('tabindex', '-1'); h1.focus({ preventScroll: true }); }
-    try { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); } catch (e) { window.scrollTo(0, 0); }
+    if (h1) { h1.setAttribute('tabindex', '-1'); if (!quiet) h1.focus({ preventScroll: true }); }
+    if (!quiet) { try { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); } catch (e) { window.scrollTo(0, 0); } }
   }
   function crumbs(items) {
     return '<nav class="crumbs" aria-label="Breadcrumb">' + items.map(function (it, i) {
@@ -487,9 +508,11 @@
   function bindPlanner() {
     var hpw = document.getElementById('hpw'), ps = document.getElementById('pstart'), out = document.getElementById('plan-out');
     if (!hpw) return;
-    function calc() {
+    // ev: the learner moved the slider or picked a date. Only then is the plan saved: the defaults shown on a first
+    // visit are not a choice, so a plan already in the learner's account still arrives when they sign in.
+    function calc(ev) {
       var h = Number(hpw.value) || 10; document.getElementById('hpw-out').textContent = h + ' h';
-      S().prefs.hpw = h; S().prefs.start = ps.value; C.save();
+      if (ev) { C.setPlan(h, ps.value); C.save(); }
       var d0 = ps.value ? new Date(ps.value + 'T00:00:00') : new Date(), cum = 0;
       var rows = D.levels.map(function (l) {
         var mh = modulesOf(l.id).reduce(function (s, m) { return s + (m.hours || 20); }, 0);
@@ -586,7 +609,9 @@
   function refreshSide() {
     var el = document.getElementById('mod-side'); if (!el) return;
     var m = modById[el.getAttribute('data-mod')]; if (!m) return;
+    var fk = focusKey(el); // e.g. "Mark module complete" pressed from the keyboard: keep focus on it
     el.innerHTML = moduleSide(m);
+    refocus(fk);
     var r = main.querySelector('header .ring'); if (r) { var p = moduleProgress(m); r.style.setProperty('--p', p); r.setAttribute('data-label', p + '%'); r.setAttribute('aria-label', p + '% complete'); }
   }
   function moduleSide(m) {
@@ -640,7 +665,7 @@
       mountLab(lab, document.getElementById('labroot'));
     } else if (tab === 'practice') {
       var exs = exOf(m.id);
-      el.innerHTML = '<div class="stack-lg"><div class="callout small">Write Python in the box and press <strong>Check</strong>. The first run downloads Python (about 12 MB, more if the exercise uses NumPy or pandas). After that your browser usually keeps it. Your code is saved on this device.</div>' +
+      el.innerHTML = '<div class="stack-lg"><div class="callout small">Write Python in the box and press <strong>Check</strong>. The first run downloads Python (about 12 MB, more if the exercise uses NumPy or pandas). After that your browser usually keeps it. Your code is saved in this browser' + (cloudOn() ? ', and in your account if you sign in' : '') + '.</div>' +
         exs.map(function (e, i) { return '<section class="stack" id="exwrap-' + esc(e.id) + '"></section>' + (i < exs.length - 1 ? '<hr>' : ''); }).join('') + '</div>';
       exs.forEach(function (e) { mountExercise(e, document.getElementById('exwrap-' + e.id)); });
     } else if (tab === 'quiz') {
@@ -654,11 +679,12 @@
       currentCleanup.push(function () { quiz.destroy(); });
     } else if (tab === 'notes') {
       var note = S().notes[m.id] || '';
-      el.innerHTML = '<div class="stack"><h2>My notes</h2><p class="small muted">Write what you learned in your own words (Hindi, English or Hinglish). Notes stay on this device. Copy them into your GitHub learning log every week.</p>' +
+      el.innerHTML = '<div class="stack"><h2>My notes</h2><p class="small muted">Write what you learned in your own words (Hindi, English or Hinglish). Notes are saved in this browser' + (cloudOn() ? ', and in your account if you sign in' : '') + '. Copy them into your GitHub learning log every week.</p>' +
         '<label for="note-' + esc(m.id) + '" class="visually-hidden">Notes for ' + esc(m.title) + '</label><textarea id="note-' + esc(m.id) + '" rows="12" placeholder="Example: Gradient descent = walking downhill in small steps. Learning rate = step size. Too big → overshoot.">' + esc(note) + '</textarea><span class="small muted" id="note-status"></span></div>';
       var ta = el.querySelector('textarea'), t = null;
-      var flushNote = function () { if (!t) return; clearTimeout(t); t = null; S().notes[m.id] = ta.value; C.save(); var st = document.getElementById('note-status'); if (st) st.textContent = 'Saved'; };
-      ta.addEventListener('input', function () { clearTimeout(t); t = setTimeout(flushNote, 400); });
+      // data-dirty: typed but not saved yet, so a sync must not replace the text in the box (see aim:progress-replaced)
+      var flushNote = function () { if (!t) return; clearTimeout(t); t = null; delete ta.dataset.dirty; C.setNote(m.id, ta.value); C.save(); var st = document.getElementById('note-status'); if (st) st.textContent = 'Saved'; };
+      ta.addEventListener('input', function () { ta.dataset.dirty = '1'; clearTimeout(t); t = setTimeout(flushNote, 400); });
       pendingFlush.push(flushNote); currentCleanup.push(flushNote);
     }
   }
@@ -1091,7 +1117,10 @@
           b.addEventListener('click', function () {
             var c = b.getAttribute('data-c');
             if (c === 'flip') { flipped = true; draw(); root.querySelector('[data-c=know]').focus(); }
-            else { st.cards[g.term] = c === 'know' ? Math.min(4, (st.cards[g.term] || 0) + 1) : 0; C.logActivity(); C.save(); next(); }
+            else {
+              st.cards[g.term] = c === 'know' ? Math.min(4, (st.cards[g.term] || 0) + 1) : 0; C.logActivity(); C.save(); next();
+              var nf = document.querySelector('#card-root [data-c=flip]'); if (nf) nf.focus(); // the next card, not the top of the page
+            }
           });
         });
       }
@@ -1109,20 +1138,58 @@
     var passed = Object.keys(st.quiz).filter(function (k) { return st.quiz[k].best >= 70; }).length;
     var projDone = Object.keys(st.projects).filter(function (k) { return st.projects[k] && st.projects[k].done; }).length;
     setView('<div class="wrap stack-lg">' + crumbs([['Home', 'home'], ['My progress']]) +
-      '<header class="row-between"><div class="stack-sm"><h1>My progress</h1><p class="muted">' + (cloudOn() && K.status().user ? 'Saved in this browser and backed up to your account.' : cloudOn() ? 'Saved in this browser. Sign in to back it up and use it on other devices, or download a copy below.' : 'Saved only in this browser on this device. Export it to keep a backup or move devices.') + '</p></div>' + ring(overallProgress()) + '</header>' +
+      '<header class="row-between"><div class="stack-sm"><h1>My progress</h1><p class="muted" id="prog-saved">' + esc(savedLine()) + '</p></div>' + ring(overallProgress()) + '</header>' + saveWarn() +
       (overallProgress() === 0 && !Object.keys(st.quiz).length ? '<div class="callout row-between"><span>Nothing here yet. Your first step takes about 30 minutes.</span><a class="btn btn-primary" href="#start">Start here</a></div>' : '') +
       '<div class="lab-stats">' + stat('Course complete', overallProgress() + '%') + stat('Day streak', C.streak()) + stat('Lesson cards read', D.modules.reduce(function (n, m) { return n + readDone(m); }, 0) + '/' + D.modules.reduce(function (n, m) { return n + readCards(m).length; }, 0)) + stat('Exercises solved', solved + '/' + D.exercises.length) + stat('Quizzes passed', passed) + stat('Lab tasks', labTasks) + stat('Projects done', projDone + '/' + D.projects.length) + stat('Videos & courses ticked', Object.keys(st.watched).filter(function (k) { return resById[k]; }).length) + '</div>' +
       (continueList(1).length ? '<section class="card stack-sm"><h2 class="h-sub">Continue watching</h2>' + continueHTML(5) + '</section>' : '') +
       (ST() ? '<div id="study-progress"></div>' : '') +
       '<section class="stack">' + D.levels.map(function (l) { return '<div class="stack-sm"><div class="row-between"><a href="#level-' + l.id + '"><strong>Level ' + l.id + ' · ' + esc(l.name) + '</strong></a><span class="num small">' + levelProgress(l.id) + '%</span></div>' + bar(levelProgress(l.id), 'Level ' + l.id + ' progress') + '</div>'; }).join('') + '</section>' +
       '<div class="two-col"><section class="stack"><h2>Quizzes</h2>' + quizTable() + '</section><aside class="stack">' +
-      (cloudOn() ? (function () { var cs = K.status(); return '<div class="card stack-sm"><strong>Account</strong><span class="small muted">' + (cs.user ? 'Signed in as ' + esc(cs.user.name || cs.user.email) + '. Progress is backed up and synced.' : 'Sign in with Google to back up your progress and continue on any device.') + '</span><a class="btn btn-sm" href="#account">' + (cs.user ? 'Manage account' : 'Sign in') + '</a></div>'; })() : '') +
+      (cloudOn() ? '<div class="card stack-sm" id="prog-acct">' + acctCard() + '</div>' : '') +
       plannerCard() +
       '<div class="card stack-sm"><strong>Backup</strong><div class="row"><button class="btn btn-sm" data-action="export">Copy progress</button><button class="btn btn-sm" data-action="download">Download file</button></div>' +
       '<label class="small" for="import-box">Restore: paste a backup and press Restore</label><textarea id="import-box" rows="3" placeholder="{&quot;v&quot;:1, …}"></textarea><div class="row"><button class="btn btn-sm" data-action="import">Restore</button><button class="btn btn-sm btn-ghost" data-action="reset">Reset all progress</button></div></div>' +
       '</aside></div></div>', 'My progress');
     bindPlanner();
     if (ST()) ST().emit('progress', main);
+    // the sign-in status (a remembered session comes back a moment after the page is drawn) and save problems
+    // change later: update those lines in place
+    var upd = function () {
+      var p = document.getElementById('prog-saved'); if (p) p.textContent = savedLine();
+      var a = document.getElementById('prog-acct'), h = a && acctCard();
+      if (a && a.getAttribute('data-h') !== h) { var fk = focusKey(a); a.innerHTML = h; a.setAttribute('data-h', h); refocus(fk); }
+      var w = document.getElementById('save-warn'), wh = saveWarn(), hd = main.querySelector('header');
+      if ((w ? w.getAttribute('data-h') : '') === wh) return;
+      if (w) w.remove();
+      if (wh && hd) { hd.insertAdjacentHTML('afterend', wh); document.getElementById('save-warn').setAttribute('data-h', wh); }
+    };
+    upd();
+    if (cloudOn()) currentCleanup.push(K.on(upd));
+    window.addEventListener('aim:save-status', upd);
+    currentCleanup.push(function () { window.removeEventListener('aim:save-status', upd); });
+  }
+  // My progress: where progress is kept (depends on sign-in, and on whether this browser lets the site save at all)
+  function savedLine() {
+    var cs = cloudOn() ? K.status() : null;
+    if (C.saveFailed) return 'Not saved: this browser is refusing to save your progress' + (cs && cs.user ? ', but it is still backed up to your account.' : '. See below.');
+    if (!cs) return 'Saved only in this browser on this device. Export it to keep a backup or move devices.';
+    if (cs.user) return 'Saved in this browser and backed up to your account.';
+    if (cs.restoring) return cs.error ? 'Saved in this browser. Your account is not connected right now, so new progress is not backed up yet.' : 'Saved in this browser. Signing in to your account…';
+    return 'Saved in this browser. Sign in to back it up and use it on other devices, or download a copy below.';
+  }
+  function saveWarn() {
+    if (!C.saveFailed) return '';
+    var cs = cloudOn() ? K.status() : null;
+    return '<div class="callout" id="save-warn"><strong>Your progress is not being saved in this browser.</strong> The browser is refusing to store it (site data blocked, private browsing, or storage full)' +
+      (cs && cs.user ? '. It is still backed up to your account while you stay signed in. To be safe, also press <strong>Download file</strong> below.'
+        : ', so it will be lost when you close this page. Press <strong>Download file</strong> below to keep a copy' + (cs ? ', or <a href="#account">sign in</a> to back it up to your account.' : '.')) + '</div>';
+  }
+  function acctCard() {
+    var cs = K.status();
+    var txt = cs.user ? 'Signed in as ' + esc(cs.user.name || cs.user.email) + '. Progress is backed up and synced.'
+      : cs.restoring ? (cs.error ? 'Not connected to your account right now. Your progress is still saved in this browser.' : 'Signing you in to your account…')
+      : 'Sign in with Google to back up your progress and continue on any device.';
+    return '<strong>Account</strong><span class="small muted">' + txt + '</span><a class="btn btn-sm" href="#account">' + (cs.user ? 'Manage account' : cs.restoring ? 'Open account' : 'Sign in') + '</a>';
   }
   function stat(k, v) { return '<div class="stat"><div class="k">' + esc(k) + '</div><div class="v">' + esc(v) + '</div></div>'; }
 
@@ -1139,16 +1206,23 @@
       '<li>Only your course progress: ticks (including lesson cards read), quiz scores and answers, lab tasks, your review cards, reflections, journal entries, focus sessions, exercise answers and drafts, notes, project checklists and links, flashcard scores, where you stopped each video, and your study plan and display settings, together with your Google account ID.</li>' +
       '<li>Your name and email come from Google so you can see which account you used. No password is ever seen by this site.</li>' +
       '<li>It is stored with Google Firebase in Mumbai, India. Each account can read and write only its own copy. The site owner can see the stored data and the name and email of each account in the Firebase console, and uses them only to run this site. Nothing is sold, shared or used for ads.</li>' +
-      '<li>You can delete your cloud copy below at any time. That removes your progress; to also remove your sign-in record, ask on <a href="https://github.com/digitalmarket-arch/AI-ML/issues" target="_blank" rel="noopener">GitHub</a> and give the account ID shown on this page when you are signed in (do not post your email).</li>' +
+      '<li>You can delete your cloud copy below at any time. That removes your progress; to also remove your sign-in record, ask on <a href="https://github.com/digitalmarket-arch/AI-ML/issues" target="_blank" rel="noopener">GitHub</a> and give your account ID (do not post your email). It is shown on this page under More options while you are signed in, and right after you delete your cloud copy.</li>' +
       '<li>Signing in is optional: without it, progress stays in this browser.</li></ul></section>';
     if (!st.user) {
-      return '<section class="card stack"><div class="stack-sm"><h2 class="h-sub">Keep your progress safe in your account</h2>' +
+      // restoring: this browser was signed in before and the session is being brought back (or could not be yet);
+      // reload: the sign-in library failed to load, and the browser only tries again after a reload
+      var wait = st.state === 'loading';
+      var btn = st.reload ? '<button class="btn btn-primary" type="button" data-action="cloud-reload">Reload the page</button>'
+        : '<button class="btn btn-primary' + (wait ? ' is-disabled" aria-disabled="true"' : '"') + ' type="button" data-action="cloud-signin">' + (wait ? (st.restoring ? 'Signing in…' : 'Connecting…') : st.restoring ? 'Try again' : 'Sign in with Google') + '</button>';
+      var gone = st.deletedId ? '<div class="callout small" role="status">Your cloud copy is deleted and you are signed out. Your account ID is <code>' + esc(st.deletedId) + '</code>: give it if you ask for your sign-in record to be removed (see below). Note it now, because it is not shown again after you reload or leave the site.</div>' : '';
+      return gone + '<section class="card stack"><div class="stack-sm"><h2 class="h-sub">Keep your progress safe in your account</h2>' +
         '<ul class="prose"><li>Continue on your phone exactly where you stopped on your laptop.</li><li>Nothing is lost if you clear your browser or change devices.</li><li>What you have already done on this device is kept and added to your account.</li></ul></div>' +
-        '<div class="row"><button class="btn btn-primary' + (st.state === 'loading' ? ' is-disabled" aria-disabled="true"' : '"') + ' type="button" data-action="cloud-signin">' + (st.state === 'loading' ? 'Connecting…' : 'Sign in with Google') + '</button></div>' +
+        '<div class="row">' + btn + '</div>' +
         (st.error ? '<p class="small pub-bad" role="alert">' + esc(st.error) + '</p>' : '') + '</section>' + privacy;
     }
     var when = st.lastSync ? new Date(st.lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-    var line = st.state === 'syncing' ? 'Syncing…' : st.error ? esc(st.error) : when ? 'Synced at ' + esc(when) + '. Changes sync by themselves a few seconds after you make them.' : 'Ready.';
+    var line = st.state === 'syncing' ? 'Syncing…' : st.state === 'signing-out' ? 'Signing out… Your latest progress is backed up first.' : st.state === 'deleting' ? 'Deleting your cloud copy…'
+      : st.error ? esc(st.error) : when ? 'Synced at ' + esc(when) + '. New progress syncs by itself within about half a minute.' : 'Ready.';
     return '<section class="card stack"><div class="stack-sm"><span class="eyebrow">Signed in</span><strong>' + esc(st.user.name || st.user.email) + '</strong>' + (st.user.name && st.user.email ? '<span class="small muted">' + esc(st.user.email) + '</span>' : '') + '</div>' +
       '<p class="small' + (st.error ? ' pub-bad' : ' muted') + '" role="status">' + line + '</p>' +
       '<div class="row"><button class="btn btn-sm" type="button" data-action="cloud-sync">Sync now</button><button class="btn btn-sm" type="button" data-action="cloud-signout">Sign out</button></div>' +
@@ -1168,11 +1242,12 @@
       // redraw on each status change, keeping keyboard focus and an open "More options"
       var off = K.on(function (x) {
         var el = document.getElementById('acct-body'); if (!el) return;
-        var ae = document.activeElement, act = ae && el.contains(ae) ? (ae.getAttribute('data-action') ? '[data-action="' + ae.getAttribute('data-action') + '"]' : ae.tagName === 'SUMMARY' ? 'summary' : null) : null;
+        var fk = focusKey(el);
         var det = el.querySelector('details'), open = !!(det && det.open);
         el.innerHTML = accountBody(x);
         det = el.querySelector('details'); if (det && open) det.open = true;
-        var nb = act && el.querySelector(act); if (nb) nb.focus();
+        // the pressed button can be gone (signed in, signed out, cloud copy deleted): focus the new card's main button
+        refocus(fk, function () { return el.querySelector('[data-action^="cloud-"]'); });
       });
       currentCleanup.push(off);
       if (!st.user) K.prepare();
@@ -1184,20 +1259,41 @@
     a.hidden = false;
     if (st.user) {
       var nm = st.user.name || st.user.email || '?';
-      var dot = st.state === 'syncing' ? 'is-syncing' : st.error ? 'is-error' : 'is-ok';
+      var doing = { syncing: ', syncing', 'signing-out': ', signing out', deleting: ', deleting the cloud copy' }[st.state];
+      var dot = doing ? 'is-syncing' : st.error ? 'is-error' : 'is-ok';
       a.innerHTML = '<span class="acct-badge ' + dot + '" aria-hidden="true">' + esc(nm.trim().charAt(0).toUpperCase()) + '</span>';
-      a.setAttribute('aria-label', 'Account: ' + nm + (st.error ? ', sync problem' : st.state === 'syncing' ? ', syncing' : ', synced'));
-    } else { a.innerHTML = '<svg class="acct-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="acct-text">Sign in</span>'; a.removeAttribute('aria-label'); }
+      a.setAttribute('aria-label', 'Account: ' + nm + (doing || (st.error ? ', sync problem' : ', synced')));
+    } else {
+      // a remembered session being restored is not "signed out": say so instead of offering Sign in
+      var lbl = st.restoring ? (st.error ? 'Not connected' : 'Signing in…') : 'Sign in';
+      a.innerHTML = '<svg class="acct-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="acct-text">' + lbl + '</span>';
+      if (st.restoring) a.setAttribute('aria-label', 'Account: ' + (st.error ? 'not connected, progress is not syncing' : 'signing in')); else a.removeAttribute('aria-label');
+    }
   }
   if (K) { K.on(updateAcctLink); updateAcctLink(K.status()); }
+  // after a merge, the ticks, links and note boxes of a page left open show what is saved now
+  // (a box with focus, or with typing not saved yet, is left alone)
+  function syncInputs() {
+    var each = function (sel, fn) { Array.prototype.forEach.call(document.querySelectorAll(sel), fn); }, st = S();
+    each('input[data-action="watched"]', function (el) { el.checked = !!st.watched[el.getAttribute('data-id')]; });
+    each('input[data-action="pstep"]', function (el) { var p = st.projects[el.getAttribute('data-id')]; el.checked = !!(p && p.steps && p.steps[el.getAttribute('data-i')]); });
+    each('input[data-action="plink"]', function (el) { var p = st.projects[el.getAttribute('data-id')], v = (p && p.links && p.links[el.getAttribute('data-k')]) || ''; if (el !== document.activeElement && el.value !== v) el.value = v; });
+    each('[data-action="pdone"]', function (el) { var p = st.projects[el.getAttribute('data-id')], d = !!(p && p.done); el.textContent = d ? 'Completed ✓ (undo)' : 'Mark project complete'; el.className = 'btn ' + (d ? '' : 'btn-haldi'); });
+    each('textarea[id^="note-"]', function (ta) { var v = st.notes[ta.id.slice(5)] || ''; if (ta !== document.activeElement && !ta.dataset.dirty && ta.value !== v) ta.value = v; });
+  }
   // progress arrived from another device: redraw overview pages; leave pages with work in progress
   // (a quiz or test, a lab, code, a playing video, notes) as they are, and update only their progress panel
   window.addEventListener('aim:progress-replaced', function (ev) {
     var ae = document.activeElement, h = (location.hash || '').replace(/^#/, '') || 'home', cleared = !!(ev.detail && ev.detail.cleared);
     if (h === 'account') return; // it redraws itself from the sign-in status
     var typing = ae && /^(TEXTAREA|INPUT|SELECT)$/.test(ae.tagName) && ae.type !== 'checkbox' && ae.type !== 'radio';
-    if (!cleared && (typing || !/^(home|start|roadmap|level-\d|labs|practice|projects|tests|progress|career|faq)$/.test(h))) { refreshSide(); var sideEl = document.getElementById('mod-side'); readRefresh(sideEl && modById[sideEl.getAttribute('data-mod')]); if (!(ev.detail && ev.detail.tab)) C.toast('Progress from your other device has been added'); return; }
-    var y = window.scrollY; route(); window.scrollTo(0, y);
+    if (!cleared && (typing || !/^(home|start|roadmap|level-\d|labs|practice|projects|tests|progress|career|faq)$/.test(h))) { syncInputs(); refreshSide(); var sideEl = document.getElementById('mod-side'); readRefresh(sideEl && modById[sideEl.getAttribute('data-mod')]); if (!(ev.detail && ev.detail.tab)) C.toast('Progress from your other device has been added'); return; }
+    // redraw in place: same scroll position, and keyboard focus back on the same link or button (not the page heading)
+    var y = window.scrollY, fk = focusKey(main);
+    quiet = true;
+    try { route(); } finally { quiet = false; }
+    window.scrollTo(0, y);
+    refocus(fk, function () { return main.querySelector('h1'); });
   });
 
   /* ---------- global actions (event delegation) ---------- */
@@ -1209,6 +1305,7 @@
     else if (a === 'play-inline') { var ri = resById[id], art = t.closest('.res-card'); if (ri && art) toggleInline(art, ri, t); }
     else if (a === 'goto-res') { gotoRes(id, t.getAttribute('data-play') === '1'); }
     else if (a === 'cloud-signin' && K) { if (t.getAttribute('aria-disabled') !== 'true') K.signIn(); }
+    else if (a === 'cloud-reload') { location.reload(); }
     else if (a === 'cloud-sync' && K) { K.syncNow().then(function (ok) { if (ok) C.toast('Synced'); }); }
     else if (a === 'cloud-signout' && K) { K.signOut(false); }
     else if (a === 'cloud-signout-clear' && K) { K.signOut(true); }
@@ -1236,11 +1333,11 @@
       }
     }
     else if (a === 'read-next') { readGoNext(id, null); }
-    else if (a === 'mod-done') { var cur = st.modules[id] && st.modules[id].done; st.modules[id] = { done: !cur, at: C.today() }; if (!cur) C.logActivity(); C.save(); C.toast(cur ? 'Module marked as not complete' : 'Module complete. Next one!'); refreshSide(); }
-    else if (a === 'pdone') { var p = st.projects[id] = st.projects[id] || {}; p.done = !p.done; if (p.done) C.logActivity(); C.save(); C.toast(p.done ? 'Project complete. Add it to your portfolio!' : 'Project marked as in progress'); t.textContent = p.done ? 'Completed ✓ (undo)' : 'Mark project complete'; t.className = 'btn ' + (p.done ? '' : 'btn-haldi'); }
+    else if (a === 'mod-done') { var cur = st.modules[id] && st.modules[id].done; C.setModuleDone(id, !cur); if (!cur) C.logActivity(); C.save(); C.toast(cur ? 'Module marked as not complete' : 'Module complete. Next one!'); refreshSide(); }
+    else if (a === 'pdone') { var p = C.setProject(id, 'done', null, !(st.projects[id] && st.projects[id].done)); if (p.done) C.logActivity(); C.save(); C.toast(p.done ? 'Project complete. Add it to your portfolio!' : 'Project marked as in progress'); t.textContent = p.done ? 'Completed ✓ (undo)' : 'Mark project complete'; t.className = 'btn ' + (p.done ? '' : 'btn-haldi'); }
     else if (a === 'export') { var txt = JSON.stringify(st); try { navigator.clipboard.writeText(txt).then(function () { C.toast('Progress copied'); }, function () { fallbackCopy(txt); }); } catch (e) { fallbackCopy(txt); } }
     else if (a === 'download') { var blob = new Blob([JSON.stringify(st, null, 1)], { type: 'application/json' }), aEl = document.createElement('a'); aEl.href = URL.createObjectURL(blob); aEl.download = 'ai-marg-progress-' + C.today() + '.json'; document.body.appendChild(aEl); aEl.click(); aEl.remove(); }
-    else if (a === 'import') { try { var obj = JSON.parse(document.getElementById('import-box').value); if (!obj || typeof obj !== 'object' || obj.v !== 1) throw new Error('not a backup'); C.replaceState(obj); applyTheme(); C.toast('Progress restored'); route(); } catch (e) { C.toast('That text is not a valid AI Marg backup.'); } }
+    else if (a === 'import') { try { var obj = JSON.parse(document.getElementById('import-box').value); if (!obj || typeof obj !== 'object' || !(Math.floor(Number(obj.v)) >= 1) || !obj.watched || typeof obj.watched !== 'object') throw new Error('not a backup'); /* any format version (1, 2, or newer: its fields are kept); a real backup always has its ticks part */ C.replaceState(obj); applyTheme(); C.toast('Progress restored'); route(); } catch (e) { C.toast('That text is not a valid AI Marg backup.'); } }
     else if (a === 'reset') {
       // while signed in, the account copy would quietly bring the progress back: say so, and point to a real fresh start
       if (cloudOn() && K.status().user && !resetArmed) { C.toast('You are signed in, so your account copy would bring this progress back. To start over everywhere, delete your cloud copy on the Account page first, then reset.'); }
@@ -1251,13 +1348,13 @@
   document.addEventListener('change', function (ev) {
     var t = ev.target, a = t.getAttribute && t.getAttribute('data-action'), id = t.getAttribute && t.getAttribute('data-id'), st = S();
     if (!a) return;
-    if (a === 'watched') { if (t.checked) { st.watched[id] = C.today(); C.logActivity(); } else delete st.watched[id]; C.save(); syncWatched(id, t.checked); C.toast(t.checked ? 'Marked as watched' : 'Removed from watched'); }
-    else if (a === 'pstep') { var p = st.projects[id] = st.projects[id] || {}; p.steps = p.steps || {}; p.steps[t.getAttribute('data-i')] = t.checked; if (t.checked) C.logActivity(); C.save(); }
-    else if (a === 'prub') { var q = st.projects[id] = st.projects[id] || {}; q.rubric = q.rubric || {}; q.rubric[t.getAttribute('data-i')] = Number(t.value); C.save(); updateRubric(projById[id], q); }
+    if (a === 'watched') { C.setWatched(id, t.checked); if (t.checked) C.logActivity(); C.save(); syncWatched(id, t.checked); C.toast(t.checked ? 'Marked as watched' : 'Removed from watched'); }
+    else if (a === 'pstep') { C.setProject(id, 'step', t.getAttribute('data-i'), t.checked); if (t.checked) C.logActivity(); C.save(); }
+    else if (a === 'prub') { var q = C.setProject(id, 'rubric', t.getAttribute('data-i'), Number(t.value)); C.save(); updateRubric(projById[id], q); }
   });
   document.addEventListener('input', function (ev) {
     var t = ev.target; if (!t.getAttribute || t.getAttribute('data-action') !== 'plink') return;
-    var id = t.getAttribute('data-id'), p = S().projects[id] = S().projects[id] || {}; p.links = p.links || {}; p.links[t.getAttribute('data-k')] = t.value; C.save();
+    C.setProject(t.getAttribute('data-id'), 'link', t.getAttribute('data-k'), t.value); C.save();
   });
 
   /* ---------- theme ---------- */
@@ -1312,6 +1409,7 @@
     else viewNotFound();
     } catch (err) { if (window.console) console.error(err); viewNotFound(); }
     document.querySelectorAll('.nav a').forEach(function (a) { if (a.getAttribute('href') === '#' + navKey) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    if (quiet) return; // a background redraw leaves an open menu open
     var nav = document.querySelector('.nav'); if (nav) nav.classList.remove('open');
     var mb = document.querySelector('.menu-btn'); if (mb) { mb.setAttribute('aria-expanded', 'false'); mb.textContent = 'Menu'; }
   }

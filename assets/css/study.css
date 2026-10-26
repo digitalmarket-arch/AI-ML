@@ -111,8 +111,8 @@ p.rf-tag { display: block; margin: 0; }
 .rf textarea, .rf-check textarea, .rf-srav textarea { min-height: 0; }
 .rf-check textarea, .rf-srav textarea { font-size: max(16px, 1em); }
 
-/* 1. "Check yourself" inside a lesson card */
-.read-body > details.rf-check { margin-top: 14px; }
+/* 1. The recall check of a lesson card: between the card text and Got it */
+.read-card > details.rf-check { margin-top: 6px; }
 .rf-check { border: 1px dashed var(--field-line); border-radius: var(--radius-sm); background: var(--surface); max-width: 68ch; }
 .rf-check > summary { cursor: pointer; padding: 10px 14px; font-weight: 600; list-style-position: inside; }
 .rf-check > summary .small { font-weight: 400; }
@@ -188,6 +188,7 @@ p.rf-tag { display: block; margin: 0; }
 .rf-sum label { display: block; }
 .rf-srav.rf-glow { border-color: var(--haldi); box-shadow: 0 0 0 3px var(--haldi-soft), var(--shadow); }
 .rf-srav.rf-glow #rf-sum-st { color: var(--ink); font-weight: 600; }
+.checklist .rf-srav-go { margin: 6px 0 0 32px; }
 @media (prefers-reduced-motion: no-preference) { .rf-srav { transition: box-shadow .3s ease, border-color .3s ease; } }
 
 /* ===== focus (assets/js/study-focus.js) ===== */
@@ -273,7 +274,7 @@ p.rf-tag { display: block; margin: 0; }
   .fc-chip-two .fc-chip-link { justify-content: center; }
 }
 body.fc-chip-on { padding-bottom: calc(var(--fc-chip-h, 54px) + 20px + env(safe-area-inset-bottom, 0px)); }
-body.fc-chip-on .toast { bottom: calc(var(--fc-chip-h, 54px) + 24px + env(safe-area-inset-bottom, 0px)); }
+body.fc-chip-on .toasts { bottom: calc(var(--fc-chip-h, 54px) + 24px + env(safe-area-inset-bottom, 0px)); }
 @media print { .fc-chip { display: none; } }
 
 /* ---------- distraction-free mode (Vairagya): the session hides what pulls attention away ---------- */

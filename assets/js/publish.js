@@ -244,6 +244,7 @@
         return next(0);
       }).then(function () {
         var link = info.html_url || ('https://github.com/' + repo.owner + '/' + repo.name);
+        C.setProject(p.id, 'link', 'repo', link); // stamped, so the new link wins when progress is merged
         st.links = st.links || {}; st.links.repo = link;
         if (hooks && hooks.onLink) hooks.onLink('repo', link);
         C.logActivity(); C.save();
