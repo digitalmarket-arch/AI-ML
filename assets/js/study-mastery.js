@@ -193,10 +193,10 @@
     s2.status = feynOk || mananaOk ? 'done' : can2 ? 'todo' : 'soon';
     var mananaTxt = 'answer ' + MANANA_NEED + ' of its ' + sansName('manana') + ' questions in ' + MANANA_WORDS + ' or more words each';
     if (s2.status === 'todo') s2.todo.push({ id: 'reflect', href: '#m-' + mid + '~reflect', title: 'Explain ' + lbl + ' in your own words', short: 'Reflect on it',
-      brief: hasFeyn && ki ? 'The check found ' + ideas + ' of ' + ki + ' key ideas in ' + plural(sent, 'full sentence') + '.' : 'Explain it in your own words.',
+      brief: hasFeyn && ki && ideas ? 'The check found ' + ideas + ' of ' + ki + ' key ideas in ' + plural(sent, 'full sentence') + '.' : hasFeyn && ki ? 'Finish your explanation, then press Check.' : 'Explain it in your own words.',
       reason: (ki ? 'Explain it simply in at least ' + needSent + ' full sentences and press Check: the check should find at least ' + needIdeas + ' of its ' + ki + ' key ideas' + (hasFeyn ? ' (it found ' + ideas + ', in ' + plural(sent, 'full sentence') + ')' : '') + '.' : '') +
         (socN >= MANANA_NEED ? (ki ? ' Or ' + mananaTxt : 'A' + mananaTxt.slice(1)) + (answers ? ' (' + answers + ' so far)' : '') + '.' : '') +
-        ' The check finds words, not right or wrong, so compare your explanation with the model one.',
+        (ki ? ' The check finds words, not right or wrong, so compare your explanation with the model one.' : ''),
       method: sansName('manana') + ' · Feynman Technique' });
     s2.line = s2.status === 'done' ? 'Done: ' + (feynOk ? 'your explanation mentions ' + esc(ideas + ' of ' + ki) + ' key ideas in ' + plural(sent, 'full sentence') + '.' : answers + ' ' + sansName('manana') + ' answers of ' + MANANA_WORDS + ' or more words written.') :
       s2.status === 'soon' ? 'The Reflect tools for this module are coming soon.' :
@@ -291,8 +291,9 @@
     var n = snap.today, fresh = snap.today - snap.due;
     return { id: 'review', href: '#review', title: 'Daily review: ' + plural(n, 'card'),
       brief: [snap.due ? snap.due + ' due again' : '', fresh ? fresh + ' new' : ''].filter(Boolean).join(', ') + ' today.',
-      reason: (snap.due ? plural(snap.due, 'card') + ' ' + isOrAre(snap.due) + ' due again' : 'No cards are due again') + (fresh ? ' and ' + fresh + ' new ' + (fresh === 1 ? 'one is' : 'ones are') + ' ready' : '') +
-        ' today. Recalling them just before you would forget makes them last.', method: sansName('smarana') + ' · adaptive spaced repetition' };
+      reason: snap.due ? plural(snap.due, 'card') + ' ' + isOrAre(snap.due) + ' due again' + (fresh ? ' and ' + fresh + ' new ' + (fresh === 1 ? 'one is' : 'ones are') + ' ready' : '') + ' today. Recalling a card just before you would forget it makes it last.'
+        : plural(fresh, 'new card') + ' ' + isOrAre(fresh) + ' ready today. Answer each from memory before you turn it over: the effort of recalling is what makes it stick.',
+      method: sansName('smarana') + ' · adaptive spaced repetition' };
   }
   function mistakesAction(snap) {
     return { id: 'mistakes', href: '#mistakes', title: 'Re-test your mistakes', brief: plural(snap.openAll, 'question') + ' still wrong.',

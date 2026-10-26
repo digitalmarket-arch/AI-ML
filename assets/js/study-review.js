@@ -27,6 +27,8 @@
   // ST.newLeftToday() what is left of it today on all the learner's devices (a new card counts on the day of its first
   // grade, whatever the grade, so one forgotten and then remembered in the same session still counts once).
   function newPerDay() { return ST.newPerDay(); }
+  // the device-only list of new cards graded today that this page kept before study.js counted first grades is not needed any more
+  function dropOldList() { var p = prefs(); if (Object.prototype.hasOwnProperty.call(p, 'newToday')) { delete p.newToday; C.save(); } }
 
   /* ---------- study content: a module's recall questions are loaded when one of its cards is needed ---------- */
   var modState = {}; // moduleId -> 'ok' (loaded), 'none' (no study content yet), 'fail' (did not load; tried again next time)
@@ -173,6 +175,7 @@
       '<div id="rv-main" class="stack-lg"><p class="muted" role="status">Loading your review cards…</p></div></div>', 'Daily review');
     page = { token: token, observer: null };
     sess = null;
+    dropOldList();
     $('rv-main').addEventListener('click', onClick);
     var onKey = function (ev) { keydown(ev); };
     document.addEventListener('keydown', onKey);
