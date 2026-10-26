@@ -239,6 +239,19 @@ a.card:hover, a.card:focus-visible { border-color: var(--indigo); box-shadow: va
 .bar > span { display: block; height: 100%; background: var(--haldi); border-radius: inherit; transition: width .4s ease; }
 .ring { --p: 0; width: 46px; height: 46px; border-radius: 50%; background: conic-gradient(var(--haldi) calc(var(--p) * 1%), var(--surface-2) 0); display: grid; place-items: center; flex: none; }
 .ring::after { content: attr(data-label); width: 36px; height: 36px; border-radius: 50%; background: var(--surface); display: grid; place-items: center; font-size: .72rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+/* whole course (Level 1 to 4) in indigo, next to a module or level in haldi */
+.ring-course { background: conic-gradient(var(--indigo) calc(var(--p) * 1%), var(--surface-2) 0); }
+.bar-course > span { background: var(--indigo); }
+.prog-pair { display: flex; gap: 14px; align-items: flex-start; }
+.prog-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--muted); text-decoration: none; border-radius: var(--radius-sm); }
+.prog-cap { font-size: .75rem; font-weight: 600; line-height: 1.2; white-space: nowrap; }
+a.prog-item:hover .prog-cap { color: var(--indigo); text-decoration: underline; }
+.prog-pair .ring { width: 56px; height: 56px; }
+.prog-pair .ring::after { width: 44px; height: 44px; font-size: .8rem; }
+.course-prog-head { display: flex; gap: 12px; align-items: baseline; justify-content: space-between; }
+.course-prog-head > :first-child { min-width: 0; }
+.course-prog-head > :last-child { flex: none; font-size: 1.05rem; }
+.hero .course-prog { max-width: 440px; }
 
 /* ---------- hero + journey path ---------- */
 .hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 40px; align-items: center; padding-block: 20px 8px; }

@@ -209,15 +209,21 @@
     return all ? 100 : Math.min(99, Math.round(sum / parts.length * 100));
   }
   // a level = its modules (80%) + passing the level test (10%) + finishing one project (10%)
-  function levelProgress(lv) {
+  function levelRaw(lv) {
     var ms = modulesOf(lv); if (!ms.length) return 0;
     var s = 0; ms.forEach(function (m) { s += moduleProgress(m); });
     var t = S().quiz['test-l' + lv], testDone = t && t.best >= 70 ? 1 : 0;
     var projDone = D.projects.some(function (p) { return p.level === lv && S().projects[p.id] && S().projects[p.id].done; }) ? 1 : 0;
-    var raw = (s / ms.length) * 0.8 + testDone * 10 + projDone * 10;
-    return raw >= 100 ? 100 : Math.min(99, Math.round(raw)); // "done" only when everything in the level is done
+    return (s / ms.length) * 0.8 + testDone * 10 + projDone * 10;
   }
+  function levelProgress(lv) { var raw = levelRaw(lv); return raw >= 100 ? 100 : Math.min(99, Math.round(raw)); } // "done" only when everything in the level is done
+  // the whole course, Level 1 (beginner) to Level 4 (advanced): every level counts for a quarter
   function overallProgress() { var s = 0; D.levels.forEach(function (l) { s += levelProgress(l.id); }); return !D.levels.length ? 0 : s >= D.levels.length * 100 ? 100 : Math.min(99, Math.round(s / D.levels.length)); }
+  function courseRaw() { var s = 0; D.levels.forEach(function (l) { s += levelRaw(l.id); }); return D.levels.length ? s / D.levels.length : 0; }
+  // as text: a learner who has started sees "<1%", not "0%"
+  function courseText() { var p = overallProgress(); return p === 0 && courseRaw() > 0 ? '<1%' : p + '%'; }
+  function levelText(lv) { var p = levelProgress(lv); return p === 0 && levelRaw(lv) > 0 ? '<1%' : p + '%'; }
+  function pctWords(t) { return t === '<1%' ? 'less than 1%' : t; }
 
   /* ---------- resources for a module ---------- */
   var VIDEO_TYPES = { playlist: 1, video: 1, course: 1, channel: 1 };
@@ -568,8 +574,27 @@
       return (i ? '<span aria-hidden="true">›</span>' : '') + (it[1] ? '<a href="#' + it[1] + '">' + esc(it[0]) + '</a>' : '<span>' + esc(it[0]) + '</span>');
     }).join('') + '</nav>';
   }
-  function ring(p) { return '<div class="ring" style="--p:' + p + '" data-label="' + p + '%" role="img" aria-label="' + p + '% complete"></div>'; }
-  function bar(p, label) { return '<div class="bar" role="progressbar" aria-label="' + esc(label || 'Progress') + '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + p + '"><span style="width:' + p + '%"></span></div>'; }
+  // what: e.g. "This module" (named in the label read out); text: the figure shown, when not just p + '%'
+  function ring(p, what, text, cls, id) {
+    text = text || p + '%';
+    return '<div class="ring' + (cls ? ' ' + cls : '') + '"' + (id ? ' id="' + id + '"' : '') + ' style="--p:' + p + '" data-label="' + esc(text) + '" role="img" aria-label="' + esc((what ? what + ': ' : '') + pctWords(text) + ' complete') + '"></div>';
+  }
+  function setRing(el, p, what, text) {
+    if (!el) return; text = text || p + '%';
+    el.style.setProperty('--p', p); el.setAttribute('data-label', text); el.setAttribute('aria-label', (what ? what + ': ' : '') + pctWords(text) + ' complete');
+  }
+  function bar(p, label, cls, text) { return '<div class="bar' + (cls ? ' ' + cls : '') + '" role="progressbar" aria-label="' + esc(label || 'Progress') + '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + p + '"' + (text ? ' aria-valuetext="' + esc(pctWords(text)) + '"' : '') + '><span style="width:' + p + '%"></span></div>'; }
+  // the whole course as one bar (Home, Roadmap, a level page); the same figure as My progress
+  function courseProgHTML(note) {
+    var t = courseText();
+    return '<div class="course-prog stack-sm"><div class="course-prog-head"><span><strong>Whole course</strong> <span class="small muted">Level 1 (beginner) to Level 4 (advanced)</span></span><strong class="num">' + esc(t) + '</strong></div>' +
+      bar(overallProgress(), 'Whole course progress', 'bar-course', t) + (note ? '<p class="small muted">Each level counts for a quarter of the course: its modules, its level test and one project.</p>' : '') + '</div>';
+  }
+  // the module page header: this module and the whole course, side by side
+  function modRingsHTML(m) {
+    return '<div class="prog-pair"><div class="prog-item">' + ring(moduleProgress(m), 'This module', '', '', 'ring-mod') + '<span class="prog-cap" aria-hidden="true">This module</span></div>' +
+      '<a class="prog-item" href="#progress" title="Level 1 (beginner) to Level 4 (advanced). Open My progress">' + ring(overallProgress(), 'Whole course, Level 1 to Level 4', courseText(), 'ring-course', 'ring-course') + '<span class="prog-cap" aria-hidden="true">Whole course</span></a></div>';
+  }
   function stations() {
     return '<div class="path">' + D.levels.map(function (l) {
       var p = levelProgress(l.id), ms = modulesOf(l.id);
@@ -597,6 +622,7 @@
       '<p class="lede">A guided path through the best free videos from Indian teachers first, in Hindi, Hinglish and Indian English, with interactive labs, Python you can run in the browser, tests and tough projects. No fees, and no sign-up needed.</p>' +
       '<div class="row"><a class="btn btn-primary" href="#start">Start here</a>' +
       (last ? '<a class="btn" href="#m-' + esc(last.id) + '">Continue: ' + esc(last.title) + '</a>' : '<a class="btn" href="#level-1">Open Level 1</a>') + '</div>' +
+      (courseRaw() > 0 ? courseProgHTML() : '') +
       '</div>' + stations() + '</section>' +
       (ST() ? '<div id="study-today"></div>' : '') +
       '<section class="stack"><div class="section-title"><h2>What you get</h2></div><div class="grid">' +
@@ -611,7 +637,7 @@
       '<li><strong>Play with the lab.</strong> Every module has a lab that lets you feel the idea before you code it.</li>' +
       '<li><strong>Practise.</strong> Solve small Python exercises right on the page.</li>' +
       '<li><strong>Test yourself.</strong> Score 70% or more on the quiz, then move on. A level is complete when its modules are done, you pass the level test and you finish one project.</li></ol></section>' +
-      (st.last || Object.keys(st.watched).length || continueList(1).length ? '<section class="card stack-sm"><div class="row-between"><div class="stack-sm"><strong>Your progress</strong><span class="small muted num">' + overallProgress() + '% of the course · ' + C.streak() + '-day streak</span></div><a class="btn" href="#progress">Open my progress</a></div>' +
+      (st.last || Object.keys(st.watched).length || continueList(1).length ? '<section class="card stack-sm"><div class="row-between"><div class="stack-sm"><strong>Your progress</strong><span class="small muted num">' + esc(courseText()) + ' of the whole course · ' + C.streak() + '-day streak</span></div><a class="btn" href="#progress">Open my progress</a></div>' +
         (continueList(1).length ? '<div class="stack-sm"><span class="eyebrow">Continue watching</span>' + continueHTML(3) + '</div>' : '') + '</section>' : '') +
       '</div>';
     setView(html, 'Home');
@@ -688,12 +714,13 @@
   function viewRoadmap() {
     setView('<div class="wrap stack-lg">' + crumbs([['Home', 'home'], ['Roadmap']]) +
       '<header class="stack-sm"><h1>The roadmap</h1><p class="lede muted prose">Four levels, ' + D.modules.length + ' modules. Go in order the first time; later, jump to whatever you need.</p></header>' +
+      '<section class="card" aria-label="Whole course progress">' + courseProgHTML(true) + '</section>' +
       D.levels.map(function (l) { return '<section class="stack">' + levelHeader(l, 'h2') + moduleList(l.id) + '</section>'; }).join('') + '</div>', 'Roadmap');
   }
   function levelHeader(l, tag) {
     return '<div class="level-head"><div class="level-glyph" aria-hidden="true">' + esc(l.glyph || String(l.id)) + '</div><div class="stack-sm">' +
       '<span class="eyebrow">Level ' + l.id + ' · ' + esc(l.name) + ' (' + esc(l.meaning) + ')</span><' + tag + '><a href="#level-' + l.id + '" style="color:inherit;text-decoration:none">' + esc(l.title) + '</a></' + tag + '>' +
-      '<div class="row">' + bar(levelProgress(l.id), 'Level ' + l.id + ' progress').replace('class="bar"', 'class="bar" style="width:160px"') + '<span class="small muted num">' + levelProgress(l.id) + '%</span></div></div></div>';
+      '<div class="row">' + bar(levelProgress(l.id), 'Level ' + l.id + ' progress', '', levelText(l.id)).replace('class="bar"', 'class="bar" style="width:160px"') + '<span class="small muted num">' + esc(levelText(l.id)) + '</span></div></div></div>';
   }
   function moduleList(lv) {
     return '<div class="module-list">' + modulesOf(lv).map(function (m) {
@@ -711,6 +738,7 @@
     var projs = D.projects.filter(function (p) { return p.level === lv; });
     setView('<div class="wrap stack-lg">' + crumbs([['Home', 'home'], ['Roadmap', 'roadmap'], ['Level ' + lv]]) +
       levelHeader(l, 'h1') +
+      '<section class="card" aria-label="Whole course progress">' + courseProgHTML(true) + '</section>' +
       '<div class="two-col"><div class="stack-lg"><div class="prose stack-sm">' + (l.intro ? '<p>' + inline(modLinks(l.intro)) + '</p>' : '') +
       (l.howToStudy ? '<div class="callout">' + inline(modLinks(l.howToStudy)) + '</div>' : '') + '</div>' +
       '<section class="stack"><h2>Modules</h2>' + moduleList(lv) + '</section>' +
@@ -738,7 +766,7 @@
     var list = modulesOf(m.level), idx = list.indexOf(m), all = D.modules, gi = all.indexOf(m);
     var prev = all[gi - 1], next = all[gi + 1];
     var html = '<div class="wrap stack">' + crumbs([['Home', 'home'], ['Level ' + m.level + ' ' + (l ? l.name : ''), 'level-' + m.level], ['Module ' + modNo(m)]]) +
-      '<header class="row-between"><div class="stack-sm"><span class="eyebrow">Module ' + modNo(m) + (m.hours ? ' · about ' + m.hours + ' hours' : '') + '</span><h1>' + esc(m.title) + '</h1></div>' + ring(moduleProgress(m)) + '</header>' +
+      '<header class="row-between"><div class="stack-sm"><span class="eyebrow">Module ' + modNo(m) + (m.hours ? ' · about ' + m.hours + ' hours' : '') + '</span><h1>' + esc(m.title) + '</h1></div>' + modRingsHTML(m) + '</header>' +
       '<div class="tabs" role="tablist" aria-label="Module sections">' + tabs.map(function (t) { return '<button role="tab" type="button" id="tab-' + t[0] + '" aria-controls="tabpanel" data-tab="' + t[0] + '" aria-selected="' + (t[0] === tab) + '" tabindex="' + (t[0] === tab ? '0' : '-1') + '">' + (t[2] ? '<span class="t-long">' + esc(t[1]) + '</span><span class="t-short">' + esc(t[2]) + '</span>' : esc(t[1])) + '</button>'; }).join('') + '</div>' +
       '<div class="two-col' + (tab === 'lab' ? ' full' : '') + '" id="mod-cols"><div class="tab-panel" id="tabpanel" role="tabpanel" aria-labelledby="tab-' + tab + '"></div><aside class="stack"><div class="stack" id="mod-side" data-mod="' + esc(m.id) + '">' + moduleSide(m) + '</div>' +
       '<div class="row-between">' + (prev ? '<a class="btn btn-sm" href="#m-' + esc(prev.id) + '">← ' + esc(modNo(prev)) + '</a>' : '<span></span>') + (next ? '<a class="btn btn-sm" href="#m-' + esc(next.id) + '">' + esc(modNo(next)) + ' →</a>' : '') + '</div></aside></div></div>';
@@ -770,13 +798,15 @@
     var fk = focusKey(el); // e.g. "Mark module complete" pressed from the keyboard: keep focus on it
     el.innerHTML = moduleSide(m);
     refocus(fk);
-    var r = main.querySelector('header .ring'); if (r) { var p = moduleProgress(m); r.style.setProperty('--p', p); r.setAttribute('data-label', p + '%'); r.setAttribute('aria-label', p + '% complete'); }
+    setRing(document.getElementById('ring-mod'), moduleProgress(m), 'This module');
+    setRing(document.getElementById('ring-course'), overallProgress(), 'Whole course, Level 1 to Level 4', courseText());
   }
   function moduleSide(m) {
     var parts = moduleParts(m), done = S().modules[m.id] && S().modules[m.id].done;
     return '<div class="card stack-sm"><strong>Your progress here</strong><ul class="checklist small">' + parts.map(function (p) {
       return '<li>' + (p.done ? '✓ ' : '○ ') + esc(p.k) + ' <span class="muted num">' + esc(p.pctLike ? p.n + '%' : p.n + '/' + p.of) + '</span></li>';
     }).join('') + '</ul>' + (function () { var t = resTicks(m); return t.of ? '<div class="small muted">Videos and courses ticked: <span class="num">' + t.n + ' of ' + t.of + '</span></div>' : ''; })() +
+      '<div class="small">This module: <strong class="num">' + moduleProgress(m) + '%</strong> · <a href="#progress">Whole course</a>: <strong class="num">' + esc(courseText()) + '</strong></div>' +
       '<button class="btn ' + (done ? '' : 'btn-haldi') + '" data-action="mod-done" data-id="' + esc(m.id) + '">' + (done ? 'Marked complete ✓ (undo)' : 'Mark module complete') + '</button></div>' +
       (m.tip ? '<div class="callout small"><strong>Tip:</strong> ' + inline(m.tip) + '</div>' : '');
   }
@@ -1485,12 +1515,12 @@
     var testsPassed = D.levels.filter(function (l) { var t = st.quiz['test-l' + l.id]; return t && t.best >= 70; }).length;
     var projDone = Object.keys(st.projects).filter(function (k) { return st.projects[k] && st.projects[k].done; }).length;
     setView('<div class="wrap stack-lg">' + crumbs([['Home', 'home'], ['My progress']]) +
-      '<header class="row-between"><div class="stack-sm"><h1>My progress</h1><p class="muted" id="prog-saved">' + esc(savedLine()) + '</p></div>' + ring(overallProgress()) + '</header>' + saveWarn() +
+      '<header class="row-between"><div class="stack-sm"><h1>My progress</h1><p class="muted" id="prog-saved">' + esc(savedLine()) + '</p></div>' + ring(overallProgress(), 'Whole course, Level 1 to Level 4', courseText(), 'ring-course') + '</header>' + saveWarn() +
       (!anyProgress(st) ? '<div class="callout row-between"><span>Nothing here yet. Your first step takes about 30 minutes.</span><a class="btn btn-primary" href="#start">Start here</a></div>' : '') +
-      '<div class="lab-stats">' + stat('Course complete', overallProgress() + '%') + stat('Day streak', C.streak()) + stat('Lesson cards read', D.modules.reduce(function (n, m) { return n + readDone(m); }, 0) + '/' + D.modules.reduce(function (n, m) { return n + readCards(m).length; }, 0)) + stat('Exercises solved', solved + '/' + D.exercises.length) + stat('Quizzes passed', passed + '/' + withQuiz.length) + stat('Level tests passed', testsPassed + '/' + D.levels.length) + stat('Lab tasks', labTasks) + stat('Projects done', projDone + '/' + D.projects.length) + stat('Videos & courses ticked', ticked) + '</div>' +
+      '<div class="lab-stats">' + stat('Course complete', courseText()) + stat('Day streak', C.streak()) + stat('Lesson cards read', D.modules.reduce(function (n, m) { return n + readDone(m); }, 0) + '/' + D.modules.reduce(function (n, m) { return n + readCards(m).length; }, 0)) + stat('Exercises solved', solved + '/' + D.exercises.length) + stat('Quizzes passed', passed + '/' + withQuiz.length) + stat('Level tests passed', testsPassed + '/' + D.levels.length) + stat('Lab tasks', labTasks) + stat('Projects done', projDone + '/' + D.projects.length) + stat('Videos & courses ticked', ticked) + '</div>' +
       (continueList(1).length ? '<section class="card stack-sm"><h2 class="h-sub">Continue watching</h2>' + continueHTML(5) + '</section>' : '') +
       (ST() ? '<div id="study-progress"></div>' : '') +
-      '<section class="stack">' + D.levels.map(function (l) { return '<div class="stack-sm"><div class="row-between"><a href="#level-' + l.id + '"><strong>Level ' + l.id + ' · ' + esc(l.name) + '</strong></a><span class="num small">' + levelProgress(l.id) + '%</span></div>' + bar(levelProgress(l.id), 'Level ' + l.id + ' progress') + '</div>'; }).join('') + '</section>' +
+      '<section class="stack">' + D.levels.map(function (l) { return '<div class="stack-sm"><div class="row-between"><a href="#level-' + l.id + '"><strong>Level ' + l.id + ' · ' + esc(l.name) + '</strong></a><span class="num small">' + esc(levelText(l.id)) + '</span></div>' + bar(levelProgress(l.id), 'Level ' + l.id + ' progress', '', levelText(l.id)) + '</div>'; }).join('') + '</section>' +
       '<div class="two-col"><section class="stack"><h2>Quizzes and level tests</h2>' + quizTable() + '</section><aside class="stack">' +
       (cloudOn() ? '<div class="card stack-sm" id="prog-acct">' + acctCard() + '</div>' : '') +
       plannerCard() +
