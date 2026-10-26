@@ -1,1 +1,97 @@
 /* Focus sessions (Dharana) with Dhyana breath and Vairagya distraction-free mode; the Svadhyaya journal */
+
+/* ---------- forms ---------- */
+.fc-page :is(.stack, .stack-sm) > p + p { margin-top: 0; }
+.fc-page .fc-select { width: 100%; max-width: 34rem; min-height: 44px; }
+.fc-page input[type="text"] { width: 100%; max-width: 46rem; min-height: 44px; }
+.fc-page textarea { max-width: 46rem; }
+.fc-num { width: 8em; min-height: 44px; }
+.fc-err { color: var(--bad); font-weight: 600; }
+.fc-page [aria-invalid="true"] { border-color: var(--bad); box-shadow: 0 0 0 1px var(--bad); }
+.fc-fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.fc-fieldset > legend { padding: 0; margin-bottom: 6px; }
+.fc-picks { display: flex; flex-wrap: wrap; gap: 8px; }
+.fc-pick { position: relative; display: inline-flex; }
+.fc-pick input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.fc-pick span { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 6px 14px; border: 1px solid var(--field-line); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink); font-weight: 600; line-height: 1.2; }
+.fc-pick:hover span { border-color: var(--indigo); }
+.fc-pick input:checked + span { background: var(--indigo); border-color: var(--indigo); color: var(--on-indigo); box-shadow: inset 0 0 0 2px var(--surface); }
+.fc-pick input:focus-visible + span { outline: 3px solid var(--haldi); outline-offset: 2px; }
+.fc-picks:has(.fc-pick-conf) { gap: 6px; }
+.fc-pick-conf span { flex-direction: column; gap: 0; min-width: 52px; padding: 4px 8px; }
+.fc-pick-conf span small { font-weight: 400; font-size: .78rem; }
+.fc-check { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; align-items: start; }
+.fc-check > input { margin: 4px 0 0; }
+.fc-check label { line-height: 1.4; }
+.fc-jform textarea { min-height: 84px; }
+
+/* ---------- breath, timer ---------- */
+.fc-breath-stage { display: grid; justify-items: center; align-content: center; gap: 14px; padding-block: 8px; }
+.fc-orb { width: clamp(110px, 34vw, 150px); height: clamp(110px, 34vw, 150px); border-radius: 50%; border: 2px solid var(--indigo); background: radial-gradient(circle at 50% 42%, var(--indigo-soft) 0%, var(--surface-2) 72%); transform: scale(.55); animation: fc-breathe 10s ease-in-out infinite; will-change: transform; }
+@keyframes fc-breathe { 0% { transform: scale(.55); } 40% { transform: scale(1); } 100% { transform: scale(.55); } }
+@media (prefers-reduced-motion: reduce) { .fc-orb { display: none; } }
+.fc-say { font-size: var(--step-2); font-weight: 600; text-align: center; line-height: 1.25; margin: 0; }
+.fc-say .num { display: inline-block; min-width: 1ch; color: var(--indigo); }
+.fc-intent { font-size: var(--step-1); font-weight: 600; overflow-wrap: anywhere; }
+.fc-clock { font-family: var(--font-mono); font-size: clamp(3rem, 14vw, 5.5rem); font-weight: 600; line-height: 1; letter-spacing: -.02em; text-align: center; padding-block: 6px; font-variant-numeric: tabular-nums; }
+.fc-run .bar { height: 10px; }
+.fc-run .bar > span { background: var(--indigo); }
+
+/* ---------- focus log ---------- */
+.fc-week { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.fc-bars { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; align-items: end; max-width: 460px; }
+.fc-bars li, .fc-bars li + li { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+.fc-bar { display: flex; align-items: flex-end; width: 100%; max-width: 44px; height: 96px; background: var(--surface-2); border-radius: var(--radius-sm); overflow: hidden; }
+.fc-bar > span { display: block; width: 100%; background: var(--indigo); }
+.fc-bar-v { font-family: var(--font-mono); font-size: .8rem; }
+.fc-bar-d { font-size: .8rem; color: var(--muted); white-space: nowrap; }
+.fc-bars li.is-today .fc-bar-d { color: var(--ink); font-weight: 700; }
+.fc-log-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.fc-log-item, .fc-log-list li + li { margin: 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 12px 14px; border-top: 1px solid var(--line); }
+.fc-log-item:first-child { border-top: 0; }
+.fc-log-main { flex: 1 1 220px; min-width: 0; }
+.fc-log-main strong { overflow-wrap: anywhere; }
+
+/* ---------- journal ---------- */
+.fc-jstatus { min-height: 0; }
+.fc-jentry, .fc-jentry * { overflow-wrap: anywhere; }
+.fc-jdl { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.fc-jdl dt { font-size: var(--step--1); font-weight: 700; color: var(--muted); }
+.fc-jdl dd { margin: 0; }
+.fc-jdl dd > * + * { margin-top: .5em; }
+.fc-jconf { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.fc-jconf li, .fc-jconf li + li { margin: 0; border-left: 3px solid var(--haldi); padding-left: 10px; display: flex; flex-direction: column; gap: 2px; }
+.fc-jgroup h3 a { color: var(--ink); }
+
+/* ---------- the floating timer chip ---------- */
+.fc-chip { position: fixed; z-index: 40; right: max(12px, env(safe-area-inset-right, 0px)); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); max-width: calc(100vw - 24px); }
+.fc-chip-body { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 4px; padding: 4px; background: var(--surface); border: 1px solid var(--indigo); border-radius: 26px; box-shadow: var(--shadow); }
+.fc-chip-done .fc-chip-body { border-color: var(--ok); }
+.fc-chip-link { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px 0 10px; border-radius: 22px; color: var(--ink); font-weight: 700; text-decoration: none; white-space: nowrap; }
+.fc-chip-link:hover { background: var(--surface-2); }
+.fc-chip-link:focus-visible, .fc-chip-btn:focus-visible { outline-offset: 0; border-radius: 22px; }
+.fc-chip-ico { display: inline-grid; place-items: center; width: 22px; height: 22px; color: var(--indigo); }
+.fc-chip-ico svg { width: 22px; height: 22px; display: block; }
+.fc-chip-ok { color: var(--ok); font-weight: 700; }
+.fc-chip-t { font-family: var(--font-mono); font-weight: 600; min-width: 4.6ch; text-align: right; font-variant-numeric: tabular-nums; }
+.fc-chip-btn { min-height: 44px; border-radius: 22px; }
+@media (max-width: 560px) {
+  .fc-chip-two .fc-chip-body { flex-direction: column; align-items: stretch; border-radius: 20px; }
+  .fc-chip-two .fc-chip-link { justify-content: center; }
+}
+body.fc-chip-on { padding-bottom: calc(var(--fc-chip-h, 54px) + 20px + env(safe-area-inset-bottom, 0px)); }
+body.fc-chip-on .toast { bottom: calc(var(--fc-chip-h, 54px) + 24px + env(safe-area-inset-bottom, 0px)); }
+@media print { .fc-chip { display: none; } }
+
+/* ---------- distraction-free mode (Vairagya): the session hides what pulls attention away ---------- */
+body.fc-vairagya #site-nav,
+body.fc-vairagya .site-head .menu-btn,
+body.fc-vairagya .site-foot,
+body.fc-vairagya #mod-cols > aside > .row-between,
+body.fc-vairagya .fc-hide-more,
+body.fc-vairagya .fc-hide-cw { display: none !important; }
+body.fc-vairagya .head-tools { margin-left: auto; }
+@supports selector(:has(a)) {
+  body.fc-vairagya section:has(> #more-all),
+  body.fc-vairagya :is(section, div):has(> .continue-list) { display: none !important; }
+}

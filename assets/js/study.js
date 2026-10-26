@@ -148,7 +148,7 @@
       normalize: function (o) {
         return newest(cleanMap(o, function (v) {
           if (!isObj(v)) return undefined;
-          return { at: iso(v.at) || now(), learnt: str(v.learnt, 2000), confused: str(v.confused, 2000), next: str(v.next, 1000), conf: Math.floor(num(v.conf, 0, 5, 0)), mod: str(v.mod, 60), mins: Math.floor(num(v.mins, 0, 600, 0)), del: !!v.del };
+          return { at: iso(v.at) || now(), learnt: str(v.learnt, 2000), confused: str(v.confused, 2000), next: str(v.next, 1000), meth: str(v.meth, 200), conf: Math.floor(num(v.conf, 0, 5, 0)), mod: str(v.mod, 60), mins: Math.floor(num(v.mins, 0, 600, 0)), del: !!v.del };
         }), 400);
       },
       merge: mergeNewer

@@ -650,7 +650,7 @@
       var nm = D.modules[D.modules.indexOf(m) + 1];
       var nxt = nm ? { href: '#m-' + nm.id, label: 'Next: ' + modNo(nm) + ' ' + nm.title } : { href: '#tests', label: 'Take a level test' };
       if (nm && nm.level !== m.level) nxt = { href: '#test-l' + m.level, label: 'Take the level ' + m.level + ' test' };
-      var quiz = new C.Quiz(document.getElementById('quizroot'), { questions: qz, mode: 'learn', key: m.id, next: nxt, onFinish: function (r) { recordQuiz(m.id, r.score); }, onAnswer: function (r) { if (ST()) ST().emit('answer', r); } });
+      var quiz = new C.Quiz(document.getElementById('quizroot'), { questions: qz, mode: 'learn', key: m.id, confidence: !!ST(), next: nxt, onFinish: function (r) { recordQuiz(m.id, r.score); }, onAnswer: function (r) { if (ST()) ST().emit('answer', r); } });
       currentCleanup.push(function () { quiz.destroy(); });
     } else if (tab === 'notes') {
       var note = S().notes[m.id] || '';
@@ -1330,8 +1330,7 @@
     if (ev.target.closest('.nav a')) { closeNav(); return; }
     if (!ev.target.closest('.site-head')) { ev.preventDefault(); ev.stopPropagation(); closeNav(); }
   }, true);
-  applyTheme();
-  route();
+  // set before the first route(), so a study page opened directly (bookmark, reload) can draw itself
   window.AIM_APP = {
     route: route, moduleProgress: moduleProgress, watchList: watchList,
     // building blocks for the study features (assets/js/study*.js)
@@ -1340,5 +1339,7 @@
     S: S, modById: modById, resById: resById, levelById: levelById, modulesOf: modulesOf, modNo: modNo, levelName: levelName,
     labOf: labOf, exOf: exOf, mainPicks: mainPicks, readCards: readCards, readOn: readOn, readDone: readDone,
     moduleParts: moduleParts, levelProgress: levelProgress, overallProgress: overallProgress, refreshSide: refreshSide
-  };
+  };  applyTheme();
+  route();
+
 })();

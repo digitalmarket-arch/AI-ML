@@ -1,1 +1,74 @@
 /* Daily review (Smarana): spaced repetition of key terms and lesson-card recall questions; retention tracking */
+.rv-page kbd { display: inline-block; min-width: 1.5em; padding: 0 5px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; background: var(--surface); color: var(--ink); font-size: .8rem; line-height: 1.5; text-align: center; }
+.rv-npd { gap: 8px; }
+.rv-npd select { min-height: 40px; }
+.rv-center { justify-content: center; }
+.rv-empty p { margin: 0; }
+.rv-done { border-left: 3px solid var(--ok); background: var(--ok-soft); padding: 12px 14px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+
+/* the session */
+.rv-today h2:focus { outline: none; }
+.rv-today h2:focus-visible { outline: 2px solid var(--indigo); outline-offset: 3px; border-radius: 4px; }
+.rv-today.rv-narrow { max-width: 820px; }
+.rv-card { border-top: 1px solid var(--line); padding-top: 14px; }
+.rv-meta { gap: 8px; }
+.rv-meta .row { gap: 6px; }
+.rv-meta .chip { white-space: normal; }
+.rv-front { overflow-wrap: anywhere; }
+.rv-front.is-term { font-family: var(--font-display); font-size: var(--step-3); line-height: 1.2; }
+.rv-front.is-q { font-size: var(--step-1); font-weight: 600; line-height: 1.4; }
+.rv-front:focus, .rv-back:focus, .rv-front:focus-visible, .rv-back:focus-visible { outline: none; }
+.rv-back { background: var(--surface-2); border-left: 3px solid var(--indigo); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 12px 14px; }
+.rv-back h3 { margin: 0; }
+.rv-grades { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.rv-g { position: relative; flex-direction: column; gap: 2px; padding: 10px 8px 8px; border-top-width: 4px; min-height: 64px; }
+.rv-g1 { border-top-color: var(--bad); }
+.rv-g2 { border-top-color: var(--warn); }
+.rv-g3 { border-top-color: var(--ok); }
+.rv-g4 { border-top-color: var(--indigo); }
+.rv-g-l { font-weight: 700; }
+.rv-g-h { font-size: .82rem; font-weight: 500; color: var(--muted); }
+.rv-g kbd { position: absolute; top: 4px; right: 5px; font-size: .7rem; min-width: 0; padding: 0 4px; color: var(--muted); }
+@media (hover: none) { .rv-g kbd { display: none; } }
+@media (max-width: 520px) { .rv-grades { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.rv-tools { border-top: 1px dashed var(--line); padding-top: 10px; }
+
+/* retention panel */
+.grid.rv-two { grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); }
+.rv-ret-grid { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); }
+.rv-h3 { font-size: var(--step-0); font-weight: 700; margin-top: 6px; }
+.rv-big { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
+.rv-big-v { font-size: 2.4rem; font-weight: 700; line-height: 1; }
+.rv-fig { margin: 0; }
+.rv-chart { display: block; width: 100%; max-width: 380px; height: auto; overflow: visible; }
+.rv-chart .rv-axis { stroke: var(--field-line); stroke-width: 1; }
+.rv-chart .rv-bar { fill: var(--series-1); }
+.rv-chart .rv-hit { fill: transparent; }
+.rv-chart .rv-col:hover .rv-bar { opacity: .82; }
+.rv-chart text { font-family: var(--font-body); }
+.rv-chart .rv-cap { fill: var(--ink); font-size: 11px; font-weight: 600; }
+.rv-chart .rv-lab, .rv-chart .rv-tick { fill: var(--muted); font-size: 11px; }
+.rv-chart .rv-lab.is-now { fill: var(--ink); font-weight: 700; }
+.rv-tbl summary { cursor: pointer; font-weight: 600; font-size: var(--step--1); }
+.rv-tbl table { margin-top: 8px; }
+.rv-fc { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.rv-fc li { display: grid; grid-template-columns: minmax(7.5em, auto) minmax(0, 1fr) auto; gap: 10px; align-items: center; margin: 0; font-size: var(--step--1); }
+.rv-fc-b { height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
+.rv-fc-b > span { display: block; height: 100%; background: var(--series-1); border-radius: inherit; }
+.rv-fc-n { text-align: right; min-width: 4.5em; }
+
+/* add a module */
+.rv-mods { list-style: none; margin: 0; padding: 0; }
+.rv-mod { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 12px; padding: 10px 0; border-top: 1px solid var(--line); margin: 0; }
+.rv-mod > div { flex: 1 1 200px; min-width: 0; gap: 2px; }
+.rv-mod span:focus { outline: none; }
+
+/* AI: answers folded until the learner opens them */
+.rv-fold { margin-top: 6px; }
+.rv-fold summary { cursor: pointer; font-weight: 600; color: var(--indigo); }
+.rv-fold > div { margin-top: 4px; }
+
+/* "Added to your daily review" under a lesson card's Got it */
+.rv-added { color: var(--ok); font-weight: 600; }
+.rv-added a { color: inherit; }
+@media (max-width: 480px) { .rv-chart .rv-cap, .rv-chart .rv-lab, .rv-chart .rv-tick { font-size: 13px; } }

@@ -1,1 +1,88 @@
 /* Knowledge map: mastery stages, weak topics, next best steps; Today card on Home; study summary on My progress */
+
+/* next steps: numbered, each with its reason */
+.mt-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.mt-steps > li { margin: 0; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 10px; align-items: start; }
+.mt-step-n { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--indigo-soft); color: var(--indigo); font-weight: 700; font-size: .85rem; }
+.mt-step-b { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.mt-step-a { font-weight: 700; line-height: 1.35; }
+.mt-step-why, .mt-step-m { margin: 0; }
+.mt-step-b p + p { margin-top: 0; }
+.mt-steps-sm { gap: 8px; }
+.mt-steps-sm > li { grid-template-columns: 24px minmax(0, 1fr); gap: 8px; }
+.mt-steps-sm .mt-step-n { width: 24px; height: 24px; font-size: .78rem; }
+
+/* Home: Today card (short, so the rest of Home stays near) */
+.mt-today { gap: 10px; }
+.mt-today-top { gap: 4px 12px; }
+.mt-today-links { color: var(--muted); }
+.mt-invite { margin: 0; color: var(--muted); }
+.mt-today-map { margin-left: 4px; }
+@media (max-width: 560px) {
+  .mt-today { padding: 14px; }
+  /* the full reason is on the Knowledge map; here two lines are enough */
+  .mt-today .mt-step-why { display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+}
+
+/* stage dots: a glyph and a word for each stage, so meaning never rests on colour */
+.mt-dots { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.mt-dots > li { margin: 0; display: inline-flex; align-items: center; gap: 5px; padding: 1px 9px 1px 3px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); font-size: .8rem; font-weight: 600; line-height: 1.5; }
+.mt-dot-i { width: 18px; height: 18px; border-radius: 50%; display: inline-grid; place-items: center; font-size: .72rem; line-height: 1; border: 1.5px solid currentColor; flex: none; }
+.mt-dots > li.is-done { background: var(--ok-soft); border-color: transparent; color: var(--ok); }
+.mt-dots > li.is-done .mt-dot-i { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+.mt-dots > li.is-na, .mt-dots > li.is-soon { border-style: dashed; }
+.mt-dots > li.is-na .mt-dot-i, .mt-dots > li.is-soon .mt-dot-i { border-color: transparent; }
+.mt-key { display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
+.mt-key .mt-dot-i { width: 15px; height: 15px; font-size: .62rem; }
+.mt-key.is-done .mt-dot-i { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+.mt-key.is-na .mt-dot-i, .mt-key.is-soon .mt-dot-i { border-color: transparent; }
+
+/* modules by level */
+.mt-mods { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.mt-mods > li { margin: 0; }
+.mt-mod { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-top: 1px solid var(--line); }
+.mt-mod:first-child { border-top: 0; }
+.mt-mod.is-cur { box-shadow: inset 3px 0 0 var(--haldi); }
+.mt-mod-head { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; justify-content: space-between; }
+.mt-mod-h { font-size: 1.02rem; font-weight: 700; line-height: 1.3; margin: 0; }
+.mt-mod-h a { color: var(--ink); text-decoration: none; }
+.mt-mod-h a:hover { color: var(--indigo); text-decoration: underline; }
+.mt-mod-no { font-family: var(--font-mono); font-size: .85rem; color: var(--muted); margin-right: 2px; }
+.mt-mod-cont { color: var(--muted); display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.mt-more > summary { cursor: pointer; font-size: var(--step--1); color: var(--indigo); font-weight: 600; width: fit-content; }
+.mt-more-b { padding-top: 8px; }
+.mt-detail { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.mt-detail > li { margin: 0; padding-left: 10px; border-left: 3px solid var(--line); }
+.mt-detail > li.is-done { border-left-color: var(--ok); }
+.mt-detail > li.is-todo { border-left-color: var(--haldi); }
+.mt-detail-k { font-weight: 700; font-size: var(--step--1); }
+.mt-detail-go { display: inline-flex; flex-wrap: wrap; gap: 0 4px; }
+.mt-topics { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.mt-topics > li { margin: 0; font-size: .8rem; padding: 2px 9px; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--surface); }
+.mt-topic-s { color: var(--muted); font-weight: 600; }
+.mt-topics > li.is-weak { border-color: var(--bad); background: var(--bad-soft); }
+.mt-topics > li.is-weak .mt-topic-s { color: var(--bad); }
+.mt-topics > li.is-strong { border-color: var(--ok); background: var(--ok-soft); }
+.mt-topics > li.is-strong .mt-topic-s { color: var(--ok); }
+.mt-seg button { min-width: 0; }
+
+/* the ladder, weak spots, calibration */
+.mt-ladder-l { display: flex; flex-direction: column; gap: 6px; }
+.mt-ladder-l > li + li { margin-top: 0; }
+.mt-weak { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.mt-weak > li { margin: 0; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.mt-weak-i p + p { margin-top: 0; }
+.mt-cal { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.mt-cal > li { margin: 0; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; padding: 4px 0; border-bottom: 1px dashed var(--line); }
+.mt-cal-k { font-weight: 600; }
+.mt-pair { align-items: start; }
+.mt-pair > section { height: auto; }
+
+/* My progress: stats that link to their pages */
+a.mt-stat { display: block; text-decoration: none; color: var(--ink); border: 1px solid transparent; }
+a.mt-stat:hover { border-color: var(--indigo); }
+a.mt-stat .k, a.mt-stat .v { display: block; }
+a.mt-stat:hover .k { text-decoration: underline; }
+.mt-stat-sa { display: block; text-transform: none; letter-spacing: 0; font-weight: 500; }
+.mt-stat-sa .sans-m { display: none; }
+@media (pointer: coarse) { .mt-more > summary { padding-block: 8px; } }
