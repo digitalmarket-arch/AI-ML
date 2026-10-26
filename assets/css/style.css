@@ -242,12 +242,18 @@ a.card:hover, a.card:focus-visible { border-color: var(--indigo); box-shadow: va
 /* whole course (Level 1 to 4) in indigo, next to a module or level in haldi */
 .ring-course { background: conic-gradient(var(--indigo) calc(var(--p) * 1%), var(--surface-2) 0); }
 .bar-course > span { background: var(--indigo); }
-.prog-pair { display: flex; gap: 14px; align-items: flex-start; }
-.prog-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--muted); text-decoration: none; border-radius: var(--radius-sm); }
-.prog-cap { font-size: .75rem; font-weight: 600; line-height: 1.2; white-space: nowrap; }
-a.prog-item:hover .prog-cap { color: var(--indigo); text-decoration: underline; }
-.prog-pair .ring { width: 56px; height: 56px; }
-.prog-pair .ring::after { width: 44px; height: 44px; font-size: .8rem; }
+/* progress pinned under the menu on module, level and roadmap pages */
+:root { --strip-h: 50px; }
+.prog-strip { position: sticky; top: calc(61px + env(safe-area-inset-top, 0px)); z-index: 6; box-sizing: border-box; height: var(--strip-h); display: flex; gap: 24px; align-items: center; background: var(--bg); border-bottom: 1px solid var(--line); }
+.ps-item { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.ps-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: .82rem; line-height: 1.2; }
+.ps-what { min-width: 0; font-weight: 600; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ps-n { flex: none; }
+.prog-strip .bar { height: 6px; }
+@media (min-width: 901px) { .prog-strip ~ .two-col > aside { top: calc(76px + var(--strip-h) + env(safe-area-inset-top, 0px)); } }
+html:has(.prog-strip) { scroll-padding-top: calc(70px + var(--strip-h) + env(safe-area-inset-top, 0px)); }
+@media (max-width: 520px) { .ps-sub { display: none; } .prog-strip { gap: 16px; } }
+@media print { .prog-strip { position: static; } }
 .course-prog-head { display: flex; gap: 12px; align-items: baseline; justify-content: space-between; }
 .course-prog-head > :first-child { min-width: 0; }
 .course-prog-head > :last-child { flex: none; font-size: 1.05rem; }

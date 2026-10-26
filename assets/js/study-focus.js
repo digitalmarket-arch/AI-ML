@@ -285,6 +285,8 @@
       var c = body.getBoundingClientRect(), r = el.getBoundingClientRect();
       if (!r.height || r.bottom <= c.top - 4 || r.top >= c.bottom || r.right <= c.left || r.left >= c.right) return;
       var head = document.querySelector('.site-head'), top = head ? Math.max(0, head.getBoundingClientRect().bottom) : 0;
+      var strip = document.querySelector('.prog-strip'), sb = strip && strip.getBoundingClientRect(); // the progress strip pinned under it
+      if (sb && sb.top <= top + 1) top = Math.max(top, sb.bottom);
       var d = Math.min(r.bottom - c.top + 12, r.top - top - 8);
       if (d > 0) { try { window.scrollBy({ top: d, left: 0, behavior: 'instant' }); } catch (e) { window.scrollBy(0, d); } }
     });
