@@ -140,7 +140,7 @@
       normalize: function (o) {
         return cleanMap(o, function (v) {
           if (!isObj(v)) return undefined;
-          return { s: num(v.s, 0, 3650, 0), d: num(v.d, 1, 10, 5), due: day(v.due) || today(), last: day(v.last), first: day(v.first), lg: Math.floor(num(v.lg, 0, 4, 0)),
+          return { s: num(v.s, 0, 3650, 0), d: num(v.d, 1, 10, 5), due: day(v.due) || today(), last: day(v.last), first: day(v.first), fr: day(v.fr), lg: Math.floor(num(v.lg, 0, 4, 0)),
             reps: Math.floor(num(v.reps, 0, 1e5, 0)), lapses: Math.floor(num(v.lapses, 0, 1e5, 0)), off: !!v.off, at: iso(v.at) };
         });
       },
@@ -175,7 +175,7 @@
           var wrongAt = iso(v.wrongAt);
           var fix = (Array.isArray(v.fix) ? v.fix : []).map(function (x) { return iso(x) || (day(x) ? x + 'T12:00:00.000Z' : ''); }).filter(function (x) { return x && (!wrongAt || x > wrongAt); });
           return { c: c, n: devSum(c, 0), r: Math.min(devSum(c, 1), devSum(c, 0)), lr: v.lr ? 1 : 0, p: Math.floor(num(v.p, -1, 9, -1)), su: Math.floor(num(v.su, 0, 3, 0)),
-            at: iso(v.at), wrongAt: wrongAt, fix: fix.sort().slice(-6), src: str(v.src, 12) };
+            at: iso(v.at), wrongAt: wrongAt, fix: fix.sort().slice(-6), ok: (Array.isArray(v.ok) ? v.ok : []).map(iso).filter(Boolean).sort().slice(-6), src: str(v.src, 12) };
         });
       },
       merge: function (a, b) {
@@ -186,7 +186,8 @@
           if (!x || !y) { out[k] = x || y; return; }
           var nw = String(y.at || '') > String(x.at || '') ? y : x, c = mergeDev(x.c, y.c), wrongAt = later(x.wrongAt, y.wrongAt);
           var fix = (x.fix || []).concat(y.fix || []).filter(function (t, i, arr) { return arr.indexOf(t) === i && (!wrongAt || t > wrongAt); }).sort().slice(-6);
-          out[k] = { c: c, n: devSum(c, 0), r: Math.min(devSum(c, 1), devSum(c, 0)), lr: nw.lr, p: nw.p, su: nw.su, at: nw.at, wrongAt: wrongAt, fix: fix, src: nw.src };
+          var okT = (x.ok || []).concat(y.ok || []).filter(function (t, i, arr) { return arr.indexOf(t) === i; }).sort().slice(-6);
+          out[k] = { c: c, n: devSum(c, 0), r: Math.min(devSum(c, 1), devSum(c, 0)), lr: nw.lr, p: nw.p, su: nw.su, at: nw.at, wrongAt: wrongAt, fix: fix, ok: okT, src: nw.src };
         });
         return out;
       }
@@ -200,7 +201,7 @@
           var sAt = (Array.isArray(v.sAt) ? v.sAt : []).slice(0, 5).map(iso);
           while (sAt.length < soc.length) sAt.push(soc[sAt.length] ? at : '');
           return { feyn: str(v.feyn, 3000), ideas: Math.floor(num(v.ideas, 0, 10, 0)), fAt: iso(v.fAt) || (v.feyn ? at : ''), soc: soc, sAt: sAt,
-            japa: Math.floor(num(v.japa, 0, 1000, 0)), nid: day(v.nid), at: at };
+            japa: Math.floor(num(v.japa, 0, 1000, 0)), nid: day(v.nid), nAt: iso(v.nAt) || (v.nid ? at : ''), at: at };
         });
       },
       merge: function (a, b) {
@@ -214,7 +215,8 @@
             var takeY = String((y.sAt || [])[i] || '') > String((x.sAt || [])[i] || '');
             soc.push(((takeY ? y : x).soc || [])[i] || ''); sAt.push(((takeY ? y : x).sAt || [])[i] || '');
           }
-          out[k] = { feyn: f.feyn, ideas: f.ideas, fAt: f.fAt, soc: soc, sAt: sAt, japa: Math.max(x.japa || 0, y.japa || 0), nid: later(x.nid, y.nid), at: later(x.at, y.at) };
+          var nd = String(y.nAt || '') > String(x.nAt || '') ? y : x;
+          out[k] = { feyn: f.feyn, ideas: f.ideas, fAt: f.fAt, soc: soc, sAt: sAt, japa: Math.max(x.japa || 0, y.japa || 0), nid: nd.nid, nAt: nd.nAt, at: later(x.at, y.at) };
         });
         return out;
       }
@@ -293,8 +295,8 @@
     (ids || []).forEach(function (id) {
       var c = st.srs[id];
       if (c && !c.off) return;
-      st.srs[id] = c ? { s: c.s, d: c.d, due: t, last: c.last, first: c.first, lg: c.lg, reps: c.reps, lapses: c.lapses, off: false, at: now() }
-        : { s: 0, d: 5, due: t, last: '', first: '', lg: 0, reps: 0, lapses: 0, off: false, at: '' };
+      st.srs[id] = c ? { s: c.s, d: c.d, due: t, last: c.last, first: c.first, fr: c.fr, lg: c.lg, reps: c.reps, lapses: c.lapses, off: false, at: now() }
+        : { s: 0, d: 5, due: t, last: '', first: '', fr: '', lg: 0, reps: 0, lapses: 0, off: false, at: '' };
       n++;
     });
     if (n) C.save();
@@ -324,7 +326,7 @@
     }
     if (s >= 3) s = s * (0.95 + 0.1 * hash(id + t)); // spread cards so they do not all fall on one day
     var gap = s < 1 ? 0 : Math.round(s);
-    return { s: Math.round(s * 100) / 100, d: Math.round(d * 10) / 10, due: addDays(t, gap), last: t, first: c.first || (grade >= 2 ? t : ''), lg: grade,
+    return { s: Math.round(s * 100) / 100, d: Math.round(d * 10) / 10, due: addDays(t, gap), last: t, first: c.first || (grade >= 2 ? t : ''), fr: c.fr || t, lg: grade,
       reps: (c.reps || 0) + 1, lapses: lapses, off: false, at: now() };
   }
   function schedule(id, grade) {
@@ -339,8 +341,37 @@
     return Object.keys(st.srs).filter(function (id) { var c = st.srs[id]; return !c.off && c.due <= t; })
       .sort(function (x, y) { return st.srs[x].due.localeCompare(st.srs[y].due) || st.srs[x].s - st.srs[y].s; });
   }
-  // new cards (never reviewed) first graded on day d, across devices: their 'first' or 'last' day is d and reps is 1
-  function newGradedOn(d) { var st = S(), t = d || today(); return Object.keys(st.srs).filter(function (id) { var c = st.srs[id]; return c.reps === 1 && c.last === t; }).length; }
+  // new cards first graded on day d, across devices (fr = the day of a card's first grade)
+  function newGradedOn(d) { var st = S(), t = d || today(); return Object.keys(st.srs).filter(function (id) { var c = st.srs[id]; return (c.fr || (c.reps === 1 ? c.last : '')) === t; }).length; }
+  function newPerDay() { var p = (S().prefs.study || {}).newPerDay; return Math.max(5, Math.min(50, Math.floor(Number(p) || 15))); }
+  function newLeftToday() { return Math.max(0, newPerDay() - newGradedOn(today())); }
+  // the recall check on a lesson card, before the card is in regular review: it records how well the learner remembered
+  // (difficulty and last grade) and brings the card back tomorrow, without counting as a review
+  function learnStep(id, grade) {
+    var st = S(), c = st.srs[id];
+    if (c && (c.off || c.reps)) return c;
+    if (!c) { enroll([id]); c = st.srs[id]; }
+    if (grade < 2) { C.logActivity(); C.save(); return c; }
+    var e = nextEntry(id, grade), t = today();
+    e.s = Math.min(e.s, 1); e.due = addDays(t, 1); st.srs[id] = e;
+    C.logActivity(); C.save();
+    return e;
+  }
+  // every ticked lesson card (and the key terms of a ticked Key terms card) belongs in Daily review; cards the learner
+  // removed stay removed. Runs when pages that count cards are drawn, so a restore or a sync is caught up.
+  function enrollTicked() {
+    var A = app(); if (!A || !A.readCards) return 0;
+    var st = S(), n = 0, add = function (id) { if (!st.srs[id]) { st.srs[id] = { s: 0, d: 5, due: today(), last: '', first: '', fr: '', lg: 0, reps: 0, lapses: 0, off: false, at: '' }; n++; } };
+    (D.modules || []).forEach(function (m) {
+      A.readCards(m).forEach(function (c) {
+        if (!A.readOn(m.id, c.key)) return;
+        add('rc:' + m.id + ':' + c.key);
+        if (c.key === 'keyTerms') (m.keyTerms || []).forEach(function (t, i) { add('kt:' + m.id + ':' + i); });
+      });
+    });
+    if (n) C.save();
+    return n;
+  }
   // chance of recalling a card today, from its stability (90% at s days, falling off after)
   function recallChance(c, day0) {
     if (!c || c.off || !c.reps) return null;
@@ -357,13 +388,14 @@
 
   /* ---------- quiz answers ---------- */
   function recordAnswer(qid, correct, sure, src, picked) {
-    var st = S(), x = st.qa[qid] || { c: {}, n: 0, r: 0, lr: 0, p: -1, su: 0, at: '', wrongAt: '', fix: [], src: '' };
+    var st = S(), x = st.qa[qid] || { c: {}, n: 0, r: 0, lr: 0, p: -1, su: 0, at: '', wrongAt: '', fix: [], ok: [], src: '' };
     var mine = x.c[DEV] || [0, 0];
     x.c[DEV] = [mine[0] + 1, mine[1] + (correct ? 1 : 0), now()];
     x.n = devSum(x.c, 0); x.r = Math.min(devSum(x.c, 1), x.n);
     x.lr = correct ? 1 : 0; x.p = typeof picked === 'number' ? picked : -1; x.su = sure || 0; x.at = now(); x.src = src || x.src;
     if (!correct) { x.wrongAt = x.at; x.fix = []; }
     else if (x.wrongAt) x.fix = (x.fix || []).concat(x.at).slice(-6);
+    if (correct) x.ok = (x.ok || []).concat(x.at).slice(-6); // recent right answers (any question)
     st.qa[qid] = x; C.save();
     emit('qa', qid, x);
     return x;
@@ -400,7 +432,9 @@
     if (st.refl[m.id]) return true;
     if (Object.keys(st.srs).some(function (id) { return id.split(':')[1] === m.id && st.srs[id].reps > 0; })) return true;
     var mp = A.mainPicks(m);
-    return (mp ? mp.list : []).some(function (r) { return sharedBy(r.id) === 1 && (st.watched[r.id] || (st.pos[r.id] && st.pos[r.id].s > 60)); });
+    // a shared playlist is ticked and resumed per module on module pages (app.js tickKey): those keys name this module
+    var own = function (r) { var k = m.id + '|' + r.id; return st.watched[k] || (st.pos[k] && (st.pos[k].i > 0 || st.pos[k].s > 60)); };
+    return (mp ? mp.list : []).some(function (r) { return own(r) || (sharedBy(r.id) === 1 && (st.watched[r.id] || (st.pos[r.id] && st.pos[r.id].s > 60))); });
   }
   function startedModules() { return (D.modules || []).filter(isStarted).map(function (m) { return m.id; }); }
 
@@ -409,11 +443,11 @@
   var FEAT = { review: 'study-review', reflect: 'study-reflect', focus: 'study-focus', practice: 'study-practice', mastery: 'study-mastery', methods: 'study-methods' };
   var EVENT_FEAT = { overview: ['reflect', 'review'], 'card-read': ['reflect', 'review'], watch: ['reflect'], watched: ['reflect'], home: ['mastery'], progress: ['mastery'], hub: [] };
   var ROUTE_FEAT = [[/^review(?:~.*)?$/, 'review'], [/^(?:focus|journal)(?:~.*)?$/, 'focus'], [/^(?:mixed|mistakes)(?:~.*)?$/, 'practice'], [/^mastery(?:~.*)?$/, 'mastery'], [/^methods(?:~.*)?$/, 'methods']];
-  var ready = {};
+  var ready = {}, loadedFeat = {}; // ready: loading started (a promise); loadedFeat: the script has run
   function need(names) {
     return Promise.all((names || []).map(function (n) {
       if (ready[n]) return ready[n];
-      ready[n] = loadScript('assets/js/' + FEAT[n] + '.js', { 'data-feature': n }).catch(function (e) { delete ready[n]; throw e; });
+      ready[n] = loadScript('assets/js/' + FEAT[n] + '.js', { 'data-feature': n }).then(function () { loadedFeat[n] = true; }, function (e) { delete ready[n]; throw e; });
       return ready[n];
     }));
   }
@@ -428,7 +462,8 @@
   }
   function emit(ev) {
     var args = Array.prototype.slice.call(arguments, 1);
-    var missing = (EVENT_FEAT[ev] || []).filter(function (n) { return !ready[n]; });
+    if (ev === 'home' || ev === 'progress' || ev === 'overview') enrollTicked();
+    var missing = (EVENT_FEAT[ev] || []).filter(function (n) { return !loadedFeat[n]; });
     run(ev, args);
     // features loaded now get the event too, once they are in (only their own handlers run, so nothing runs twice)
     if (missing.length) need(missing).then(function () { run(ev, args, function (s) { return missing.indexOf(s.owner) >= 0; }); }, function () {});
@@ -436,12 +471,13 @@
   var routes = [];
   function addRoute(re, render, navKey) { routes.push({ re: re, render: render, nav: navKey || 'study' }); }
   function route(h) {
+    enrollTicked();
     for (var i = 0; i < routes.length; i++) {
       var r = routes[i], m = typeof r.re === 'string' ? (h === r.re ? [h] : null) : r.re.exec(h);
       if (m) { r.render(m); return r.nav; }
     }
     for (var j = 0; j < ROUTE_FEAT.length; j++) {
-      if (!ROUTE_FEAT[j][0].test(h) || ready[ROUTE_FEAT[j][1]]) continue;
+      if (!ROUTE_FEAT[j][0].test(h) || loadedFeat[ROUTE_FEAT[j][1]]) continue;
       var A = app();
       A.setView('<div class="wrap stack"><p class="muted" role="status">Loading…</p></div>', 'Loading');
       need([ROUTE_FEAT[j][1]]).then(function () {
@@ -513,13 +549,22 @@
     return 'Gemini could not answer just now. Try again in a minute, or use Copy prompt with any AI app.';
   }
   // ask Gemini; a reply counts towards the daily limit only when it arrives
-  function askAI(prompt) {
+  // opts: { maxOutputTokens, json (ask for JSON), raw (resolve { text, cut } instead of text) }
+  function askAI(prompt, opts) {
+    opts = opts || {};
     if (!aiOn()) return Promise.reject(new Error('Sign in to ask Gemini. You can always use Copy prompt with any AI app.'));
     if (aiLeft() <= 0) return Promise.reject(new Error('You have used today\'s Gemini replies. Use Copy prompt with any AI app, or come back tomorrow.'));
     if (aiBusy) return Promise.reject(new Error('Gemini is still answering your last question.'));
     aiBusy = true;
     var timer;
-    var call = aiLoad().then(function (m) { return m.generateContent(TUTOR + prompt); });
+    var call = aiLoad().then(function (m) {
+      if (!opts.maxOutputTokens && !opts.json) return m.generateContent(TUTOR + prompt);
+      // a per-request generationConfig replaces the model's, so it carries every setting
+      var model = AIC().model || 'gemini-2.5-flash-lite', gen = { maxOutputTokens: opts.maxOutputTokens || 1024, temperature: 0.4 };
+      if (/2\.5/.test(model)) gen.thinkingConfig = { thinkingBudget: 0 };
+      if (opts.json) gen.responseMimeType = 'application/json';
+      return m.generateContent({ contents: [{ role: 'user', parts: [{ text: TUTOR + prompt }] }], generationConfig: gen });
+    });
     var limit = new Promise(function (_, reject) { timer = setTimeout(function () { reject({ code: 'timeout' }); }, 45000); });
     return Promise.race([call, limit]).then(function (r) {
       clearTimeout(timer); aiBusy = false;
@@ -528,10 +573,10 @@
       var st = S(), t = today();
       st.ai = st.ai && st.ai.day === t ? st.ai : { day: t, d: {} };
       var mine = st.ai.d[DEV] || [0]; st.ai.d[DEV] = [mine[0] + 1, now()]; C.save();
-      var fr = resp.candidates && resp.candidates[0] && resp.candidates[0].finishReason;
-      if (fr === 'MAX_TOKENS') text += '\n\n(This reply was cut short.)';
+      var fr = resp.candidates && resp.candidates[0] && resp.candidates[0].finishReason, cut = fr === 'MAX_TOKENS';
       refreshAI();
-      return text;
+      if (opts.raw) return { text: text, cut: cut };
+      return cut ? text + '\n\n(This reply was cut short.)' : text;
     }).catch(function (e) {
       clearTimeout(timer); aiBusy = false; refreshAI();
       throw new Error(e && e.code === 'empty' ? 'Gemini sent an empty reply. Try again in a minute.' : aiError(e));
@@ -555,7 +600,7 @@
   function aiRow(id) {
     var left = aiLeft(), label = aiLabels[id] || 'Ask Gemini', what = aiLabels[id + ':what'] || '';
     return '<button type="button" class="btn btn-sm" data-ai-copy' + (what ? ' aria-label="Copy prompt for your AI app: ' + esc(what) + '"' : '') + '>Copy prompt for your AI app</button>' +
-      (aiOn() ? '<button type="button" class="btn btn-sm btn-primary" data-ai-ask' + (left && !aiBusy ? '' : ' disabled') + '>' + esc(label) + ' <span class="small">(' + left + ' left today)</span></button>'
+      (aiOn() ? '<button type="button" class="btn btn-sm btn-primary" data-ai-ask' + (left && !aiBusy ? '' : ' disabled') + (what ? ' aria-label="' + esc(label + ' (' + left + ' left today): ' + what) + '"' : '') + '>' + esc(label) + ' <span class="small">(' + left + ' left today)</span></button>'
         : aiOffered() ? '<span class="small muted"><a href="#account">Sign in</a> to ask Gemini here.</span>' : '');
   }
   function aiHTML(id, label, what) {
@@ -564,7 +609,9 @@
       (aiOffered() ? '<p class="small muted ai-note">Ask Gemini sends your text to Google. Do not type personal details.</p>' : '') +
       '<div class="ai-out stack-sm" aria-live="polite" hidden></div></div>';
   }
-  function bindAI(root, id, getPrompt) { aiPrompts[id] = getPrompt; }
+  // opts.onAsk(button, outEl): the feature handles the Ask button itself (for example to turn a JSON reply into a quiz)
+  var aiAsk = {};
+  function bindAI(root, id, getPrompt, opts) { aiPrompts[id] = getPrompt; if (opts && opts.onAsk) aiAsk[id] = opts.onAsk; else delete aiAsk[id]; }
   function refreshAI() {
     Array.prototype.forEach.call(document.querySelectorAll('.ai-box[data-ai]'), function (box) {
       var row = box.querySelector('.ai-row'), id = box.getAttribute('data-ai'); if (!row) return;
@@ -580,6 +627,7 @@
     var p = get(); if (!p) return;
     if (b.hasAttribute('data-ai-copy')) { copyText(TUTOR + p); return; }
     var out = box.querySelector('.ai-out');
+    if (aiAsk[id]) { aiAsk[id](b, out, p); return; }
     b.disabled = true; out.hidden = false; out.innerHTML = '<p class="muted">Gemini is thinking…</p>';
     askAI(p).then(function (text) {
       out.innerHTML = '<div class="ai-reply">' + C.md(text) + '</div><p class="small muted">AI can be wrong. Check its answer against the lesson.</p>';
@@ -588,6 +636,7 @@
     }).then(function () { out.tabIndex = -1; try { out.focus({ preventScroll: true }); } catch (e) {} });
   });
   if (window.AIM_CLOUD && window.AIM_CLOUD.on) window.AIM_CLOUD.on(function () { refreshAI(); emit('signin'); });
+  window.addEventListener('aim:progress-replaced', function () { enrollTicked(); });
 
   /* ---------- Study room (#study) ---------- */
   function viewHub() {
@@ -633,7 +682,7 @@
     now: now, today: today, addDays: addDays, daysBetween: daysBetween, localDay: localDay, device: DEV,
     // review
     reviewItem: reviewItem, enroll: enroll, unenroll: unenroll, moduleReviewIds: moduleReviewIds, nextEntry: nextEntry, schedule: schedule, dueIds: dueIds,
-    newGradedOn: newGradedOn, recallChance: recallChance, retention: retention, heldDays: heldDays, reviewLog: reviewLog, logReview: logReview,
+    newGradedOn: newGradedOn, newPerDay: newPerDay, newLeftToday: newLeftToday, learnStep: learnStep, enrollTicked: enrollTicked, recallChance: recallChance, retention: retention, heldDays: heldDays, reviewLog: reviewLog, logReview: logReview,
     // answers
     recordAnswer: recordAnswer, isMistake: isMistake, fixCount: fixCount,
     // modules

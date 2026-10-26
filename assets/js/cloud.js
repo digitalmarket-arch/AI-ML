@@ -124,7 +124,7 @@
   function settle() { return inflight ? inflight.then(function () {}, function () {}) : Promise.resolve(); }
 
   // noUpload: after deleting the cloud copy, do not write it straight back
-  var lastPushErr = null;
+  var lastPushErr = null, syncErr = null; // syncErr: why the last sync failed (null when it worked)
   function signOut(clearDevice, noUpload) {
     if (fb && !noUpload && (leaving || deleting)) {
       // already busy (a slow connection): say so, and add a later "remove progress" to the pending sign-out
@@ -135,7 +135,10 @@
     }
     if (!fb || leaving) return Promise.resolve(false);
     leaving = true; leaveClear = !!clearDevice; clearTimeout(timer); timer = null; emit();
+    var waited = !!inflight;
     return settle().then(function () {
+      // the running sync just gave up because the connection is stalled or gone: do not wait for a second try
+      if (waited && syncErr && /^timeout$|Failed to fetch|NetworkError|Load failed/.test(String(syncErr.message))) { lastPushErr = syncErr; return false; }
       // send the latest progress first, so nothing done on this device is lost
       return user && !noUpload ? push().then(function () { return true; }, function (e) { lastPushErr = e; return false; }) : true;
     }).then(function (saved) {
@@ -293,7 +296,7 @@
     if (!user || !enabled() || deleting || leaving || away) return Promise.resolve(false);
     if (busy) { again = true; return Promise.resolve(false); }
     clearTimeout(timer); timer = null;
-    busy = true; lastTry = Date.now(); set('syncing');
+    busy = true; lastTry = Date.now(); set('syncing'); syncErr = null;
     var who = user;
     inflight = push().then(function () {
       if (user !== who) return false;
@@ -301,7 +304,8 @@
       if (reason === 'sign-in') C.toast('Signed in. Your progress is backed up and synced.');
       return true;
     }, function (e) {
-      if (user !== who) return false; // signed out meanwhile: nothing to report
+      syncErr = e;
+      if (user !== who || away) return false; // signed out meanwhile (here or in another tab): nothing to report
       set('signed-in', explain(e));
       return false;
     }).then(function (ok) {

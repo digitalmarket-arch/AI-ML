@@ -296,11 +296,19 @@
 
     var taskList = h('ul', { class: 'lab-tasks' });
     var taskEls = {};
+    // the tick next to a task, plus " (done)" for screen readers (the tick itself is only a CSS mark)
+    function showDone(tid, on) {
+      var li = taskEls[tid];
+      if (!li) return;
+      li.className = on ? 'done' : '';
+      if (on && !li._sr) { li._sr = h('span', { class: 'visually-hidden', text: ' (done)' }); li.appendChild(li._sr); }
+      else if (!on && li._sr) { li.removeChild(li._sr); li._sr = null; }
+    }
     TASKS.forEach(function (t) {
       var li = h('li', { text: t.text });
-      if (api && api.isTaskDone && api.isTaskDone(t.id)) { li.className = 'done'; done[t.id] = true; }
       taskEls[t.id] = li;
       taskList.appendChild(li);
+      if (api && api.isTaskDone && api.isTaskDone(t.id)) { done[t.id] = true; showDone(t.id, true); }
     });
     controls.appendChild(h('div', { class: 'control' }, [h('span', { class: 'control-label', text: 'Your tasks' }), taskList]));
     var live = h('div', { class: 'visually-hidden', 'aria-live': 'polite' });
@@ -310,7 +318,8 @@
     /* tree diagram panel */
     var treeHead = h('span', { class: 'small muted num' });
     var treeCap = h('p', { class: 'small muted', style: 'margin:0' });
-    var treeBox = h('div', { style: 'border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow-x:auto;overflow-y:hidden;position:relative' });
+    // focusable, so keyboard users can scroll a wide tree and step through its boxes with the arrow keys (see onTreeKey)
+    var treeBox = h('div', { tabindex: '0', role: 'group', 'aria-label': 'Tree diagram. Arrow keys step through its boxes.', style: 'border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow-x:auto;overflow-y:hidden;position:relative' });
     var treeSvg = sv('svg', { role: 'img', 'aria-label': 'Tree diagram' });
     treeSvg.style.display = 'block';
     treeSvg.style.maxWidth = 'none';
@@ -415,10 +424,19 @@
     }
 
     /* ---------- tasks ---------- */
+    // progress was restored or synced from elsewhere: show the ticks saved now (a tick that was removed can be earned again)
+    function syncTasks() {
+      TASKS.forEach(function (t) {
+        var on = !!(api && api.isTaskDone && api.isTaskDone(t.id));
+        if (on === !!done[t.id]) return;
+        if (on) done[t.id] = true; else delete done[t.id];
+        showDone(t.id, on);
+      });
+    }
     function complete(tid) {
       if (done[tid]) return;
       done[tid] = true;
-      taskEls[tid].className = 'done';
+      showDone(tid, true);
       var t = TASKS.filter(function (x) { return x.id === tid; })[0];
       live.textContent = 'Task done: ' + t.text;
       if (api && api.onTaskDone) api.onTaskDone(tid);
@@ -799,7 +817,7 @@
       if (coach.innerHTML !== msg) coach.innerHTML = msg;
       treeHead.textContent = cur.tree.leaves + ' leaves · depth ' + cur.tree.depth;
       treeCap.textContent = (st.forest ? 'This is the single tree, shown for comparison (the map shows the forest\'s vote). ' : '') +
-        'Each box asks a yes/no question: yes goes left, no goes right. n = training farms that reach the box. Gini impurity = how mixed they are (0 = all one kind, 0.5 = half and half). Hover a box to light up its area on the map.' +
+        'Each box asks a yes/no question: yes goes left, no goes right. n = training farms that reach the box. Gini impurity = how mixed they are (0 = all one kind, 0.5 = half and half). Hover a box (or focus the diagram and use the arrow keys) to light up its area on the map.' +
         (diagramWide ? ' This tree is wider than the box: scroll sideways to see all of it.' : '');
       canvas.setAttribute('aria-label', 'Map of ' + (train.length + test.length) + ' farms: rainfall across, temperature up. ' +
         (st.forest ? 'Shaded by the vote of ' + st.nTrees + ' trees; forest test accuracy ' + pct(cur.fte) + '.' : 'Shaded boxes are the ' + cur.tree.leaves + ' leaves of a depth ' + cur.tree.depth + ' tree; test accuracy ' + pct(cur.te) + '.'));
@@ -938,6 +956,27 @@
     treeSvg.addEventListener('pointerover', onTreeOver);
     treeSvg.addEventListener('click', onTreeOver);
     treeSvg.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse' && probe && probe.kind === 'node') { probe = null; invalidate(); } });
+    // keyboard: Left and Right move along a row of boxes, Up goes to the box above, Down to the "yes" box below,
+    // Home to the top box, Escape clears; the lit-up box is scrolled into view and described under the map
+    function onTreeKey(e) {
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      var tree = cur.tree, n = probe && probe.kind === 'node' ? tree.nodes[probe.id] : null, next = null;
+      if (e.key === 'Escape') { if (n) { e.preventDefault(); probe = null; invalidate(); } return; }
+      if (!/^(Arrow(Left|Right|Up|Down)|Home)$/.test(e.key)) return;
+      if (!n || e.key === 'Home') next = tree.root;
+      else if (e.key === 'ArrowUp') next = n.parent || n;
+      else if (e.key === 'ArrowDown') next = n.leaf ? n : n.left;
+      else {
+        var row = [];
+        (function walk(x) { if (!x.leaf) walk(x.left); if (x.depth === n.depth) row.push(x); if (!x.leaf) walk(x.right); })(tree.root); // left to right
+        next = row[Math.max(0, Math.min(row.length - 1, row.indexOf(n) + (e.key === 'ArrowRight' ? 1 : -1)))];
+      }
+      e.preventDefault();
+      if (n !== next) { probe = { kind: 'node', id: next.id }; note = ''; scrollDiagram = true; invalidate(); }
+    }
+    function onTreeBlur() { if (probe && probe.kind === 'node') { probe = null; invalidate(); } }
+    treeBox.addEventListener('keydown', onTreeKey);
+    treeBox.addEventListener('blur', onTreeBlur);
 
     function onTheme() { lastColSig = ''; invalidate(); }
     var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
@@ -975,6 +1014,7 @@
     frame();
 
     return {
+      syncTasks: syncTasks,
       destroy: function () {
         destroyed = true;
         if (raf) cancelAnimationFrame(raf);
@@ -992,6 +1032,8 @@
         canvas.removeEventListener('pointerleave', onLeave);
         treeSvg.removeEventListener('pointerover', onTreeOver);
         treeSvg.removeEventListener('click', onTreeOver);
+        treeBox.removeEventListener('keydown', onTreeKey);
+        treeBox.removeEventListener('blur', onTreeBlur);
         root.innerHTML = '';
       }
     };

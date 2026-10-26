@@ -940,7 +940,7 @@ window.AIM.glossary = [
  },
  {
   "term": "Streamlit and Gradio",
-  "simple": "Free Python libraries that turn a model or script into a simple web app with text boxes, buttons and file uploads in a few lines. They are ideal for demos. Streamlit Community Cloud hosts Streamlit apps for free, and a free Hugging Face account can host up to 2 Gradio apps on ZeroGPU Spaces.",
+  "simple": "Free Python libraries that turn a model or script into a simple web app with text boxes, buttons and file uploads in a few lines. They are ideal for demos. Streamlit Community Cloud hosts Streamlit apps for free, and a free Hugging Face account can host up to 2 Gradio apps on ZeroGPU Spaces once it is more than 30 days old and has a verified email.",
   "example": "In one afternoon you can build a Gradio app where a client uploads a photo of an invoice and sees the extracted GSTIN and total.",
   "moduleId": "l3-mlops"
  },

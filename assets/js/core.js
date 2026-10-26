@@ -89,6 +89,9 @@
       var p = d.pos[x];
       if (!isObj(p)) { delete d.pos[x]; return; }
       p.i = Math.floor(num(p.i)); p.n = Math.floor(num(p.n)); p.s = Math.floor(num(p.s)); p.t = num(p.t);
+      // c, v: the parts really watched (see spans); m: the module page it was played on
+      ['c', 'v'].forEach(function (f) { if (p[f] === undefined) return; p[f] = spans(p[f], f === 'c' ? 100 : 400); if (!p[f].length) delete p[f]; });
+      if (p.m !== undefined && !(typeof p.m === 'string' && p.m && p.m.length <= 80)) delete p.m;
       if (own(d.posOff, x)) { if (d.posOff[x] >= p.t) delete d.pos[x]; else delete d.posOff[x]; }
     });
     // lesson cards: read['moduleId/cardKey'] = when the card was ticked (ISO time), or '-' + when it was
@@ -119,6 +122,7 @@
   // true while the browser refuses to store progress (blocked site data, old private mode, storage full); My progress
   // shows a lasting warning, and 'aim:save-status' tells open pages when it changes
   var failing = false;
+  try { window.localStorage.getItem(KEY); } catch (e) { failing = true; } // site data blocked: no save can work
   function saveStatus(f) { if (f === failing) return; failing = f; setTimeout(function () { window.dispatchEvent(new CustomEvent('aim:save-status', { detail: { failed: failing } })); }, 0); }
   // other parts (cloud sync) can listen for saves
   function onSave(fn) { saveHooks.push(fn); }
@@ -178,11 +182,32 @@
     return p;
   }
   // a video's place: setPos keeps where it stopped; forgetPos drops it for good (the video was finished)
+  // p.c / p.v: what was really watched (see spans below); p.m: the module page it was played on
   function setPos(id, p) {
     p = p || {};
-    state.pos[id] = { i: Math.max(0, Math.floor(p.i || 0)), n: Math.max(0, Math.floor(p.n || 0)), s: Math.max(0, Math.floor(p.s || 0)), t: Date.now() };
+    var o = { i: Math.max(0, Math.floor(p.i || 0)), n: Math.max(0, Math.floor(p.n || 0)), s: Math.max(0, Math.floor(p.s || 0)), t: Date.now() };
+    var c = spans(p.c, 100), v = spans(p.v, 400);
+    if (c.length) o.c = c;
+    if (v.length) o.v = v;
+    if (typeof p.m === 'string' && p.m && p.m.length <= 80) o.m = p.m;
+    state.pos[id] = o;
     delete state.posOff[id];
   }
+  // Parts of a video or playlist that were really watched, as sorted, merged [from, to) ranges of whole numbers:
+  // pos.c = seconds of the current video, pos.v = playlist videos (by index) watched to most of their length.
+  // Anything damaged is dropped.
+  function spans(list, max) {
+    var out = [], merged = [];
+    (Array.isArray(list) ? list : []).forEach(function (x) {
+      if (!Array.isArray(x) || x.length !== 2) return;
+      var a = Math.max(0, Math.floor(Number(x[0]))), b = Math.floor(Number(x[1]));
+      if (isFinite(a) && isFinite(b) && b > a) out.push([a, b]);
+    });
+    out.sort(function (x, y) { return x[0] - y[0]; });
+    out.forEach(function (x) { var l = merged[merged.length - 1]; if (l && x[0] <= l[1]) l[1] = Math.max(l[1], x[1]); else merged.push(x); });
+    return merged.slice(0, max || 200);
+  }
+  function spanLen(list, upTo) { return (list || []).reduce(function (n, x) { return n + Math.max(0, (upTo ? Math.min(x[1], upTo) : x[1]) - x[0]); }, 0); }
   function forgetPos(id) { delete state.pos[id]; state.posOff[id] = Date.now(); }
   // the study plan, only when the learner changes it (the planner's defaults are shown, never saved)
   function setPlan(hpw, start) {
@@ -200,7 +225,7 @@
     return n;
   }
   function signal(kind) { try { window.localStorage.setItem('aimarg.sync', kind + ':' + Date.now()); } catch (e) {} }
-  function resetAll() { assignInto(state, normalize(blank())); lastSeen = null; save(); signal('reset'); window.dispatchEvent(new CustomEvent('aim:progress-reset')); }
+  function resetAll() { assignInto(state, normalize(blank())); lastSeen = null; try { window.localStorage.removeItem('aimarg.focus'); } catch (e) {} save(); signal('reset'); window.dispatchEvent(new CustomEvent('aim:progress-reset')); }
   function replaceState(obj) { assignInto(state, normalize(obj)); lastSeen = null; save(); signal('replace'); }
   window.addEventListener('storage', function (e) {
     if (e.key === KEY && e.newValue && e.newValue !== lastSeen) {
@@ -303,7 +328,16 @@
       var pa = a.pos[k], pb = b.pos[k], p = pb && (!pa || (pb.t || 0) > (pa.t || 0)) ? pb : pa;
       var off = Math.max(a.posOff[k] || 0, b.posOff[k] || 0);
       if (off && (!p || off >= (p.t || 0))) { delete a.pos[k]; a.posOff[k] = off; }
-      else if (p) { a.pos[k] = p; delete a.posOff[k]; }
+      else if (p) {
+        // both copies watched it: keep the parts seen on either (the same video's seconds, the playlist's videos)
+        var q = p === pb ? pa : pb;
+        if (q && (q.v || (q.c && q.i === p.i))) {
+          p = Object.assign({}, p);
+          if (q.v) p.v = spans((p.v || []).concat(q.v), 400);
+          if (q.c && q.i === p.i) p.c = spans((p.c || []).concat(q.c), 100);
+        }
+        a.pos[k] = p; delete a.posOff[k];
+      }
     });
     // the study plan: the newer change wins; a device where the learner never set one takes it from the other copy
     var pa = String(a.prefs.planAt || ''), pb = String(b.prefs.planAt || '');
@@ -329,16 +363,29 @@
     });
   }
   function inline(s) {
-    // escape first, then allow `code`, **bold**, and [text](https://link)
-    var t = esc(s);
-    t = t.replace(/`([^`]+)`/g, '<code>$1</code>');
-    t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-    t = t.split(/(<code>[\s\S]*?<\/code>)/).map(function (seg, i) {
-      return i % 2 ? seg : seg.replace(/(^|[^*\w])\*([^*\s][^*]*?)\*(?!\*)/g, '$1<em>$2</em>');
-    }).join('');
+    // escape first, then allow `code`, **bold**, *italic* and [text](https://link).
+    // Code spans show exactly what is written: they are set aside before anything else, and a run of backticks is
+    // closed only by a run of the same length (as in CommonMark), so ``a`b`` works and a lone ``` stays as it is.
+    // Stars make bold or italic only when they hug the words they wrap and do not touch a word, digit or closing
+    // bracket on the outside, so maths outside code (0.75**2, beta1**t, (i+1)*size) keeps its stars.
+    var t = esc(s).replace(/\u0000/g, ''), codes = [], txt = '', i = 0;
+    while (i < t.length) {
+      var a = t.indexOf('`', i);
+      if (a < 0) { txt += t.slice(i); break; }
+      var b = a; while (t.charAt(b) === '`') b++;
+      var run = b - a, c = b, end = -1;
+      while ((c = t.indexOf('`', c)) >= 0) { var d = c; while (t.charAt(d) === '`') d++; if (d - c === run) { end = c; break; } c = d; }
+      if (end < 0) { txt += t.slice(i, b); i = b; continue; } // never closed: literal backticks
+      var body = t.slice(b, end);
+      if (/^ [\s\S]*[^ ][\s\S]* $/.test(body)) body = body.slice(1, -1);
+      txt += t.slice(i, a) + '\u0000' + codes.length + '\u0000'; codes.push('<code>' + body + '</code>');
+      i = end + run;
+    }
+    t = txt.replace(/(^|[^\w*)\]}\u0000])\*\*(?=[^\s*])([^*]*?[^\s*])\*\*(?![\w*])/g, '$1<strong>$2</strong>');
+    t = t.replace(/(^|[^\w*)\]}\u0000])\*(?=[^\s*])([^*]*?[^\s*])\*(?![\w*])/g, '$1<em>$2</em>');
     t = t.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
     t = t.replace(/\[([^\]]+)\]\((#[A-Za-z0-9._~-]+)\)/g, '<a href="$2">$1</a>');
-    return t;
+    return t.replace(/\u0000(\d+)\u0000/g, function (m, n) { return codes[n]; });
   }
   function md(s) {
     // tiny, safe markdown: paragraphs, "- " bullet lists, ``` code blocks, inline code/bold/links
@@ -428,11 +475,15 @@
     if (v) out.videoId = v[1];
     return out;
   }
-  function embedSrc(r) {
-    var base = 'https://www.youtube-nocookie.com/embed/';
+  // a resource in a few separate videos (r.parts: their ids, in order) plays as a small playlist
+  function partsOf(r) { return r && Array.isArray(r.parts) && r.parts.length > 1 ? r.parts : null; }
+  // pos: the saved place, so YouTube's plain player (no tracking) at least starts a single video where it was left
+  function embedSrc(r, pos) {
+    var base = 'https://www.youtube-nocookie.com/embed/', parts = partsOf(r);
+    if (parts) return base + parts[0] + '?playlist=' + parts.slice(1).join(',') + '&rel=0&autoplay=1';
     if (r.videoId && r.listId) return base + r.videoId + '?list=' + r.listId + '&rel=0&autoplay=1';
     if (r.listId) return base + 'videoseries?list=' + r.listId + '&rel=0&autoplay=1';
-    if (r.videoId) return base + r.videoId + '?rel=0&autoplay=1';
+    if (r.videoId) return base + r.videoId + '?rel=0&autoplay=1' + (pos && pos.s > 5 ? '&start=' + Math.floor(pos.s) : '');
     return '';
   }
   function canEmbed(r) { return !!(r && (r.videoId || r.listId)) && !window.AIM_PREVIEW; }
@@ -444,8 +495,8 @@
       '<button class="player-facade' + (thumb ? '' : ' no-thumb') + '" type="button" data-action="play" data-id="' + esc(r.id) + '"' + style + ' aria-label="Play: ' + esc(r.title) + '">' + poster +
       '<span class="play" aria-hidden="true"></span><span class="cap">' + (thumb ? esc(r.title) : '') + (r.listId ? (thumb ? ' · ' : '') + 'Playlist' : '') + '</span></button></div>';
   }
-  function plainPlayer(container, r) {
-    var src = embedSrc(r);
+  function plainPlayer(container, r, pos) {
+    var src = embedSrc(r, pos);
     if (!src) return;
     var f = document.createElement('iframe');
     f.src = src;
@@ -478,89 +529,150 @@
         sc.onerror = function () { ytScript = false; if (!settled) { settled = true; ytWait = null; reject(new Error('blocked')); } };
         document.head.appendChild(sc);
       }
-      setTimeout(function () { if (!settled) { settled = true; ytWait = null; reject(new Error('timeout')); } }, ms || 6000);
+      setTimeout(function () { if (!settled) { settled = true; ytWait = null; reject(new Error('timeout')); } }, ms || 20000);
     });
     return ytWait;
   }
 
-  // hooks: getPos() -> {i, s} or null; onPos({i, n, s}); onComplete(). Returns { destroy }.
+  // A player with watch tracking. hooks (all optional):
+  //   getPos() -> the saved place { i, n, s, c, v } or null; onPos({ i, n, s, d, c, v }) every 10 s, on pause and on close
+  //   isDone() -> ticked now? (then no place is reported); onComplete() -> it has been watched (left out: never ticks)
+  //   onWatch(seconds) -> real playback time as it adds up; onPlain() -> a note for when only YouTube's plain player
+  //   loads (nothing is tracked then)
+  // A video ticks itself only after real watching: the seconds actually played are added up (a jump made by dragging or
+  // skipping is not counted, nor is the same part watched twice) and most of the video (MOST) must have been seen. A
+  // playlist needs most of its videos seen that way, in any order. The parts seen are saved with the place (c, v), so
+  // watching over several days counts too. Returns { destroy, sync }.
+  var MOST = 0.8;
   var nowPlaying = null; // one video at a time: starting another pauses this one
   function play(container, r, hooks) {
     hooks = hooks || {};
-    var alive = true, player = null, timer = null, completed = false, played = false;
-    // after completion the stop point is meaningless (the app forgets it), so stop reporting
-    var report = function () {
+    var alive = true, player = null, timer = null, slow = null, note = null, completed = false, played = false, reportedAt = 0;
+    var parts = partsOf(r), isList = !!(r.listId || parts);
+    var saved = (hooks.getPos && hooks.getPos()) || null;
+    // seen.c: the seconds of video seen.i really watched; seen.v: the playlist videos watched; last: the previous reading
+    var seen = { i: saved ? saved.i || 0 : 0, c: spans(saved && saved.c, 100), v: spans(saved && saved.v, 400) }, last = null;
+    var wasDone = !!(hooks.isDone && hooks.isDone());
+    var done = function () {
+      var d = hooks.isDone ? !!hooks.isDone() : completed;
+      // un-ticked while the player is open (say, an accidental tick): it tracks again, and ticks after watching again
+      if (wasDone && !d) { seen.c = []; seen.v = []; completed = false; }
+      wasDone = d;
+      return d;
+    };
+    var read = function () {
       if (!player || typeof player.getCurrentTime !== 'function') return null;
       var p = { i: 0, n: 0, s: 0, d: 0 };
       try {
-        p.s = player.getCurrentTime() || 0;
-        p.d = player.getDuration() || 0;
-        if (r.listId) { p.i = player.getPlaylistIndex() || 0; var pl = player.getPlaylist(); p.n = pl && pl.length ? pl.length : 0; }
+        p.s = Number(player.getCurrentTime()) || 0;
+        p.d = Number(player.getDuration()) || 0;
+        if (isList) { p.i = Math.max(0, Number(player.getPlaylistIndex()) || 0); var pl = player.getPlaylist(); p.n = pl && pl.length ? pl.length : 0; }
       } catch (e) { return null; }
-      if (hooks.onPos && !completed) hooks.onPos(p);
       return p;
     };
-    var checkDone = function (p, ended) {
-      if (completed || !p) return;
-      var nearEnd = ended || (p.d > 0 && p.s / p.d >= 0.9);
+    // add up the time played since the previous reading; playing: whether it plays from now on
+    var account = function (p, playing) {
+      var now = Date.now();
+      if (seen.i !== p.i) { seen.i = p.i; seen.c = []; }
+      if (last && last.playing && last.i === p.i) {
+        var ds = p.s - last.s, dt = (now - last.at) / 1000, rate = 1;
+        try { rate = Math.max(1, Number(player.getPlaybackRate()) || 1); } catch (e) {}
+        // moving on further than the clock allows (at the chosen speed) is a jump, not watching
+        if (ds > 0 && ds <= dt * rate * 1.5 + 2) {
+          seen.c = spans(seen.c.concat([[last.s, p.s]]), 100);
+          if (hooks.onWatch) { try { hooks.onWatch(ds / rate); } catch (e) {} }
+        }
+      }
+      last = { i: p.i, s: p.s, at: now, playing: playing };
+      if (isList && p.d > 0 && spanLen(seen.c) >= MOST * p.d) seen.v = spans(seen.v.concat([[p.i, p.i + 1]]), 400);
+      return p;
+    };
+    var sample = function (playing) { var p = read(); return p ? account(p, playing) : null; };
+    var report = function (p) {
+      if (p && hooks.onPos && !done()) { reportedAt = Date.now(); hooks.onPos({ i: p.i, n: p.n, s: p.s, d: p.d, c: seen.c.slice(), v: seen.v.slice() }); }
+      return p;
+    };
+    var checkDone = function (p) {
+      if (!p || !hooks.onComplete || completed || done()) return;
       // the embedded player may only list a playlist's first 200 videos, so a 200+ list is never auto-completed
-      var lastItem = !r.listId || (p.n > 0 && p.n < 200 && p.i >= p.n - 1);
-      if (nearEnd && lastItem) { completed = true; if (hooks.onComplete) hooks.onComplete(); }
+      var ok = isList ? p.n > 0 && p.n < 200 && spanLen(seen.v, p.n) >= Math.ceil(MOST * p.n) : p.d > 0 && spanLen(seen.c) >= MOST * p.d;
+      if (ok) { completed = wasDone = true; hooks.onComplete(); }
     };
     var stopTimer = function () { if (timer) { clearInterval(timer); timer = null; } };
     // a player that never started has nothing to report (a cued player says 0:00 and would wipe the saved place)
-    var onHide = function () { if (alive && played && (document.visibilityState === 'hidden' || !document.visibilityState)) report(); };
+    var onHide = function () { if (alive && played && (document.visibilityState === 'hidden' || !document.visibilityState)) report(sample(!!(last && last.playing))); };
     var destroy = function () {
       if (!alive) return;
-      alive = false; stopTimer();
+      alive = false; stopTimer(); clearTimeout(slow);
+      if (note) { note.remove(); note = null; }
       document.removeEventListener('visibilitychange', onHide); window.removeEventListener('pagehide', onHide);
       if (nowPlaying === player) nowPlaying = null;
-      if (player) { if (played) checkDone(report(), false); try { player.destroy(); } catch (e) {} player = null; }
+      if (player) { if (played) checkDone(report(sample(false))); try { player.destroy(); } catch (e) {} player = null; }
+    };
+    // only YouTube's plain player could load (its player API is blocked or too slow): it plays, but nothing is tracked
+    var plain = function () {
+      plainPlayer(container, r, saved);
+      var t = hooks.onPlain && hooks.onPlain();
+      if (t && container.parentNode) {
+        note = document.createElement('p'); note.className = 'small muted'; note.setAttribute('role', 'status'); note.textContent = t;
+        container.parentNode.insertBefore(note, container.nextSibling);
+      }
     };
     document.addEventListener('visibilitychange', onHide); window.addEventListener('pagehide', onHide);
     container.innerHTML = '<div class="player-loading" role="status">Loading the player…</div>';
-    ensureYT(6000).then(function (YT) {
+    // slow mobile data: keep waiting for the tracking player (up to 20 s), and say why it takes long
+    slow = setTimeout(function () { var l = container.querySelector('.player-loading'); if (l) l.textContent = 'Still loading the player (slow connection)…'; }, 5000);
+    ensureYT(20000).then(function (YT) {
+      clearTimeout(slow);
       if (!alive) return;
       var holder = document.createElement('div');
       container.innerHTML = '';
       container.appendChild(holder);
-      var pos = (hooks.getPos && hooks.getPos()) || null;
+      var pos = saved;
       var vars = { autoplay: 1, rel: 0, playsinline: 1 };
       var opts = { host: 'https://www.youtube-nocookie.com', width: '100%', height: '100%', playerVars: vars, events: {} };
       if (r.videoId) opts.videoId = r.videoId;
+      if (parts) { opts.videoId = parts[0]; vars.playlist = parts.slice(1).join(','); }
       if (r.listId) { vars.listType = 'playlist'; vars.list = r.listId; }
-      if (!r.listId && pos && pos.s > 5) vars.start = Math.floor(pos.s);
+      if (!isList && pos && pos.s > 5) vars.start = Math.floor(pos.s);
       // resuming a playlist: loadPlaylist (which plays) jumps to the saved video, so do not autoplay video 1 first
-      var resume = r.listId && pos && (pos.i > 0 || pos.s > 5);
+      var resume = isList && pos && (pos.i > 0 || pos.s > 5);
       if (resume) vars.autoplay = 0;
       opts.events.onReady = function (e) {
         try { var fr = e.target.getIframe(); fr.title = r.title; fr.setAttribute('allowfullscreen', ''); } catch (err) {}
         if (resume) {
-          try { e.target.loadPlaylist({ list: r.listId, listType: 'playlist', index: pos.i || 0, startSeconds: pos.s > 5 ? Math.floor(pos.s) : 0 }); } catch (err) {}
+          var at = { index: pos.i || 0, startSeconds: pos.s > 5 ? Math.floor(pos.s) : 0 };
+          try { e.target.loadPlaylist(Object.assign(parts ? { playlist: parts } : { list: r.listId, listType: 'playlist' }, at)); } catch (err) {}
         }
       };
       opts.events.onStateChange = function (e) {
-        var S = YT.PlayerState || { ENDED: 0, PLAYING: 1, PAUSED: 2 };
+        var S = YT.PlayerState || { ENDED: 0, PLAYING: 1, PAUSED: 2, BUFFERING: 3 };
         if (!alive) return;
         if (e.data === S.PLAYING) {
           played = true;
           if (nowPlaying && nowPlaying !== player) { try { nowPlaying.pauseVideo(); } catch (err) {} }
           nowPlaying = player;
           stopTimer();
+          // every 2 s add up what was watched (and tick when it is enough); every 10 s save the place
           timer = setInterval(function () {
             // the card was re-rendered away (e.g. a Library filter) without a destroy: clean up
             if (!document.documentElement.contains(container)) { destroy(); return; }
-            checkDone(report(), false);
-          }, 10000);
-          report();
-        } else if (e.data === S.PAUSED) { stopTimer(); checkDone(report(), false); }
-        else if (e.data === S.ENDED) { stopTimer(); checkDone(report(), true); }
+            var p = sample(true);
+            if (Date.now() - reportedAt >= 9500) report(p);
+            checkDone(p);
+          }, 2000);
+          report(sample(true));
+        } else if (e.data === S.PAUSED || e.data === S.ENDED) { stopTimer(); checkDone(report(sample(false))); }
+        // a seek, or the next video of a playlist loading (before the first play: the video cued before a resume)
+        else if (played) sample(e.data === S.BUFFERING);
       };
-      try { player = new YT.Player(holder, opts); } catch (err) { plainPlayer(container, r); }
+      try { player = new YT.Player(holder, opts); } catch (err) { plain(); }
     }, function () {
-      if (alive) plainPlayer(container, r);
+      clearTimeout(slow);
+      if (alive) plain();
     });
-    return { destroy: destroy };
+    // sync(): the tick was changed by hand while the player is open (see done)
+    return { destroy: destroy, sync: function () { if (alive) done(); } };
   }
 
   /* ---------------- quiz engine ---------------- */
@@ -570,26 +682,69 @@
     this.key = opts.key; this.title = opts.title || 'Quiz'; this.onFinish = opts.onFinish; this.next = opts.next || null;
     this.onAnswer = opts.onAnswer || null; this.askSure = !!opts.confidence; this.sure = {};
     this.minutes = opts.minutes || 0;
+    // onChange(snapshot) after every answer and step of a test (null once it is submitted), so the page can keep a
+    // test left part-way; resume = such a snapshot to carry on from (its answers, its question, the time it had left)
+    this.onChange = opts.onChange || null; this.resume = opts.resume || null;
+    this.uid = 'qz' + (++quizN);
     this.i = 0; this.answers = {}; this.picks = {}; this.timer = null; this.deadline = 0;
+    // a review answer opened later can hold code wider than the screen ('toggle' does not bubble: listen on the way down)
+    if (!root._codeKeys) { root._codeKeys = true; root.addEventListener('toggle', function () { codeKeys(root); }, true); }
     this.start();
   }
+  var quizN = 0;
+  // code wider than the box scrolls sideways: such a block can take keyboard focus, so arrow keys can scroll it
+  function codeKeys(root) {
+    Array.prototype.forEach.call(root.querySelectorAll('pre'), function (p) {
+      if (p.scrollWidth <= p.clientWidth + 1 || p.hasAttribute('tabindex')) return;
+      // named after its question ("Q3." in the review, "Question 3 of 10" on the question itself), so each name is unique
+      var d = p.closest('details'), s = d && d.querySelector('summary'), m = (s && /Q(\d+)\./.exec(s.textContent)) || /Question (\d+) of/.exec((p.closest('.q-text') || {}).textContent || '');
+      p.tabIndex = 0; p.setAttribute('role', 'region'); p.setAttribute('aria-label', m ? 'Code for question ' + m[1] : 'Code');
+    });
+  }
+  Quiz.prototype.codeKeys = function () { codeKeys(this.root); };
   Quiz.prototype.start = function () {
-    var self = this;
-    this.i = 0; this.answers = {}; this.picks = {}; this.sure = {};
+    var self = this, r = this.resume; this.resume = null;
+    this.i = 0; this.answers = {}; this.picks = {}; this.sure = {}; this.done = false; this.stopped = false; this.ticks = 0;
     if (this.timer) clearInterval(this.timer);
+    this.timer = null; this.deadline = 0;
+    if (r && typeof r === 'object' && r.answers && typeof r.answers === 'object') {
+      this.qs.forEach(function (q) { var v = r.answers[q.id]; if (v != null && (v = Number(v)) >= 0 && v < (q.options || []).length && v === Math.floor(v)) self.answers[q.id] = v; });
+      this.i = Math.max(0, Math.min(this.qs.length - 1, Math.floor(Number(r.i) || 0)));
+    }
     if (this.mode === 'test' && this.minutes) {
-      this.deadline = Date.now() + this.minutes * 60000;
+      var full = this.minutes * 60000, left = r && r.left != null && isFinite(Number(r.left)) ? Math.max(0, Math.min(full, Number(r.left))) : full;
+      this.deadline = Date.now() + left;
       this.timer = setInterval(function () { self.tick(); }, 1000);
     }
     this.render();
+    this.changed();
   };
   Quiz.prototype.tick = function () {
     var el = this.root.querySelector('[data-timer]');
     var left = Math.max(0, this.deadline - Date.now());
     if (el) { var m = Math.floor(left / 60000), s = Math.floor((left % 60000) / 1000); el.textContent = m + ':' + String(s).padStart(2, '0'); }
     if (left <= 0) { clearInterval(this.timer); this.finish(true); }
+    else if (++this.ticks % 10 === 0) this.changed(); // the time left, kept every few seconds
   };
-  Quiz.prototype.destroy = function () { if (this.timer) clearInterval(this.timer); };
+  Quiz.prototype.destroy = function () {
+    if (this.timer) clearInterval(this.timer);
+    this.timer = null;
+    if (!this.stopped) { this.changed(); this.stopped = true; } // left part-way: kept with the time it had left
+  };
+  // where a test stands: the question shown, the answers so far, the time left (null once it is finished)
+  Quiz.prototype.snapshot = function () {
+    if (this.done) return null;
+    var a = {}, self = this; Object.keys(this.answers).forEach(function (k) { a[k] = self.answers[k]; });
+    return { i: this.i, answers: a, n: Object.keys(a).length, minutes: this.minutes, left: this.minutes && this.deadline ? Math.max(0, this.deadline - Date.now()) : 0 };
+  };
+  Quiz.prototype.changed = function () { if (this.onChange && !this.stopped) { try { this.onChange(this.snapshot()); } catch (e) {} } };
+  // keyboard and screen-reader users land on the question (it starts with "Question 2 of 10"), or on the score
+  Quiz.prototype.focusQ = function () {
+    var el = this.root.querySelector('.q-text') || this.root.querySelector('.score-box');
+    if (!el) return;
+    el.tabIndex = -1;
+    try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); }
+  };
   Quiz.prototype.render = function () {
     var q = this.qs[this.i], n = this.qs.length, self = this;
     if (!q) { this.root.innerHTML = '<div class="empty">No questions yet.</div>'; return; }
@@ -618,22 +773,24 @@
       '<div class="row">' + checkBtn + (this.mode === 'test' ? '<span class="small muted num">' + Object.keys(this.answers).length + '/' + n + ' answered</span>' : '') +
       (last ? '<button class="btn btn-primary" data-q="finish">' + (this.mode === 'test' ? 'Submit test' : 'See my score') + '</button>'
             : '<button class="btn btn-primary" data-q="next">Next →</button>') + '</div></div>';
-    this.root.innerHTML = '<div class="quiz">' + head + '<div class="q"><div class="q-text">' + inline(q.q) +
-      (q.code ? '<pre><code>' + esc(q.code) + '</code></pre>' : '') + '</div><div class="q-opts">' + opts + '</div>' + sureRow + explain + '</div>' +
+    // the question text is where focus lands after each step (it says which question it is), and it names the options
+    this.root.innerHTML = '<div class="quiz">' + head + '<div class="q"><div class="q-text" id="' + this.uid + '-q" tabindex="-1"><span class="visually-hidden">Question ' + (this.i + 1) + ' of ' + n + '. </span><span id="' + this.uid + '-qt">' + inline(q.q) + '</span>' +
+      (q.code ? '<pre><code>' + esc(q.code) + '</code></pre>' : '') + '</div><div class="q-opts" role="radiogroup" aria-labelledby="' + this.uid + '-qt">' + opts + '</div>' + sureRow + explain + '</div>' +
       '<div class="bar" aria-hidden="true"><span style="width:' + pct(this.i + 1, n) + '%"></span></div>' + nav + '</div>';
     this.root.querySelectorAll('input[name^="sure-"]').forEach(function (inp) { inp.addEventListener('change', function () { self.sure[q.id] = Number(inp.value); }); });
     this.root.querySelectorAll('input[name^="opt-"]').forEach(function (inp) {
       inp.addEventListener('change', function () {
         if (self.mode === 'learn') { self.picks[q.id] = Number(inp.value); var cb = self.root.querySelector('[data-q=check]'); if (cb) cb.disabled = false; }
-        else { self.answers[q.id] = Number(inp.value); self.renderNavOnly(); }
+        else { self.answers[q.id] = Number(inp.value); self.renderNavOnly(); self.changed(); }
       });
     });
     this.root.querySelectorAll('[data-q]').forEach(function (b) {
       b.addEventListener('click', function () {
         var a = b.getAttribute('data-q');
         if (a === 'prev' || a === 'next') {
+          // a picked but unchecked answer stays picked here, and is checked with the rest by "See my score"
           self.i = a === 'prev' ? Math.max(0, self.i - 1) : Math.min(n - 1, self.i + 1); self.render(); self.reveal();
-          var qt = self.root.querySelector('.q-text'); if (qt) { qt.tabIndex = -1; try { qt.focus({ preventScroll: true }); } catch (e) { qt.focus(); } }
+          self.focusQ(); self.changed();
         }
         if (a === 'finish') self.finish(false);
         if (a === 'check' && self.picks[q.id] != null) {
@@ -645,6 +802,7 @@
       });
     });
     if (this.timer) this.tick();
+    this.codeKeys();
   };
   Quiz.prototype.renderNavOnly = function () {
     var el = this.root.querySelector('.small.muted.num');
@@ -652,7 +810,16 @@
   };
   Quiz.prototype.finish = function (timeUp) {
     if (this.timer) clearInterval(this.timer);
+    this.timer = null;
     var self = this, correct = 0;
+    // learn mode: an answer picked but not checked yet (Next or "See my score" pressed before "Check answer") is the
+    // learner's answer, so it is checked now with the rest, not thrown away as "not answered"
+    if (this.mode === 'learn') this.qs.forEach(function (q) {
+      if (self.answers[q.id] != null || self.picks[q.id] == null) return;
+      self.answers[q.id] = self.picks[q.id];
+      if (self.onAnswer) { try { self.onAnswer({ q: q, picked: self.answers[q.id], correct: self.answers[q.id] === q.answer, sure: self.sure[q.id] || 0, mode: self.mode, key: self.key }); } catch (e) {} }
+    });
+    this.done = true;
     this.qs.forEach(function (q) { if (self.answers[q.id] === q.answer) correct++; });
     var score = pct(correct, this.qs.length);
     var passed = score >= 70;
@@ -667,11 +834,14 @@
         (ok ? '' : '<div class="small">Correct answer: <strong>' + inline(q.options[q.answer]) + '</strong></div>') +
         '<div class="q-explain">' + inline(q.explain) + '</div></div></details>';
     }).join('');
-    this.root.innerHTML = '<div class="stack"><div class="card score-box"><div class="score-big">' + score + '%</div><div class="stack-sm">' +
+    this.root.innerHTML = '<div class="stack"><div class="card score-box" tabindex="-1"><div class="score-big">' + score + '%</div><div class="stack-sm">' +
       '<strong>' + (timeUp ? 'Time is up. ' : '') + correct + ' of ' + this.qs.length + ' correct. ' + (passed ? 'Passed. Well done!' : 'Pass mark is 70%. Review the explanations below and try again.') + '</strong>' +
       '<div class="row">' + (passed && this.next ? '<a class="btn btn-primary" href="' + esc(this.next.href) + '">' + esc(this.next.label) + ' →</a><button class="btn" data-q="retry">Try again</button>' : '<button class="btn btn-primary" data-q="retry">Try again</button>') + '</div></div></div>' +
       '<h3>Review your answers</h3><div class="stack-sm">' + review + '</div></div>';
-    this.root.querySelector('[data-q="retry"]').addEventListener('click', function () { self.start(); self.reveal(); });
+    this.root.querySelector('[data-q="retry"]').addEventListener('click', function () { self.start(); self.reveal(); self.focusQ(); });
+    this.changed(); // submitted: nothing left part-way to keep
+    this.codeKeys();
+    this.focusQ(); // the score is read out, and Tab goes on to "Try again" and the review
     this.reveal();
   };
   Quiz.prototype.reveal = function () {

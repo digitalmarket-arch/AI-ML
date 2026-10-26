@@ -12,9 +12,10 @@
   var KEY = 'aimarg.focus';                 // the running session lives here (this device only)
   var MIN_C = 10, MAX_C = 90, PLAN_CAP = 180, ADD = 5, BREAK_MIN = 5;
   var BREATH_MS = 60000, IN_MS = 4000, CYCLE_MS = 10000;   // settling breath: in 4 s, out 6 s, for one minute
-  var FRESH_MS = 3 * 3600000;               // a session this recent pre-fills the journal's minutes
+  var FRESH_MS = 3 * 3600000;               // a session this recent pre-fills the journal's minutes; the "Session done" notice lasts this long
   var LIST_STEP = 10;
-  var METH = 'Method that helped most this week: '; // the weekly answer is kept as the last line of "What I learnt"
+  var MAX_LEARNT = 1500, MAX_CONFUSED = 1500, MAX_NEXT = 800, MAX_METH = 120; // the journal's text limits (study.js keeps up to these)
+  var METH = 'Method that helped most this week: '; // older entries kept the weekly answer as the last line of "What I learnt"; new ones use the field 'meth'
   var ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9.5 2.5h5"/></svg>';
 
   /* ---------- small helpers ---------- */
@@ -93,6 +94,8 @@
   //   paused (ms paused so far), pauseAt (ms, while paused), dfm (distraction-free), ann (0 none, 1 start, 2 halfway announced),
   //   phase: 'run'|'done', mins, done, endAt (once finished) }
   var memRec = null, storeOk = true, cur = null;
+  // the "Session done" notice goes away by itself FRESH_MS after the session ended
+  function expired(r, t) { return !!r && r.phase === 'done' && !(r.endAt > 0 && (t == null ? Date.now() : t) - r.endAt < FRESH_MS); }
   function cleanRec(r) {
     if (!r || typeof r !== 'object' || Array.isArray(r)) return null;
     var n = function (v) { v = Number(v); return isFinite(v) ? v : 0; };
@@ -106,7 +109,7 @@
       dfm: kind === 'focus' && !!r.dfm, ann: Math.max(0, Math.min(2, Math.floor(n(r.ann)))),
       phase: r.phase === 'done' ? 'done' : 'run', mins: Math.max(0, Math.round(n(r.mins))), done: !!r.done, endAt: n(r.endAt) > 0 ? n(r.endAt) : 0
     };
-    if (out.phase === 'done') { if (kind === 'break') return null; out.dfm = false; out.pauseAt = 0; }
+    if (out.phase === 'done') { if (kind === 'break' || expired(out)) return null; out.dfm = false; out.pauseAt = 0; }
     return out;
   }
   function readRec() {
@@ -114,7 +117,9 @@
     var raw;
     try { raw = localStorage.getItem(KEY); } catch (e) { return cleanRec(memRec); }
     var r = null; try { r = JSON.parse(raw || 'null'); } catch (e) { r = null; }
-    return cleanRec(r);
+    r = cleanRec(r);
+    if (raw && !r) clearRec(); // a damaged record or an old "Session done" notice: remove it, so pages stop loading the timer for it
+    return r;
   }
   function writeRec(r) { memRec = r; try { localStorage.setItem(KEY, JSON.stringify(r)); storeOk = true; } catch (e) { storeOk = false; } }
   function clearRec() { memRec = null; cur = null; try { localStorage.removeItem(KEY); } catch (e) {} }
@@ -130,6 +135,7 @@
     clearTimeout(tickT); tickT = null;
     var r = cur; if (!r) { updateChip(); return; }
     var t = Date.now();
+    if (expired(r, t)) { clearRec(); afterChange(); return; }
     if (r.phase === 'run') {
       if (!r.pauseAt && !inBreath(r, t) && leftMs(r, t) <= 0) { complete(false, t - endTime(r) > 5000); return; }
       if (r.kind === 'focus' && !inBreath(r, t)) {
@@ -141,7 +147,8 @@
     }
     if (page && page.kind === 'focus' && viewOf(r, t) !== page.view) drawFocus(); else updateFocus(t);
     updateChip(t);
-    if (r.phase !== 'run' || r.pauseAt) return;
+    if (r.phase === 'done') { tickT = setTimeout(tick, Math.max(1000, Math.min(3600000, r.endAt + FRESH_MS - t + 50))); return; } // until the notice expires
+    if (r.pauseAt) return;
     var wait;
     if (inBreath(r, t)) { var b0 = r.b0 || r.start - BREATH_MS; wait = Math.min(1000 - ((t - b0) % 1000), r.start - t); }
     else { var el = elapsed(r, t); wait = Math.min(1000 - (el % 1000), leftMs(r, t)); }
@@ -177,6 +184,10 @@
   // the timer reached zero (early = false) or the learner ended it (early = true)
   function complete(early, away) {
     var r = cur; if (!r || r.phase !== 'run') return;
+    // another open tab of the site may have ended, paused or extended this session a moment ago: the stored record decides
+    var stored = readRec();
+    if (!stored || stored.id !== r.id || stored.phase !== 'run' || (!early && (stored.pauseAt || inBreath(stored) || leftMs(stored) > 0))) { cur = stored; afterChange(); return; }
+    r = cur = stored;
     var t = Date.now(), endAt = early ? t : Math.min(t, endTime(r));
     var e = Math.min(elapsed(r, endAt), r.plan * 60000);
     if (r.kind === 'break') {
@@ -191,7 +202,7 @@
       return;
     }
     var st = S();
-    st.fs[r.id] = { at: new Date(endAt).toISOString(), mins: mins, plan: r.plan, done: !early, intent: r.intent, mod: r.mod };
+    st.fs[r.id] = { at: new Date(endAt).toISOString(), mins: mins, plan: r.plan, done: !early, intent: r.intent, mod: r.mod, del: false };
     prefs().focusLast = r.id;
     C.logActivity(); C.save();
     r.phase = 'done'; r.mins = mins; r.done = !early; r.endAt = endAt; r.dfm = false; r.pauseAt = 0;
@@ -217,13 +228,17 @@
     }
     var k = v === 'breath' ? 'Settling breath' : v === 'break' ? 'Break' : r.pauseAt ? 'Paused' : 'Focus';
     return '<a class="fc-chip-link" href="#focus"><span class="fc-chip-ico">' + ICON + '</span><span class="fc-chip-k">' + k + '</span> <span class="fc-chip-t num"></span><span class="visually-hidden"> left. Open the focus page.</span></a>' +
-      (r.dfm && (v === 'run' || v === 'breath') ? '<button type="button" class="btn btn-sm fc-chip-btn" data-fc="exit-dfm">Exit distraction-free mode</button>' : '');
+      // on phones only "Exit" shows (the rest stays in the button's name), so the chip keeps to one short row
+      (r.dfm && (v === 'run' || v === 'breath') ? '<button type="button" class="btn btn-sm fc-chip-btn" data-fc="exit-dfm">Exit<span class="fc-chip-long"> distraction-free mode</span></button>' : '');
   }
   function chipTime(r, v, t) { return v === 'breath' ? clockText(r.start - t) : clockText(leftMs(r, t)); }
+  // while the chip floats over the page: room below the content, and scroll padding so that a control reached with Tab
+  // is scrolled clear of the chip instead of hiding behind it (focus not obscured)
   function measureChip() {
-    var chip = $('fc-chip'), on = !!chip && !chip.classList.contains('fc-chip-quiet');
+    var chip = $('fc-chip'), on = !!chip && !chip.classList.contains('fc-chip-quiet'), html = document.documentElement;
     document.body.classList.toggle('fc-chip-on', on);
-    if (on) document.body.style.setProperty('--fc-chip-h', chip.offsetHeight + 'px');
+    html.classList.toggle('fc-chip-pad', on);
+    if (on) html.style.setProperty('--fc-chip-h', chip.offsetHeight + 'px'); else html.style.removeProperty('--fc-chip-h');
   }
   function updateChip(t) {
     var r = cur, chip = $('fc-chip');
@@ -250,7 +265,6 @@
       chip._sig = sig;
       chip.classList.toggle('fc-chip-quiet', quiet);
       chip.classList.toggle('fc-chip-done', v === 'done');
-      chip.classList.toggle('fc-chip-two', !!(r.dfm && (v === 'run' || v === 'breath')));
       body.hidden = quiet;
       body.innerHTML = chipBody(r, v);
       if (inChip && !quiet) focusIn((act && body.querySelector('[data-fc="' + act + '"]')) || body.querySelector('a'));
@@ -259,6 +273,22 @@
     var tm = body.querySelector('.fc-chip-t');
     if (tm) { var s = chipTime(r, v, t); if (tm.textContent !== s) tm.textContent = s; }
   }
+  // a control reached with Tab that still sits partly under the chip (a tall text box, or a browser that ignores scroll padding)
+  // is scrolled up clear of it, as long as its top stays below the sticky header
+  var clearT = 0;
+  document.addEventListener('focusin', function (ev) {
+    var chip = $('fc-chip'), el = ev.target;
+    if (!chip || chip.classList.contains('fc-chip-quiet') || !el || el === document.body || chip.contains(el) || !el.getBoundingClientRect) return;
+    cancelAnimationFrame(clearT);
+    clearT = requestAnimationFrame(function () { // after the browser's own scrolling to the focused control
+      var body = chip.firstChild; if (!el.isConnected || document.activeElement !== el || !body || body.hidden) return;
+      var c = body.getBoundingClientRect(), r = el.getBoundingClientRect();
+      if (!r.height || r.bottom <= c.top - 4 || r.top >= c.bottom || r.right <= c.left || r.left >= c.right) return;
+      var head = document.querySelector('.site-head'), top = head ? Math.max(0, head.getBoundingClientRect().bottom) : 0;
+      var d = Math.min(r.bottom - c.top + 12, r.top - top - 8);
+      if (d > 0) { try { window.scrollBy({ top: d, left: 0, behavior: 'instant' }); } catch (e) { window.scrollBy(0, d); } }
+    });
+  });
   function onChipClick(ev) {
     var b = ev.target.closest && ev.target.closest('[data-fc]'); if (!b) return;
     var a = b.getAttribute('data-fc');
@@ -453,9 +483,10 @@
   }
 
   /* ---------- the focus log ---------- */
+  // saved sessions, newest first (a deleted session keeps a marker, del, so the deletion reaches the other devices)
   function sessions() {
     var fs = S().fs || {};
-    return Object.keys(fs).map(function (id) { var x = fs[id]; return { id: id, x: x, t: Date.parse(x.at) || 0 }; }).sort(function (a, b) { return b.t - a.t; });
+    return Object.keys(fs).filter(function (id) { return fs[id] && !fs[id].del; }).map(function (id) { var x = fs[id]; return { id: id, x: x, t: Date.parse(x.at) || 0 }; }).sort(function (a, b) { return b.t - a.t; });
   }
   function weekStats() {
     var t = ST.today(), ws = weekStart(t), out = { mins: 0, n: 0, done: 0 };
@@ -491,10 +522,11 @@
       }).join('') + '</ul>' : '<div class="empty">No sessions yet. Plan one above: 25 minutes is a good start.</div>');
   }
   function delSession(btn) {
-    var id = btn.getAttribute('data-id'), st = S(); if (!id || !st.fs[id]) return;
+    var id = btn.getAttribute('data-id'), st = S(); if (!id || !st.fs[id] || st.fs[id].del) return;
     var list = Array.prototype.slice.call(document.querySelectorAll('#fc-log [data-fc="del"]')), i = list.indexOf(btn);
-    delete st.fs[id]; C.save();
-    drawLog();
+    st.fs[id] = { at: ST.now(), mins: 0, plan: 0, done: false, intent: '', mod: '', del: true };
+    C.save();
+    if (cur && cur.id === id && cur.phase === 'done') { clearRec(); afterChange(); } else drawLog(); // its "Session done" notice goes with it
     var now = document.querySelectorAll('#fc-log [data-fc="del"]');
     focusIn(now[i] || now[i - 1] || $('fc-log-h'));
     say('Session deleted.');
@@ -555,14 +587,14 @@
     app.onLeave(function () { if (page && page.token === token) page = null; });
     drawJForm();
     drawJList();
-    ST.ensureData().then(function () { if (page && page.token === token) fillMethods(); }, function () { /* the built-in list stays */ });
+    ST.ensureGuide().then(function () { if (page && page.token === token) fillMethods(); }, function () { /* the built-in list stays */ });
   }
   ST.addRoute(/^journal(?:~(.*))?$/, viewJournal, 'study');
 
   // minutes (and module) from a focus session that has just finished
   function prefill() {
     var pr = page.params, st = S(), o = { mod: pr.mod && mod(pr.mod) ? pr.mod : '', mins: '', from: '' };
-    var sid = pr.fs || prefs().focusLast, s = typeof sid === 'string' && Object.prototype.hasOwnProperty.call(st.fs, sid) ? st.fs[sid] : null;
+    var sid = pr.fs || prefs().focusLast, s = typeof sid === 'string' && Object.prototype.hasOwnProperty.call(st.fs, sid) && !st.fs[sid].del ? st.fs[sid] : null;
     if (s) {
       var end = Date.parse(s.at) || 0;
       var fresh = Date.now() - end < FRESH_MS && !entries().some(function (x) { return x.t > end; });
@@ -588,9 +620,9 @@
       '<h2 class="h-sub" id="fc-jform-h" tabindex="-1">' + (e ? esc('Edit entry from ' + fmtDate(created(id, e), true)) : 'New entry') + '</h2>' +
       '<p class="small muted prose">Answer any of these in a line or two, in your own words. Short and honest is best.</p>' +
       '<div class="stack-sm"><label for="fc-jmod"><strong>Module</strong> <span class="muted">(optional)</span></label><select id="fc-jmod" class="fc-select">' + modOptions(o.mod) + '</select></div>' +
-      ta('fc-jlearnt', 'What did I learn?', '', sp.learnt, 1800, 3) +
-      ta('fc-jconfused', 'What confused me?', 'Leave it empty if nothing did. Anything you write here also collects in the "Still confusing" list below.', e ? e.confused : '', 2000, 3) +
-      ta('fc-jnext', 'What will I do next?', '', e ? e.next : '', 1000, 2) +
+      ta('fc-jlearnt', 'What did I learn?', '', sp.learnt, MAX_LEARNT, 3) +
+      ta('fc-jconfused', 'What confused me?', 'Leave it empty if nothing did. Anything you write here also collects in the "Still confusing" list below.', e ? e.confused : '', MAX_CONFUSED, 3) +
+      ta('fc-jnext', 'What will I do next?', '', e ? e.next : '', MAX_NEXT, 2) +
       '<fieldset class="fc-fieldset stack-sm"><legend><strong>How confident do I feel? 1 to 5</strong> <span class="small muted">(optional)</span></legend><div class="fc-picks">' +
       confs.map(function (c) { return '<label class="fc-pick fc-pick-conf"><input type="radio" name="fc-conf" value="' + c[0] + '"' + (e && e.conf === c[0] ? ' checked' : '') + '><span><b>' + c[0] + '</b> <small>' + c[1] + '</small></span></label>'; }).join('') +
       '</div></fieldset>' +
@@ -600,7 +632,7 @@
       '<p class="small fc-err" id="fc-jmins-err" hidden></p></div>' +
       (showWeekly ? '<div class="stack-sm fc-weekly"><label for="fc-jmeth"><strong>This week\'s question: which method helped you most this week?</strong> <span class="muted">(optional)</span></label>' +
         '<span class="small muted" id="fc-jmeth-hint">Pick one from the list or type your own. <a href="#methods">See the methods</a>.</span>' +
-        '<input type="text" id="fc-jmeth" list="fc-jmeth-list" maxlength="120" autocomplete="off" aria-describedby="fc-jmeth-hint" value="' + esc(sp.meth) + '"><datalist id="fc-jmeth-list">' +
+        '<input type="text" id="fc-jmeth" list="fc-jmeth-list" maxlength="' + MAX_METH + '" autocomplete="off" aria-describedby="fc-jmeth-hint" value="' + esc(sp.meth) + '"><datalist id="fc-jmeth-list">' +
         methodNames().map(function (n) { return '<option value="' + esc(n) + '"></option>'; }).join('') + '</datalist></div>'
         : '<p class="small muted">This week you said <strong>' + esc(answered) + '</strong> helped you most. The weekly question comes back on Monday.</p>') +
       '<div class="row"><button type="submit" class="btn btn-primary">' + (e ? 'Save changes' : 'Save entry') + '</button>' + (e ? '<button type="button" class="btn btn-ghost" data-j="cancel">Cancel edit</button>' : '') + '</div></form>';
@@ -614,7 +646,7 @@
     if (!page || page.kind !== 'journal') return;
     var val = function (id) { var el = $(id); return el ? String(el.value || '').replace(/\r/g, '').trim() : ''; };
     var learnt = val('fc-jlearnt'), confused = val('fc-jconfused'), next = val('fc-jnext');
-    var methEl = $('fc-jmeth'), meth = methEl ? methEl.value.replace(/\s+/g, ' ').trim().slice(0, 120) : null;
+    var methEl = $('fc-jmeth'), meth = methEl ? methEl.value.replace(/\s+/g, ' ').trim().slice(0, MAX_METH) : null;
     var minsRaw = val('fc-jmins'), mins = minsRaw === '' ? 0 : Number(minsRaw);
     var ce = document.querySelector('input[name="fc-conf"]:checked'), conf = ce ? Number(ce.value) : 0;
     clearErr(['fc-jlearnt', 'fc-jmins']);
@@ -622,9 +654,9 @@
     if (!(Math.floor(mins) === mins && mins >= 0 && mins <= 600)) { jErr('fc-jmins', 'Minutes must be a whole number from 0 to 600.'); return; }
     var mid = $('fc-jmod').value; if (!mod(mid)) mid = '';
     var st = S(), id = page.edit, old = id && st.jr[id] && !st.jr[id].del ? st.jr[id] : null;
-    if (meth === null) meth = old ? splitLearnt(old).meth : '';
-    var stored = learnt + (meth ? (learnt ? '\n\n' : '') + METH + meth : '');
-    var entry = { at: ST.now(), learnt: stored, confused: confused, next: next, conf: conf, mod: mid, mins: mins, del: false };
+    if (meth === null) meth = old ? splitLearnt(old).meth : ''; // the weekly question is not shown: keep the entry's answer
+    // the weekly answer goes in its own field (an older entry that kept it inside "What I learnt" moves over when it is saved)
+    var entry = { at: ST.now(), learnt: learnt.slice(0, MAX_LEARNT), confused: confused.slice(0, MAX_CONFUSED), next: next.slice(0, MAX_NEXT), meth: meth, conf: conf, mod: mid, mins: mins, del: false };
     if (old) st.jr[id] = entry;
     else { id = newId('j'); st.jr[id] = entry; C.logActivity(); }
     var wasNew = !old, from = page.from, pf = prefs();
@@ -662,7 +694,8 @@
       '<dl class="fc-jdl">' + part('What I learnt', sp.learnt) + part('What confused me', e.confused) + part('What I will do next', e.next) + part('Method that helped most this week', sp.meth) + '</dl>' +
       '<div class="row"><button type="button" class="btn btn-sm" data-j="edit" data-id="' + esc(x.id) + '" aria-label="' + esc('Edit entry: ' + when) + '">Edit</button>' +
       '<button type="button" class="btn btn-sm btn-ghost" data-j="del" data-id="' + esc(x.id) + '" aria-label="' + esc('Delete entry: ' + when) + '">Delete</button></div>' +
-      (e.confused ? ST.aiHTML('jr', 'Ask Gemini about my confusion') : '') + '</article>';
+      // one AI box per entry, with its own id: each copies the prompt about its own confusion and says which one it is
+      (e.confused ? ST.aiHTML('jr:' + x.id, 'Ask Gemini about my confusion', 'what confused you on ' + when) : '') + '</article>';
   }
   function confusingHTML(list) {
     if (!list.length) return '<div class="empty">Nothing here. When something confuses you, write it under "What confused me?" and it will collect here, grouped by module.</div>';
@@ -690,7 +723,7 @@
       (list.length > shown.length ? '<div><button type="button" class="btn btn-sm" data-j="more">Show older entries (' + (list.length - shown.length) + ' more)</button></div>' : '');
     Array.prototype.forEach.call(box.querySelectorAll('.fc-jentry'), function (art) {
       var id = art.id.slice(5);
-      ST.bindAI(art, 'jr', function () { return aiPrompt(id); });
+      ST.bindAI(art, 'jr:' + id, function () { return aiPrompt(id); });
     });
   }
   function setUndo(id) {
@@ -714,8 +747,8 @@
       var back = was && $('fc-jh-' + was); focusIn(back || $('fc-jform-h'));
     } else if (a === 'del' && id && st.jr[id] && !st.jr[id].del) {
       var e = st.jr[id];
-      page.undo = { id: id, e: { at: e.at, learnt: e.learnt, confused: e.confused, next: e.next, conf: e.conf, mod: e.mod, mins: e.mins, del: false } };
-      st.jr[id] = { at: ST.now(), learnt: '', confused: '', next: '', conf: 0, mod: '', mins: 0, del: true };
+      page.undo = { id: id, e: { at: e.at, learnt: e.learnt, confused: e.confused, next: e.next, meth: e.meth || '', conf: e.conf, mod: e.mod, mins: e.mins, del: false } };
+      st.jr[id] = { at: ST.now(), learnt: '', confused: '', next: '', meth: '', conf: 0, mod: '', mins: 0, del: true };
       C.save();
       if (page.edit === id) { page.edit = null; drawJForm(); }
       drawJList(); setUndo(id);
@@ -732,13 +765,14 @@
   }
 
   /* ---------- distraction-free mode: mark the parts it hides (CSS :has covers the same in newer browsers) ---------- */
-  ST.on('watch', function (m, el) { var more = el && el.querySelector('#more-all'); if (more && more.parentNode) more.parentNode.classList.add('fc-hide-more'); });
-  function tagContinue(root) {
-    if (!root || !root.querySelectorAll) return;
+  function tagPage(root) {
+    if (!root || !root.querySelectorAll || !root.isConnected) return;
+    var more = root.querySelector('#more-all'); if (more && more.parentNode && more.parentNode !== root) more.parentNode.classList.add('fc-hide-more');
     Array.prototype.forEach.call(root.querySelectorAll('.continue-list'), function (ul) { if (ul.parentNode && ul.parentNode !== root) ul.parentNode.classList.add('fc-hide-cw'); });
   }
-  ST.on('home', tagContinue);
-  ST.on('progress', tagContinue);
+  ST.on('watch', function (m, el) { tagPage(el); });
+  ST.on('home', tagPage);
+  ST.on('progress', tagPage);
 
   /* ---------- Study room cards ---------- */
   ST.addHubCard(30, function () {
@@ -760,10 +794,49 @@
       '<div class="row"><a class="btn btn-primary" href="#journal">' + (list.length ? 'Open your journal' : 'Write your first entry') + '</a></div></article>';
   });
 
+  /* ---------- progress changed elsewhere ---------- */
+  // Reset all progress, or Sign out and clear this device (here or in another tab): the running session and its intention go too
+  window.addEventListener('aim:progress-reset', function () { clearRec(); afterChange(); });
+  // another tab or device added its progress: show it on the focus log and the journal list (the form being typed in is left alone)
+  window.addEventListener('aim:progress-replaced', function (ev) {
+    if (!page || (ev.detail && ev.detail.cleared)) return; // a cleared copy redraws the whole page
+    if (page.kind === 'focus') { if (page.view === 'setup' || page.view === 'done') keepFocus($('fc-log'), drawLog, 'fc-log-h'); return; }
+    var e = page.edit && S().jr[page.edit];
+    if (page.edit && (!e || e.del)) { // keep what is typed in the form: saving it now adds a new entry
+      page.edit = null;
+      setText('fc-jform-h', 'New entry');
+      var sb = document.querySelector('#fc-jform [type="submit"]'), cb = document.querySelector('#fc-jform [data-j="cancel"]');
+      if (sb) sb.textContent = 'Save entry';
+      if (cb) { if (cb === document.activeElement) focusIn($('fc-jform-h')); cb.remove(); }
+      say('The entry you were editing was deleted in another tab or on another device. Save to keep your text as a new entry.');
+    }
+    keepFocus($('fc-jlist'), drawJList, 'fc-jlist-h');
+  });
+  // redraw a part of the page; keyboard focus stays on the same control if it is still there (else on the part's heading)
+  function keepFocus(box, draw, headId) {
+    if (!box) return;
+    var ae = document.activeElement, key = box.contains(ae) && ae !== box ? sig(ae) : null;
+    draw();
+    if (!key) return;
+    var same = Array.prototype.filter.call(box.querySelectorAll('a, button, input, select, textarea, [tabindex]'), function (el) { return sig(el) === key; })[0];
+    focusIn(same || $(headId));
+  }
+  function sig(el) {
+    var host = el.id ? el : el.parentNode && el.parentNode.closest ? el.parentNode.closest('[id]') : null;
+    return [host ? host.id : '', el.tagName, el.getAttribute('data-fc') || el.getAttribute('data-j') || '', el.getAttribute('data-id') || '', el.getAttribute('data-v') || '',
+      el.hasAttribute('data-ai-copy') ? 'copy' : el.hasAttribute('data-ai-ask') ? 'ask' : '', el.getAttribute('href') || ''].join('|');
+  }
+
   /* ---------- start: pick up a session that was running before this page loaded ---------- */
   cur = readRec();
   if (cur && cur.phase === 'run' && !cur.pauseAt && !inBreath(cur) && leftMs(cur) <= 0) complete(false, true);
   else { applyDfm(); updateChip(); tick(); }
+  // this script loads after the first page is drawn: mark what distraction-free mode hides there too
+  if (A() && A().main) tagPage(A().main);
+  // Work-around: when a stored session made study.js start loading this script before the first page was routed, study.js
+  // took the feature as loaded and #focus / #journal showed "Page not found". Route once more if no focus page was drawn
+  // (when study.js loaded this script for the route itself, it has drawn the page by now and this does nothing).
+  setTimeout(function () { if (!page && A() && /^#(focus|journal)(~|$)/.test(location.hash)) A().route(); }, 0);
   document.addEventListener('visibilitychange', function () { if (!document.hidden && cur) tick(); });
   window.addEventListener('pageshow', function (ev) { if (ev.persisted) { cur = readRec(); afterChange(); } });
   window.addEventListener('storage', function (ev) { // another tab started, paused or ended a session

@@ -20,10 +20,19 @@
     while (out.length < words.length && out.length > 1 && /^(a|an|and|the|for|with|of|to|in|on|by)$/.test(out[out.length - 1])) out.pop();
     return out.join('-') || 'my-ai-project';
   }
-  // "owner/name", "https://github.com/owner/name" or "...name.git" -> { owner, name } or null
+  // "owner/name", "https://github.com/owner/name", "github.com/owner/name" or "...name.git" -> { owner, name } or null
   function parseRepo(v) {
-    var m = /^(?:https?:\/\/(?:www\.)?github\.com\/)?([A-Za-z0-9-]{1,39})\/([A-Za-z0-9._-]{1,100}?)(?:\.git)?\/?$/.exec(String(v || '').trim());
+    var m = /^(?:(?:https?:\/\/)?(?:www\.)?github\.com\/)?([A-Za-z0-9-]{1,39})\/([A-Za-z0-9._-]{1,100}?)(?:\.git)?\/?$/i.exec(String(v || '').trim());
     return m ? { owner: m[1], name: m[2] } : null;
+  }
+  // a link typed under "Your links" as a full web address, or '' when it is not one:
+  // "priya/gst-rag" and "github.com/priya/gst-rag" -> https://github.com/priya/gst-rag; "huggingface.co/spaces/x" -> https://…
+  function webLink(v) {
+    var s = String(v || '').trim(), r = parseRepo(s);
+    if (r) return 'https://github.com/' + r.owner + '/' + r.name;
+    if (/^https?:\/\/[^\s\/]+\.[^\s]+$/i.test(s)) return s;
+    if (/^(?:www\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)+(?:\/\S*)?$/i.test(s)) return 'https://' + s;
+    return '';
   }
   function fmtSize(n) { return n < 1024 ? n + ' B' : n < 1048576 ? (n / 1024).toFixed(1) + ' KB' : (n / 1048576).toFixed(1) + ' MB'; }
   // links inside the course text: site-internal ones (#m-...) become plain words, web links stay
@@ -71,7 +80,8 @@
     if (p.tagline) L.push(plain(p.tagline), '');
     if (list.length) L.push('What I did:', list.join('\n'), '');
     if (skills.length) L.push('Skills: ' + skills.join(', '), '');
-    if (st.links && st.links.demo) L.push('Try it: ' + st.links.demo);
+    var demo = st.links && st.links.demo ? webLink(st.links.demo) || String(st.links.demo).trim() : '';
+    if (demo) L.push('Try it: ' + demo);
     if (link) L.push('Code: ' + link);
     L.push('', 'I am learning AI and machine learning step by step with free resources. Feedback is very welcome!', '', '#MachineLearning #AI #Python #DataScience #LearningInPublic');
     return L.join('\n');
@@ -86,24 +96,24 @@
       '<div class="stack-sm"><h2 class="h-sub">Put this project on GitHub</h2>' +
       '<p class="small muted">Your code, plus a README written from this brief and your milestones, in your own public repository. Recruiters and clients look here first.</p></div>' +
       '<ol class="pub-steps">' +
-      '<li class="stack-sm"><strong>Create an empty repository.</strong><div class="row"><a class="btn btn-sm" href="' + esc(newUrl) + '" target="_blank" rel="noopener">Create it on GitHub ↗</a></div>' +
-      '<span class="small muted">The name and description are filled in for you. Leave "Add a README" unticked, then press "Create repository".</span></li>' +
-      '<li class="stack-sm"><strong>Make an upload key (a token) for that one repository.</strong><div class="row"><a class="btn btn-sm" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Open GitHub token settings ↗</a></div>' +
-      '<span class="small muted">On that page: Token name "AI Marg upload"; Expiration 7 days; Repository access: <em>Only select repositories</em> and pick your new repository; Permissions: <em>Contents</em> set to <em>Read and write</em>. Press "Generate token" and copy it.</span></li>' +
-      '<li class="stack-sm"><strong>Choose your files and upload.</strong>' +
+      '<li><div class="stack-sm"><strong>Create an empty repository.</strong><div class="row"><a class="btn btn-sm" href="' + esc(newUrl) + '" target="_blank" rel="noopener">Create it on GitHub ↗</a></div>' +
+      '<span class="small muted">The name and description are filled in for you. Leave "Add a README" unticked, then press "Create repository".</span></div></li>' +
+      '<li><div class="stack-sm"><strong>Make an upload key (a token) for that one repository.</strong><div class="row"><a class="btn btn-sm" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Open GitHub token settings ↗</a></div>' +
+      '<span class="small muted">On that page: Token name "AI Marg upload"; Expiration 7 days; Repository access: <em>Only select repositories</em> and pick your new repository; Permissions: <em>Contents</em> set to <em>Read and write</em>. Press "Generate token" and copy it.</span></div></li>' +
+      '<li><div class="stack-sm"><strong>Choose your files and upload.</strong>' +
       (preview ? '<div class="callout small">Uploading works on the full site (GitHub Pages), not in this preview.</div>' : '') +
       '<div class="pub-form stack-sm">' +
       '<label class="small" for="pub-repo">Your repository (your-name/repository-name)</label>' +
       '<input type="text" id="pub-repo" autocomplete="off" spellcheck="false" placeholder="your-name/' + esc(name) + '" value="' + esc(repo ? repo.owner + '/' + repo.name : '') + '">' +
       '<label class="small" for="pub-token">Token (used only in this tab; never saved)</label>' +
       '<input type="password" id="pub-token" autocomplete="off" spellcheck="false" placeholder="github_pat_…">' +
-      '<div class="row"><label class="btn btn-sm" for="pub-files">Add files</label><input type="file" id="pub-files" multiple hidden>' +
-      '<label class="btn btn-sm" for="pub-folder">Add a folder</label><input type="file" id="pub-folder" webkitdirectory multiple hidden>' +
+      '<div class="row"><button type="button" class="btn btn-sm" data-pick="pub-files">Add files</button><button type="button" class="btn btn-sm" data-pick="pub-folder">Add a folder</button>' +
+      '<input type="file" id="pub-files" class="visually-hidden" tabindex="-1" aria-hidden="true" multiple><input type="file" id="pub-folder" class="visually-hidden" tabindex="-1" aria-hidden="true" webkitdirectory multiple>' +
       '<button type="button" class="btn btn-sm btn-ghost" id="pub-clear">Clear files</button></div>' +
       '<div class="small" id="pub-list" aria-live="polite"><span class="muted">No files chosen yet. Add your notebook (.ipynb), code (.py), requirements.txt and small result images. Keep big datasets out: link to them in the README instead.</span></div>' +
       '<details><summary class="small">Edit the README (it is uploaded as README.md)</summary><label class="visually-hidden" for="pub-readme">README text</label><textarea id="pub-readme" rows="14" spellcheck="true"></textarea></details>' +
       '<div class="row"><button type="button" class="btn btn-primary" id="pub-go"' + (preview ? ' disabled' : '') + '>Upload to GitHub</button></div>' +
-      '<div class="small pub-log" id="pub-log" role="status" aria-live="polite"></div></div></li></ol>' +
+      '<div class="small pub-log" id="pub-log" role="status" aria-live="polite"></div></div></div></li></ol>' +
       '<details class="small"><summary>Prefer not to use a token?</summary><p>Copy the README below, then on GitHub open your repository, choose <em>Add file → Upload files</em>, drag your files in, add a file named README.md with the copied text, and press <em>Commit changes</em>.</p><button type="button" class="btn btn-sm" id="pub-copy-readme">Copy README</button></details>' +
       '<p class="small muted">Safety: the token goes only from your browser to GitHub. Files named like .env, *.pem, kaggle.json or credentials are never uploaded, so your passwords and API keys stay private. Delete the token on GitHub when you are done.</p>' +
       '</section>' +
@@ -123,11 +133,14 @@
     var readmeBox = $('pub-readme'), liBox = $('li-text'), liOpen = $('li-open'), liHint = $('li-hint');
     var readmeEdited = false, postEdited = false;
     var repoNow = function () { return parseRepo($('pub-repo').value); };
+    // this project's saved progress as it is now (ticks made on this page, or merged in from another tab)
+    var cur = function () { var x = C.state.projects && C.state.projects[p.id]; return x && typeof x === 'object' ? x : st; };
     var refreshText = function () {
-      if (!readmeEdited) readmeBox.value = readme(p, st, repoNow());
-      var link = (st.links && st.links.repo) || '';
-      var target = link || (st.links && st.links.demo) || '';
-      if (!postEdited) liBox.value = post(p, st, link);
+      var now = cur(), links = now.links || {};
+      if (!readmeEdited) readmeBox.value = readme(p, now, repoNow());
+      var link = webLink(links.repo), demo = webLink(links.demo);
+      var target = link || demo;
+      if (!postEdited) liBox.value = post(p, now, link || String(links.repo || '').trim());
       if (target) {
         liOpen.href = 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(target);
         liOpen.removeAttribute('aria-disabled'); liOpen.classList.remove('is-disabled');
@@ -140,10 +153,20 @@
     readmeBox.addEventListener('input', function () { readmeEdited = true; });
     liBox.addEventListener('input', function () { postEdited = true; });
     $('pub-repo').addEventListener('change', function () { refreshText(); });
+    // ticking a milestone or grading a rubric row (saved by app.js once the change event reaches the document)
+    var view = $('publish').closest('.wrap') || $('publish');
+    view.addEventListener('change', function (e) {
+      var a = e.target && e.target.getAttribute && e.target.getAttribute('data-action');
+      if (a === 'pstep' || a === 'prub') setTimeout(refreshText, 0);
+    });
+    Array.prototype.forEach.call($('publish').querySelectorAll('[data-pick]'), function (b) {
+      b.addEventListener('click', function () { var inp = $(b.getAttribute('data-pick')); if (inp) inp.click(); });
+    });
     ['pl-repo', 'pl-demo'].forEach(function (id) {
       var el = root.querySelector('#' + id);
       if (el) el.addEventListener('input', function () {
-        if (id === 'pl-repo' && parseRepo(el.value) && !$('pub-repo').value.trim()) $('pub-repo').value = el.value.trim();
+        var r = id === 'pl-repo' && parseRepo(el.value);
+        if (r && !$('pub-repo').value.trim()) $('pub-repo').value = r.owner + '/' + r.name;
         setTimeout(refreshText, 0);
       });
     });
@@ -153,8 +176,8 @@
       try { navigator.clipboard.writeText(text).then(done, function () { fallback(); }); } catch (e) { fallback(); }
       function fallback() { var t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); done(); } catch (e) { C.toast('Select the text and copy it by hand'); } t.remove(); }
     };
-    $('li-copy').addEventListener('click', function () { copy(liBox.value, 'Post'); });
-    $('pub-copy-readme').addEventListener('click', function () { copy(readmeBox.value, 'README'); });
+    $('li-copy').addEventListener('click', function () { refreshText(); copy(liBox.value, 'Post'); });
+    $('pub-copy-readme').addEventListener('click', function () { refreshText(); copy(readmeBox.value, 'README'); });
 
     var listFiles = function () {
       var el = $('pub-list');
@@ -214,6 +237,7 @@
       var repo = repoNow(), token = $('pub-token').value.trim();
       if (!repo) { log('Type your repository as your-name/repository-name (for example priya-sharma/' + esc(slug(p.title)) + ').', 'bad'); $('pub-repo').focus(); return; }
       if (!/^(github_pat_|ghp_|gho_|ghu_|ghs_)[A-Za-z0-9_]{20,}$/.test(token)) { log('Paste the token you generated on GitHub (it starts with github_pat_).', 'bad'); $('pub-token').focus(); return; }
+      refreshText(); // a README not edited by hand is written from the ticks as they are now
       var queue = [{ path: 'README.md', text: readmeBox.value }].concat(files);
       busy = true; $('pub-go').disabled = true;
       log('Checking the repository…');
@@ -245,7 +269,7 @@
       }).then(function () {
         var link = info.html_url || ('https://github.com/' + repo.owner + '/' + repo.name);
         C.setProject(p.id, 'link', 'repo', link); // stamped, so the new link wins when progress is merged
-        st.links = st.links || {}; st.links.repo = link;
+        var now = cur(); now.links = now.links || {}; now.links.repo = link;
         if (hooks && hooks.onLink) hooks.onLink('repo', link);
         C.logActivity(); C.save();
         $('pub-token').value = '';
@@ -261,5 +285,5 @@
     refreshText();
   }
 
-  window.AIM_PUBLISH = { html: html, bind: bind, parseRepo: parseRepo, readme: readme, post: post, slug: slug };
+  window.AIM_PUBLISH = { html: html, bind: bind, parseRepo: parseRepo, webLink: webLink, readme: readme, post: post, slug: slug };
 })();

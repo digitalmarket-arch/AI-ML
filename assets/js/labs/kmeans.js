@@ -388,7 +388,18 @@
         sr.className = 'visually-hidden';
         sr.textContent = ' (done)';
         li.appendChild(sr);
+        li._sr = sr;
       }
+    }
+    // progress was restored or synced from elsewhere: show the ticks saved now (a tick that was removed can be earned again)
+    function syncTasks() {
+      TASKS.forEach(function (t) {
+        var on = !!(ctx && ctx.isTaskDone && ctx.isTaskDone(t.id)), li = taskEls[t.id];
+        if (on === !!done[t.id]) return;
+        if (on) { done[t.id] = true; markLi(t.id); return; }
+        delete done[t.id];
+        if (li) { li.classList.remove('done'); if (li._sr && li._sr.parentNode === li) li.removeChild(li._sr); li._sr = null; }
+      });
     }
     function completeTask(id) {
       if (done[id]) return;
@@ -420,12 +431,15 @@
       // changing the wrapper's own size inside a ResizeObserver callback would loop, so defer it
       if (wantAspect() !== curAspect && !aspectRaf) aspectRaf = requestAnimationFrame(applyAspect);
       var dpr = Math.min(window.devicePixelRatio || 1, 3);
-      var r = wrap.getBoundingClientRect();
-      dims.w = Math.max(1, Math.round(r.width)); dims.h = Math.max(1, Math.round(r.height)); dims.dpr = dpr;
-      canvas.width = Math.round(dims.w * dpr); canvas.height = Math.round(dims.h * dpr);
-      var er = ewrap.getBoundingClientRect();
-      dims.ew = Math.max(1, Math.round(er.width)); dims.eh = Math.max(1, Math.round(er.height));
-      ecanvas.width = Math.round(dims.ew * dpr); ecanvas.height = Math.round(dims.eh * dpr);
+      // each canvas fills its wrapper inside the wrapper's 1px border, so measure the canvas box itself (unrounded:
+      // the elbow box is often a fraction of a pixel tall): the backing store then matches the screen pixels (sharp
+      // lines) and pointer positions map onto the right data points
+      var r = canvas.getBoundingClientRect();
+      dims.w = Math.max(1, r.width); dims.h = Math.max(1, r.height); dims.dpr = dpr;
+      canvas.width = Math.max(1, Math.round(dims.w * dpr)); canvas.height = Math.max(1, Math.round(dims.h * dpr));
+      var er = ecanvas.getBoundingClientRect();
+      dims.ew = Math.max(1, er.width); dims.eh = Math.max(1, er.height);
+      ecanvas.width = Math.max(1, Math.round(dims.ew * dpr)); ecanvas.height = Math.max(1, Math.round(dims.eh * dpr));
       // setting width/height clears both canvases; redraw now so no blank frame is painted
       drawPlot(performance.now());
       drawElbow(); elbowDirty = false;
@@ -1018,6 +1032,7 @@
     resize();
 
     return {
+      syncTasks: syncTasks,
       destroy: function () {
         destroyed = true;
         S.running = false;

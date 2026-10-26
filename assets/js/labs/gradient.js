@@ -281,7 +281,18 @@
         sr.className = 'visually-hidden';
         sr.textContent = ' (done)';
         li.appendChild(sr);
+        li._sr = sr;
       }
+    }
+    // progress was restored or synced from elsewhere: show the ticks saved now (a tick that was removed can be earned again)
+    function syncTasks() {
+      TASKS.forEach(function (t) {
+        var on = !!(ctx && ctx.isTaskDone && ctx.isTaskDone(t.id)), li = taskEls[t.id];
+        if (on === !!done[t.id]) return;
+        if (on) { done[t.id] = true; markLi(t.id); return; }
+        delete done[t.id];
+        if (li) { li.classList.remove('done'); if (li._sr && li._sr.parentNode === li) li.removeChild(li._sr); li._sr = null; }
+      });
     }
     function completeTask(id) {
       if (done[id]) return;
@@ -422,14 +433,18 @@
       updateStats();
       requestDraw();
     }
+    // after a blow-up Run and Step stay off until the line gets a new start, so a "press Run" hint must say that instead
+    function runHint(html) {
+      return S.blown ? 'Your line blew up earlier, so <b>Run</b> and <b>Step</b> stay off: lower the learning rate, then press <b>Reset</b> to give the line a new start.' : html;
+    }
     function dataMessage(added) {
       var oi = outlierInfo();
       if (F.flat) {
         say('', 'Now every flat has the same size, so size can no longer tell cheap flats from dear ones: any line through their average price (₹' + fmtIN(F.my, 1) + ' lakh) is equally good. The bowl on the loss map has become a valley with a flat floor, and the ★ is just one spot on that floor.');
       } else if (oi.count) {
-        say('', (added ? 'Outlier added. ' : '') + 'The data changed, so the whole loss map changed too and the ★ moved: the best line is now ₹' + fmtIN(F.w * 200, 0) + ' per sq ft instead of ₹' + fmtIN(origFit.w * 200, 0) + '. The dashed grey line shows the old best line. Press <b>Run</b> and watch your line move.');
+        say('', (added ? 'Outlier added. ' : '') + 'The data changed, so the whole loss map changed too and the ★ moved: the best line is now ₹' + fmtIN(F.w * 200, 0) + ' per sq ft instead of ₹' + fmtIN(origFit.w * 200, 0) + '. The dashed grey line shows the old best line. ' + runHint('Press <b>Run</b> and watch your line move.'));
       } else {
-        say('', 'The data changed, so the loss map changed too and the ★ moved. Press <b>Run</b> to let gradient descent catch up.');
+        say('', 'The data changed, so the loss map changed too and the ★ moved. ' + runHint('Press <b>Run</b> to let gradient descent catch up.'));
       }
     }
     function addOutlier() {
@@ -438,14 +453,14 @@
       S.outlierPreset++;
       pts.push({ size: o.size, price: o.price, user: true, moved: true });
       dataChanged();
-      say('', 'Added an outlier: a ' + fmtIN(o.size, 0) + ' sq ft flat priced at ₹' + o.price + ' lakh (maybe a typing mistake in the data). The ★ jumped: the best line is now ₹' + fmtIN(F.w * 200, 0) + ' per sq ft instead of ₹' + fmtIN(origFit.w * 200, 0) + '. Press <b>Run</b> and watch your line tilt.');
+      say('', 'Added an outlier: a ' + fmtIN(o.size, 0) + ' sq ft flat priced at ₹' + o.price + ' lakh (maybe a typing mistake in the data). The ★ jumped: the best line is now ₹' + fmtIN(F.w * 200, 0) + ' per sq ft instead of ₹' + fmtIN(origFit.w * 200, 0) + '. ' + runHint('Press <b>Run</b> and watch your line tilt.'));
     }
     function resetData() {
       pts = ORIG.map(function (p) { return { size: p.size, price: p.price, user: false, moved: false }; });
       S.outlierPreset = 0;
       dataChanged();
       recentreIfNeeded(true);
-      say('', 'Back to the original 16 flats. Press <b>Run</b> to fit them again.');
+      say('', 'Back to the original 16 flats. ' + runHint('Press <b>Run</b> to fit them again.'));
     }
 
     /* one gradient descent step */
@@ -925,7 +940,7 @@
         var m = btn.getAttribute('data-mode');
         if (m === S.mode) return;
         S.mode = m; S.sgdSteps = 0; S.sgdUp = 0; S.upStreak = 0; S.converged = false; S.lastDelta = null; S.bounce = 0;
-        if (m === 'sgd') { pickNext(); note('<b>Stochastic mode:</b> each step now uses only the circled flat, picked at random. Press <b>Run</b> and watch the path wobble.'); }
+        if (m === 'sgd') { pickNext(); note('<b>Stochastic mode:</b> each step now uses only the circled flat, picked at random. ' + runHint('Press <b>Run</b> and watch the path wobble.')); }
         else note('<b>Batch mode:</b> each step uses all ' + pts.length + ' flats, so it heads straight downhill.');
         syncButtons(); updateStats(); requestDraw();
       });
@@ -971,6 +986,7 @@
     started = true;
 
     return {
+      syncTasks: syncTasks,
       destroy: function () {
         destroyed = true;
         if (rafId) cancelAnimationFrame(rafId);

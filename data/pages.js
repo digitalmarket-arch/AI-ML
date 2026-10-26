@@ -25,7 +25,7 @@ window.AIM.pages = {
     ],
     "bullets": [
      "**1. Open a level** from the [Roadmap](#roadmap) and read its short introduction and outcomes.",
-     "**2. Do its modules in order.** Each module page has up to six tabs. **Overview** says what you will learn and why. **Watch & read** has the chosen free lessons. **Lab** (in many modules) is an interactive picture you can play with. **Practice** has small Python exercises that run in your browser, with no install. **Quiz** has 10 questions with a 70% pass mark. **My notes** is for your own notes.",
+     "**2. Do its modules in order.** Each module page has up to six tabs. **Overview** says what you will learn and why. **Watch & read** has the chosen free lessons. **Lab** is an interactive picture you can play with, with a few tasks to complete. **Practice** has small Python exercises that run in your browser, with no install. **Quiz** has 10 questions with a 70% pass mark. **My notes** is for your own notes.",
      "**3. In Watch & read, start with the Best pick.** It is the strongest free video for the module, whether it is in Hindi, Hinglish or Indian English. Other options sit below it; the ones marked Recommended are good alternatives if a teacher does not suit you.",
      "**4. Build the level's projects** from the [Projects](#projects) page. Projects turn knowledge into skill, and they become your portfolio (the work you show employers or clients).",
      "**5. Take the level test** on the [Tests](#tests) page: 20 questions from the whole level, an optional 30-minute timer, pass mark 70%. If you score less, revise the modules where you lost marks and retake it after a few days.",
@@ -83,7 +83,7 @@ window.AIM.pages = {
      "**AI Marg's Practice tab** runs Python inside your browser for the small exercises, so you can practise even without Colab. You can also use the [Playground](#playground) to try any code.",
      "**VS Code** (code.visualstudio.com): a free code editor for your own computer. Module [1.3 Your AI Toolkit](#m-l1-tools) shows the setup, and you will use it much more from Level 2–3, when projects have several files.",
      "**Python on your own laptop:** not required at first. Install it when module 1.3 or a project asks you to. Use the official installer from python.org, and on Windows tick 'Add python.exe to PATH' during installation.",
-     "**Later, when you build apps:** a free Hugging Face account (for models and datasets) and Streamlit Community Cloud, which hosts simple Python web apps for free straight from your GitHub repositories. A free Hugging Face account can also host up to 2 Gradio demos on ZeroGPU Spaces; most other app Spaces now need a paid plan."
+     "**Hugging Face** (huggingface.co): create a free account in your first week and verify your email, even though you will only use it later (for models, datasets and app demos). Hugging Face lets a free account host Gradio demos (up to 2, on ZeroGPU Spaces) only once it is more than 30 days old and has a verified email, and most other app Spaces need a paid plan; these rules change, so check the current ones when you build your first demo. **Later, when you build apps:** Streamlit Community Cloud hosts simple Python web apps for free straight from your GitHub repositories."
     ]
    },
    {
@@ -161,7 +161,7 @@ window.AIM.pages = {
     "heading": "Hindi, Hinglish or English videos?",
     "paragraphs": [
      "Learn in the language you understand fastest. Many of the best Indian teachers teach in Hindi or Hinglish, such as CampusX (Nitish Singh), Krish Naik Hindi and CodeWithHarry. Every module's Best pick is in Hindi, Hinglish or Indian English, and the [Library](#library) has a language filter if you want only one language.",
-     "But learn the English words. Code, error messages, documentation, job interviews and most advanced material are in English. A good habit: watch in Hindi or Hinglish, write your notes using the English terms, and use the [Glossary](#glossary), which gives a Hindi meaning for every term."
+     "But learn the English words. Code, error messages, documentation, job interviews and most advanced material are in English. A good habit: watch in Hindi or Hinglish, write your notes using the English terms, and use the [Glossary](#glossary), which explains every term in plain English with an everyday example."
     ],
     "bullets": [
      "**Hindi/Hinglish** is great for first understanding, especially in Levels 1–2.",
@@ -239,7 +239,7 @@ window.AIM.pages = {
      "A GitHub profile README (the page people see first) with your name, a one-line focus (for example 'Data analyst for retail and D2C brands') and links to your best projects. Optionally, a simple personal site on GitHub Pages, which is free for public repositories.",
      "3–5 pinned projects. Each README answers: what problem, what data, what you did, what result (with numbers), how to run it, and what you would improve next.",
      "At least one project on Indian data, for example from data.gov.in, the RBI's statistics database or a Kaggle dataset on Indian prices, crops, air quality or cricket. It shows you understand local problems.",
-     "At least one end-to-end project: data → model → a small live app with a public link. Streamlit Community Cloud hosts Streamlit apps for free from GitHub. Hugging Face now needs a paid plan to create most app Spaces, but free personal accounts can still host up to 2 Gradio demos on ZeroGPU (shared GPUs handed out on demand), and static pages are free.",
+     "At least one end-to-end project: data → model → a small live app with a public link. Streamlit Community Cloud hosts Streamlit apps for free from GitHub. Hugging Face now needs a paid plan to create most app Spaces, but free personal accounts can still host up to 2 Gradio demos on ZeroGPU (shared GPUs handed out on demand) once the account is more than 30 days old and has a verified email, and static pages are free. These rules change, so check Hugging Face's current Spaces docs.",
      "At least one GenAI project, such as a RAG assistant over public documents, with a short evaluation: 20–50 test questions, how many it answered correctly, and its cost per 100 answers.",
      "Clean repositories: a `requirements.txt` (the list of libraries needed), no API keys, notebooks that run top to bottom without errors, and clear folder names.",
      "A short write-up for each project (a LinkedIn post or blog) in plain English. Clear communication is rarer than technical skill.",
@@ -428,7 +428,7 @@ window.AIM.pages = {
   },
   {
    "q": "What if a video link is broken or a video is removed?",
-   "a": "1. If the lesson card shows a **Search YouTube** button, use it. It searches for the same lesson by title and creator.\n2. Otherwise, search YouTube for the title and creator shown on the card.\n3. Switch to another teacher for the same topic: each module's Watch & read tab lists other options under the Best pick, and the [Library](#library) has every resource.\n4. Please report it on [GitHub Issues](https://github.com/digitalmarket-arch/AI-ML/issues) with the module name, so it can be fixed for everyone.\n\nCards marked 'link unconfirmed' are ones we could not fully check."
+   "a": "1. If the lesson card shows a **Search YouTube** button, use it. It searches for the same lesson by title and creator.\n2. Otherwise, search YouTube for the title and creator shown on the card.\n3. Switch to another teacher for the same topic: each module's Watch & read tab lists other options under the Best pick, and the [Library](#library) has every resource.\n4. Please report it on [GitHub Issues](https://github.com/digitalmarket-arch/AI-ML/issues) with the module name, so it can be fixed for everyone.\n\nCards marked 'link unconfirmed' are links we could not confirm. Cards marked 'partly confirmed' are links we found but could not check in every detail (for example the uploader or whether free audit is still offered): read their Heads-up first."
   },
   {
    "q": "Is my progress saved?",
@@ -468,7 +468,7 @@ window.AIM.pages = {
    "checked": "Oct 2026"
   },
   {
-   "label": "Hugging Face Hub docs (source file): Spaces overview — Static Spaces free for everyone; Gradio and Docker Spaces need a paid plan to create; free personal accounts can host up to 2 Gradio Spaces on ZeroGPU",
+   "label": "Hugging Face Hub docs (source file): Spaces overview — Static Spaces free for everyone; Gradio and Docker Spaces need a paid plan to create; free personal accounts in good standing (verified email, account older than 30 days) can host up to 2 Gradio Spaces on ZeroGPU",
    "url": "https://github.com/huggingface/hub-docs/blob/main/docs/hub/spaces-overview.md",
    "checked": "Oct 2026"
   },

@@ -549,7 +549,7 @@ window.AIM.projects = [
    },
    {
     "title": "Ship a demo",
-    "detail": "Build a Gradio app on a free Hugging Face ZeroGPU Space (free accounts can host up to 2 Gradio Spaces; other Gradio and Docker Spaces need a paid plan): inputs, then estimated range in lakhs, reasons and a fair-price flag. Add a model card and a 2-minute walkthrough."
+    "detail": "Build a Gradio app on a free Hugging Face ZeroGPU Space (free accounts more than 30 days old, with a verified email, can host up to 2 Gradio Spaces; other Gradio and Docker Spaces need a paid plan): inputs, then estimated range in lakhs, reasons and a fair-price flag. Add a model card and a 2-minute walkthrough."
    }
   ],
   "deliverables": [
@@ -1048,7 +1048,7 @@ window.AIM.projects = [
    },
    {
     "title": "Optimise and deploy",
-    "detail": "Export to ONNX (a portable model file format), apply dynamic quantisation (storing weights in 8 bits), and confirm size under 20 MB and latency under 300 ms. Build a Gradio Sketchpad app on a free Hugging Face ZeroGPU Space (free accounts can host up to 2 Gradio Spaces; other Gradio and Docker Spaces need a paid plan). Make sure preprocessing matches training: colour inversion, centring and resizing to 32×32."
+    "detail": "Export to ONNX (a portable model file format), apply dynamic quantisation (storing weights in 8 bits), and confirm size under 20 MB and latency under 300 ms. Build a Gradio Sketchpad app on a free Hugging Face ZeroGPU Space (free accounts more than 30 days old, with a verified email, can host up to 2 Gradio Spaces; other Gradio and Docker Spaces need a paid plan). Make sure preprocessing matches training: colour inversion, centring and resizing to 32×32."
    },
    {
     "title": "Write-up",
@@ -1702,7 +1702,7 @@ window.AIM.projects = [
    },
    {
     "title": "Ship and cost it",
-    "detail": "Gradio app with a sources panel on a free Hugging Face ZeroGPU Space (free accounts can host up to 2 Gradio Spaces; other Gradio and Docker Spaces need a paid plan). On free hardware, use a model of about 2 billion parameters or smaller, or a free-tier API, and expect several seconds per answer. Log questions without client names. Measure latency and estimate ₹ cost per 100 questions for a local model vs a paid API, showing your assumptions. Record a 2-minute walkthrough."
+    "detail": "Gradio app with a sources panel on a free Hugging Face ZeroGPU Space (free accounts more than 30 days old, with a verified email, can host up to 2 Gradio Spaces; other Gradio and Docker Spaces need a paid plan). On free hardware, use a model of about 2 billion parameters or smaller, or a free-tier API, and expect several seconds per answer. Log questions without client names. Measure latency and estimate ₹ cost per 100 questions for a local model vs a paid API, showing your assumptions. Record a 2-minute walkthrough."
    }
   ],
   "deliverables": [

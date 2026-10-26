@@ -108,6 +108,9 @@
     var tv = { x: START_X.x, y: START_X.y }; // test vector (input)
     var source = 'start'; // 'start' | 'user' | 'preset'
     var lastPreset = null;
+    // tasks 1 and 2 need the learner's own change: true while the plane is flat (det 0) or flipped (det < 0) because
+    // a slider or drag made it so, not because a preset or Reset did (nudging the Reflect preset must not count)
+    var flatByUser = false, flipByUser = false;
     var drag = null, hover = null, anim = null, raf = 0;
     var dpr = 1, cw = 0, ch = 0, alive = true;
     var doneSet = {};
@@ -210,7 +213,8 @@
       input.addEventListener('input', function () {
         var v = parseFloat(input.value);
         if (!isFinite(v)) return;
-        m[key] = v; source = 'user'; lastPreset = null;
+        var prevD = det(m);
+        m[key] = v; userEdit(prevD);
         stopAnim(); view = copy(m);
         syncUI(); requestDraw();
       });
@@ -307,10 +311,14 @@
       }
       if (source === 'preset' && lastPreset) {
         var tip = '';
-        if (lastPreset === 'squash' && !doneSet.t1) tip = 'Presets do not tick tasks: now squash the plane yourself with the sliders or by dragging.';
-        else if (lastPreset === 'reflect' && !doneSet.t2) tip = 'Presets do not tick tasks: now flip space yourself by dragging ĵ or î.';
+        if (lastPreset === 'squash' && !doneSet.t1) tip = 'Presets do not tick tasks: press Reset, then squash the plane yourself with the sliders or by dragging.';
+        else if (lastPreset === 'reflect' && !doneSet.t2) tip = 'Presets do not tick tasks: press Reset, then flip space yourself by dragging ĵ or î.';
         else if (lastPreset === 'rotate' && !doneSet.t4) tip = 'Can you change the sliders to turn 90° instead of 45°?';
         if (tip) parts.push(tip);
+      }
+      if (source === 'user') {
+        if (D < -1e-6 && !flipByUser && !doneSet.t2) parts.push('Space was already flipped before your change, so this does not tick the task: first make det bigger than 0, then flip space yourself.');
+        else if (Math.abs(D) < 1e-6 && !isZero(m) && !flatByUser && !doneSet.t1) parts.push('The plane was already flat before your change, so this does not tick the task: first make det different from 0, then squash the plane yourself.');
       }
       return parts.join(' ');
     }
@@ -346,6 +354,24 @@
     }
 
     /* ---------- tasks ---------- */
+    // a slider or a drag just changed the matrix, whose determinant was prevD before the change
+    function userEdit(prevD) {
+      var D = det(m);
+      flatByUser = Math.abs(D) < 1e-6 && (flatByUser || Math.abs(prevD) >= 1e-6);
+      flipByUser = D < -1e-6 && (flipByUser || prevD >= -1e-6);
+      source = 'user'; lastPreset = null;
+    }
+    // progress was restored or synced from elsewhere: show the ticks saved now (a tick that was removed can be earned again)
+    function syncTasks() {
+      TASKS.forEach(function (t) {
+        var on = !!(ctx && ctx.isTaskDone && ctx.isTaskDone(t.id));
+        if (on === doneSet[t.id]) return;
+        doneSet[t.id] = on;
+        taskItems[t.id].classList.toggle('done', on);
+        taskItems[t.id]._sr.textContent = on ? ' (done)' : '';
+      });
+      syncUI();
+    }
     function markDone(id) {
       if (doneSet[id]) return;
       doneSet[id] = true;
@@ -361,8 +387,8 @@
     function checkTasks() {
       if (source !== 'user') return;
       var D = det(m), E = eigen(m);
-      if (Math.abs(D) < 1e-6 && !isZero(m)) markDone('t1');
-      if (D < -1e-6) markDone('t2');
+      if (flatByUser && Math.abs(D) < 1e-6 && !isZero(m)) markDone('t1');
+      if (flipByUser && D < -1e-6) markDone('t2');
       if (E.kind === 'distinct' && Math.abs(E.l1 - 2) < 0.01 && Math.abs(E.l2 - 0.5) < 0.01) markDone('t3');
       if (Math.abs(m.a) < 0.01 && Math.abs(m.d) < 0.01 && Math.abs(Math.abs(m.c) - 1) < 0.01 && Math.abs(m.b + m.c) < 0.01) markDone('t4');
       syncUI();
@@ -393,14 +419,14 @@
 
     function applyPreset(p) {
       var from = copy(view);
-      m = copy(p.m); source = 'preset'; lastPreset = p.id;
+      m = copy(p.m); source = 'preset'; lastPreset = p.id; flatByUser = flipByUser = false;
       syncUI();
       animateTo(from, m, 650);
     }
     playBtn.addEventListener('click', function () { animateTo(IDENTITY, m, 1500); });
     resetBtn.addEventListener('click', function () {
       var from = copy(view);
-      m = copy(START); tv = { x: START_X.x, y: START_X.y }; source = 'preset'; lastPreset = null;
+      m = copy(START); tv = { x: START_X.x, y: START_X.y }; source = 'preset'; lastPreset = null; flatByUser = flipByUser = false;
       taskMsg.textContent = '';
       syncUI();
       animateTo(from, m, 650);
@@ -629,8 +655,9 @@
         var vx = clamp(snap(w.x + grab.x), -LIM, LIM), vy = clamp(snap(w.y + grab.y), -LIM, LIM);
         var old = drag === 'i' ? [m.a, m.c] : [m.b, m.d];
         if (Math.abs(vx - old[0]) < 1e-9 && Math.abs(vy - old[1]) < 1e-9) return; // tip did not move
+        var prevD = det(m);
         if (drag === 'i') { m.a = vx; m.c = vy; } else { m.b = vx; m.d = vy; }
-        source = 'user'; lastPreset = null;
+        userEdit(prevD);
         view = copy(m);
       }
       syncUI(); requestDraw();
@@ -730,6 +757,7 @@
     resize();
 
     return {
+      syncTasks: syncTasks,
       destroy: function () {
         alive = false;
         if (raf) cancelAnimationFrame(raf);

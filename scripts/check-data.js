@@ -33,6 +33,37 @@ for (const r of D.resources || []) {
   if (!(r.modules || []).length) errors.push(`resource ${r.id}: no modules`);
   for (const mid of r.modules || []) if (!mods.has(mid)) errors.push(`resource ${r.id}: unknown module ${mid}`);
   if (r.videoId && !/^[A-Za-z0-9_-]{11}$/.test(r.videoId)) errors.push(`resource ${r.id}: bad videoId`);
+  const isYT = /youtube\.com|youtu\.be/.test(r.url || '');
+  // the thumbnail comes from the first video, so firstVideoUrl must be a video link, not a playlist or channel
+  if (r.firstVideoUrl && !/[?&]v=[A-Za-z0-9_-]{11}|youtu\.be\/[A-Za-z0-9_-]{11}|\/(?:embed|shorts)\/[A-Za-z0-9_-]{11}/.test(r.firstVideoUrl)) errors.push(`resource ${r.id}: firstVideoUrl must be a video link (watch?v=...), not a playlist or channel`);
+  if (r.type === 'playlist' && isYT && !r.listId && !/[?&]list=/.test(r.url)) errors.push(`resource ${r.id}: a YouTube playlist needs a playlist link (list=...); use type "channel" for a channel page`);
+  // a card shows the Search YouTube button only for a YouTube link that is not "verified" (app.js resCard)
+  if (/Search YouTube/.test((r.caveats || '') + ' ' + (r.why || '')) && !(isYT && r.status !== 'verified')) errors.push(`resource ${r.id}: its text mentions the Search YouTube button, which its card does not show`);
+  if ((r.platform || '').length > 34) warnings.push(`resource ${r.id}: platform "${r.platform}" is long for a chip on a phone; shorten it`);
+}
+// Watch & read: the Best pick (m.best) comes first and is "Next up", so the notes must not rank another resource above it
+for (const m of D.modules || []) {
+  if (!m.best) continue;
+  for (const w of m.watch || []) {
+    if (w.id === m.best && /\boptional\b|back-?up|videos above/i.test(w.note || '')) warnings.push(`module ${m.id}: the Best pick's note calls it optional or a back-up`);
+    if (w.id !== m.best && /\bstart here\b|\byour main\b|\bmain (?:[a-z-]+ ){0,2}(?:course|source|video|resource)\b|\bwatch (?:it |this )?first\b/i.test(w.note || '')) warnings.push(`module ${m.id}: the note for ${w.id} makes it the main course or the place to start, but ${m.best} is the Best pick`);
+  }
+  if (m.lab && !(m.studySteps || []).some(s => /\blab\b/i.test(s))) warnings.push(`module ${m.id}: has a lab, but its study plan never mentions it`);
+}
+// learners never see internal ids: link a module as [1.5 Linear Algebra ...](#m-l1-linalg-calc), name a resource by its title
+{
+  const SKIP = ['id', 'best', 'lab', 'level', 'modules', 'moduleId', 'module', 'prerequisites', 'url', 'firstVideoUrl', 'listId', 'videoId', 'parts', 'starter', 'solution', 'tests'];
+  const texts = (o, out) => { if (typeof o === 'string') out.push(o.replace(/\]\(#[^)]*\)/g, ']()')); else if (Array.isArray(o)) o.forEach(x => texts(x, out)); else if (o && typeof o === 'object') for (const k of Object.keys(o)) if (!SKIP.includes(k)) texts(o[k], out); return out; };
+  const all = texts([D.levels, D.modules, D.projects, D.glossary, D.pages, D.labs, D.exercises, D.resources], []);
+  const resIds = (D.resources || []).map(r => r.id);
+  for (const s of all) {
+    for (const id of resIds) if (s.includes(id)) errors.push(`resource id ${id} is shown as text: "${s.slice(0, 80)}…"`);
+    for (const mm of s.matchAll(/\bl[1-4]-[a-z0-9]+(?:-[a-z0-9]+)*/g)) {
+      let id = mm[0];
+      while (!mods.has(id) && id.lastIndexOf('-') > 2) id = id.slice(0, id.lastIndexOf('-'));
+      if (mods.has(id)) warnings.push(`module id ${id} written as text (link it as [number title](#m-${id})): "${s.slice(Math.max(0, mm.index - 30), mm.index + 40)}"`);
+    }
+  }
 }
 for (const m of D.modules || []) {
   const n = (D.resources || []).filter(r => (r.modules || []).includes(m.id)).length;

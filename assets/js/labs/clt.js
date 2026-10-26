@@ -378,11 +378,32 @@
       if (doneLocal[id]) return true;
       return !!(ctx && ctx.isTaskDone && ctx.isTaskDone(id));
     }
+    // the tick next to a task, plus " (done)" for screen readers (the tick itself is only a CSS mark)
+    function showDone(id, on) {
+      var li = taskLis[id];
+      if (!li) return;
+      li.className = on ? 'done' : '';
+      if (on && !li._sr) {
+        li._sr = document.createElement('span');
+        li._sr.className = 'visually-hidden';
+        li._sr.textContent = ' (done)';
+        li.appendChild(li._sr);
+      } else if (!on && li._sr) { li.removeChild(li._sr); li._sr = null; }
+    }
+    // progress was restored or synced from elsewhere: show the ticks saved now (a tick that was removed can be earned again)
+    function syncTasks() {
+      for (var id in taskLis) {
+        var on = !!(ctx && ctx.isTaskDone && ctx.isTaskDone(id));
+        if (on === !!doneLocal[id]) continue;
+        if (on) doneLocal[id] = true; else delete doneLocal[id];
+        showDone(id, on);
+      }
+    }
     function markDone(id) {
       if (doneLocal[id]) return;
       var already = !!(ctx && ctx.isTaskDone && ctx.isTaskDone(id));
       doneLocal[id] = true;
-      if (taskLis[id]) taskLis[id].className = 'done';
+      showDone(id, true);
       if (!already) {
         if (ctx && ctx.onTaskDone) ctx.onTaskDone(id);
         statusExtra = 'Task done!';
@@ -1067,7 +1088,7 @@
     document.addEventListener('themechange', onTheme);
 
     /* ---------- starting state: 400 samples of 10 households ---------- */
-    for (var tid in taskLis) if (isDone(tid)) { doneLocal[tid] = true; taskLis[tid].className = 'done'; }
+    for (var tid in taskLis) if (isDone(tid)) { doneLocal[tid] = true; showDone(tid, true); }
     newRun();
     for (i = 0; i < 400; i++) {
       var s0 = drawOne(i === 399);
@@ -1080,6 +1101,7 @@
     resize();
 
     return {
+      syncTasks: syncTasks,
       destroy: function () {
         destroyed = true;
         if (raf) cancelAnimationFrame(raf);

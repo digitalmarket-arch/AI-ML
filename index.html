@@ -12,9 +12,26 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Mukta:wght@400;500;600;700&family=Rozha+One&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
 <link rel="stylesheet" href="assets/css/study.css">
+<script>
+/* Runs before the first paint. 1) The theme the learner chose (saved with their progress), so a dark theme does not
+   flash white while the course data loads. 2) "Skip to content" moves keyboard focus to the page's main content;
+   following its #main link would make the router open "Page not found". */
+(function () {
+  try {
+    var p = JSON.parse(localStorage.getItem('aimarg.progress.v1') || 'null'), t = p && p.prefs && p.prefs.theme;
+    if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+  document.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest && e.target.closest('a.skip-link'), m = document.getElementById('main');
+    if (!a || !m) return;
+    e.preventDefault();
+    m.focus();
+  });
+})();
+</script>
 </head>
 <body>
-<a class="visually-hidden" href="#main">Skip to content</a>
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-head">
   <div class="wrap">
     <a class="brand" href="#home" aria-label="AI Marg home"><span class="brand-mark">AI <b>Marg</b></span></a>

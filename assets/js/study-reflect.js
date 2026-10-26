@@ -14,8 +14,9 @@
   function vh(t) { return t ? '<span class="visually-hidden">' + esc(t) + '</span>' : ''; }
   // a live region announces each new message once (cleared first, so the same words are read again)
   function announce(el, text) { if (!el) return; el.textContent = ''; setTimeout(function () { if (el.isConnected) el.textContent = text; }, 30); }
-  var HOW = '<a href="#methods">How and why this works</a>';
-  function methodLine(name) { return '<p class="small rf-method"><span class="muted">Method:</span> ' + name + ' · ' + HOW + '</p>'; }
+  // a link to the method's own entry on the How to learn page (#methods~<method id>), named for screen readers
+  function how(id, label) { return '<a href="#methods~' + id + '">How and why this works' + vh(': ' + label) + '</a>'; }
+  function methodLine(name, id, label) { return '<p class="small rf-method"><span class="muted">Method:</span> ' + name + ' · ' + how(id, label) + '</p>'; }
 
   /* ---------- autosave: debounced writes, flushed when the learner leaves the page or the tab ---------- */
   var pending = {};
@@ -106,7 +107,7 @@
     return '<details class="rf-check" data-rf-check="' + esc(key) + '" data-mid="' + esc(m.id) + '">' +
       '<summary><span class="rf-check-t">Recall check</span>' + vh(' for “' + title + '”') + ' <span class="small muted rf-check-sub">' + subText(read) + '</span></summary>' +
       '<div class="rf-check-body stack-sm">' +
-      '<p class="small muted">Active recall: the card text is hidden while this is open. Answer from memory, then check. ' + HOW + '</p>' +
+      '<p class="small muted">Active recall: the card text is hidden while this is open. Answer from memory, then check. ' + how('active-recall', 'active recall') + '</p>' +
       '<p class="rf-q" id="' + id + '-q"><strong>' + inline(c.recall) + '</strong></p>' +
       '<label class="small" for="' + id + '-mine">Your answer (optional, not saved)</label>' +
       '<textarea class="rf-mine" id="' + id + '-mine" rows="2" aria-describedby="' + id + '-q"></textarea>' +
@@ -223,7 +224,7 @@
     if (allRead(m)) {
       if (bar) return;
       cardsEl.insertAdjacentHTML('afterbegin', '<div class="rf-recall" id="rf-recall">' +
-        '<div class="stack-sm rf-recall-t"><strong>Recall mode</strong><span class="small muted">You have read every card. Switch this on to see each card\'s question first: answer from memory, then reveal the card (active recall, ' + ST.sans('smarana') + '). ' + HOW + '</span></div>' +
+        '<div class="stack-sm rf-recall-t"><strong>Recall mode</strong><span class="small muted">You have read every card. Switch this on to see each card\'s question first: answer from memory, then reveal the card (active recall, ' + ST.sans('smarana') + '). ' + how('active-recall', 'active recall') + '</span></div>' +
         '<button type="button" class="btn btn-sm rf-switch" role="switch" aria-checked="false" id="rf-recall-btn"><span class="rf-track" aria-hidden="true"></span>Recall mode<span class="rf-onoff" aria-hidden="true">Off</span></button>' +
         '<p class="visually-hidden" aria-live="polite" id="rf-recall-live"></p></div>');
       var btn = cardsEl.querySelector('#rf-recall-btn');
@@ -289,10 +290,10 @@
     el.innerHTML = '<div class="stack-lg rf">' +
       '<div class="stack-sm"><h2>Reflect</h2><p class="muted prose">Four quiet ways to make this module your own: explain it simply, question it step by step, repeat its key terms, and sit with one question. What you write is saved with the rest of your progress.</p></div>' +
       (have ? '' : '<div class="callout small">Explain it simply, the question ladder and the quiet question for this module are coming soon. The key-term rounds below work already.</div>') +
-      (fy ? feynHTML(m, fy) : have ? soonHTML('rf-feyn', 'Explain it simply', 'Feynman Technique') : '') +
-      (soc.length ? socHTML(m, soc) : have ? soonHTML('rf-soc', 'Question it, step by step', ST.sans('manana')) : '') +
+      (fy ? feynHTML(m, fy) : have ? soonHTML('rf-feyn', 'Explain it simply', 'Feynman Technique', 'feynman-technique', 'Feynman Technique') : '') +
+      (soc.length ? socHTML(m, soc) : have ? soonHTML('rf-soc', 'Question it, step by step', ST.sans('manana'), 'manana', 'Manana') : '') +
       japaHTML(m, terms) +
-      (md.nididhyasana ? nidHTML(m, md.nididhyasana) : have ? soonHTML('rf-nid', 'Sit with one question', ST.sans('nididhyasana')) : '') +
+      (md.nididhyasana ? nidHTML(m, md.nididhyasana) : have ? soonHTML('rf-nid', 'Sit with one question', ST.sans('nididhyasana'), 'nididhyasana', 'Nididhyasana') : '') +
       '</div>';
     if (fy) bindFeyn(m, fy, el);
     if (soc.length) bindSoc(m, soc, el);
@@ -300,8 +301,8 @@
     if (md.nididhyasana) bindNid(m, el);
     flushOnLeave();
   });
-  function soonHTML(id, title, name) {
-    return '<section class="card stack-sm" id="' + id + '" aria-labelledby="' + id + '-h"><h3 class="h-sub3" id="' + id + '-h">' + esc(title) + '</h3>' + methodLine(name) +
+  function soonHTML(id, title, name, mid, label) {
+    return '<section class="card stack-sm" id="' + id + '" aria-labelledby="' + id + '-h"><h3 class="h-sub3" id="' + id + '-h">' + esc(title) + '</h3>' + methodLine(name, mid, label) +
       '<p class="small muted">Coming soon for this module.</p></section>';
   }
 
@@ -310,7 +311,7 @@
     var e = reflOf(m.id) || {};
     return '<section class="card stack rf-feyn" id="rf-feyn" aria-labelledby="rf-feyn-h">' +
       '<div class="stack-sm"><h3 class="h-sub3" id="rf-feyn-h">Explain it simply</h3>' +
-      methodLine('Feynman Technique, with self-explanation') +
+      methodLine('Feynman Technique, with self-explanation', 'feynman-technique', 'Feynman Technique') +
       '<p class="small">Explain the module in your own words to the person below, as simply as you can. The places where you get stuck show you what to study again.</p></div>' +
       '<div class="callout callout-indigo"><span class="rf-tag">Your task</span> <span id="rf-feyn-task">' + inline(fy.prompt) + '</span></div>' +
       '<div class="stack-sm"><label for="rf-feyn-text"><strong>Your explanation</strong></label>' +
@@ -395,7 +396,7 @@
     var e = reflOf(m.id) || {}, ans = e.soc || [];
     return '<section class="card stack rf-socs" id="rf-soc" aria-labelledby="rf-soc-h">' +
       '<div class="stack-sm"><h3 class="h-sub3" id="rf-soc-h">Question it, step by step</h3>' +
-      methodLine(ST.sans('manana') + ', through Socratic questioning') +
+      methodLine(ST.sans('manana') + ', through Socratic questioning', 'manana', 'Manana') +
       '<p class="small">Answer each question in your own words before you open the hint or the model answer. Each step builds on the one before, so go in order.</p></div>' +
       '<ol class="rf-ladder">' + soc.map(function (s, i) {
         var id = 'rf-soc-' + i, n = i + 1;
@@ -458,7 +459,7 @@
     var e = reflOf(m.id) || {};
     return '<section class="card stack rf-japa" id="rf-japa" aria-labelledby="rf-japa-h">' +
       '<div class="stack-sm"><h3 class="h-sub3" id="rf-japa-h">Repeat the key terms</h3>' +
-      methodLine(ST.sans('japa')) +
+      methodLine(ST.sans('japa'), 'japa', 'Japa') +
       '<p class="small">Japa is the devotional repetition of a mantra or a sacred name in Hindu, Buddhist, Jain and Sikh practice. This site borrows only its calm, repeated form, not the religious practice: here you say what each key term of this module means, check, and go round again. Three calm rounds.</p></div>' +
       (terms.length ? '<div class="rf-japa-stage stack-sm" id="rf-japa-stage"></div>' +
         '<div class="row-between small muted"><span id="rf-japa-reps" class="num">Repetitions: 0</span><span id="rf-japa-best" class="num">' + (e.japa ? 'Best last round: ' + Math.min(e.japa, terms.length) + ' of ' + terms.length : '') + '</span></div>' +
@@ -529,7 +530,7 @@
   function nidHTML(m, q) {
     return '<section class="card stack-sm rf-nid" id="rf-nid" aria-labelledby="rf-nid-h">' +
       '<h3 class="h-sub3" id="rf-nid-h">Sit with one question</h3>' +
-      methodLine(ST.sans('nididhyasana')) +
+      methodLine(ST.sans('nididhyasana'), 'nididhyasana', 'Nididhyasana') +
       '<p class="small">Read the question slowly. Later, in a quiet moment (a walk, the bus, before sleep), turn it over in your mind for a few minutes. Nothing to write.</p>' +
       '<blockquote class="rf-nid-q">' + inline(q) + '</blockquote>' +
       '<div class="row" id="rf-nid-row"></div></section>';
@@ -547,7 +548,7 @@
       var b = ev.target.closest('[data-nid]'); if (!b) return;
       var a = b.getAttribute('data-nid');
       if (a === 'done') C.logActivity();
-      editRefl(m.id, function (x) { x.nid = a === 'done' ? ST.today() : ''; });
+      editRefl(m.id, function (x, t) { x.nid = a === 'done' ? ST.today() : ''; x.nAt = t; }); // nAt: the newer tick or undo wins on merge
       draw(true);
     });
     draw(false);
@@ -577,7 +578,7 @@
       var panel = document.createElement('section');
       panel.className = 'card stack-sm rf-srav'; panel.id = 'rf-srav'; panel.setAttribute('aria-labelledby', 'rf-srav-h');
       if (best) panel.setAttribute('data-res', best.id);
-      panel.innerHTML = '<h2 class="h-sub" id="rf-srav-h">Listen with attention</h2>' + methodLine(ST.sans('sravana')) +
+      panel.innerHTML = '<h2 class="h-sub" id="rf-srav-h">Listen with attention</h2>' + methodLine(ST.sans('sravana'), 'sravana', 'Sravana') +
         '<p class="small">Read these before you press play and give the video your full attention. Afterwards, write what you heard from memory.</p>' +
         '<div class="rf-srav-grid"><ul class="rf-listen small" id="rf-srav-cues">' + cuesHTML(m) + '</ul>' +
         (best ? '<div class="stack-sm rf-sum"><label for="rf-sum-text" class="small"><strong>After watching, write what you heard</strong> <span class="muted">(three lines about ' +

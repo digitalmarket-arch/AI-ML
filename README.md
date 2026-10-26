@@ -4,7 +4,7 @@
 
 The site is interactive:
 
-- **Curated video lessons** for every module: one "best pick" from an Indian teacher (Hindi, Hinglish and Indian English are treated equally), then other options. Every YouTube video plays inside the site, finished videos tick themselves, and playlists remember where you stopped.
+- **Curated video lessons** for every module: one "best pick" from an Indian teacher (Hindi, Hinglish and Indian English are treated equally), then other options. Every YouTube video plays inside the site, videos you have really watched (most of each, not skipped through) tick themselves, and playlists remember where you stopped. A playlist shared by several modules is ticked by hand for each module's part, and a course on another site is never ticked by its YouTube intro.
 - **27 interactive labs, one for every module.** Drag, click and move sliders to *see* how a first model learns, Python running line by line, Git branches, pandas group-by and SQL joins, gradient descent, overfitting, decision trees, K-Means, neural networks, a PyTorch training loop, convolution filters, embeddings, tokenizers, LLM sampling, RAG search, LoRA, diffusion, AI agents, data drift, Q-learning and statistical significance. Each lab has tasks, and each was checked by a second reviewer who recomputed its numbers.
 - **Python in the browser.** Auto-graded coding exercises run on the page using [Pyodide](https://pyodide.org). Nothing to install.
 - **Quizzes and level tests.** Each module has a 10-question quiz with explanations, and each level ends with a tougher 20-question test (pass mark 70%).
@@ -103,13 +103,14 @@ Copy an existing entry in `data/resources.js` and change the values:
  "platform": "YouTube",
  "type": "playlist",                  // playlist, video, course, channel, book, practice, dataset, article, tool
  "url": "https://www.youtube.com/playlist?list=...",
- "firstVideoUrl": "https://www.youtube.com/watch?v=...",   // optional: lets the site show a thumbnail
+ "firstVideoUrl": "https://www.youtube.com/watch?v=...",   // optional: the first video (a watch?v= link, not the playlist); lets the site show a thumbnail
  "language": "hinglish",              // hindi, hinglish, indian-english, english
  "level": "beginner",                 // beginner, intermediate, advanced, expert
  "modules": ["l2-ml-foundations"],    // module ids from data/course.js
  "why": "One or two sentences on why it is good.",
- "status": "verified",                // set "verified" only after you open the link yourself
+ "status": "verified",                // "verified" only after you open the link yourself; "partial" or "unverified" shows a warning chip
  "listId": "", "videoId": ""          // optional; filled from the URLs automatically
+ // "parts": ["videoId1", "videoId2"]  // optional: one resource in a few separate videos; plays them in order and ticks after all
 }
 ```
 
@@ -148,7 +149,7 @@ It catches broken ids, missing fields, wrong answer numbers and missing lab file
 ## How the links were chosen and checked
 
 - Research agents searched for the best free resources per module, Hindi/Hinglish first. A separate checker then re-found every link independently and confirmed the creator, language and cost.
-- A link marked **verified** was seen exactly in a search result or a creator's own GitHub page in **October 2026**. Links that could not be fully confirmed carry a "link unconfirmed" chip and a "Search YouTube" button.
+- A link marked **verified** was seen exactly in a search result or a creator's own GitHub page in **October 2026**. Links that could not be fully confirmed carry a chip: "link unconfirmed" when the link itself could not be confirmed, and "partly confirmed" when the link was found but a detail (such as the uploader, or whether free audit is still offered) could not be checked. On YouTube, those cards also get a "Search YouTube" button.
 - YouTube playlists change over time. If something breaks, use the "Report it on GitHub" link in the footer, or fix it in `data/resources.js`.
 
 ## How it is built
