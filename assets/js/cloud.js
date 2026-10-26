@@ -39,7 +39,7 @@
       var appMod = m[0], authMod = m[1];
       var app = appMod.initializeApp(CFG);
       var auth = authMod.getAuth(app);
-      fb = { auth: auth, A: authMod };
+      fb = { auth: auth, A: authMod, app: app };
       return new Promise(function (resolve) {
         var first = true;
         authMod.onAuthStateChanged(auth, function (u) {
@@ -249,6 +249,9 @@
     // load sign-in ahead of the press: browsers (Safari above all) block a pop-up opened long after the click
     prepare: function () { if (enabled() && !fb && !loading) load().catch(function () {}); },
     syncNow: function () { return sync('manual'); },
+    // the Firebase app (for the optional Gemini helper in study.js), once sign-in has loaded
+    app: function () { return fb ? fb.app : null; },
+    SDK: SDK,
     deleteCloudCopy: function () {
       if (!user || deleting || leaving) return Promise.resolve(false);
       clearTimeout(timer); timer = null;

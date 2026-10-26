@@ -61,6 +61,7 @@
   }
   var S = function () { return C.state; };
   var main = document.getElementById('main');
+  var ST = function () { return window.AIM_STUDY || null; };
   var currentCleanup = [];
 
   /* ---------- indexes ---------- */
@@ -273,6 +274,7 @@
     eachWithAttr('input[data-action="watched"]', 'data-id', id, function (el) { el.checked = on; });
     var r = resById[id]; if (r) updatePos(r);
     refreshSide(); refreshChecklist();
+    if (ST()) ST().emit('watched', id, on);
   }
   function startPlayer(box, r) {
     var h = C.play(box, r, {
@@ -427,6 +429,7 @@
       '<div class="row"><a class="btn btn-primary" href="#start">Start here</a>' +
       (last ? '<a class="btn" href="#m-' + esc(last.id) + '">Continue: ' + esc(last.title) + '</a>' : '<a class="btn" href="#level-1">Open Level 1</a>') + '</div>' +
       '</div>' + stations() + '</section>' +
+      (ST() ? '<div id="study-today"></div>' : '') +
       '<section class="stack"><div class="section-title"><h2>What you get</h2></div><div class="grid">' +
       featureCard('Indian teachers first', nRes + ' free playlists, courses and books. ' + nHi + ' are in Hindi or Hinglish and ' + nIn + ' in Indian English. Global English classics appear as extras.', '#library', 'Browse the library') +
       featureCard('Interactive labs', Object.keys(LABS).length + ' visual labs, one for every module: drag points, move sliders and watch gradient descent, SQL joins, neural networks, RAG search and AI agents react.', '#labs', 'Open the labs') +
@@ -443,6 +446,7 @@
         (continueList(1).length ? '<div class="stack-sm"><span class="eyebrow">Continue watching</span>' + continueHTML(3) + '</div>' : '') + '</section>' : '') +
       '</div>';
     setView(html, 'Home');
+    if (ST()) ST().emit('home', main);
   }
   function featureCard(t, body, href, cta) {
     return '<div class="card stack-sm"><h3>' + esc(t) + '</h3><p class="muted">' + esc(body) + '</p><a href="' + href + '">' + esc(cta) + ' →</a></div>';
@@ -546,6 +550,7 @@
     if (lab) tabs.push(['lab', 'Lab']);
     if (ex.length) tabs.push(['practice', 'Practice (' + ex.length + ')']);
     if (qz.length) tabs.push(['quiz', 'Quiz']);
+    if (ST()) tabs.push(['reflect', 'Reflect']);
     tabs.push(['notes', 'My notes']);
     var tab = tabArg || moduleTab[id] || 'overview';
     if (!tabs.some(function (t) { return t[0] === tab; })) tab = 'overview';
@@ -593,6 +598,7 @@
       (m.tip ? '<div class="callout small"><strong>Tip:</strong> ' + inline(m.tip) + '</div>' : '');
   }
   function renderModuleTab(m, tab, el) {
+    if (tab === 'reflect' && ST()) { ST().renderReflect(m, el); return; }
     if (tab === 'overview') {
       var pre = (m.prerequisites || []).filter(function (p) { return !/^\s*none\b/i.test(p); }).map(function (p) {
         var mm = /^(l\d-[a-z0-9-]+)\b\s*(.*)$/.exec(p);
@@ -613,6 +619,7 @@
         listBlock('Topics covered', m.topics, false, 'topics') +
         '</div>';
       if (m.figs) placeFigures(m, el);
+      if (ST()) ST().emit('overview', m, el);
     } else if (tab === 'watch') {
       // one best pick, then every other option in one list: recommended ones first, global English last
       var mp = mainPicks(m), list = mp.list, best = mp.main, shown = 6;
@@ -623,6 +630,7 @@
         (rest.length ? '<section class="stack"><h2 class="h-sub">Other options <span class="chip num">' + rest.length + '</span></h2><div class="grid" id="more-all">' +
           rest.map(function (r, i) { return '<div' + (i >= shown ? ' hidden' : '') + '>' + resCard(r, { note: noteFor(m, r), recommended: mp.curated.indexOf(r.id) >= 0 }) + '</div>'; }).join('') + '</div>' +
           (rest.length > shown ? '<div><button class="btn btn-sm" type="button" data-more="more-all">Show ' + (rest.length - shown) + ' more</button></div>' : '') + '</section>' : '') + '</div>';
+      if (ST()) ST().emit('watch', m, el);
       el.querySelectorAll('[data-more]').forEach(function (b) {
         b.addEventListener('click', function () { document.querySelectorAll('#' + b.getAttribute('data-more') + ' > [hidden]').forEach(function (x) { x.hidden = false; }); b.remove(); });
       });
@@ -642,7 +650,7 @@
       var nm = D.modules[D.modules.indexOf(m) + 1];
       var nxt = nm ? { href: '#m-' + nm.id, label: 'Next: ' + modNo(nm) + ' ' + nm.title } : { href: '#tests', label: 'Take a level test' };
       if (nm && nm.level !== m.level) nxt = { href: '#test-l' + m.level, label: 'Take the level ' + m.level + ' test' };
-      var quiz = new C.Quiz(document.getElementById('quizroot'), { questions: qz, mode: 'learn', next: nxt, onFinish: function (r) { recordQuiz(m.id, r.score); } });
+      var quiz = new C.Quiz(document.getElementById('quizroot'), { questions: qz, mode: 'learn', key: m.id, next: nxt, onFinish: function (r) { recordQuiz(m.id, r.score); }, onAnswer: function (r) { if (ST()) ST().emit('answer', r); } });
       currentCleanup.push(function () { quiz.destroy(); });
     } else if (tab === 'notes') {
       var note = S().notes[m.id] || '';
@@ -930,7 +938,7 @@
         '<label class="row"><input type="checkbox" id="timed" checked> Use the ' + mins + '-minute timer</label><button class="btn btn-primary" id="begin" style="width:100%">Begin the test</button></div></div></div>', 'Level ' + lv + ' test');
     document.getElementById('begin').addEventListener('click', function () {
       var timed = document.getElementById('timed').checked;
-      var quiz = new C.Quiz(document.getElementById('testroot'), { questions: q, mode: 'test', minutes: timed ? mins : 0, onFinish: function (r) { recordQuiz('test-l' + lv, r.score); } });
+      var quiz = new C.Quiz(document.getElementById('testroot'), { questions: q, mode: 'test', key: 'test-l' + lv, minutes: timed ? mins : 0, onFinish: function (r) { recordQuiz('test-l' + lv, r.score); }, onAnswer: function (r) { if (ST()) ST().emit('answer', r); } });
       currentCleanup.push(function () { quiz.destroy(); });
     });
   }
@@ -1105,6 +1113,7 @@
       (overallProgress() === 0 && !Object.keys(st.quiz).length ? '<div class="callout row-between"><span>Nothing here yet. Your first step takes about 30 minutes.</span><a class="btn btn-primary" href="#start">Start here</a></div>' : '') +
       '<div class="lab-stats">' + stat('Course complete', overallProgress() + '%') + stat('Day streak', C.streak()) + stat('Lesson cards read', D.modules.reduce(function (n, m) { return n + readDone(m); }, 0) + '/' + D.modules.reduce(function (n, m) { return n + readCards(m).length; }, 0)) + stat('Exercises solved', solved + '/' + D.exercises.length) + stat('Quizzes passed', passed) + stat('Lab tasks', labTasks) + stat('Projects done', projDone + '/' + D.projects.length) + stat('Videos & courses ticked', Object.keys(st.watched).filter(function (k) { return resById[k]; }).length) + '</div>' +
       (continueList(1).length ? '<section class="card stack-sm"><h2 class="h-sub">Continue watching</h2>' + continueHTML(5) + '</section>' : '') +
+      (ST() ? '<div id="study-progress"></div>' : '') +
       '<section class="stack">' + D.levels.map(function (l) { return '<div class="stack-sm"><div class="row-between"><a href="#level-' + l.id + '"><strong>Level ' + l.id + ' · ' + esc(l.name) + '</strong></a><span class="num small">' + levelProgress(l.id) + '%</span></div>' + bar(levelProgress(l.id), 'Level ' + l.id + ' progress') + '</div>'; }).join('') + '</section>' +
       '<div class="two-col"><section class="stack"><h2>Quizzes</h2>' + quizTable() + '</section><aside class="stack">' +
       (cloudOn() ? (function () { var cs = K.status(); return '<div class="card stack-sm"><strong>Account</strong><span class="small muted">' + (cs.user ? 'Signed in as ' + esc(cs.user.name || cs.user.email) + '. Progress is backed up and synced.' : 'Sign in with Google to back up your progress and continue on any device.') + '</span><a class="btn btn-sm" href="#account">' + (cs.user ? 'Manage account' : 'Sign in') + '</a></div>'; })() : '') +
@@ -1113,6 +1122,7 @@
       '<label class="small" for="import-box">Restore: paste a backup and press Restore</label><textarea id="import-box" rows="3" placeholder="{&quot;v&quot;:1, …}"></textarea><div class="row"><button class="btn btn-sm" data-action="import">Restore</button><button class="btn btn-sm btn-ghost" data-action="reset">Reset all progress</button></div></div>' +
       '</aside></div></div>', 'My progress');
     bindPlanner();
+    if (ST()) ST().emit('progress', main);
   }
   function stat(k, v) { return '<div class="stat"><div class="k">' + esc(k) + '</div><div class="v">' + esc(v) + '</div></div>'; }
 
@@ -1221,6 +1231,7 @@
         C.save(); refreshSide();
         var rn = readCards(rmod).length, rd2 = readDone(rmod);
         readRefresh(rmod, (ron ? 'Marked as read. ' : 'Marked as not read. ') + rd2 + ' of ' + rn + ' cards read.' + (ron && rd2 === rn ? ' You have read the whole lesson.' : ''));
+        if (ST()) ST().emit('card-read', rmod, rkey, ron);
         if (ron) readGoNext(id, rkey);
       }
     }
@@ -1297,6 +1308,7 @@
     else if (h === 'career' || h === 'faq') { viewCareer(); navKey = 'career'; }
     else if (h === 'progress') viewProgress();
     else if (h === 'account') { viewAccount(); navKey = 'progress'; }
+    else if (ST() && (m = ST().route(h))) navKey = m;
     else viewNotFound();
     } catch (err) { if (window.console) console.error(err); viewNotFound(); }
     document.querySelectorAll('.nav a').forEach(function (a) { if (a.getAttribute('href') === '#' + navKey) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
@@ -1320,5 +1332,13 @@
   }, true);
   applyTheme();
   route();
-  window.AIM_APP = { route: route, moduleProgress: moduleProgress, watchList: watchList };
+  window.AIM_APP = {
+    route: route, moduleProgress: moduleProgress, watchList: watchList,
+    // building blocks for the study features (assets/js/study*.js)
+    setView: setView, crumbs: crumbs, ring: ring, bar: bar, main: main,
+    onLeave: function (fn) { currentCleanup.push(fn); },
+    S: S, modById: modById, resById: resById, levelById: levelById, modulesOf: modulesOf, modNo: modNo, levelName: levelName,
+    labOf: labOf, exOf: exOf, mainPicks: mainPicks, readCards: readCards, readOn: readOn, readDone: readDone,
+    moduleParts: moduleParts, levelProgress: levelProgress, overallProgress: overallProgress, refreshSide: refreshSide
+  };
 })();

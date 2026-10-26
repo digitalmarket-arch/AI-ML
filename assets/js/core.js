@@ -10,10 +10,12 @@
     return { v: 1, prefs: { lang: 'hi', theme: 'system' }, watched: {}, quiz: {}, ex: {}, code: {}, labs: {},
       projects: {}, modules: {}, notes: {}, last: null, log: {}, pos: {}, read: {} };
   }
+  // extra progress parts registered by other scripts (study features): each brings its own normalize and merge
+  var parts = {};
   // Make any stored or restored object safe to use: right shapes, numbers that are numbers.
   function normalize(d) {
     var b = blank();
-    if (!d || typeof d !== 'object' || Array.isArray(d)) return b;
+    if (!d || typeof d !== 'object' || Array.isArray(d)) d = b;
     Object.keys(b).forEach(function (k) {
       var isObj = b[k] && typeof b[k] === 'object';
       if (isObj ? (!d[k] || typeof d[k] !== 'object' || Array.isArray(d[k])) : d[k] === undefined) d[k] = b[k];
@@ -49,9 +51,11 @@
     var bad = function (o) { if (o && typeof o === 'object') ['__proto__', 'constructor', 'prototype'].forEach(function (x) { if (Object.prototype.hasOwnProperty.call(o, x)) delete o[x]; }); };
     Object.keys(b).forEach(function (k) { bad(d[k]); });
     ['labs', 'projects', 'ex', 'modules'].forEach(function (k) { Object.keys(d[k]).forEach(function (x) { bad(d[k][x]); }); });
+    Object.keys(parts).forEach(function (k) { try { d[k] = parts[k].normalize(d[k]); } catch (e) { d[k] = parts[k].normalize(undefined); } });
     d.v = 1;
     return d;
   }
+  function registerPart(key, spec) { parts[key] = spec; state[key] = spec.normalize(state[key]); }
   function load() {
     var data = null;
     try { data = JSON.parse(window.localStorage.getItem(KEY) || 'null'); } catch (e) { data = null; }
@@ -83,7 +87,7 @@
     while (state.log[key(d)]) { n++; d.setDate(d.getDate() - 1); }
     return n;
   }
-  function resetAll() { state = blank(); save(); }
+  function resetAll() { state = normalize(blank()); save(); }
   function replaceState(obj) { state = normalize(obj); save(); }
 
   // Combine progress from two devices without losing anything: ticks and solved work are kept from both,
@@ -144,10 +148,11 @@
     keys(b.pos).forEach(function (k) { if (!a.pos[k] || (b.pos[k].t || 0) > (a.pos[k].t || 0)) a.pos[k] = b.pos[k]; });
     ['hpw', 'start'].forEach(function (k) { if (a.prefs[k] == null && b.prefs[k] != null) a.prefs[k] = b.prefs[k]; });
     if (!a.last && b.last) a.last = b.last;
+    Object.keys(parts).forEach(function (k) { try { a[k] = parts[k].merge(a[k], b[k]); } catch (e) {} });
     // parts not listed above (for example flashcard scores): keep them from both devices, this device first
     var known = blank();
     keys(b).forEach(function (k) {
-      if (Object.prototype.hasOwnProperty.call(known, k)) return;
+      if (Object.prototype.hasOwnProperty.call(known, k) || Object.prototype.hasOwnProperty.call(parts, k)) return;
       if (a[k] === undefined) a[k] = b[k];
       else if (isObj(a[k]) && isObj(b[k])) keys(b[k]).forEach(function (i) { if (a[k][i] === undefined) a[k][i] = b[k][i]; });
     });
@@ -367,13 +372,14 @@
   function Quiz(root, opts) {
     this.root = root; this.qs = opts.questions || []; this.mode = opts.mode || 'learn';
     this.key = opts.key; this.title = opts.title || 'Quiz'; this.onFinish = opts.onFinish; this.next = opts.next || null;
+    this.onAnswer = opts.onAnswer || null; this.askSure = !!opts.confidence; this.sure = {};
     this.minutes = opts.minutes || 0;
     this.i = 0; this.answers = {}; this.picks = {}; this.timer = null; this.deadline = 0;
     this.start();
   }
   Quiz.prototype.start = function () {
     var self = this;
-    this.i = 0; this.answers = {}; this.picks = {};
+    this.i = 0; this.answers = {}; this.picks = {}; this.sure = {};
     if (this.timer) clearInterval(this.timer);
     if (this.mode === 'test' && this.minutes) {
       this.deadline = Date.now() + this.minutes * 60000;
@@ -407,14 +413,20 @@
     var explain = reveal ? '<div class="q-explain"><strong>' + (picked === q.answer ? 'Correct.' : 'Not quite.') + '</strong> ' + inline(q.explain) + '</div>' : '';
     var last = this.i === n - 1;
     var checkBtn = this.mode === 'learn' && !reveal ? '<button class="btn btn-primary" data-q="check"' + (tentative == null ? ' disabled' : '') + '>Check answer</button>' : '';
+    // metacognition: how sure is the learner before seeing the answer (optional)
+    var SURE = ['Guessing', 'Fairly sure', 'Certain'];
+    var sureRow = this.askSure && this.mode === 'learn' ? (reveal ? (this.sure[q.id] ? '<div class="small muted">You said: ' + SURE[this.sure[q.id] - 1] + '.</div>' : '') :
+      '<fieldset class="q-sure"><legend class="small muted">How sure are you? (optional)</legend><div class="seg" role="radiogroup">' + SURE.map(function (t, k) {
+        return '<label><input type="radio" name="sure-' + esc(q.id) + '" value="' + (k + 1) + '"' + (self.sure[q.id] === k + 1 ? ' checked' : '') + '><span>' + t + '</span></label>'; }).join('') + '</div></fieldset>') : '';
     var nav = '<div class="row-between"><button class="btn btn-ghost" data-q="prev"' + (this.i === 0 ? ' disabled' : '') + '>← Previous</button>' +
       '<div class="row">' + checkBtn + (this.mode === 'test' ? '<span class="small muted num">' + Object.keys(this.answers).length + '/' + n + ' answered</span>' : '') +
       (last ? '<button class="btn btn-primary" data-q="finish">' + (this.mode === 'test' ? 'Submit test' : 'See my score') + '</button>'
             : '<button class="btn btn-primary" data-q="next">Next →</button>') + '</div></div>';
     this.root.innerHTML = '<div class="quiz">' + head + '<div class="q"><div class="q-text">' + inline(q.q) +
-      (q.code ? '<pre><code>' + esc(q.code) + '</code></pre>' : '') + '</div><div class="q-opts">' + opts + '</div>' + explain + '</div>' +
+      (q.code ? '<pre><code>' + esc(q.code) + '</code></pre>' : '') + '</div><div class="q-opts">' + opts + '</div>' + sureRow + explain + '</div>' +
       '<div class="bar" aria-hidden="true"><span style="width:' + pct(this.i + 1, n) + '%"></span></div>' + nav + '</div>';
-    this.root.querySelectorAll('input[type=radio]').forEach(function (inp) {
+    this.root.querySelectorAll('input[name^="sure-"]').forEach(function (inp) { inp.addEventListener('change', function () { self.sure[q.id] = Number(inp.value); }); });
+    this.root.querySelectorAll('input[name^="opt-"]').forEach(function (inp) {
       inp.addEventListener('change', function () {
         if (self.mode === 'learn') { self.picks[q.id] = Number(inp.value); var cb = self.root.querySelector('[data-q=check]'); if (cb) cb.disabled = false; }
         else { self.answers[q.id] = Number(inp.value); self.renderNavOnly(); }
@@ -427,7 +439,9 @@
         if (a === 'next') { self.i = Math.min(n - 1, self.i + 1); self.render(); self.reveal(); }
         if (a === 'finish') self.finish(false);
         if (a === 'check' && self.picks[q.id] != null) {
-          self.answers[q.id] = self.picks[q.id]; self.render();
+          self.answers[q.id] = self.picks[q.id];
+          if (self.onAnswer) { try { self.onAnswer({ q: q, picked: self.answers[q.id], correct: self.answers[q.id] === q.answer, sure: self.sure[q.id] || 0, mode: self.mode, key: self.key }); } catch (e) {} }
+          self.render();
           var ex = self.root.querySelector('.q-explain'); if (ex) { ex.tabIndex = -1; ex.focus(); }
         }
       });
@@ -444,6 +458,7 @@
     this.qs.forEach(function (q) { if (self.answers[q.id] === q.answer) correct++; });
     var score = pct(correct, this.qs.length);
     var passed = score >= 70;
+    if (this.onAnswer && this.mode === 'test') this.qs.forEach(function (q) { if (self.answers[q.id] != null) { try { self.onAnswer({ q: q, picked: self.answers[q.id], correct: self.answers[q.id] === q.answer, sure: 0, mode: 'test', key: self.key }); } catch (e) {} } });
     if (this.onFinish) this.onFinish({ score: score, correct: correct, total: this.qs.length });
     var review = this.qs.map(function (q, idx) {
       var a = self.answers[q.id], ok = a === q.answer;
@@ -467,7 +482,7 @@
   };
 
   window.AIM_CORE = {
-    get state() { return state; }, save: save, onSave: onSave, mergeState: mergeState, resetAll: resetAll, replaceState: replaceState, logActivity: logActivity, streak: streak, today: today,
+    get state() { return state; }, save: save, onSave: onSave, mergeState: mergeState, resetAll: resetAll, replaceState: replaceState, logActivity: logActivity, streak: streak, today: today, registerPart: registerPart,
     esc: esc, inline: inline, md: md, toast: toast, pct: pct,
     LANG_LABEL: LANG_LABEL, langChip: langChip, langRank: langRank,
     ytIds: ytIds, embedSrc: embedSrc, canEmbed: canEmbed, playerHTML: playerHTML, play: play, ensureYT: ensureYT,

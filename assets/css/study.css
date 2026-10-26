@@ -1,0 +1,20 @@
+/* AI Marg study features (learning methods). Shared pieces first; each feature's own styles follow in its section. */
+.sans { white-space: normal; }
+.sans [lang="sa"] { font-family: var(--font-body); }
+.sans-m { color: var(--muted); }
+.study-hub .card { display: flex; flex-direction: column; gap: 8px; }
+.study-hub .card .row { margin-top: auto; }
+.ai-box { border-top: 1px dashed var(--line); padding-top: 10px; }
+.ai-reply { background: var(--surface-2); border-radius: var(--radius-sm); padding: 10px 12px; }
+.ai-reply > :first-child { margin-top: 0; }
+.ai-reply > :last-child { margin-bottom: 0; }
+/* "How sure are you?" in quizzes */
+.q-sure { border: 0; margin: 10px 0 0; padding: 0; min-width: 0; }
+.q-sure legend { padding: 0; margin-bottom: 6px; }
+.q-sure .seg label { display: inline-flex; align-items: center; cursor: pointer; border-right: 1px solid var(--line); }
+.q-sure .seg label:last-child { border-right: 0; }
+.q-sure .seg input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.q-sure .seg span { padding: 6px 11px; font-size: .9rem; font-weight: 600; color: var(--muted); }
+.q-sure .seg input:checked + span { background: var(--indigo); color: var(--on-indigo); }
+.q-sure .seg input:focus-visible + span { outline: 2px solid var(--indigo); outline-offset: -2px; }
+@media (pointer: coarse) { .q-sure .seg span { padding-block: 12px; } }
