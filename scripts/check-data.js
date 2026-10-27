@@ -25,6 +25,26 @@ for (const m of D.modules || []) {
   if (m.lab && !fs.existsSync(path.join(ROOT, 'assets/js/labs', m.lab + '.js'))) errors.push(`module ${m.id}: lab file assets/js/labs/${m.lab}.js not found`);
   for (const w of m.watch || []) if (!(D.resources || []).some(r => r.id === w.id)) errors.push(`module ${m.id}: watch list points to unknown resource ${w.id}`);
 }
+// lesson cards: Hindi words appear only as "English word (देवनागरी, roman)"; a card with examples has at least 5
+const GLOSS = /\(([\u0900-\u097F][\u0900-\u097F\u200c\u200d ]*), ([a-z][a-z' -]*)\)/g;
+function hindiOnlyInBrackets(v, where) {
+  const s = typeof v === 'string' ? v : JSON.stringify(v || '');
+  if (/[\u0900-\u097F]/.test(s.replace(GLOSS, ''))) errors.push(`${where}: Devanagari outside a "(देवनागरी, roman)" bracket`);
+}
+const CARD_KEYS = ['overview', 'outcomes', 'studySteps', 'keyTerms', 'indiaExample', 'commonMistakes', 'selfCheck'];
+for (const m of D.modules || []) {
+  for (const k of CARD_KEYS.concat(['whyItMatters', 'tip'])) if (k !== 'keyTerms') hindiOnlyInBrackets(m[k], `module ${m.id}.${k}`);
+  for (const [i, t] of (m.keyTerms || []).entries()) {
+    hindiOnlyInBrackets(t.meaning, `module ${m.id}.keyTerms[${i}]`);
+    if (t.hi !== undefined && !/^[\u0900-\u097F][\u0900-\u097F\u200c\u200d ]*, [a-z][a-z' -]*$/.test(t.hi)) errors.push(`module ${m.id}.keyTerms[${i}].hi must look like "देवनागरी, roman"`);
+  }
+  for (const [k, list] of Object.entries(m.examples || {})) {
+    if (!CARD_KEYS.includes(k)) errors.push(`module ${m.id}: examples.${k} is not a lesson card`);
+    if (!Array.isArray(list) || list.length < 5) errors.push(`module ${m.id}: examples.${k} needs at least 5 examples`);
+    (list || []).forEach((x, i) => { if (!x || !x.text) errors.push(`module ${m.id}: examples.${k}[${i}] needs text`); hindiOnlyInBrackets(x, `module ${m.id}.examples.${k}[${i}]`); });
+  }
+  for (const k of ['title', 'topics', 'prerequisites']) if (/[\u0900-\u097F]/.test(JSON.stringify(m[k] || ''))) errors.push(`module ${m.id}.${k}: English only`);
+}
 dup((D.resources || []).map(r => r.id), 'resource');
 const LANGS = ['hindi', 'hinglish', 'indian-english', 'english'];
 for (const r of D.resources || []) {
@@ -116,7 +136,8 @@ for (const m of D.modules || []) {
     const svg = String(x.svg || '');
     if (!/^\s*<svg[\s>]/i.test(svg) || !/viewBox=/.test(svg)) errors.push(`figure ${m.id}/${x.id}: svg must start with <svg and have a viewBox`);
     if (/<script|<foreignObject|\son[a-z]+\s*=|javascript:|(?:xlink:)?href\s*=\s*["']?(?!#)/i.test(svg)) errors.push(`figure ${m.id}/${x.id}: svg contains scripts, event handlers or outside links`);
-    if (/[ऀ-ॿ]/.test(JSON.stringify(x))) errors.push(`figure ${m.id}/${x.id}: text must be English (no Devanagari)`);
+    if (/[ऀ-ॿ]/.test(svg)) errors.push(`figure ${m.id}/${x.id}: no Devanagari inside the drawing (captions may use "(देवनागरी, roman)")`);
+    for (const k of ['title', 'caption', 'alt']) hindiOnlyInBrackets(x[k], `figure ${m.id}/${x.id}.${k}`);
   }
 }
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');

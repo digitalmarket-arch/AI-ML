@@ -54,7 +54,7 @@
           svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', f.alt || f.title || 'Diagram'); svg.setAttribute('focusable', 'false');
         }
         var key = el.querySelector('[data-sec="' + (f.after || 'overview') + '"]') ? (f.after || 'overview') : 'overview';
-        var sec = el.querySelector('[data-sec="' + key + '"]'), inCard = sec && sec.querySelector('.read-body');
+        var sec = el.querySelector('[data-sec="' + key + '"]'), inCard = sec && (sec.querySelector('.fig-slot') || sec.querySelector('.read-body'));
         var anchor = lastAt[key] || (inCard ? null : sec);
         if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(fig, anchor.nextSibling);
         else if (inCard) inCard.appendChild(fig);
@@ -136,8 +136,21 @@
   function readCardHTML(m, c, i, n, body, done) {
     return '<section class="card read-card stack-sm' + (done ? ' is-read' : '') + '" data-sec="' + esc(c.key) + '" id="read-' + esc(c.key) + '" aria-labelledby="read-h-' + esc(c.key) + '">' +
       '<div class="read-head"><h2 class="h-sub" id="read-h-' + esc(c.key) + '" tabindex="-1">' + esc(c.title) + '</h2><span class="small muted num">Card ' + (i + 1) + ' of ' + n + '</span></div>' +
-      '<div class="read-body prose stack-sm">' + body + '</div>' +
+      '<div class="read-body prose stack-sm">' + body + '<div class="fig-slot"></div>' + examplesHTML(m, c.key) + '</div>' +
       '<div class="read-foot">' + readBtnHTML(m, c.key, done) + '</div></section>';
+  }
+  // a text field may hold several paragraphs, separated by a blank line
+  function parasHTML(s) {
+    return String(s || '').split(/\n\s*\n/).map(function (p) { return p.trim(); }).filter(Boolean).map(function (p) { return '<p>' + inline(modLinks(p)) + '</p>'; }).join('');
+  }
+  // short everyday examples under a card's text and diagrams
+  function examplesHTML(m, key) {
+    var ex = (m.examples || {})[key];
+    if (!Array.isArray(ex) || !ex.length) return '';
+    return '<div class="ex-block"><h3 class="ex-h">Examples <span class="ex-hi">(उदाहरण, udaharan)</span></h3><ol class="ex-list" role="list">' + ex.map(function (x) {
+      var t = typeof x === 'string' ? { text: x } : (x || {});
+      return '<li>' + (t.title ? '<strong class="ex-t">' + inline(t.title) + '</strong> ' : '') + inline(modLinks(t.text || '')) + '</li>';
+    }).join('') + '</ol></div>';
   }
   function readProgressInner(m) {
     var cards = readCards(m), n = cards.length, d = readDone(m);
@@ -827,10 +840,10 @@
       });
       var cards = readCards(m);
       var body = {
-        overview: '<p>' + (m.overview ? inline(modLinks(m.overview)) : esc((m.topics || []).join(', '))) + '</p>' + (m.whyItMatters ? '<div class="callout callout-indigo"><strong>Why it matters:</strong> ' + inline(modLinks(m.whyItMatters)) + '</div>' : ''),
+        overview: (m.overview ? parasHTML(m.overview) : '<p>' + esc((m.topics || []).join(', ')) + '</p>') + (m.whyItMatters ? '<div class="callout callout-indigo"><strong>Why it matters:</strong> ' + inline(modLinks(m.whyItMatters)) + '</div>' : ''),
         outcomes: listHTML(m.outcomes), studySteps: listHTML(m.studySteps, true),
-        keyTerms: '<dl>' + (m.keyTerms || []).map(function (k) { return '<div class="gloss-term"><dt>' + esc(k.term) + '</dt><dd>' + inline(modLinks(k.meaning)) + '</dd></div>'; }).join('') + '</dl>',
-        indiaExample: '<p>' + inline(modLinks(m.indiaExample || '')) + '</p>',
+        keyTerms: '<dl>' + (m.keyTerms || []).map(function (k) { return '<div class="gloss-term"><dt>' + esc(k.term) + (k.hi ? ' <span class="term-hi">(' + esc(k.hi) + ')</span>' : '') + '</dt><dd>' + inline(modLinks(k.meaning)) + '</dd></div>'; }).join('') + '</dl>',
+        indiaExample: parasHTML(m.indiaExample),
         commonMistakes: listHTML(m.commonMistakes), selfCheck: listHTML(m.selfCheck)
       };
       el.innerHTML = '<div class="stack-lg">' + (pre.length ? '<div class="callout callout-indigo small"><strong>Before this:</strong> ' + pre.join('; ') + '</div>' : '') +
