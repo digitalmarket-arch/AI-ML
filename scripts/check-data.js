@@ -38,7 +38,14 @@ for (const m of D.modules || []) {
     for (const f of ['meaning', 'like', 'example']) hindiOnlyInBrackets(t[f], `module ${m.id}.keyTerms[${i}].${f}`);
     if (t.hi !== undefined && !/^[\u0900-\u097F][\u0900-\u097F\u200c\u200d ]*, [a-z][a-z' -]*$/.test(t.hi)) errors.push(`module ${m.id}.keyTerms[${i}].hi must look like "देवनागरी, roman"`);
   }
-  for (const [k, list] of Object.entries(m.examples || {})) {
+  // examples: inline, or in data/examples/<module>.js (loaded with the lesson cards)
+  let examples = m.examples && typeof m.examples === 'object' ? m.examples : null;
+  if (m.examples === true) {
+    const f = path.join(ROOT, 'data/examples', m.id + '.js');
+    if (!fs.existsSync(f)) errors.push(`module ${m.id}: examples is on but ${f} is missing`);
+    else { const sb = { window: {} }; vm.createContext(sb); try { vm.runInContext(fs.readFileSync(f, 'utf8'), sb); examples = ((sb.window.AIM || {}).examples || {})[m.id]; } catch (e) { errors.push(`examples ${m.id}: file does not load: ${e.message}`); } if (!examples) errors.push(`examples ${m.id}: nothing registered for this module`); }
+  }
+  for (const [k, list] of Object.entries(examples || {})) {
     if (!CARD_KEYS.includes(k)) errors.push(`module ${m.id}: examples.${k} is not a lesson card`);
     if (!Array.isArray(list) || list.length < 5) errors.push(`module ${m.id}: examples.${k} needs at least 5 examples`);
     (list || []).forEach((x, i) => { if (!x || !x.text) errors.push(`module ${m.id}: examples.${k}[${i}] needs text`); hindiOnlyInBrackets(x, `module ${m.id}.examples.${k}[${i}]`); });

@@ -3195,7 +3195,7 @@ window.AIM.quizzes = {
   },
   {
    "id": "l3-transformers-q06",
-   "q": "A WordPiece or BPE tokenizer meets a rare word like 'unbelievably', or a brand-new app name, that never appeared in its training text. What usually happens?",
+   "q": "A WordPiece or BPE tokenizer meets a rare word like 'dabbawala', or a brand-new app name, that never appeared in its training text. What usually happens?",
    "code": "",
    "options": [
     "It splits the word into smaller known sub-word pieces, avoiding an unknown token",
@@ -3204,7 +3204,7 @@ window.AIM.quizzes = {
     "It adds the new word to its vocabulary on the fly while the model is running"
    ],
    "answer": 0,
-   "explain": "Sub-word tokenizers build a vocabulary of frequent pieces, so a rare word is split into parts that are in the vocabulary; WordPiece marks a piece that continues a word with ##, so a split might look like 'un', '##believ', '##ably'. Because single characters (or bytes) are also in the vocabulary, almost any word can be represented, which avoids the out-of-vocabulary problem of word-level tokenizers. The vocabulary is fixed after training, so the tokenizer does not learn new words while running.",
+   "explain": "Sub-word tokenizers build a vocabulary of frequent pieces, so a rare word is split into parts that are in the vocabulary. WordPiece marks a piece that continues a word with ##: BERT (bert-base-uncased) splits 'dabbawala' into 'da', '##bba', '##wala'. Because single characters (or bytes) are also in the vocabulary, almost any word can be represented, which avoids the out-of-vocabulary problem of word-level tokenizers. The vocabulary is fixed after training, so the tokenizer does not learn new words while running.",
    "difficulty": "medium"
   },
   {

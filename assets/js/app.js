@@ -137,16 +137,38 @@
   function readCardHTML(m, c, i, n, body, done) {
     return '<section class="card read-card stack-sm' + (done ? ' is-read' : '') + '" data-sec="' + esc(c.key) + '" id="read-' + esc(c.key) + '" aria-labelledby="read-h-' + esc(c.key) + '">' +
       '<div class="read-head"><h2 class="h-sub" id="read-h-' + esc(c.key) + '" tabindex="-1">' + esc(c.title) + '</h2><span class="read-tools">' + SPK.btn('.read-card', 'Listen to this card: ' + c.title) + '<span class="small muted num tts-skip">Card ' + (i + 1) + ' of ' + n + '</span></span></div>' +
-      '<div class="read-body prose stack-sm">' + body + '<div class="fig-slot"></div>' + examplesHTML(m, c.key) + '</div>' +
+      '<div class="read-body prose stack-sm">' + body + '<div class="fig-slot"></div><div class="ex-slot" data-ex="' + esc(c.key) + '"></div></div>' +
       '<div class="read-foot">' + readBtnHTML(m, c.key, done) + '</div></section>';
   }
   // a text field may hold several paragraphs, separated by a blank line
   function parasHTML(s) {
     return String(s || '').split(/\n\s*\n/).map(function (p) { return p.trim(); }).filter(Boolean).map(function (p) { return '<p>' + inline(modLinks(p)) + '</p>'; }).join('');
   }
-  // short everyday examples under a card's text and diagrams
-  function examplesHTML(m, key) {
-    var ex = (m.examples || {})[key];
+  // short everyday examples under a card's text and diagrams. They live in data/examples/<module>.js and load with the
+  // lesson cards (data/course.js loads on every page, so it stays small); a module may also hold them inline
+  var exLoads = {};
+  function ensureExamples(m) {
+    if (m.examples && typeof m.examples === 'object') return Promise.resolve(m.examples);
+    var X = window.AIM && window.AIM.examples;
+    if (X && X[m.id]) return Promise.resolve(X[m.id]);
+    if (exLoads[m.id]) return exLoads[m.id];
+    exLoads[m.id] = new Promise(function (resolve) {
+      var sc = document.createElement('script');
+      sc.src = 'data/examples/' + m.id + '.js';
+      sc.onload = function () { resolve((window.AIM.examples || {})[m.id] || null); };
+      sc.onerror = function () { delete exLoads[m.id]; resolve(null); };
+      document.head.appendChild(sc);
+    });
+    return exLoads[m.id];
+  }
+  function placeExamples(m, el) {
+    var view = el.firstElementChild; // as with the diagrams: only into the Overview drawn now
+    ensureExamples(m).then(function (all) {
+      if (!all || !view || !view.isConnected || view.parentNode !== el) return;
+      Array.prototype.forEach.call(view.querySelectorAll('.ex-slot[data-ex]'), function (slot) { if (!slot.firstChild) slot.innerHTML = examplesHTML(all[slot.getAttribute('data-ex')]); });
+    });
+  }
+  function examplesHTML(ex) {
     if (!Array.isArray(ex) || !ex.length) return '';
     return '<div class="ex-block"><h3 class="ex-h">Examples <span class="ex-hi">(उदाहरण, udaharan)</span></h3><ol class="ex-list" role="list">' + ex.map(function (x, j) {
       var t = typeof x === 'string' ? { text: x } : (x || {});
@@ -858,6 +880,7 @@
         listBlock('Topics covered', m.topics, false, 'topics') +
         '</div>';
       if (m.figs) placeFigures(m, el);
+      if (m.examples) placeExamples(m, el);
       if (ST()) ST().emit('overview', m, el);
     } else if (tab === 'watch') {
       // one best pick, then every other option in one list: recommended ones first, global English last

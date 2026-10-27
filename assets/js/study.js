@@ -280,7 +280,9 @@
     if (!m) return null;
     if (p[0] === 'kt') {
       var t = (m.keyTerms || [])[Number(p[2])]; if (!t) return null;
-      return { id: id, kind: 'term', mid: m.id, front: t.term, back: t.meaning, ask: 'What does this term mean?' };
+      // the back also gives the everyday comparison, an example and the Hindi word, when the lesson card has them
+      var back = t.meaning + (t.like ? '\n\n**Think of it like:** ' + t.like : '') + (t.example ? '\n\n**Example:** ' + t.example : '') + (t.hi ? '\n\n**In Hindi:** ' + t.hi : '');
+      return { id: id, kind: 'term', mid: m.id, front: t.term, back: back, ask: 'What does this term mean?' };
     }
     if (p[0] === 'rc') {
       var md = modData(m.id), c = md && md.cards && md.cards[p[2]]; if (!c) return null;

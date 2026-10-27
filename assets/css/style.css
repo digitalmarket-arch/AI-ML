@@ -540,7 +540,13 @@ details.fold > div { padding: 0 14px 14px; }
 .read-progress:focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; }
 .read-body > .fig { margin-top: 4px; }
 .fig-slot { display: flex; flex-direction: column; gap: 16px; }
-.fig-slot:empty { display: none; }
+.fig-slot:empty, .ex-slot:empty { display: none; }
+/* phones: a lesson-card diagram uses the card's full width (its labels would otherwise shrink to about 10px) */
+@media (max-width: 560px) {
+  .read-body .fig { margin-inline: -18px; }
+  .read-body .fig-art { padding: 8px 4px; border-radius: 0; border-left: 0; border-right: 0; }
+  .read-body .fig figcaption { padding-inline: 18px; }
+}
 /* five or more short examples at the end of every lesson card */
 .ex-block { border-top: 1px dashed var(--line); padding-top: 14px; }
 .ex-h { font-size: 1rem; margin: 0 0 10px; }

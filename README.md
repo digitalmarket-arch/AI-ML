@@ -104,7 +104,8 @@ All content lives in the `data/` folder as JavaScript files that hold JSON (a si
 
 | File | What it holds |
 |---|---|
-| `data/course.js` | Levels and modules: titles, overviews, study plans, key terms, which lab belongs where |
+| `data/course.js` | Levels and modules: titles, lesson-card text (overviews, study plans, key terms…), which lab belongs where |
+| `data/examples/` | The examples on each module's lesson cards (one file per module) |
 | `data/resources.js` | Every video, course and book, with language, level and the modules it serves |
 | `data/quizzes.js` | Module quizzes (keyed by module id) and level tests (`test-l1` … `test-l4`) |
 | `data/exercises.js` | In-browser Python exercises |
@@ -140,19 +141,19 @@ Copy an existing entry in `data/resources.js` and change the values:
 Each module in `data/course.js` has seven lesson cards: `overview` (The big idea), `outcomes`, `studySteps`, `keyTerms`, `indiaExample` (In India), `commonMistakes` and `selfCheck`. Write them in simple English: short sentences, and explain every technical word the first time a card uses it.
 
 - **Hindi words in brackets** help Indian learners. Write them in both scripts, exactly like this: `average (औसत, ausat)`. Use them only for harder words, the first time they appear on a card. Hindi is not allowed anywhere else in the course text, and `node scripts/check-data.js` reports any that is.
-- **Key terms** matter most: explain each one so a beginner gets it. Give a plain `meaning` (one or two short sentences), `like` (an everyday comparison; the site shows "Think of it like:" in front of it) and `example` (a tiny concrete example; for a coding term, one line of code and what it does). `"hi"` shows the Hindi word next to the term:
+- **Key terms** matter most: explain each one so a beginner gets it. Keep them in the same order (the Study room's review cards point to a key term by its position). Give a plain `meaning` (one or two short sentences), `like` (an everyday comparison; the site shows "Think of it like:" in front of it) and `example` (a tiny concrete example; for a coding term, one line of code and what it does). `"hi"` shows the Hindi word next to the term:
 
 ```js
 {"term": "Variable", "hi": "चर, char", "meaning": "A name that holds a value, so you can use it later.",
  "like": "A steel dabba with a label: the label is the name, what you put inside is the value.",
  "example": "`price = 250` puts 250 in a box called price; `price * 2` then gives 500."}
 ```
-- **Examples:** `examples` holds at least 5 short examples for every card, each with a title and one to three sentences:
+- **Examples:** every card has at least 5 short examples, each with a title and one to three sentences. They live in `data/examples/<module id>.js` (loaded only when that module's lesson cards open, so every other page stays light), and the module in `data/course.js` has `"examples": true`:
 
 ```js
-"examples": {
+window.AIM.examples["l1-ai-basics"] = {
  "overview": [{"title": "Kirana shop", "text": "Riya's shop in Pune uses last year's bills to guess (अनुमान, anumaan) how much atta to order before Diwali."}]
-}
+};
 ```
 
 - **Diagrams** for a module live in `assets/figures/<module id>.js`. `after` names the card a diagram belongs to. A card shows its text, then its diagrams, then its examples.
