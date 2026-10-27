@@ -233,15 +233,15 @@ window.AIM.modules = [
    "AI ethics, bias, privacy (DPDP Act 2023 basics)",
    "career paths and how to use this course"
   ],
-  "overview": "This module explains what AI is without any code or maths. Training a model is like training a new employee: you show them many past examples (say, bills marked 'fraud' or 'genuine'), they spot the pattern, and then they judge new cases on their own. AI (artificial intelligence) is the broad goal of machines doing tasks that need human-like judgement; ML (machine learning) is the main way we get there today, by learning from data; deep learning is ML with large neural networks; and generative AI is deep learning that creates new text, images or audio. You will also learn the three main ways machines learn, where AI goes wrong (bias and privacy), what India's DPDP Act 2023 asks of anyone handling personal data, and which AI career path fits you.",
-  "whyItMatters": "Almost every AI product you will build or sell, whether a WhatsApp chatbot, a lead-scoring tool or a fraud alert, is one of a few patterns taught here. Knowing which pattern a client needs, and its limits, is what makes your agency trusted rather than just another 'AI agency'.",
+  "overview": "This module explains AI with no code and no maths. Think of a new employee (कर्मचारी, karmachari) at a bank. You show her many old bills, each marked 'fraud' or 'genuine'. She spots the pattern: what the fraud bills usually have in common. Soon she checks new bills on her own.\n\nTraining a computer works the same way. You give it many past examples with the right answers. It finds the pattern and saves it as a *model* (the learned rules, stored as numbers). Then the model checks new cases by itself.\n\nBut a model is not a person. It does not understand reasons; it only copies patterns from its examples. So it can be wrong, even while sounding sure, on cases unlike anything it has seen.\n\nIn normal programming, a person writes every rule (नियम, niyam) by hand. In machine learning, the computer finds the rules from examples. That is the big change.\n\nFour big words sit inside one another, like boxes in boxes. **AI** (artificial intelligence) is the big goal: machines doing tasks that need human-like judgement (समझदारी, samajhdari). **ML** (machine learning) is the main way to reach that goal today: the machine learns from data.\n\n**Deep learning** is ML with large *neural networks* (many layers of small maths units, built a little like the brain). **Generative AI** is deep learning that creates new text, images or audio, like ChatGPT.\n\nYou will also learn the three main ways machines learn. You will see where AI goes wrong because of bias (पक्षपात, pakshpaat), which means unfair treatment of some groups of people. You will see privacy risks, where people's personal details get misused. You will also see what India's DPDP Act 2023 (the personal data law) asks of anyone who handles personal data. Finally, you will pick the AI career path that suits you.",
+  "whyItMatters": "Almost every AI product you will build or sell follows one of a few patterns taught here. A WhatsApp chatbot, a fraud alert and a lead-scoring tool (it ranks which possible customers will most likely buy) are all examples. When you know which pattern a client needs, and its limits, clients trust (भरोसा, bharosa) your agency. You are then not just another 'AI agency'.",
   "outcomes": [
-   "Explain the difference between AI, ML, deep learning and generative AI, with one example of each.",
-   "Classify a business problem as supervised, unsupervised or reinforcement learning.",
-   "Describe in plain words how a model learns from data, and why the quality of data limits the quality of the model.",
-   "Name at least three real Indian uses of AI and say which type of learning each one uses.",
-   "Spot common sources of bias and privacy risk in an AI project, and state the DPDP Act's core idea of consent.",
-   "Pick a career path (data analyst, ML engineer, AI product builder, researcher) and plan how to use this course for it."
+   "Explain how AI, machine learning (ML), deep learning and generative AI are different. Give one example (उदाहरण, udaharan) of each.",
+   "Say which type of learning fits a business problem: supervised (examples come with answers), unsupervised (no answers, it finds groups) or reinforcement (it learns from rewards).",
+   "Describe in plain words how a model (what the computer builds from examples) learns from data. Explain why bad data, meaning wrong or one-sided examples, gives a weaker model.",
+   "Name at least three real uses of AI in India. Say which type of learning each one uses.",
+   "Spot common causes of bias (पक्षपात, pakshpaat), meaning unfair results for some groups, in an AI project. Spot privacy risks too, and state the main idea of the DPDP Act (India's personal data law): take clear consent (सहमति, sahmati) first.",
+   "Pick an AI career path: data analyst, ML engineer, AI product builder or researcher. Then plan how to use this course for it."
   ],
   "prerequisites": [
    "None: no coding or maths needed",
@@ -251,67 +251,97 @@ window.AIM.modules = [
   "keyTerms": [
    {
     "term": "Artificial Intelligence (AI)",
-    "meaning": "The broad field of making computers do tasks that normally need human intelligence, like understanding speech or making decisions."
+    "hi": "कृत्रिम बुद्धि, kritrim buddhi",
+    "meaning": "Making computers do tasks that normally need human intelligence (बुद्धि, buddhi), like understanding speech or making decisions. It is the widest idea in this module.",
+    "like": "The word 'sports'. Cricket, kabaddi and hockey all sit inside 'sports', just as ML and deep learning sit inside AI.",
+    "example": "A railway enquiry bot answers 'When does my train leave?'. Even if a person wrote all its rules by hand, it counts as simple AI."
    },
    {
     "term": "Machine Learning (ML)",
-    "meaning": "A way of building AI where the computer learns patterns from examples (data) instead of following hand-written rules."
+    "meaning": "A way of building AI where the computer learns patterns from examples (data). Nobody writes the rules by hand.",
+    "like": "A child who learns to spot a ripe mango by seeing hundreds of mangoes. Nobody gives her a written rule.",
+    "example": "Give a computer 10,000 old UPI payments, each marked 'fraud' or 'genuine'. It finds a pattern by itself, like 'big amount + new payee + late night'."
    },
    {
     "term": "Deep Learning",
-    "meaning": "Machine learning that uses large neural networks (many layers of simple maths units, loosely inspired by the brain), and works well for images, speech and text."
+    "meaning": "Machine learning that uses large neural networks: many layers of simple maths units, built a little like the brain. It works well for photos, speech and text.",
+    "like": "An assembly line in a factory. Each worker does one small step, and together they make the finished product. Each layer is like one worker.",
+    "example": "Face unlock on your phone: early layers spot simple edges, middle layers spot eyes and nose, and the last layer decides 'this is you'."
    },
    {
     "term": "Generative AI",
-    "meaning": "AI that creates new content such as text, images, audio or code; ChatGPT, Gemini and Claude are examples."
+    "meaning": "AI that creates new content, such as text, images, audio or code. ChatGPT, Gemini and Claude are examples.",
+    "like": "A normal model is an examiner who only marks answers right or wrong. Generative AI is a student who writes a fresh essay.",
+    "example": "You type 'Write a 4-line Diwali poem in Hindi for my sweet shop'. It writes new lines that did not exist before."
    },
    {
     "term": "Model",
-    "meaning": "What you get after training on past examples (training data): a set of learned numbers that turns an input, like a transaction, into a prediction, like 'fraud' or 'not fraud'."
+    "meaning": "What the computer builds by learning from past examples; this learning is called training. It is a set of learned numbers that turns an input, like a payment, into a prediction (अनुमान, anumaan).",
+    "like": "A chaiwala's experience. After years, he knows how many cups to prepare at 5 pm. A model is that experience, stored as numbers; it knows nothing beyond what it has seen.",
+    "example": "Input: a ₹45,000 UPI payment at 2 am to a new payee. Output: 'fraud risk 0.9 out of 1', so the bank checks it."
    },
    {
     "term": "Supervised learning",
-    "meaning": "Learning from examples that come with the correct answer (a label), like emails already marked 'spam' or 'not spam'."
+    "hi": "निगरानी में सीखना, nigrani mein seekhna",
+    "meaning": "Learning from examples that come with the correct answer. That answer is called a label.",
+    "like": "A student practising from a guidebook with answers at the back. She checks each answer and slowly gets better.",
+    "example": "Emails marked 'spam' or 'not spam' teach a spam filter; each mark is a label. A label can also be a number, like the real rainfall in mm on each past day."
    },
    {
     "term": "Unsupervised learning",
-    "meaning": "Finding groups or patterns in data that has no labels, like grouping customers by their buying habits."
+    "hi": "बिना निगरानी सीखना, bina nigrani seekhna",
+    "meaning": "Finding groups or patterns in data that has no labels, so no correct answers are given.",
+    "like": "Sorting a box of mixed buttons by colour and size when nobody told you the groups.",
+    "example": "A Coimbatore textile shop's 5,000 bills have no customer types. The computer groups buyers by their buying habits (आदतें, aadatein). The shop then names the groups, like 'wedding buyers' and 'festival buyers'."
    },
    {
     "term": "Reinforcement learning",
-    "meaning": "Learning by trial and error, where the program gets a reward for good actions, like a game-playing program that improves by playing."
+    "hi": "कोशिश करके सीखना, koshish karke seekhna",
+    "meaning": "Learning by trial and error. The program gets a reward (इनाम, inaam) for good actions and a penalty for bad ones.",
+    "like": "Training a puppy. It gets a biscuit when it sits on command, so it sits more often.",
+    "example": "A Ludo-playing program plays 1 lakh games against itself. A win gives +1 and a loss gives -1, so it slowly learns better moves."
    },
    {
     "term": "Bias (in AI)",
-    "meaning": "When a model treats some groups of people unfairly, usually because its training data was skewed or incomplete."
+    "hi": "पक्षपात, pakshpaat",
+    "meaning": "When a model treats some groups of people unfairly. It usually happens because the training data was one-sided or incomplete.",
+    "like": "A cricket selector who has only watched city matches. He may wrongly ignore great players from villages.",
+    "example": "A loan model learned from past loans given mostly to men. Now a woman earning ₹60,000 a month gets a lower score than a man with the same pay."
    },
    {
     "term": "DPDP Act 2023",
-    "meaning": "India's Digital Personal Data Protection Act, which says organisations must take clear consent before using people's personal data, use it only for the stated purpose, and keep it safe."
+    "hi": "डेटा सुरक्षा कानून, data suraksha kanoon",
+    "meaning": "India's Digital Personal Data Protection Act. Organisations must take clear consent (सहमति, sahmati) before using your personal data, use it only for the stated purpose, and keep it safe.",
+    "like": "A tailor who takes your measurements only to stitch your kurta. He should not sell them or use them for anything else.",
+    "example": "A Jaipur coaching app asks: 'We use your phone number only for class reminders. Allow?' You say yes. Later you can withdraw that yes, or ask the app to erase your data."
    }
   ],
   "studySteps": [
-   "Watch the main playlist lessons on 'what is AI' and on AI vs ML vs deep learning vs generative AI (about 2 hours).",
-   "Watch the lessons on supervised, unsupervised and reinforcement learning; pause after each one and write one example from your own business.",
-   "Read this page's Indian use-cases and the ethics part, including the DPDP Act basics, and note one risk that applies to your agency.",
-   "Open the Lab tab and complete its tasks: draw your own rule for sorting mangoes, then watch the machine learn one from examples. Then try the Practice section: run the ready-made code and change one number to see what happens. You are not expected to write code yet.",
-   "Take the quiz (aim for 70%+), and rewatch the lesson behind any question you got wrong.",
-   "Do the Self-check tasks on paper and keep your notes; you will reuse them in client conversations."
+   "Watch the main playlist lessons on 'what is AI' and on AI vs ML vs deep learning vs generative AI. This takes about 2 hours.",
+   "Watch the lessons on the three ways machines learn: supervised, unsupervised and reinforcement learning. Pause after each one and write one example (उदाहरण, udaharan) from your own business. Linking a new idea to your own work helps you remember it.",
+   "Read this page's Indian examples and its ethics (नैतिकता, naitikta) part, about using AI in a fair and safe way. It includes the basics of the DPDP Act (India's personal data law). Note one risk (जोखिम, jokhim) that applies to your agency.",
+   "Open the Lab tab and do its tasks. First draw your own rule for sorting mangoes, then watch the machine learn a rule from examples.",
+   "Then try the Practice section. Run the ready-made code and change one number to see what happens; you do not have to write code yet.",
+   "Take the quiz and aim for 70% or more. Rewatch (दोबारा देखना, dobara dekhna) the lesson behind every question you got wrong.",
+   "Do the 'Check yourself' tasks on paper and keep your notes. You will use them again when you talk to clients."
   ],
   "selfCheck": [
-   "On one page, explain AI vs ML vs deep learning vs generative AI to a non-technical shop owner, with one example of each.",
-   "List five AI ideas for Indian businesses (for example a coaching institute, a kirana chain, a clinic). Label each as supervised, unsupervised or reinforcement learning, and write what data it would need.",
-   "Pick one idea and write down three things: what goes in (the input), what comes out (the output), and where the past labelled examples would come from.",
-   "For a loan-approval model, write three ways it could become biased against a group of people, and one fix for each.",
-   "Write what personal data your agency's next AI project would collect, why it needs it, and how you would ask for consent under the DPDP Act."
+   "On one page, explain AI vs ML vs deep learning vs generative AI to a shop owner who is not technical. Give one example of each.",
+   "List five AI ideas for Indian businesses, like a coaching institute, a kirana chain or a clinic. Label each as supervised (learns from answers), unsupervised (finds groups) or reinforcement learning (learns from rewards), and write what data it needs.",
+   "Pick one idea and write three things: what goes in (the input), what comes out (the output), and where the past labelled examples would come from. Labelled examples are old examples with the right answer.",
+   "For a loan-approval model, write three ways it could become biased (पक्षपाती, pakshpaati), meaning unfair to a group of people. Write one fix for each.",
+   "Write what personal data your agency's next AI project would collect, and why it needs it. Then write how you would ask for consent (सहमति, sahmati) under the DPDP Act, India's personal data law."
   ],
   "commonMistakes": [
-   "Thinking AI 'understands' like a human. Models find statistical patterns in data and can be confidently wrong, so always ask what data a model learned from and how it was tested.",
-   "Treating generative AI as all of AI. Many valuable business problems, like fraud scores, demand forecasts and lead scoring, are solved by classic ML on spreadsheet-style data, which is cheaper and easier to explain to a client.",
-   "Skipping ethics as 'just theory'. Under the DPDP Act, using customer data without clear consent is a legal risk for your company, with fines that can go up to ₹250 crore for the most serious failures, so plan consent and data security from day one."
+   "Thinking AI 'understands' like a human. A model (the program the computer builds from examples) only finds patterns in data, and it can be wrong while sounding sure. So always ask what data it learned from and how it was tested.",
+   "Treating generative AI (AI that creates new text or images) as all of AI. Many useful jobs, like fraud scores, demand forecasts (guesses of future sales) and lead scoring (ranking likely buyers), are done by classic ML. Classic ML means simpler machine learning on table data, like an Excel sheet. It is cheaper and easier to explain to a client.",
+   "Skipping ethics (नैतिकता, naitikta) as 'just theory'. Under India's DPDP Act, the personal data law, using customer data without clear consent (सहमति, sahmati) is a legal risk. Fines (जुर्माना, jurmana) can go up to ₹250 crore. That biggest fine is for failing to keep data safe from a leak. So plan consent and data safety from day one.",
+   "Trusting one big accuracy (सटीकता, sateekta) number, meaning the share of answers a model gets right. If only 0.5% of payments are fraud, a model that always says 'not fraud' is 99.5% accurate but catches zero frauds. Also check how many real frauds it catches, and how many of its alerts are real.",
+   "Using a model on data unlike its training data (the examples it learned from). A crop model trained only on Punjab farms gives poor advice in Kerala, where rain, soil (मिट्टी, mitti) and crops are different. Collect local data and train again; a bigger model will not fix it.",
+   "Thinking bias comes only from a bad rule someone wrote. Usually nobody wrote it; the model copied unfair patterns from past data, like years of hiring mostly men. More computing power only learns the same unfair pattern faster."
   ],
-  "indiaExample": "The Reserve Bank Innovation Hub (RBIH), set up by the RBI, built MuleHunter.AI, an AI/ML model that helps banks find 'mule' accounts (bank accounts used to receive and pass on money from frauds). Detecting mule accounts is a classic supervised learning problem: the model learns from accounts that investigations have already marked as mule or genuine, and then flags suspicious new accounts for the bank to check.",
-  "tip": "When anyone pitches you an 'AI solution', ask three questions: What data does it learn from? How was it tested, and on what data? What happens when it is wrong? These three questions will protect you and your clients more than any tool.",
+  "indiaExample": "The Reserve Bank Innovation Hub (RBIH) was set up by the RBI. It built **MuleHunter.AI**, an AI/ML *model* (a program that learned a pattern from past data). It helps banks find 'mule' accounts. A mule account is a bank account used to receive money from a fraud (धोखाधड़ी, dhokhadhadi) and quickly pass it on.\n\nFinding mule accounts is a classic *supervised learning* problem. Supervised learning means learning from examples that already have the right answer, called a label. Here, the examples are old accounts that investigations (जाँच, jaanch) already marked 'mule' or 'genuine'.\n\nThe model learns the pattern from these accounts. Then it marks suspicious (संदिग्ध, sandigdh) new accounts for the bank to check. What the bank staff find becomes one more labelled example. If the old labels were wrong, the model would learn the wrong pattern.",
+  "tip": "When anyone sells you an 'AI solution', ask three questions. What data does it learn from? How was it tested, and on what data? What happens when it is wrong? These three questions protect you and your clients better than any tool.",
   "watch": [
    {
     "id": "apna-college-complete-basics-of-ai-in-one-shot",
@@ -352,7 +382,207 @@ window.AIM.modules = [
   ],
   "best": "apna-college-complete-basics-of-ai-in-one-shot",
   "figs": true,
-  "lab": "learn"
+  "lab": "learn",
+  "examples": {
+   "overview": [
+    {
+     "title": "Phone spam filter",
+     "text": "Your phone moves some SMS messages into a spam folder. It learned from a huge number of messages that people had already marked 'spam' or 'not spam'. Nobody wrote a rule for every trick. That is machine learning."
+    },
+    {
+     "title": "Rule-only clinic bot in Pune",
+     "text": "A Pune clinic's WhatsApp bot says: 'Type 1 for timings, 2 for fees.' A person wrote every rule. It is simple AI, but it never learns. If a patient types 'timing kya hai?', the bot gets confused."
+    },
+    {
+     "title": "Lakshmi's kirana in Chennai",
+     "text": "Lakshmi runs a kirana shop in Chennai. An ML app studies two years of her daily sales. It learns that milk sales jump on Sundays and festival days. Now it suggests how many packets to order each morning."
+    },
+    {
+     "title": "Face unlock on a phone",
+     "text": "Your phone opens when it sees your face, even with new glasses or a beard. This is deep learning. A large neural network learned from many face photos which details really matter."
+    },
+    {
+     "title": "Diwali greeting in Tamil",
+     "text": "Fatima owns a sweet shop in Madurai. She asks a chatbot to write a Diwali greeting in Tamil for her customers. It writes brand-new lines in seconds. That is generative AI: it creates something new."
+    },
+    {
+     "title": "New bank staff in Kolkata",
+     "text": "Arjun joins a bank in Kolkata. In his first month he studies 500 old loan files marked 'repaid' or 'not repaid'. Soon he can judge new files. A model learns the same way, only from many more files."
+    }
+   ],
+   "outcomes": [
+    {
+     "title": "Explaining AI to an uncle",
+     "text": "Arjun's uncle runs a sweet shop in Indore. Arjun says a billing bot with fixed rules is AI. A sales forecast from past bills is ML. Face unlock on the uncle's phone is deep learning. A chatbot writing a Holi ad for the shop is generative AI."
+    },
+    {
+     "title": "Dropouts at a Kota coaching centre",
+     "text": "A coaching centre in Kota wants to know which students may drop out. Riya sees that old records already show who left and who stayed. Those are answers, so she calls it supervised learning."
+    },
+    {
+     "title": "Kirana chain in Guwahati",
+     "text": "A kirana chain in Guwahati has 20,000 bills but no customer types. Kavya suggests unsupervised learning. The computer may find groups like 'monthly bulk buyers' and 'daily milk-and-bread buyers' by itself."
+    },
+    {
+     "title": "Imagined warehouse robot",
+     "text": "Imagine a warehouse robot in Bhiwandi learning the fastest path to a shelf. Every quick trip earns a reward (इनाम, inaam). Every bump into a box earns a penalty. Fatima spots that this is reinforcement learning."
+    },
+    {
+     "title": "Loan model check in Jaipur",
+     "text": "Gurpreet reviews a loan model for a Jaipur lender. It learned only from city borrowers. Village farmers with good repayment records get low scores. She flags this as bias caused by one-sided data."
+    },
+    {
+     "title": "Consent screen for a salon app",
+     "text": "Lakshmi builds a booking app for a Hyderabad salon. Before saving phone numbers, the app says why it needs them and asks 'Allow?'. She learned this from the DPDP Act's idea of consent."
+    },
+    {
+     "title": "Dev and Imran pick paths",
+     "text": "Dev from Bhubaneswar loves Excel and charts, so he picks the data analyst path. His friend Imran wants to put models into real apps and watch them after launch. So Imran picks the ML engineer path."
+    },
+    {
+     "title": "Messy sales sheet in Nagpur",
+     "text": "Pooja tells a Nagpur client why his messy sales sheet matters. A model copies whatever is in its examples, like a student who studied from a guidebook full of errors. So they clean the sheet first."
+    }
+   ],
+   "studySteps": [
+    {
+     "title": "Ravi: one hour after office",
+     "text": "Ravi works in a Noida office and has one free hour each evening. Days 1 and 2: the AI vs ML lessons. Day 3: the three ways to learn, with notes. Day 4: reading and the Lab. Day 5: the quiz."
+    },
+    {
+     "title": "Ananya: lessons on the bus",
+     "text": "Ananya, a B.Com student in Kolkata, watches lessons on her daily bus ride. In the evening she writes examples from her college canteen, like predicting samosa sales. Writing her own example shows her if she really understood."
+    },
+    {
+     "title": "Meena: 40 minutes after lunch",
+     "text": "Meena, a homemaker in Madurai, studies for 40 minutes after lunch. For each type of learning she finds a home example, like sorting mixed spice jars into groups without labels. She does the mango Lab on her phone."
+    },
+    {
+     "title": "Kiran: weekend learner",
+     "text": "Kiran works long weekdays at a Bengaluru software firm. On Saturday he watches all the lessons in two sittings. On Sunday he reads the India part, does the Lab and Practice, and takes the quiz."
+    },
+    {
+     "title": "Sanjay: weak mobile signal",
+     "text": "Sanjay lives in a village near Nashik with weak mobile data. He sets videos to 360p, which uses much less data. He keeps the Practice section for a better connection, because it loads Python into the browser."
+    },
+    {
+     "title": "Zoya: second try at the quiz",
+     "text": "Zoya from Lucknow scored 60% on her first try. She missed two questions on types of learning. She rewatched only that lesson, wrote two new examples, and scored 80% the next day."
+    }
+   ],
+   "keyTerms": [
+    {
+     "title": "Railway bot: AI without learning",
+     "text": "Imagine a railway enquiry bot with 200 hand-written rules. It is AI, but not machine learning. If it studied lakhs of past passenger questions to improve its answers, it would become ML."
+    },
+    {
+     "title": "UPI fraud score at a bank",
+     "text": "A bank trains a model on old UPI payments labelled 'fraud' or 'genuine'. This is supervised learning. A new ₹48,000 payment late at night to a new payee gets a high fraud (धोखाधड़ी, dhokhadhadi) score."
+    },
+    {
+     "title": "Grouping helpline complaints",
+     "text": "A Delhi helpline gets 50,000 complaints a month, with no topic tags. Unsupervised learning puts similar complaints into groups (समूह, samooh), like 'slow internet' and 'wrong bill'. Staff then fix the biggest group first."
+    },
+    {
+     "title": "Imagined traffic signal in Pune",
+     "text": "Imagine a traffic-light program at a busy Pune junction. It tries different green-light timings. Shorter queues give it a reward, and longer queues give a penalty. Over weeks it finds better timings: reinforcement learning."
+    },
+    {
+     "title": "Leaf photo app for farmers",
+     "text": "Imagine an app for tomato farmers in Nashik. A farmer clicks a photo of a sick leaf. A deep learning model, trained on many labelled leaf photos, names the likely disease."
+    },
+    {
+     "title": "Marathi wedding invitation",
+     "text": "Sneha asks a chatbot to write her wedding invitation in Marathi. It writes lines that did not exist before. That is generative AI. A spam filter, in contrast, only picks a label."
+    },
+    {
+     "title": "Voice app and accents",
+     "text": "Imagine a voice app trained mostly on North Indian voices. It often mishears speakers from Tamil Nadu or Assam. That is bias (पक्षपात, pakshpaat): the model works worse for groups missing from its data."
+    },
+    {
+     "title": "Who is who under DPDP",
+     "text": "When you share your number with a Kochi gym app, you are the Data Principal (the person the data is about). The gym is the Data Fiduciary (it decides how the data is used). The Act covers private companies too."
+    }
+   ],
+   "indiaExample": [
+    {
+     "title": "Bhashini for Indian languages",
+     "text": "Bhashini is the Government of India's language mission under MeitY, the IT ministry. It builds AI tools that translate text and turn speech into text across Indian languages (भाषा, bhasha). It aims to cover all 22 languages listed in India's Constitution."
+    },
+    {
+     "title": "AI4Bharat's IndicVoices dataset",
+     "text": "AI4Bharat is a research lab at IIT Madras. In 2024 it released IndicVoices: over 7,000 hours of speech in 22 Indian languages, from over 16,000 speakers. Open data like this helps models learn languages that had little data."
+    },
+    {
+     "title": "DigiYatra at airports",
+     "text": "DigiYatra lets air passengers pass airport checkpoints using their face, linked to their boarding pass. Face recognition like this is a deep learning task. It started in December 2022 at Delhi, Bengaluru and Varanasi airports."
+    },
+    {
+     "title": "Kisan e-Mitra for PM-KISAN",
+     "text": "Kisan e-Mitra is an AI chatbot launched in 2023 for the PM-KISAN scheme. Farmers can ask it questions about the scheme in several Indian languages. It was built with support from Bhashini."
+    },
+    {
+     "title": "Imagined crop app in Vidarbha",
+     "text": "Imagine a farm app in Vidarbha. It learns from past seasons of rainfall, soil tests and crop yield (पैदावार, paidavar) in that region. Then it suggests the best sowing week. This is supervised learning on local data."
+    },
+    {
+     "title": "UPI fraud checks at banks",
+     "text": "Banks and payment apps check UPI payments for fraud risk within seconds. Many use machine learning models trained on past payments marked fraud or genuine. A risky payment may be paused or flagged for checking."
+    }
+   ],
+   "commonMistakes": [
+    {
+     "title": "Chatbot and a GST rate",
+     "text": "Rahul, a Delhi trader, asked a chatbot about the GST rate for his product. It gave a confident but wrong rate. Fix: he now checks such answers on the official GST portal or with his CA."
+    },
+    {
+     "title": "Costly tool for bread sales",
+     "text": "Imagine a Lucknow bakery paying for a costly generative AI tool to predict daily bread sales. A simple ML model on two years of sales sheets can do this cheaply. Fix: match the tool to the problem."
+    },
+    {
+     "title": "Offers sent without consent",
+     "text": "A Pune startup sent offers to phone numbers it took only for delivery updates. Customers were angry, since they had agreed only to delivery messages. Fix: ask for separate, clear consent for marketing messages."
+    },
+    {
+     "title": "The 99.5% fraud model",
+     "text": "A team in Bengaluru proudly showed a UPI fraud model with 99.5% accuracy. A reviewer found it marked every payment 'genuine', so it caught no fraud at all. Fix: count frauds caught, not only overall accuracy."
+    },
+    {
+     "title": "Punjab model used in Kerala",
+     "text": "An agri-startup trained a crop model only on Punjab wheat and rice farms. Kerala farmers growing rubber and coconut got poor advice. Fix: collect Kerala data on soil, heavy monsoon rain and local crops, then train again."
+    },
+    {
+     "title": "Hiring model copies the past",
+     "text": "A firm trained a CV-scoring model on ten years of hiring, when very few women were hired. The model began scoring women's CVs lower. Fix: audit the data, remove hidden clues to gender, and test scores for each group."
+    }
+   ],
+   "selfCheck": [
+    {
+     "title": "Hint for task 1",
+     "text": "Start with the boxes-in-boxes picture. AI: a billing bot with fixed rules. ML: a forecast of Diwali sweet sales from past bills. Deep learning: face unlock. Generative AI: a chatbot writing your shop's ad."
+    },
+    {
+     "title": "Task 2 sample: a clinic",
+     "text": "Idea: predict which patients may miss their appointment at a Bhopal clinic. Type: supervised, because old records show who came and who missed. Data needed: past bookings, day, time, distance and whether the patient came."
+    },
+    {
+     "title": "Task 2 sample: kirana groups",
+     "text": "Idea: group a kirana chain's customers by shopping habits (आदतें, aadatein). Type: unsupervised, because no bill says 'customer type'. Data needed: bills with items, amounts and dates. Now find three more ideas yourself."
+    },
+    {
+     "title": "Task 3 sample: coaching dropouts",
+     "text": "Coaching institute dropout model. Input: attendance, test marks and fee delays. Output: 'likely to leave' or 'likely to stay'. Labels come from past batches, where the office already knows who left."
+    },
+    {
+     "title": "Thinking for task 4",
+     "text": "One way: the old data had few loans to women, so the model learned to doubt them. Fix: check results for men and women separately. Find two more ways yourself; think about hidden clues like pin code."
+    },
+    {
+     "title": "Thinking for task 5",
+     "text": "Say: 'We collect your phone number only to send order updates.' Ask for a clear yes, not a pre-ticked box. Use the number only for updates, keep it safe, and let customers withdraw (वापस लेना, wapas lena) consent anytime."
+    }
+   ]
+  }
  },
  {
   "id": "l1-python",
@@ -1333,16 +1563,16 @@ window.AIM.modules = [
    "assumptions of linear regression"
   ],
   "lab": "gradient",
-  "overview": "Regression means predicting a number, such as a price, a fare or next month's sales. Imagine you have notes from 100 past auto-rickshaw rides with the distance and the fare paid; linear regression draws the straight line that best fits those points, so you can estimate the fare for a new distance. The computer finds that line with gradient descent (a method that nudges the line again and again to reduce the error), much like walking downhill in fog by taking small steps in the steepest downward direction. You will also learn to fit curves (polynomial regression), stop a model from overreacting to noise (regularisation), and measure errors in plain ₹ terms (MAE, RMSE and R²).",
-  "whyItMatters": "Any product that predicts a number uses regression ideas: used-car price quotes, property price estimates, electricity demand forecasts and sales forecasts. For an agency, it gives a first, rough answer to a client question like 'If we spend ₹50,000 more on ads, about how many more leads should we expect?'",
+  "overview": "*Regression* means predicting a number. The number can be a price, an auto fare (किराया, kiraya) or next month's sales. This is different from *classification*, which picks a group, like \"spam\" or \"not spam\".\n\nImagine you have notes from 100 past auto-rickshaw rides. For each ride, you know the distance and the fare paid. *Linear regression* draws the straight line that fits these points best. With that line, you can estimate (अंदाज़ा, andaaza) the fare for any new distance.\n\nHow does the computer find the best line? It uses *gradient descent*. This method moves the line a little, again and again, so that the error (गलती, galti) gets smaller each time.\n\nThink of walking downhill in thick fog (कोहरा, kohra). You cannot see the bottom. So you feel the ground and take a small step where it slopes down most steeply. You repeat this until the ground is flat.\n\nYou will also learn *polynomial regression*, which draws curves, not only straight lines. You will learn *regularisation*, which stops a model from overreacting to *noise* (the random ups and downs in data). And you will measure errors in plain ₹ terms with *MAE*, *RMSE* and *R²*. These are three scores that show how far off the predictions are.",
+  "whyItMatters": "Any product that predicts a number uses regression ideas. Think of used-car price quotes, flat price estimates, electricity demand forecasts (पूर्वानुमान, purvanumaan) and sales forecasts. For a business or an agency, regression gives a first, rough answer. For example: \"If we spend ₹50,000 more on ads, about how many more leads should we expect?\" (Leads are people who show interest in buying.)",
   "outcomes": [
-   "Explain how simple and multiple linear regression make predictions using weights and an intercept",
-   "Describe the MSE cost function and how gradient descent reduces it, including the batch, stochastic and mini-batch versions",
-   "Implement gradient descent for a straight line from scratch in NumPy",
-   "Fit polynomial regression and recognise when a higher degree starts to overfit",
-   "Use Ridge, Lasso and ElasticNet to control overfitting, and explain how they differ",
-   "Evaluate regression models with MAE, RMSE and R², and explain each in ₹ terms to a client",
-   "Check the main assumptions of linear regression using residual plots"
+   "Explain how simple linear regression (one feature) and multiple linear regression (many features) make a prediction. Each *feature* (a column of data, like age or km) is multiplied by its weight (वज़न, vazan), which says how much it counts. Then a starting amount called the *intercept* is added.",
+   "Describe the *MSE cost function* (one number that says how wrong the line is). Describe how *gradient descent* lowers it in small steps, using all rows, one row or a small group of rows per step (batch, stochastic and mini-batch).",
+   "Write gradient descent for a straight line yourself in NumPy (Python's library for numbers), from scratch, without ready-made tools like scikit-learn.",
+   "Fit polynomial regression, a curve made with extra features like x² and x³. Notice when a higher *degree* (the highest power, like the 3 in x³) starts to overfit (रट्टा मारना, ratta maarna). Overfitting means learning the random noise in the training data by heart.",
+   "Use Ridge, Lasso and ElasticNet (three penalties that keep the weights small) to control overfitting, and explain how they differ.",
+   "Measure regression models with MAE, RMSE and R², three scores for how far off the predictions are. Explain each one to a client in ₹ terms. A car dealer understands \"off by about ₹40,000 on average\", but not an MSE in squared rupees.",
+   "Check the main assumptions (धारणा, dhaarna) of linear regression using residual plots. A *residual* is actual minus predicted, so the plot shows what the model missed."
   ],
   "prerequisites": [
    "l2-ml-foundations",
@@ -1353,67 +1583,94 @@ window.AIM.modules = [
   "keyTerms": [
    {
     "term": "Linear regression",
-    "meaning": "A model that predicts a number as a weighted sum of the features plus a constant (the intercept)."
+    "meaning": "A model that predicts a number. It adds up each feature (a column of input, like km) times its weight (how much that feature counts), plus a fixed starting amount called the *intercept*.",
+    "like": "an auto fare card. It has a fixed starting charge plus a set amount for every kilometre, and the meter simply adds them up.",
+    "example": "fare = 30 + 15 × km. For a 4 km ride: 30 + 15 × 4 = 30 + 60 = ₹90. Here 30 is the intercept and 15 is the weight."
    },
    {
     "term": "Weight (coefficient)",
-    "meaning": "The number that says how much the prediction changes when one feature goes up by one unit."
+    "hi": "वज़न, vazan",
+    "meaning": "The number that says how much the prediction changes when one feature goes up by one unit.",
+    "like": "the price per kg at a sabzi mandi. Each extra kg of tomatoes adds the same ₹ amount to your bill.",
+    "example": "In rent = 4,000 + 15 × area, the weight is 15. A flat with 100 more square feet gets ₹1,500 more predicted rent, not 15% more."
    },
    {
     "term": "Cost function (MSE)",
-    "meaning": "Mean Squared Error: the average of the squared gaps between predictions and actual values, which training tries to make small."
+    "meaning": "Mean Squared Error: the average of the squared gaps between predictions and real values. Training tries to make this one number as small as possible.",
+    "like": "a strict teacher who punishes big slips much more than small ones. Being 2 marks off costs 4 points, but being 6 marks off costs 36.",
+    "example": "Two rides are missed by ₹2 and ₹4. The squares are 4 and 16. MSE = (4 + 16) ÷ 2 = 10, in squared rupees, a unit that is hard to picture."
    },
    {
     "term": "Gradient descent",
-    "meaning": "A method that improves the weights step by step by moving in the direction that lowers the cost fastest."
+    "meaning": "A method that improves the weights in small steps. Each step goes in the direction that lowers the cost fastest.",
+    "like": "walking down a hill in thick fog (कोहरा, kohra). You feel where the ground goes down and step that way, again and again.",
+    "example": "The *gradient* is the slope (ढलान, dhalaan) of the cost. The rule is: new w = old w − step size × gradient. If w = 2, the gradient is −8 and the step size is 0.1, then new w = 2 − 0.1 × (−8) = 2.8."
    },
    {
     "term": "Learning rate",
-    "meaning": "The size of each gradient descent step: too small is slow, too large overshoots."
+    "hi": "सीखने की दर, seekhne ki dar",
+    "meaning": "The size of each gradient descent step. Too small is slow, and too large overshoots (jumps past the lowest point), so the error can grow.",
+    "like": "coming down a staircase. Tiny shuffles take forever, and giant leaps make you miss steps. Normal steps get you down safely.",
+    "example": "Take w = 2 with a gradient of −8, where the best w is 6. A rate of 0.01 moves w to 2.08 (slow). A rate of 0.1 gives 2.8. A rate of 2 throws it to 18, far past 6."
    },
    {
     "term": "Mini-batch",
-    "meaning": "A small group of rows (for example 32) used for one gradient descent step, in between using one row (stochastic) and all rows (batch)."
+    "meaning": "A small group of rows, for example 32, used for one gradient descent step. It sits between stochastic (1 row per step) and batch (all rows per step).",
+    "like": "a teacher who checks homework before giving the class tips. Checking all 60 notebooks each time is slow. Checking only one notebook can mislead. Checking 5 at a time is quick and fair.",
+    "example": "With 3,200 rows and mini-batches of 32, one pass over the data makes 3,200 ÷ 32 = 100 steps. Batch would make 1 step, and stochastic would make 3,200."
    },
    {
     "term": "Regularisation",
-    "meaning": "A penalty on large weights that keeps the model simpler; Ridge (L2) shrinks weights and Lasso (L1) can set some exactly to zero."
+    "meaning": "A penalty (जुर्माना, jurmana) on large weights that keeps the model simpler. Ridge (L2) shrinks all weights, while Lasso (L1) can set some weights to exactly zero.",
+    "like": "a hostel warden who charges a small fee for every extra item in your room. You keep only what you really need.",
+    "example": "Take weights 3 and −4. Ridge's penalty uses squares: 9 + 16 = 25. Lasso's penalty uses sizes without signs: 3 + 4 = 7. ElasticNet mixes both penalties."
    },
    {
     "term": "MAE",
-    "meaning": "Mean Absolute Error: the average size of the errors, in the same unit as the target, such as ₹."
+    "hi": "औसत गलती, ausat galti",
+    "meaning": "Mean Absolute Error: the average size of the errors, ignoring plus and minus signs. It is in the same unit as the *target* (the number you predict), such as ₹ or minutes.",
+    "like": "asking, \"On a usual day, by how many minutes is the bus off?\" Early and late count the same way.",
+    "example": "Misses of +₹2, ₹0 and −₹4 have sizes 2, 0 and 4. MAE = (2 + 0 + 4) ÷ 3 = ₹2."
    },
    {
     "term": "RMSE",
-    "meaning": "Root Mean Squared Error: a typical error size in the target's unit that punishes big misses more than MAE does."
+    "meaning": "Root Mean Squared Error: square the errors, take the average, then take the square root. It is in the target's unit, but it punishes big misses more than MAE does.",
+    "like": "a cricket coach who worries more about one dropped catch in a final than about five small fielding slips.",
+    "example": "Misses of ₹2, ₹0 and ₹4 give squares 4, 0 and 16. Their average is 20 ÷ 3 ≈ 6.67. RMSE = √6.67 ≈ ₹2.58, a bit more than the MAE of ₹2."
    },
    {
     "term": "R² (R-squared)",
-    "meaning": "The share of the variation in the target that the model explains: 1 is perfect and 0 is no better than predicting the average."
+    "meaning": "The share of the ups and downs in the target that the model explains. 1 is perfect, 0 is no better than guessing the average, and below 0 is worse.",
+    "like": "comparing a weather forecaster with someone who always says \"same as the usual average\". R² shows how much better the forecaster is.",
+    "example": "Always guessing the average gives squared errors of 200. Your model gives 50. R² = 1 − 50 ÷ 200 = 0.75. A model with 300 gets R² = 1 − 300 ÷ 200 = −0.5, worse than the plain guess."
    }
   ],
   "studySteps": [
-   "Watch the Video lessons on simple and multiple linear regression and the MSE cost function.",
-   "Watch the gradient descent lessons (batch, stochastic, mini-batch), then open the Gradient Descent lab: try a tiny, a medium and a very large learning rate, and note which one crawls, which settles and which overshoots.",
-   "Watch the lessons on polynomial regression, regularisation (Ridge, Lasso, ElasticNet), regression metrics and the assumptions of linear regression.",
+   "Watch the Video lessons on simple and multiple linear regression (straight-line models with one or many features). Also watch the lesson on the MSE cost function (the average squared error).",
+   "Watch the gradient descent lessons, which show how the computer finds the best line in small steps (कदम, kadam). They cover batch, stochastic and mini-batch: all rows, one row or a small group of rows per step.",
+   "Then open the Gradient Descent lab. Try a tiny, a medium and a very large learning rate (the step size). Note which one crawls (रेंगना, rengna), which one settles at the bottom and which one overshoots (jumps past the bottom).",
+   "Watch the lessons on polynomial regression (curves), regularisation (penalties named Ridge, Lasso and ElasticNet), regression metrics (error scores like MAE, RMSE and R²) and the assumptions of linear regression.",
    "Do the Practice exercises in the browser.",
-   "Take the quiz (aim for 70%+).",
-   "Complete the from-scratch gradient descent task in Self-check; it is the most important exercise in this module."
+   "Take the quiz. Aim for 70% or more.",
+   "Complete the from-scratch gradient descent task in Self-check. It is the most important exercise in this module. By writing the loop yourself, you see what the ready-made `fit()` command hides: predict, measure the error, find the slope, and move the weights a little."
   ],
   "selfCheck": [
-   "Create synthetic ride data in NumPy: fare = 30 + 15 × distance_km + random noise. Write gradient descent yourself (no scikit-learn) and check that the learned intercept and weight come close to 30 and 15.",
-   "On the California housing data, scale the features with StandardScaler, then fit LinearRegression, Ridge and Lasso. Compare test RMSE and list any Lasso coefficients that became exactly zero.",
-   "Generate a noisy curved dataset and fit polynomial regression with degree 1, 2, 5 and 15. Plot each fit and explain which ones underfit and which overfit.",
-   "Plot residuals (actual minus predicted) against predicted values for your best model. Describe any pattern, such as a curve or a funnel shape, and what it suggests.",
-   "On paper: a used-car price model has an MAE of ₹40,000 but an RMSE of ₹1,20,000. Explain what the large gap tells you about its errors."
+   "Make synthetic (नकली, nakli) ride data in NumPy (Python's library for numbers): fare = 30 + 15 × distance_km + random noise (small random changes). Write gradient descent yourself, without scikit-learn. Check that the learned intercept and weight come close to 30 and 15.",
+   "Load the California housing data (a free practice dataset of house prices). Scale the features with `StandardScaler`, then fit `LinearRegression`, `Ridge` and `Lasso` (a plain model and two penalty models). Compare their test RMSE. List any Lasso coefficients (weights) that became exactly zero.",
+   "Make a noisy curved dataset. Fit polynomial regression with degree 1, 2, 5 and 15, where degree is the highest power of x. Plot each fit. Explain which ones underfit (too simple) and which ones overfit (learn the noise).",
+   "For your best model, plot residuals (बचा हुआ, bacha hua), which are actual minus predicted, against predicted values. Describe any pattern, such as a curve or a funnel shape, and what it suggests.",
+   "On paper: a used-car price model has an MAE (average error size) of ₹40,000 but an RMSE of ₹1,20,000. RMSE counts big misses extra. Explain what this big gap (अंतर, antar) tells you about the errors."
   ],
   "commonMistakes": [
-   "Not scaling features before gradient descent, Ridge or Lasso. When one feature is in lakhs of ₹ and another is in years, training becomes slow and the penalty treats features unfairly. Apply StandardScaler first.",
-   "Choosing a learning rate that is too large, so the loss grows or turns into NaN (not a number). If that happens, divide the learning rate by 10 and try again.",
-   "Reading a high training R² as success. Check R² and RMSE on the test set, and remember that test R² can even be negative when the model is worse than predicting the average."
+   "**Not scaling features**, which means putting all columns on a similar range. Say one feature is in lakhs of ₹ and another is in years. Then gradient descent (the step-by-step training method) becomes slow. Ridge and Lasso add a penalty (जुर्माना, jurmana) on big weights. The lakhs feature needs only a tiny weight, but the years feature needs a big one, so the penalty hits the years feature unfairly. Fix: first apply `StandardScaler`, a tool in scikit-learn (a Python library for machine learning). It gives every feature an average of 0 and a spread (फैलाव, phailaav) of 1.",
+   "**A learning rate (step size) that is too large.** The loss (the error number) grows after each epoch, or it turns into NaN, which means \"not a number\". An epoch is one full pass over the training data. Fix: divide the learning rate by 10 and try again. A rate that is too small shows the opposite: the loss falls, but very slowly.",
+   "**Reading a high training R² as success.** R² says how much of the ups and downs the model explains. Check R² and RMSE (the typical error size) on the test set, which is data the model never saw. Test R² can even be negative, which means the model is worse than always predicting the average.",
+   "**Trusting one number and skipping the residual plot.** A residual (बचा हुआ, bacha hua) is actual minus predicted, so the plot shows what the model missed. Linear regression assumes a straight-line pattern and about the same error spread everywhere. Equal spread is called *homoscedasticity*. A curve or a funnel in the residual plot shows that an assumption is broken.",
+   "**Deleting data to hide a funnel.** If misses grow with the price, do not just drop the costly houses. That throws away real data and hides the problem. Predicting log(price) often makes the spread more equal. The log is a maths step that shrinks big numbers a lot and small numbers only a little.",
+   "**Using a very high polynomial degree** (the highest power in the curve, like 15 in x¹⁵). Such a curve can pass through every training point but swing wildly between them. That is overfitting (रट्टा मारना, ratta maarna): learning the noise by heart. Check the test error and pick the simplest degree that works."
   ],
-  "indiaExample": "Used-car platforms such as Cars24, CarDekho and CarWale offer online valuation tools: you enter the make, model, year, fuel type, kilometres driven and city, and get a price estimate. Predicting a ₹ amount from such features is a regression problem. Indian rules shape the features too: in Delhi-NCR, diesel cars older than 10 years and petrol cars older than 15 years are not allowed to run, so a feature such as 'years left before the age limit' can matter for cars registered there.",
-  "tip": "Always plot residuals (actual minus predicted). A curve or a funnel in that plot shows what the model is missing, which a single R² number hides.",
+  "indiaExample": "Used-car websites such as Cars24, CarDekho and CarWale have online price tools. You enter the car's make, model, year, fuel type, kilometres driven and city. The tool then shows a price estimate (अंदाज़ा, andaaza).\n\nPredicting a ₹ amount from such details is a regression problem, because the answer is a number. Each detail is a *feature* (a column of information). The answer is one number: the price.\n\nIndian rules shape the features too. In Delhi-NCR, court orders set an age limit (सीमा, seema): 10 years for diesel cars and 15 years for petrol cars. A car that can run there for only one more year is worth less to a buyer.\n\nSo a feature like \"years left before the age limit\" can matter for cars registered in Delhi-NCR. A plain linear model cannot easily work this out from year, fuel type and city as separate columns. So you build this feature yourself and give it to the model.\n\nBut these rules change. BS-IV (Bharat Stage IV) is a level of India's pollution rules for vehicles. In 2025 the Supreme Court said that BS-IV and newer cars should not be punished just for their age, while the case goes on. So today your feature must also check the car's BS level, and follow the latest rule.",
+  "tip": "Always plot residuals (बचा हुआ, bacha hua), which are actual minus predicted. A curve or a funnel in that plot shows what the model is missing. A single R² number hides this.",
   "watch": [
    {
     "id": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
@@ -1457,7 +1714,199 @@ window.AIM.modules = [
    }
   ],
   "best": "campusx-nitish-singh-100-days-of-machine-learning-days-1",
-  "figs": true
+  "figs": true,
+  "examples": {
+   "overview": [
+    {
+     "title": "Auto fare in Pune",
+     "text": "Past rides show that 2 km cost ₹60 and 4 km cost ₹90. The best line is fare = 30 + 15 × km. So a new 6 km ride should cost about 30 + 90 = ₹120."
+    },
+    {
+     "title": "Lakshmi's kirana shop",
+     "text": "Lakshmi in Madurai notes her shop's sales every month for two years. Regression on these notes predicts next month's sales as one number, say ₹2,40,000. She uses it to decide how much stock to buy."
+    },
+    {
+     "title": "Flat rent in Hyderabad",
+     "text": "A model says rent = 4,000 + 15 × area in square feet. For an 800 sq ft flat, that is 4,000 + 12,000 = ₹16,000 a month. The answer is a number, so this is regression."
+    },
+    {
+     "title": "Power use on a hot day",
+     "text": "Imagine a power company in Ahmedabad. It predicts tomorrow's electricity use in megawatts from the temperature. A 44°C day gets a bigger number than a 30°C day, because more fans and ACs run."
+    },
+    {
+     "title": "Gradient descent finds the line",
+     "text": "The computer starts with a bad line, like fare = 0 + 1 × km. It predicts ₹2 for a 2 km ride that really cost ₹60. It moves both numbers a little, checks the error again, and repeats. After many small steps, it reaches about 30 and 15."
+    },
+    {
+     "title": "Why big misses count extra",
+     "text": "Arjun's line misses one ride by ₹4 and another by ₹12. MSE (mean squared error) squares each miss before averaging, giving 16 and 144. The ₹12 miss is 3 times bigger, but it counts 9 times more."
+    },
+    {
+     "title": "Fraud or a number?",
+     "text": "Gurpreet's bank in Ludhiana wants two things. \"Is this UPI payment a fraud?\" has a yes or no answer, so that is classification. \"How much will this customer spend next month?\" has a ₹ answer, so that is regression."
+    }
+   ],
+   "outcomes": [
+    {
+     "title": "Reading a rent formula",
+     "text": "Riya in Hyderabad sees rent = 4,000 + 15 × area_sqft. She tells her flatmate that each extra square foot adds about ₹15 to the predicted rent. It does not mean 15 percent."
+    },
+    {
+     "title": "Fixing a growing loss",
+     "text": "Arjun's training loss (the error number) goes 12, 30, 90, 400 after each pass over the data. He knows the steps are too big. He divides the learning rate (the step size) by 10, and the loss starts falling."
+    },
+    {
+     "title": "One number for managers",
+     "text": "Fatima works at a food-delivery startup in Kolkata. She reports, \"Our delivery-time predictions are off by 6 minutes on average.\" That is the MAE (mean absolute error). She avoids RMSE here, because a few flood-day delays would push it up a lot."
+    },
+    {
+     "title": "Bending the line for AC sales",
+     "text": "Gurpreet sees AC sales in Nagpur rise slowly, then very fast above 38°C. A straight line misses this bend (मोड़, mod). He adds temperature² as a new column. It is still linear regression on the new columns, so the same method fits the curve."
+    },
+    {
+     "title": "Lasso finds a useless column",
+     "text": "Priya trains Lasso on used-car prices in Bengaluru. The weight for the last digit of the number plate becomes exactly 0. She drops that column, because it never helped to predict the price."
+    },
+    {
+     "title": "Spotting a funnel",
+     "text": "Meera plots residuals for her house-price model in Kochi. Misses are small for cheap houses but huge for costly ones, like a funnel. She makes the model predict log(price), which squeezes big prices closer to small ones. The spread becomes more equal."
+    }
+   ],
+   "studySteps": [
+    {
+     "title": "One hour after office",
+     "text": "Suresh is a bank clerk in Kanpur with one free hour a day. Day 1: regression and MSE videos. Day 2: gradient descent videos and the lab. Day 3: the other videos. Day 4: practice and the quiz. He keeps the weekend for the from-scratch task."
+    },
+    {
+     "title": "College student in Kochi",
+     "text": "Anjali watches videos between classes but does the lab slowly. She writes down what each learning rate did. The tiny one crawled, the medium one settled, and the big one shot off the chart."
+    },
+    {
+     "title": "Homemaker with short breaks",
+     "text": "Shabana in Lucknow studies in 20-minute breaks. She watches one video per break and copies the error formulas, MAE and RMSE, into a notebook. Before the quiz, she uses one break to revise all of them."
+    },
+    {
+     "title": "Weekend learner in Bengaluru",
+     "text": "Rahul studies only on Saturday and Sunday. On Saturday he finishes all the videos and the lab. On Sunday he does practice, the quiz and the from-scratch task. He keeps two hours for that task, because it needs patience (धैर्य, dhairya)."
+    },
+    {
+     "title": "Slow internet in Sikkim",
+     "text": "Tenzin lives in a hill town with a slow connection. She watches videos at low quality to save data. She does the paper task on the two error scores, MAE and RMSE, in her notebook with no internet at all."
+    },
+    {
+     "title": "Quiz score below 70%",
+     "text": "Kiran scores 60% on the quiz. Most wrong answers were about the error scores. She watches the metrics lesson again, works through the examples, and then takes the quiz again."
+    }
+   ],
+   "keyTerms": [
+    {
+     "title": "Weights in a car-price model",
+     "text": "Imagine a Bengaluru model that says price = 6,00,000 − 45,000 × age. The weight −45,000 means each extra year lowers the price by ₹45,000. The intercept 6,00,000 is the prediction at age 0. A 4-year-old car gets 6,00,000 − 1,80,000 = ₹4,20,000."
+    },
+    {
+     "title": "Delivery minutes: MAE and RMSE",
+     "text": "A Kolkata delivery app misses three orders by 5, 5 and 20 minutes. MAE = 30 ÷ 3 = 10 minutes. RMSE = √((25 + 25 + 400) ÷ 3) = √150 ≈ 12.2 minutes. The one big miss pulls RMSE above MAE."
+    },
+    {
+     "title": "Train delays in mini-batches",
+     "text": "Imagine a model that predicts train delays in minutes from 64,000 past trips. With mini-batches of 64 rows, one full pass over the data makes 64,000 ÷ 64 = 1,000 gradient descent steps."
+    },
+    {
+     "title": "Lasso trims a crop model",
+     "text": "Imagine a Punjab farm team that predicts wheat yield from 40 features. Lasso sets 28 of the weights to exactly 0. The team now looks closely at the 12 features left, like rainfall and fertiliser."
+    },
+    {
+     "title": "R² for a kirana shop",
+     "text": "Average daily sales at Gopal's shop in Indore are ₹5,000. Always guessing ₹5,000 gives R² = 0. A model that catches festival rushes and rainy-day dips might reach R² = 0.8. A model worse than the plain ₹5,000 guess gets a negative R²."
+    },
+    {
+     "title": "Learning rate too big",
+     "text": "Neha in Bhopal sets a very large learning rate. Each step jumps across the valley and lands higher than before. The loss grows and turns into NaN (not a number). With a rate 100 times smaller, the steps shrink and the loss falls."
+    },
+    {
+     "title": "MSE for a tutor's predictions",
+     "text": "A Chennai tutor's model predicts board exam marks. It misses Divya by 3 marks and Karthik by 9. The squares are 9 and 81, so MSE = 45. Gradient descent will work hardest to fix Karthik's big miss."
+    }
+   ],
+   "indiaExample": [
+    {
+     "title": "Flat prices in Pune",
+     "text": "Imagine a Pune property website. It predicts a flat's price from its area, floor, building age and distance to the nearest metro station. The answer is one ₹ amount, like ₹85,00,000, so this is regression."
+    },
+    {
+     "title": "Power demand in Chennai",
+     "text": "Imagine a power company in Chennai. It predicts tomorrow's electricity demand (माँग, maang) in megawatts from temperature, humidity and the day of the week. A hot weekday in May gets a high number, so the company arranges enough power."
+    },
+    {
+     "title": "Delivery time in Kolkata",
+     "text": "Imagine a food-delivery app in Kolkata. It predicts delivery time in minutes from distance, rain and time of day. Managers read the MAE, the average error size, like \"6 minutes off on average\"."
+    },
+    {
+     "title": "Rice yield in Andhra Pradesh",
+     "text": "Imagine an agriculture team in Andhra Pradesh. It predicts rice yield (पैदावार, paidaavaar) in quintals per acre from rainfall, fertiliser and seed type. The number helps farmers plan storage and loans before the harvest."
+    },
+    {
+     "title": "Tea prices in Guwahati",
+     "text": "Imagine a tea trader in Guwahati. He predicts the auction price per kg from the leaf grade, the month and last week's prices. Each feature gets a weight (how much it counts), and better grades push the predicted price up."
+    },
+    {
+     "title": "Ad spend for a Jaipur agency",
+     "text": "Imagine a digital agency in Jaipur. Past campaigns show leads rising with ad spend. Regression gives a rough first answer: ₹50,000 more on ads may bring about 120 more leads. The agency treats it as a guide, not a promise."
+    }
+   ],
+   "commonMistakes": [
+    {
+     "title": "Lakhs next to years",
+     "text": "Vikram's car model uses km driven (up to 1,50,000) and age (up to 15 years) without scaling. Gradient descent zig-zags for thousands of steps. After `StandardScaler`, both features have a similar range, and training settles in a few hundred steps."
+    },
+    {
+     "title": "Loss turns into NaN",
+     "text": "Sneha uses a learning rate of 1.0. Her loss goes 8, 20, 55, 400, then NaN. She divides the rate by 10, but the loss still grows. At 0.01, the loss falls smoothly to a low value."
+    },
+    {
+     "title": "Great on training, poor on test",
+     "text": "Imran's house-price model shows a training R² of 0.98. On the test set, R² is −0.4, so it is worse than guessing the average price. He adds Ridge, uses fewer features, and checks test RMSE before trusting it."
+    },
+    {
+     "title": "Missing the bend",
+     "text": "Kavya predicts AC sales in Nagpur with a straight line. R² looks fine, but her residual plot shows a clear U-shaped curve. She adds temperature² as a feature, and the curve in the residuals goes away."
+    },
+    {
+     "title": "Deleting costly flats",
+     "text": "Rohan's residual plot for Mumbai flat prices is a funnel. He deletes all flats above ₹3 crore to make the plot look neat. Now the model fails on exactly those flats. Predicting log(price) would fix the spread without losing data."
+    },
+    {
+     "title": "Degree 15 for 20 points",
+     "text": "Deepak fits a degree-15 curve to 20 days of tea-stall sales. It touches almost every training point, but its test error is huge. A degree-2 curve has a little more training error and much less test error."
+    }
+   ],
+   "selfCheck": [
+    {
+     "title": "Hint for the ride task",
+     "text": "Start with w = 0 (the weight) and b = 0 (the intercept). In each loop, predict the fares, find the errors, work out both gradients (slopes), and update w and b. For rides of 1 to 10 km, a learning rate like 0.01 works. If the loss grows, make the rate smaller. After a few thousand loops, values like b ≈ 29.6 and w ≈ 15.1 mean it works."
+    },
+    {
+     "title": "Gradients for the ride task",
+     "text": "Let error = prediction − fare. The gradient for w is 2 × average(error × km). The gradient for b is 2 × average(error). In every loop, subtract learning rate × gradient from each one."
+    },
+    {
+     "title": "Reading the Lasso output",
+     "text": "`print(lasso.coef_)` shows the weights Lasso learned, one per column. A weight shown as 0.0 means Lasso switched that feature off. A good answer names those features and notes that Ridge kept every weight non-zero, only smaller."
+    },
+    {
+     "title": "What the four degrees show",
+     "text": "A good answer says: degree 1 is a straight line that misses the bend, so it underfits. Degree 2 follows a simple curve well. Degree 15 wiggles through the noise, with low training error but high test error, so it overfits."
+    },
+    {
+     "title": "Describing a residual plot",
+     "text": "Sample answer: \"The residuals form a funnel. They are small for cheap houses and wide for costly ones. So the error spread is not equal, and I will try predicting log(price).\" Always name the shape, then the fix."
+    },
+    {
+     "title": "Thinking through the gap",
+     "text": "Try five cars. If every miss is ₹40,000, MAE and RMSE are both ₹40,000. If four misses are ₹10,000 and one is ₹1,60,000, MAE stays ₹40,000 but RMSE jumps to about ₹72,000. So a big gap means a few very big misses. Then check which cars, maybe rare or luxury ones, cause them."
+    }
+   ]
+  }
  },
  {
   "id": "l2-classification",
