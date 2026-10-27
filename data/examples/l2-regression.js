@@ -107,7 +107,7 @@ window.AIM.examples["l2-regression"] = {
   },
   {
    "title": "Learning rate too big",
-   "text": "Neha in Bhopal sets a very large learning rate. Each step jumps across the valley and lands higher than before. The loss grows and turns into NaN (not a number). With a rate 100 times smaller, the steps shrink and the loss falls."
+   "text": "Neha in Bhopal sets a very large learning rate. Each step jumps across the valley and lands higher than before. The loss (the error number) grows and turns into NaN (not a number). With a rate 100 times smaller, the steps shrink and the loss falls."
   },
   {
    "title": "MSE for a tutor's predictions",
@@ -169,7 +169,7 @@ window.AIM.examples["l2-regression"] = {
  "selfCheck": [
   {
    "title": "Hint for the ride task",
-   "text": "Start with w = 0 (the weight) and b = 0 (the intercept). In each loop, predict the fares, find the errors, work out both gradients (slopes), and update w and b. For rides of 1 to 10 km, a learning rate like 0.01 works. If the loss grows, make the rate smaller. After a few thousand loops, values like b ≈ 29.6 and w ≈ 15.1 mean it works."
+   "text": "Start with w = 0 (the weight) and b = 0 (the intercept). In each loop, predict the fares, find the errors, work out both gradients (slopes), and update w and b. For rides of 1 to 10 km, a learning rate (step size) like 0.01 works. If the loss (the error number) grows, make the rate smaller. After a few thousand loops, values like b ≈ 29.6 and w ≈ 15.1 mean it works."
   },
   {
    "title": "Gradients for the ride task",

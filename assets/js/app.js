@@ -676,7 +676,7 @@
       featureCard('Tests and tough projects', nQ + ' quiz questions, four level tests and ' + D.projects.length + ' portfolio projects built on Indian data and problems.', '#projects', 'See the projects') +
       '</div></section>' +
       '<section class="stack"><div class="section-title"><h2>How each module works</h2></div><ol class="stack-sm prose">' +
-      '<li><strong>Read the lesson cards.</strong> Short plain-English cards with diagrams, key terms and a study plan. Press Got it after each card to track your reading.</li>' +
+      '<li><strong>Read (or listen to) the lesson cards.</strong> Short cards in simple English, each with a diagram and at least 5 Indian examples; harder words also come in Hindi. Press Listen to hear a card, and Got it after each card to track your reading.</li>' +
       '<li><strong>Watch.</strong> The best pick, from an Indian teacher in Hindi, Hinglish or Indian English, plus other options if a teacher does not click for you.</li>' +
       '<li><strong>Play with the lab.</strong> Every module has a lab that lets you feel the idea before you code it.</li>' +
       '<li><strong>Practise.</strong> Solve small Python exercises right on the page.</li>' +

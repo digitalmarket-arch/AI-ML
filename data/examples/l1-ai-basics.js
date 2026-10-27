@@ -133,7 +133,7 @@ window.AIM.examples["l1-ai-basics"] = {
   },
   {
    "title": "DigiYatra at airports",
-   "text": "DigiYatra lets air passengers pass airport checkpoints using their face, linked to their boarding pass. Face recognition like this is a deep learning task. It started in December 2022 at Delhi, Bengaluru and Varanasi airports."
+   "text": "DigiYatra lets air passengers pass airport checkpoints using their face, linked to their boarding pass. Face recognition like this is a deep learning task, done by a model with many layers that learned from many face photos. It started in December 2022 at Delhi, Bengaluru and Varanasi airports."
   },
   {
    "title": "Kisan e-Mitra for PM-KISAN",
@@ -141,7 +141,7 @@ window.AIM.examples["l1-ai-basics"] = {
   },
   {
    "title": "Imagined crop app in Vidarbha",
-   "text": "Imagine a farm app in Vidarbha. It learns from past seasons of rainfall, soil tests and crop yield (पैदावार, paidavar) in that region. Then it suggests the best sowing week. This is supervised learning on local data."
+   "text": "Imagine a farm app in Vidarbha. It learns from past seasons of rainfall, soil tests and crop yield (पैदावार, paidaavaar) in that region. Then it suggests the best sowing week. This is supervised learning on local data."
   },
   {
    "title": "UPI fraud checks at banks",
