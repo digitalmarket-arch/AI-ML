@@ -139,7 +139,13 @@ Copy an existing entry in `data/resources.js` and change the values:
 Each module in `data/course.js` has seven lesson cards: `overview` (The big idea), `outcomes`, `studySteps`, `keyTerms`, `indiaExample` (In India), `commonMistakes` and `selfCheck`. Write them in simple English: short sentences, and explain every technical word the first time a card uses it.
 
 - **Hindi words in brackets** help Indian learners. Write them in both scripts, exactly like this: `average (औसत, ausat)`. Use them only for harder words, the first time they appear on a card. Hindi is not allowed anywhere else in the course text, and `node scripts/check-data.js` reports any that is.
-- A key term can show its Hindi word next to it with `"hi"`: `{"term": "Bias", "hi": "पक्षपात, pakshapaat", "meaning": "..."}`.
+- **Key terms** matter most: explain each one so a beginner gets it. Give a plain `meaning` (one or two short sentences), `like` (an everyday comparison) and `example` (a tiny concrete example; for a coding term, one line of code and what it does). `"hi"` shows the Hindi word next to the term:
+
+```js
+{"term": "Variable", "hi": "चर, char", "meaning": "A name that holds a value, so you can use it later.",
+ "like": "Think of it like a steel dabba with a label: the label is the name, what you put inside is the value.",
+ "example": "`price = 250` puts 250 in a box called price; `price * 2` then gives 500."}
+```
 - **Examples:** `examples` holds at least 5 short examples for every card, each with a title and one to three sentences:
 
 ```js

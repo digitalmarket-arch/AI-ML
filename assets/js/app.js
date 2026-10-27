@@ -842,7 +842,11 @@
       var body = {
         overview: (m.overview ? parasHTML(m.overview) : '<p>' + esc((m.topics || []).join(', ')) + '</p>') + (m.whyItMatters ? '<div class="callout callout-indigo"><strong>Why it matters:</strong> ' + inline(modLinks(m.whyItMatters)) + '</div>' : ''),
         outcomes: listHTML(m.outcomes), studySteps: listHTML(m.studySteps, true),
-        keyTerms: '<dl>' + (m.keyTerms || []).map(function (k) { return '<div class="gloss-term"><dt>' + esc(k.term) + (k.hi ? ' <span class="term-hi">(' + esc(k.hi) + ')</span>' : '') + '</dt><dd>' + inline(modLinks(k.meaning)) + '</dd></div>'; }).join('') + '</dl>',
+        keyTerms: '<dl>' + (m.keyTerms || []).map(function (k) {
+          return '<div class="gloss-term"><dt>' + esc(k.term) + (k.hi ? ' <span class="term-hi">(' + esc(k.hi) + ')</span>' : '') + '</dt><dd>' + inline(modLinks(k.meaning)) +
+            (k.like ? '<span class="term-more"><strong>Think of it like:</strong> ' + inline(modLinks(k.like)) + '</span>' : '') +
+            (k.example ? '<span class="term-more"><strong>Example:</strong> ' + inline(modLinks(k.example)) + '</span>' : '') + '</dd></div>';
+        }).join('') + '</dl>',
         indiaExample: parasHTML(m.indiaExample),
         commonMistakes: listHTML(m.commonMistakes), selfCheck: listHTML(m.selfCheck)
       };

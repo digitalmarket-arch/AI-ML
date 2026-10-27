@@ -416,6 +416,7 @@ table.simple th { font-size: .8rem; text-transform: uppercase; letter-spacing: .
 @media (max-width: 600px) { .gloss-term { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
 .gloss-term dt { font-weight: 700; }
 .gloss-term dd { margin: 0; max-width: 70ch; }
+.gloss-term .term-more { display: block; margin-top: 6px; }
 .checklist { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .checklist label { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; align-items: start; }
 .checklist input { margin-top: 4px; }

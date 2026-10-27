@@ -35,7 +35,7 @@ const CARD_KEYS = ['overview', 'outcomes', 'studySteps', 'keyTerms', 'indiaExamp
 for (const m of D.modules || []) {
   for (const k of CARD_KEYS.concat(['whyItMatters', 'tip'])) if (k !== 'keyTerms') hindiOnlyInBrackets(m[k], `module ${m.id}.${k}`);
   for (const [i, t] of (m.keyTerms || []).entries()) {
-    hindiOnlyInBrackets(t.meaning, `module ${m.id}.keyTerms[${i}]`);
+    for (const f of ['meaning', 'like', 'example']) hindiOnlyInBrackets(t[f], `module ${m.id}.keyTerms[${i}].${f}`);
     if (t.hi !== undefined && !/^[\u0900-\u097F][\u0900-\u097F\u200c\u200d ]*, [a-z][a-z' -]*$/.test(t.hi)) errors.push(`module ${m.id}.keyTerms[${i}].hi must look like "देवनागरी, roman"`);
   }
   for (const [k, list] of Object.entries(m.examples || {})) {
