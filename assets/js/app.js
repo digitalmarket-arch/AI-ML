@@ -66,6 +66,7 @@
   var S = function () { return C.state; };
   var main = document.getElementById('main');
   var ST = function () { return window.AIM_STUDY || null; };
+  var SPK = window.AIM_SPEAK || { btn: function () { return ''; }, stop: function () {} };
   var currentCleanup = [];
 
   /* ---------- indexes ---------- */
@@ -135,7 +136,7 @@
   }
   function readCardHTML(m, c, i, n, body, done) {
     return '<section class="card read-card stack-sm' + (done ? ' is-read' : '') + '" data-sec="' + esc(c.key) + '" id="read-' + esc(c.key) + '" aria-labelledby="read-h-' + esc(c.key) + '">' +
-      '<div class="read-head"><h2 class="h-sub" id="read-h-' + esc(c.key) + '" tabindex="-1">' + esc(c.title) + '</h2><span class="small muted num">Card ' + (i + 1) + ' of ' + n + '</span></div>' +
+      '<div class="read-head"><h2 class="h-sub" id="read-h-' + esc(c.key) + '" tabindex="-1">' + esc(c.title) + '</h2><span class="read-tools">' + SPK.btn('.read-card', 'Listen to this card: ' + c.title) + '<span class="small muted num tts-skip">Card ' + (i + 1) + ' of ' + n + '</span></span></div>' +
       '<div class="read-body prose stack-sm">' + body + '<div class="fig-slot"></div>' + examplesHTML(m, c.key) + '</div>' +
       '<div class="read-foot">' + readBtnHTML(m, c.key, done) + '</div></section>';
   }
@@ -147,16 +148,17 @@
   function examplesHTML(m, key) {
     var ex = (m.examples || {})[key];
     if (!Array.isArray(ex) || !ex.length) return '';
-    return '<div class="ex-block"><h3 class="ex-h">Examples <span class="ex-hi">(उदाहरण, udaharan)</span></h3><ol class="ex-list" role="list">' + ex.map(function (x) {
+    return '<div class="ex-block"><h3 class="ex-h">Examples <span class="ex-hi">(उदाहरण, udaharan)</span></h3><ol class="ex-list" role="list">' + ex.map(function (x, j) {
       var t = typeof x === 'string' ? { text: x } : (x || {});
-      return '<li>' + (t.title ? '<strong class="ex-t">' + inline(t.title) + '</strong> ' : '') + inline(modLinks(t.text || '')) + '</li>';
+      return '<li data-tts-prefix="Example ' + (j + 1) + '.">' + (t.title ? '<strong class="ex-t">' + inline(t.title) + '</strong> ' : '') + inline(modLinks(t.text || '')) + '</li>';
     }).join('') + '</ol></div>';
   }
   function readProgressInner(m) {
     var cards = readCards(m), n = cards.length, d = readDone(m);
     var next = cards.filter(function (c) { return !readOn(m.id, c.key); })[0];
-    return '<div class="row-between"><strong>Lesson cards read: <span class="num">' + d + ' of ' + n + '</span></strong>' +
-      (next && d ? '<button type="button" class="btn btn-sm" data-action="read-next" data-id="' + esc(m.id) + '">Next unread card ↓</button>' : '') + '</div>' +
+    return '<div class="row-between"><strong>Lesson cards read: <span class="num">' + d + ' of ' + n + '</span></strong><span class="row">' +
+      SPK.btn('.read-cards', 'Listen to all the lesson cards', { text: 'Listen to all cards' }) +
+      (next && d ? '<button type="button" class="btn btn-sm" data-action="read-next" data-id="' + esc(m.id) + '">Next unread card ↓</button>' : '') + '</span></div>' +
       bar(n ? Math.round(d / n * 100) : 0, 'Lesson cards read') +
       '<p class="small muted">' + (n && d === n ? 'You have read every card in this lesson. Next: <a href="#m-' + esc(m.id) + '~watch">watch the best pick</a>.' : 'Read each card, then press <strong>Got it</strong> at its end. Your ticks count towards this module\'s progress and are saved like the rest of it.') + '</p>';
   }
@@ -689,7 +691,7 @@
   }
   function sectionsHTML(sections) {
     return (sections || []).map(function (s, i) {
-      return '<section class="stack-sm" id="sec-' + i + '"><h2 class="h-sub">' + esc(s.heading) + '</h2>' + (s.paragraphs || []).map(function (p) { return '<p>' + inline(p) + '</p>'; }).join('') +
+      return '<section class="stack-sm" id="sec-' + i + '"><div class="sec-head"><h2 class="h-sub">' + esc(s.heading) + '</h2>' + SPK.btn('section', 'Listen to this section: ' + s.heading) + '</div>' + (s.paragraphs || []).map(function (p) { return '<p>' + inline(p) + '</p>'; }).join('') +
         (s.bullets && s.bullets.length ? (s.bullets.every(function (b) { return /^\d+\.\s/.test(b); }) ? '<ol>' + s.bullets.map(function (b) { return '<li>' + inline(b.replace(/^\d+\.\s/, '')) + '</li>'; }).join('') + '</ol>' : '<ul>' + s.bullets.map(function (b) { return '<li>' + inline(b) + '</li>'; }).join('') + '</ul>') : '') + '</section>';
     }).join('');
   }
@@ -803,7 +805,7 @@
     });
     function switchTab(t, focus) {
       try { window.scrollTo({ top: window.scrollY, behavior: 'instant' }); } catch (e) {}
-      moduleTab[id] = t;
+      moduleTab[id] = t; SPK.stop();
       try { history.replaceState(history.state, '', '#m-' + id + '~' + t); } catch (e) {} // keeps the entry's scroll key
       currentCleanup.forEach(function (f) { try { f(); } catch (e) {} }); currentCleanup = [];
       tabBtns.forEach(function (b) { var on = b.getAttribute('data-tab') === t; b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1; if (on && focus) b.focus(); });
@@ -843,7 +845,7 @@
         overview: (m.overview ? parasHTML(m.overview) : '<p>' + esc((m.topics || []).join(', ')) + '</p>') + (m.whyItMatters ? '<div class="callout callout-indigo"><strong>Why it matters:</strong> ' + inline(modLinks(m.whyItMatters)) + '</div>' : ''),
         outcomes: listHTML(m.outcomes), studySteps: listHTML(m.studySteps, true),
         keyTerms: '<dl>' + (m.keyTerms || []).map(function (k) {
-          return '<div class="gloss-term"><dt>' + esc(k.term) + (k.hi ? ' <span class="term-hi">(' + esc(k.hi) + ')</span>' : '') + '</dt><dd>' + inline(modLinks(k.meaning)) +
+          return '<div class="gloss-term"><dt>' + esc(k.term) + (k.hi ? ' <span class="term-hi">(' + esc(k.hi) + ')</span>' : '') + SPK.btn('.gloss-term', 'Listen: ' + k.term, { icon: true }) + '</dt><dd>' + inline(modLinks(k.meaning)) +
             (k.like ? '<span class="term-more"><strong>Think of it like:</strong> ' + inline(modLinks(k.like)) + '</span>' : '') +
             (k.example ? '<span class="term-more"><strong>Example:</strong> ' + inline(modLinks(k.example)) + '</span>' : '') + '</dd></div>';
         }).join('') + '</dl>',
@@ -1405,7 +1407,7 @@
       document.getElementById('g-list').innerHTML = f.map(function (g) {
         var m = modById[g.moduleId];
         var L = g.term.charAt(0).toUpperCase(), anchor = seen[L] || q ? '' : ' id="g-' + L + '"'; seen[L] = 1;
-        return '<div class="gloss-term"' + anchor + '><dt>' + esc(g.term) + '</dt><dd class="stack-sm"><span>' + inline(g.simple) + '</span>' +
+        return '<div class="gloss-term"' + anchor + '><dt>' + esc(g.term) + SPK.btn('.gloss-term', 'Listen: ' + g.term, { icon: true }) + '</dt><dd class="stack-sm"><span>' + inline(g.simple) + '</span>' +
           (g.example ? '<span class="small muted">Example: ' + inline(g.example) + '</span>' : '') + (m ? '<a class="small" href="#m-' + esc(m.id) + '">Learn it in ' + esc(modNo(m) + ' ' + m.title) + '</a>' : '') + '</dd></div>';
       }).join('') || '<div class="empty">No term matches.</div>';
     }
@@ -1419,7 +1421,7 @@
     setView('<div class="wrap stack-lg">' + crumbs([['Home', 'home'], ['Career & FAQ']]) +
       '<header class="stack-sm"><h1>' + esc(pg.title || 'Careers') + '</h1><p class="lede muted prose">What to do with these skills in India: jobs, freelancing and AI services for agencies.</p></header>' +
       '<div class="prose stack">' + tocHTML(pg.sections) + sectionsHTML(pg.sections) + '</div>' +
-      (faq.length ? '<section class="stack" id="faq-list"><h2>Frequently asked questions</h2><div class="stack-sm">' + faq.map(function (f) { return '<details class="fold"><summary>' + esc(f.q) + '</summary><div class="prose">' + md(f.a) + '</div></details>'; }).join('') + '</div></section>' : '') +
+      (faq.length ? '<section class="stack" id="faq-list" data-tts-open><h2>Frequently asked questions</h2><div class="stack-sm">' + faq.map(function (f) { return '<details class="fold"><summary>' + esc(f.q) + '</summary><div class="prose">' + md(f.a) + '</div></details>'; }).join('') + '</div></section>' : '') +
       (src.length ? '<section class="stack-sm"><h3>Sources checked</h3><ul class="small">' + src.map(function (s) { return '<li><a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.label) + '</a> <span class="muted">(' + esc(s.checked || '') + ')</span></li>'; }).join('') + '</ul></section>' : '') +
       '</div>', 'Career & FAQ');
   }

@@ -172,15 +172,17 @@ main { padding-block: 28px 64px; flex: 1 0 auto; }
 
 /* ---------- header ---------- */
 .site-head { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--surface); border-bottom: 1px solid var(--line); }
-.site-head .wrap { display: flex; align-items: center; gap: 16px; min-height: 60px; }
+.site-head .wrap { display: flex; align-items: center; gap: 10px; min-height: 60px; }
 .brand { display: flex; align-items: baseline; gap: 8px; text-decoration: none; color: var(--ink); white-space: nowrap; }
 .brand-mark { font-family: var(--font-display); font-size: 1.5rem; line-height: 1; }
 .brand-mark b { color: var(--haldi-ink); font-weight: 400; }
 .nav { display: flex; gap: 2px; margin-left: auto; overflow-x: auto; scrollbar-width: none; }
 .nav::-webkit-scrollbar { display: none; }
-.nav a { padding: 8px 10px; border-radius: var(--radius-sm); color: var(--muted); text-decoration: none; font-weight: 500; white-space: nowrap; font-size: .98rem; }
+.nav a { padding: 8px; border-radius: var(--radius-sm); color: var(--muted); text-decoration: none; font-weight: 500; white-space: nowrap; font-size: .98rem; }
 .nav a:hover { color: var(--ink); background: var(--surface-2); }
 .nav a[aria-current="page"] { color: var(--indigo); background: var(--indigo-soft); }
+/* just above the menu breakpoint the full menu is tight: slightly smaller words keep it on one line */
+@media (min-width: 1101px) and (max-width: 1279px) { .nav a { padding: 8px 6px; font-size: .94rem; } }
 .head-tools { display: flex; gap: 6px; align-items: center; }
 .site-head .menu-btn { display: none; }
 @media (max-width: 1100px) {
@@ -513,6 +515,13 @@ details.fold > div { padding: 0 14px 14px; }
   .acct-link .acct-ico { display: block; }
   .acct-link .acct-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
+/* the smallest phones: Menu becomes an icon (its name stays "Menu" / "Close") to make room for the Listen button */
+@media (max-width: 360px) {
+  .site-head .wrap { gap: 4px; }
+  .site-head .menu-btn { font-size: 0; width: 38px; height: 38px; padding: 0; }
+  .site-head .menu-btn::before { content: "☰"; content: "☰" / ""; font-size: 1.25rem; line-height: 1; }
+  .site-head .menu-btn[aria-expanded="true"]::before { content: "✕"; content: "✕" / ""; }
+}
 .acct-badge { position: relative; display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--indigo); color: var(--on-indigo); font-weight: 700; font-size: .85rem; }
 .acct-badge::after { content: ""; position: absolute; right: -2px; bottom: -2px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--surface); background: var(--ok); }
 .acct-badge.is-syncing::after { background: var(--haldi); }
@@ -540,3 +549,35 @@ details.fold > div { padding: 0 14px 14px; }
 .read-body .ex-list > li { counter-increment: ex; position: relative; margin: 0; background: var(--surface-2); border-radius: var(--radius-sm); padding: 10px 12px 10px 44px; line-height: 1.5; }
 .read-body .ex-list .ex-t { display: block; margin-bottom: 2px; }
 .read-body .ex-list > li::before { content: counter(ex); position: absolute; left: 12px; top: 10px; width: 22px; height: 22px; border-radius: 50%; background: var(--haldi-soft); color: var(--ink); font-size: .8rem; font-weight: 700; line-height: 22px; text-align: center; }
+
+/* ---------- read aloud (assets/js/speak.js) ---------- */
+.tts-btn { display: none; }
+html.tts .tts-btn { display: inline-flex; }
+.tts-btn svg { width: 18px; height: 18px; flex: none; }
+.tts-btn.is-on { background: var(--indigo-soft); color: var(--indigo); }
+.tts-icon { width: 34px; height: 34px; padding: 0; margin-left: 6px; vertical-align: middle; }
+.read-tools { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.sec-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.tts-on { background: var(--haldi-soft) !important; box-shadow: 0 0 0 4px var(--haldi-soft); border-radius: 4px; }
+.tts-bar { position: fixed; z-index: 45; left: 50%; transform: translateX(-50%); bottom: calc(10px + env(safe-area-inset-bottom, 0px)); width: min(680px, calc(100vw - 20px)); box-sizing: border-box; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; background: var(--surface); border: 1px solid var(--indigo); border-radius: 16px; box-shadow: var(--shadow); }
+.tts-bar[hidden] { display: none; }
+.tts-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tts-now { flex: 1 1 200px; min-width: 0; margin: 0; font-size: .88rem; font-weight: 600; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tts-ctl { display: flex; align-items: center; gap: 2px; margin-left: auto; }
+.tts-ctl .icon-btn { width: 44px; height: 44px; }
+.tts-ctl .icon-btn svg { width: 20px; height: 20px; }
+.tts-rate, .tts-more { min-height: 44px; min-width: 44px; padding: 0 10px; font-variant-numeric: tabular-nums; }
+.tts-opts { border-top: 1px solid var(--line); padding-top: 8px; }
+.tts-opts select { width: 100%; }
+.tts-check { display: flex; gap: 8px; align-items: center; }
+.tts-msg { margin: 0; color: var(--ink); }
+.tts-msg:empty, .tts-msg[hidden] { display: none; }
+@media (max-width: 380px) { .tts-ctl .icon-btn { width: 40px; } .tts-rate, .tts-more { padding: 0 8px; } .tts-bar { padding: 6px 8px; } }
+/* room for the player at the end of the page, and the focus chip and messages sit above it */
+body.tts-bar-on { padding-bottom: calc(var(--tts-h, 64px) + 24px + env(safe-area-inset-bottom, 0px)); }
+html.tts-pad { scroll-padding-bottom: calc(var(--tts-h, 64px) + 24px + env(safe-area-inset-bottom, 0px)); }
+body.tts-bar-on .fc-chip { bottom: calc(var(--tts-h, 64px) + 20px + env(safe-area-inset-bottom, 0px)); }
+body.tts-bar-on .toasts { bottom: calc(var(--tts-h, 64px) + 26px + env(safe-area-inset-bottom, 0px)); }
+body.tts-bar-on.fc-chip-on { padding-bottom: calc(var(--tts-h, 64px) + var(--fc-chip-h, 54px) + 40px + env(safe-area-inset-bottom, 0px)); }
+html.tts-pad.fc-chip-pad { scroll-padding-bottom: calc(var(--tts-h, 64px) + var(--fc-chip-h, 54px) + 40px + env(safe-area-inset-bottom, 0px)); }
+@media print { .tts-bar, .tts-btn { display: none !important; } }

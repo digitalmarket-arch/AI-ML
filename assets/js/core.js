@@ -755,11 +755,11 @@
       var cls = 'q-opt';
       if (reveal && k === q.answer) cls += ' correct';
       if (reveal && k === picked && k !== q.answer) cls += ' wrong';
-      return '<label class="' + cls + '"><input type="radio" name="opt-' + esc(q.id) + '" value="' + k + '"' +
+      return '<label class="' + cls + '" data-tts-prefix="Option ' + (k + 1) + '."><input type="radio" name="opt-' + esc(q.id) + '" value="' + k + '"' +
         ((reveal ? picked : tentative) === k ? ' checked' : '') + (reveal ? ' disabled' : '') + '><span>' + inline(o) + '</span></label>';
     }).join('');
     var head = '<div class="row-between' + (this.mode === 'test' ? ' quiz-head' : '') + '"><div class="row"><span class="chip chip-level num">Question ' + (this.i + 1) + ' of ' + n + '</span>' +
-      '<span class="chip">' + esc(q.difficulty || '') + '</span></div>' +
+      '<span class="chip">' + esc(q.difficulty || '') + '</span>' + (window.AIM_SPEAK ? window.AIM_SPEAK.btn('.quiz', 'Listen to this question', { within: '.q' }) : '') + '</div>' +
       (this.mode === 'test' && this.minutes ? '<span class="chip chip-hi num" aria-live="off">⏱ <span data-timer>' + this.minutes + ':00</span></span>' : '') + '</div>';
     var explain = reveal ? '<div class="q-explain"><strong>' + (picked === q.answer ? 'Correct.' : 'Not quite.') + '</strong> ' + inline(q.explain) + '</div>' : '';
     var last = this.i === n - 1;
@@ -774,7 +774,7 @@
       (last ? '<button class="btn btn-primary" data-q="finish">' + (this.mode === 'test' ? 'Submit test' : 'See my score') + '</button>'
             : '<button class="btn btn-primary" data-q="next">Next →</button>') + '</div></div>';
     // the question text is where focus lands after each step (it says which question it is), and it names the options
-    this.root.innerHTML = '<div class="quiz">' + head + '<div class="q"><div class="q-text" id="' + this.uid + '-q" tabindex="-1"><span class="visually-hidden">Question ' + (this.i + 1) + ' of ' + n + '. </span><span id="' + this.uid + '-qt">' + inline(q.q) + '</span>' +
+    this.root.innerHTML = '<div class="quiz">' + head + '<div class="q"><div class="q-text" id="' + this.uid + '-q" tabindex="-1" data-tts-prefix="Question ' + (this.i + 1) + ' of ' + n + '."><span class="visually-hidden">Question ' + (this.i + 1) + ' of ' + n + '. </span><span id="' + this.uid + '-qt">' + inline(q.q) + '</span>' +
       (q.code ? '<pre><code>' + esc(q.code) + '</code></pre>' : '') + '</div><div class="q-opts" role="radiogroup" aria-labelledby="' + this.uid + '-qt">' + opts + '</div>' + sureRow + explain + '</div>' +
       '<div class="bar" aria-hidden="true"><span style="width:' + pct(this.i + 1, n) + '%"></span></div>' + nav + '</div>';
     this.root.querySelectorAll('input[name^="sure-"]').forEach(function (inp) { inp.addEventListener('change', function () { self.sure[q.id] = Number(inp.value); }); });
