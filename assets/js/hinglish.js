@@ -1,8 +1,8 @@
-/* AI Marg: Hinglish writings & phonetic speech engine.
+/* AI Marg: Hinglish writings & neural/phonetic speech engine.
    Provides:
    1. Per-card and page-wide English <-> Hinglish text toggling (next to every Listen button).
-   2. Context-aware English-to-Hinglish prose transformation that preserves code, formulas, numbers, and links.
-   3. Phonetic Hinglish speech normalization so the browser's Web Speech API (en-IN / hi-IN) pronounces Hinglish naturally.
+   2. AI-powered conversational Hinglish rewriting via /api/hinglish (CampusX / Krish Naik style) with persistent localStorage caching + instant local fallback.
+   3. Smooth Hinglish speech preparation that avoids choppy word-by-word voice switching.
    Exposes window.AIM_HINGLISH. */
 (function () {
   'use strict';
@@ -13,56 +13,79 @@
     });
   }
 
+  /* ---------- Persistent Client Cache for AI Hinglish Rewrites ---------- */
+  var CACHE_KEY = 'aimarg.hl.cache.v2';
+  var aiCache = {};
+  try {
+    aiCache = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}') || {};
+  } catch (e) {
+    aiCache = {};
+  }
+  var saveTimer = null;
+  function saveAiCache() {
+    if (saveTimer) return;
+    saveTimer = setTimeout(function () {
+      saveTimer = null;
+      try {
+        var keys = Object.keys(aiCache);
+        if (keys.length > 600) {
+          keys.slice(0, keys.length - 500).forEach(function (k) { delete aiCache[k]; });
+        }
+        localStorage.setItem(CACHE_KEY, JSON.stringify(aiCache));
+      } catch (e) {}
+    }, 600);
+  }
+
   /* ---------- Exact UI / Heading / Structural Overrides ---------- */
   var EXACT_MAP = {
-    'The big idea': 'The big idea · Asli mudda (मुख्य विचार)',
-    'You will be able to': 'You will be able to · Aap yeh kar paoge',
-    'Study plan': 'Study plan · Padhne ka plan',
-    'Key terms': 'Key terms · Zaroori shabd',
-    'In India': 'In India · Bharat mein (भारत में)',
-    'Common mistakes': 'Common mistakes · Aam galtiyan',
-    'Check yourself (open tasks)': 'Check yourself · Khud ko parkho (अभ्यास)',
+    'The big idea': 'The big idea · Asli mudda',
+    'You will be able to': 'You will be able to · Aap yeh seekh jaoge',
+    'Study plan': 'Study plan · Padhne ka sahi tarika',
+    'Key terms': 'Key terms · Zaroori technical shabd',
+    'In India': 'In India · Bharat ke examples',
+    'Common mistakes': 'Common mistakes · Aam galtiyan jo log karte hain',
+    'Check yourself (open tasks)': 'Check yourself · Khud ko test karo',
     'Topics covered': 'Topics covered · Is module ke topics',
-    'The brief': 'The brief · Project ka mudda',
+    'The brief': 'The brief · Project ka asli mudda',
     'Data': 'Data · Dataset',
-    'Milestones': 'Milestones · Padav (कदम)',
+    'Milestones': 'Milestones · Project ke padav',
     'Rubric: grade yourself honestly': 'Rubric · Apne kaam ko imaandari se jaancho',
     'Stretch goals': 'Stretch goals · Extra chunauti',
     'Pitfalls to avoid': 'Pitfalls to avoid · In galtiyon se bacho',
-    'Deliverables': 'Deliverables · Kya jama karna hai',
-    'Skills you will use': 'Skills you will use · Kaunse skills lagenge',
-    'Learn first': 'Learn first · Pehle yeh padho',
+    'Deliverables': 'Deliverables · Kya submit karna hai',
+    'Skills you will use': 'Skills you will use · Kaunse skills kaam aayenge',
+    'Learn first': 'Learn first · Pehle yeh modules padho',
     'Frequently asked questions': 'Frequently asked questions · Aksar poochhe jaane wale sawal',
-    'What you get': 'What you get · Aapko kya milega',
+    'What you get': 'What you get · Aapko is course mein kya milega',
     'How each module works': 'How each module works · Har module kaise kaam karta hai',
     'Your checklist': 'Your checklist · Aapki checklist',
-    'Best pick': 'Best pick · Sabse behtar chunaav',
-    'Other options': 'Other options · Baaki vikalp',
-    'Review your answers': 'Review your answers · Apne jawab dekho',
-    'What does it mean?': 'Iska kya matlab hai?'
+    'Best pick': 'Best pick · Sabse behtar video lecture',
+    'Other options': 'Other options · Aur ache vikalp',
+    'Review your answers': 'Review your answers · Apne jawab aur explanations dekho',
+    'What does it mean?': 'Iska kya matlab hota hai?',
+    'Lessons & exercises completion': 'Lessons aur exercises ka completion chart'
   };
 
-  /* ---------- Multi-Word Conversational Hinglish Phrase Rules ---------- */
-  // Ordered longest/most-specific first. Case-insensitive matching with capitalization preservation.
+  /* ---------- Instant Clause & Phrase Rules (Used Immediately While AI Refines) ---------- */
   var PHRASE_RULES = [
-    ['Think of it like:', 'Isko aise samjho (सोचो जैसे):'],
+    ['Think of it like:', 'Isko aise samjho:'],
     ['Why it matters:', 'Yeh kyun zaroori hai:'],
-    ['Why build this:', 'Yeh project kyun banayein:'],
-    ['Before this:', 'Isse pehle:'],
-    ['Free tools (₹0):', 'Muft tools (₹0):'],
-    ['What this means:', 'Iska matlab hai:'],
-    ['Try now:', 'Abhi try karo:'],
+    ['Why build this:', 'Yeh project kyun banana chahiye:'],
+    ['Before this:', 'Isse pehle yeh aana chahiye:'],
+    ['Free tools (₹0):', 'Bilkul free tools (₹0):'],
+    ['What this means:', 'Iska seedha matlab hai:'],
+    ['Try now:', 'Abhi khud try karo:'],
     ['About the evidence:', 'Research kya kehti hai:'],
-    ['How sure are you? (optional)', 'Aap kitne sure ho? (optional)'],
+    ['How sure are you? (optional)', 'Apne jawab par kitna bharosa hai? (optional)'],
     ['How well did you remember?', 'Aapko kitna acche se yaad raha?'],
     ['Explain it simply', 'Aasaan bhasha mein samjhao'],
-    ['Question it, step by step', 'Sawal poochho, ek-ek kadam karke'],
-    ['Repeat the key terms', 'Zaroori shabdon ko dohrao'],
-    ['This module explains', 'Yeh module samjhata hai'],
+    ['Question it, step by step', 'Sawal poochho, ek-ek step karke'],
+    ['Repeat the key terms', 'Zaroori shabdon ko bina dekhe yaad karo'],
+    ['This module explains', 'Is module mein hum samjhenge'],
     ['with no code and no maths', 'bina kisi code aur bina maths ke'],
-    ['Think of a ', 'Socho ek '],
-    ['Think of an ', 'Socho ek '],
-    ['Think of ', 'Socho '],
+    ['Think of a ', 'Maano ek '],
+    ['Think of an ', 'Maano ek '],
+    ['Think of ', 'Zara socho '],
     ['works the same way', 'bilkul isi tarah kaam karta hai'],
     ['work the same way', 'bilkul isi tarah kaam karte hain'],
     ['In normal programming', 'Normal programming mein'],
@@ -73,17 +96,15 @@
     ['In this lab', 'Is lab mein'],
     ['In this project', 'Is project mein'],
     ['In this exercise', 'Is exercise mein'],
-    ['In plain words', 'Aasaan shabdon mein'],
-    ['in plain words', 'aasaan shabdon mein'],
+    ['In plain words', 'Seedhe-saade shabdon mein'],
+    ['in plain words', 'seedhe-saade shabdon mein'],
     ['In plain English', 'Aasaan bhasha mein'],
     ['in plain English', 'aasaan bhasha mein'],
-    ['In simple words', 'Seedhe shabdon mein'],
-    ['in simple words', 'seedhe shabdon mein'],
+    ['In simple words', 'Aasaan shabdon mein'],
+    ['in simple words', 'aasaan shabdon mein'],
     ['By the end of this', 'Iske aakhir tak'],
-    ['By the end', 'Aakhir tak'],
-    ['by the end', 'aakhir tak'],
-    ['for example', 'udaharan ke liye'],
-    ['For example', 'Udaharan ke liye'],
+    ['for example', 'jaise ki'],
+    ['For example', 'Jaise ki'],
     ['such as', 'jaise ki'],
     ['Such as', 'Jaise ki'],
     ['as well as', 'aur saath hi'],
@@ -105,26 +126,19 @@
     ['more than', 'se zyada'],
     ['less than', 'se kam'],
     ['fewer than', 'se kam'],
-    ['step by step', 'ek-ek kadam karke'],
-    ['Step by step', 'Ek-ek kadam karke'],
+    ['step by step', 'step-by-step (ek-ek kadam karke)'],
+    ['Step by step', 'Step-by-step (ek-ek kadam karke)'],
     ['line by line', 'ek-ek line karke'],
     ['one by one', 'ek-ek karke'],
-    ['by hand', 'haath se (manually)'],
     ['on your own', 'khud se'],
-    ['on its own', 'khud se'],
-    ['on her own', 'khud se'],
-    ['on his own', 'khud se'],
+    ['on its own', 'apne aap'],
     ['by itself', 'apne aap'],
-    ['by yourself', 'khud se'],
     ['in your own words', 'apne shabdon mein'],
-    ['in your browser', 'aapke browser mein'],
+    ['in your browser', 'seedha aapke browser mein'],
     ['in the browser', 'browser ke andar'],
     ['right answers', 'sahi jawab'],
     ['correct answer', 'sahi jawab'],
-    ['correct answers', 'sahi jawab'],
     ['wrong answer', 'galat jawab'],
-    ['wrong answers', 'galat jawab'],
-    ['trial and error', 'koshish aur galti (trial and error)'],
     ['First,', 'Sabse pehle,'],
     ['Second,', 'Doosra,'],
     ['Third,', 'Teesra,'],
@@ -132,22 +146,16 @@
     ['However,', 'Lekin,'],
     ['Therefore,', 'Isliye,'],
     ['Otherwise,', 'Warna,'],
-    ['Remember that', 'Dhyan rakho ki'],
+    ['Remember that', 'Hamesha dhyan rakho ki'],
     ['Remember:', 'Yaad rakho:'],
     ['Keep in mind', 'Dhyan mein rakho'],
     ['Make sure', 'Pakka karo ki'],
     ['make sure', 'pakka karo ki'],
     ['Be careful', 'Savdhaan raho'],
-    ['Look at', 'Dekho'],
-    ['look at', 'dekho'],
-    ['Let us', 'Chalo'],
-    ['Let\'s', 'Chalo'],
     ['You will learn', 'Aap seekhoge'],
     ['you will learn', 'aap seekhoge'],
     ['You will see', 'Aap dekhoge'],
     ['you will see', 'aap dekhoge'],
-    ['You will also', 'Aap yeh bhi'],
-    ['you will also', 'aap yeh bhi'],
     ['You can use', 'Aap use kar sakte ho'],
     ['you can use', 'aap use kar sakte ho'],
     ['You can', 'Aap kar sakte ho'],
@@ -156,12 +164,6 @@
     ['you need to', 'aapko zaroorat hai'],
     ['we need to', 'humein zaroorat hai'],
     ['We need to', 'Humein zaroorat hai'],
-    ['does not', 'nahi karta'],
-    ['do not', 'mat karo / nahi karte'],
-    ['Do not', 'Mat karo'],
-    ['Don\'t', 'Mat karo'],
-    ['cannot', 'nahi kar sakta'],
-    ['can\'t', 'nahi kar sakta'],
     ['is called a ', 'ko kehte hain ek '],
     ['is called an ', 'ko kehte hain ek '],
     ['is called ', 'ko kehte hain '],
@@ -172,210 +174,16 @@
     ['that is why', 'isi liye'],
     ['This means', 'Iska matlab hai'],
     ['this means', 'iska matlab hai'],
-    ['What is ', 'Kya hai '],
-    ['How does ', 'Kaise kaam karta hai '],
-    ['Why does ', 'Kyun karta hai '],
-    ['Why is ', 'Kyun hai '],
     ['When you ', 'Jab aap '],
     ['when you ', 'jab aap '],
     ['If you ', 'Agar aap '],
     ['if you ', 'agar aap '],
-    ['before you ', 'isse pehle ki aap '],
-    ['after you ', 'iske baad jab aap '],
-    ['so you can ', 'taaki aap kar sako '],
-    ['in order to ', 'ke liye '],
     ['from scratch', 'bilkul shuruat (scratch) se'],
-    ['real-world', 'asli duniya (real-world) ke'],
     ['every day', 'har roz'],
-    ['each other', 'ek doosre'],
-    ['one another', 'ek doosre'],
     ['a lot of', 'bahut saara'],
-    ['lots of', 'bahut saare'],
     ['most of', 'zyadatar'],
-    ['Most of', 'Zyadatar'],
-    ['some of', 'kuch'],
-    ['all of', 'sabhi']
+    ['Most of', 'Zyadatar']
   ];
-
-  /* ---------- Word-Level Conversational Hinglish Replacements ---------- */
-  // Only non-technical everyday words are mapped so technical AI/ML terms (model, layer, vector, matrix, loss, gradient, token, etc.) stay in clear English.
-  var WORD_MAP = {
-    'and': 'aur',
-    'or': 'ya',
-    'but': 'lekin',
-    'because': 'kyunki',
-    'so': 'toh',
-    'if': 'agar',
-    'then': 'toh',
-    'when': 'jab',
-    'while': 'jabki',
-    'where': 'jahan',
-    'who': 'jo',
-    'which': 'jo',
-    'what': 'kya',
-    'why': 'kyun',
-    'how': 'kaise',
-    'this': 'yeh',
-    'that': 'woh',
-    'these': 'yeh sab',
-    'those': 'woh sab',
-    'here': 'yahan',
-    'there': 'wahan',
-    'now': 'abhi',
-    'later': 'baad mein',
-    'before': 'pehle',
-    'after': 'baad',
-    'always': 'hamesha',
-    'never': 'kabhi nahi',
-    'often': 'aksar',
-    'sometimes': 'kabhi-kabhi',
-    'usually': 'aam taur par',
-    'already': 'pehle se',
-    'still': 'abhi bhi',
-    'also': 'bhi',
-    'too': 'bhi',
-    'only': 'sirf',
-    'just': 'bas',
-    'very': 'bahut',
-    'much': 'zyada',
-    'many': 'kai saare',
-    'few': 'kuch',
-    'every': 'har',
-    'each': 'har ek',
-    'both': 'dono',
-    'other': 'doosre',
-    'another': 'ek aur',
-    'same': 'wahi (same)',
-    'different': 'alag',
-    'new': 'naya',
-    'old': 'purana',
-    'big': 'bada',
-    'large': 'bada',
-    'small': 'chhota',
-    'tiny': 'bahut chhota',
-    'good': 'accha',
-    'better': 'behtar',
-    'best': 'sabse behtar',
-    'bad': 'kharab',
-    'worse': 'aur kharab',
-    'worst': 'sabse kharab',
-    'right': 'sahi',
-    'wrong': 'galat',
-    'easy': 'aasaan',
-    'simple': 'aasaan',
-    'hard': 'mushkil',
-    'tough': 'mazboot (tough)',
-    'important': 'zaroori',
-    'useful': 'kaam ka',
-    'clear': 'saaf',
-    'real': 'asli',
-    'true': 'sahi (true)',
-    'false': 'galat (false)',
-    'fast': 'tez',
-    'quick': 'tez',
-    'slow': 'dheema',
-    'first': 'pehla',
-    'last': 'aakhiri',
-    'next': 'agla',
-    'previous': 'pichhla',
-    'with': 'ke saath',
-    'without': 'ke bina',
-    'inside': 'ke andar',
-    'outside': 'ke bahar',
-    'between': 'ke beech',
-    'under': 'ke neeche',
-    'above': 'ke upar',
-    'about': 'ke baare mein',
-    'into': 'mein',
-    'from': 'se',
-    'for': 'ke liye',
-    'you': 'aap',
-    'your': 'aapka',
-    'we': 'hum',
-    'our': 'humara',
-    'they': 'woh',
-    'their': 'unka',
-    'people': 'log',
-    'person': 'insaan',
-    'student': 'learner (student)',
-    'teacher': 'shikshak (teacher)',
-    'money': 'paisa',
-    'time': 'samay',
-    'day': 'din',
-    'days': 'din',
-    'week': 'hafta',
-    'weeks': 'hafte',
-    'year': 'saal',
-    'years': 'saal',
-    'way': 'tarika',
-    'ways': 'tarike',
-    'work': 'kaam',
-    'works': 'kaam karta hai',
-    'learn': 'seekho',
-    'learns': 'seekhta hai',
-    'learned': 'seekha',
-    'learning': 'seekhna (learning)',
-    'understand': 'samjho',
-    'read': 'padho',
-    'write': 'likho',
-    'watch': 'dekho',
-    'see': 'dekho',
-    'check': 'jaancho (check)',
-    'find': 'dhoondho',
-    'finds': 'dhoondhta hai',
-    'give': 'do',
-    'gives': 'deta hai',
-    'take': 'lo',
-    'takes': 'leta hai',
-    'make': 'banao',
-    'makes': 'banata hai',
-    'made': 'banaya',
-    'build': 'build karo',
-    'builds': 'banata hai',
-    'use': 'use karo',
-    'uses': 'use karta hai',
-    'used': 'use kiya',
-    'help': 'madad',
-    'helps': 'madad karta hai',
-    'need': 'zaroorat',
-    'needs': 'zaroorat hai',
-    'want': 'chahte ho',
-    'know': 'jaante ho',
-    'knows': 'jaanta hai',
-    'think': 'socho',
-    'say': 'batao',
-    'says': 'kehta hai',
-    'show': 'dikhao',
-    'shows': 'dikhata hai',
-    'keep': 'rakho',
-    'keeps': 'rakhta hai',
-    'start': 'shuru karo',
-    'starts': 'shuru hota hai',
-    'finish': 'poora karo',
-    'try': 'koshish karo',
-    'choose': 'chuno',
-    'pick': 'chuno',
-    'explain': 'samjhao',
-    'explains': 'samjhata hai',
-    'answer': 'jawab',
-    'answers': 'jawab',
-    'question': 'sawal',
-    'questions': 'sawal',
-    'problem': 'samasya (problem)',
-    'problems': 'problems',
-    'mistake': 'galti',
-    'mistakes': 'galtiyan',
-    'example': 'udaharan (example)',
-    'examples': 'udaharan (examples)',
-    'reason': 'karan (reason)',
-    'reasons': 'karan (reasons)',
-    'rule': 'niyam (rule)',
-    'rules': 'niyam (rules)',
-    'number': 'sankhya (number)',
-    'numbers': 'numbers',
-    'word': 'shabd',
-    'words': 'shabd'
-  };
 
   function matchCase(src, replacement) {
     if (!src || !replacement) return replacement;
@@ -385,7 +193,7 @@
     return replacement;
   }
 
-  // Transform a single plain-text string (not HTML tags or code) into conversational Hinglish
+  // Instant synchronous Hinglish converter (checks AI cache first, otherwise applies clean phrase rules)
   function toHinglish(str) {
     if (!str || typeof str !== 'string') return str;
     var trimmed = str.trim();
@@ -393,15 +201,16 @@
     if (EXACT_MAP[trimmed]) {
       return str.replace(trimmed, EXACT_MAP[trimmed]);
     }
+    if (aiCache[trimmed]) {
+      return str.replace(trimmed, aiCache[trimmed]);
+    }
 
-    // Protect existing Hindi gloss brackets "(देवनागरी, roman)", URLs, and inline formulas/identifiers
     var saved = [];
     var s = str.replace(/\(([\u0900-\u097F][^)]*)\)|https?:\/\/\S+|\b[A-Za-z0-9_]+\([^)]*\)|\b[A-Za-z_][A-Za-z0-9_]*\.[A-Za-z0-9_]+\b/g, function (m) {
       saved.push(m);
       return '\u0001' + (saved.length - 1) + '\u0001';
     });
 
-    // 1. Apply multi-word conversational Hinglish phrase replacements
     for (var i = 0; i < PHRASE_RULES.length; i++) {
       var pat = PHRASE_RULES[i][0], rep = PHRASE_RULES[i][1];
       var escaped = pat.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -411,271 +220,27 @@
       s = s.replace(rx, function (m) { return matchCase(m, rep); });
     }
 
-    // 2. Apply word-level replacements on remaining English words
-    s = s.replace(/\b([A-Za-z]+)\b/g, function (m) {
-      var low = m.toLowerCase();
-      if (Object.prototype.hasOwnProperty.call(WORD_MAP, low)) {
-        // Avoid replacing all-caps acronyms like OR, AND, IF, IN
-        if (m.length > 1 && m === m.toUpperCase()) return m;
-        return matchCase(m, WORD_MAP[low]);
-      }
-      return m;
-    });
-
-    // 3. Clean up any duplicate Hindi words if a word was followed by its own bracket gloss
     s = s.replace(/\u0001(\d+)\u0001/g, function (_, idx) { return saved[Number(idx)]; });
     return s;
   }
 
-  /* ---------- Phonetic Hinglish Normalizer for Web Speech API ---------- */
-  // Maps Roman Hindi words in Hinglish to natural phonetic spellings for Indian English (en-IN) and Devanagari for Hindi (hi-IN)
-  // so the browser speech synthesizer never mispronounces Roman Hindi words with a flat Western accent.
-  var SPEECH_HI_DEV = {
-    'aur': 'और',
-    'ya': 'या',
-    'lekin': 'लेकिन',
-    'kyunki': 'क्योंकि',
-    'isliye': 'इसलिए',
-    'agar': 'अगर',
-    'toh': 'तो',
-    'jab': 'जब',
-    'jabki': 'जबकि',
-    'jahan': 'जहाँ',
-    'yahan': 'यहाँ',
-    'wahan': 'वहाँ',
-    'kya': 'क्या',
-    'kyun': 'क्यों',
-    'kaise': 'कैसे',
-    'yeh': 'यह',
-    'woh': 'वह',
-    'abhi': 'अभी',
-    'pehle': 'पहले',
-    'baad': 'बाद',
-    'hamesha': 'हमेशा',
-    'kabhi': 'कभी',
-    'nahi': 'नहीं',
-    'aksar': 'अक्सर',
-    'bhi': 'भी',
-    'sirf': 'सिर्फ़',
-    'bas': 'बस',
-    'bahut': 'बहुत',
-    'zyada': 'ज़्यादा',
-    'zyadatar': 'ज़्यादातर',
-    'kam': 'कम',
-    'kuch': 'कुछ',
-    'sabhi': 'सभी',
-    'har': 'हर',
-    'dono': 'दोनों',
-    'doosre': 'दूसरे',
-    'alag': 'अलग',
-    'naya': 'नया',
-    'purana': 'पुराना',
-    'bada': 'बड़ा',
-    'chhota': 'छोटा',
-    'accha': 'अच्छा',
-    'acche': 'अच्छे',
-    'behtar': 'बेहतर',
-    'sabse': 'सबसे',
-    'kharab': 'ख़राब',
-    'sahi': 'सही',
-    'galat': 'ग़लत',
-    'aasaan': 'आसान',
-    'mushkil': 'मुश्किल',
-    'zaroori': 'ज़रूरी',
-    'asli': 'असली',
-    'tez': 'तेज़',
-    'dheema': 'धीमा',
-    'pehla': 'पहला',
-    'aakhiri': 'आख़िरी',
-    'aakhir': 'आख़िर',
-    'agla': 'अगला',
-    'pichhla': 'पिछला',
-    'saath': 'साथ',
-    'bina': 'बिना',
-    'andar': 'अंदर',
-    'bahar': 'बाहर',
-    'beech': 'बीच',
-    'neeche': 'नीचे',
-    'upar': 'ऊपर',
-    'baare': 'बारे',
-    'mein': 'में',
-    'se': 'से',
-    'ke': 'के',
-    'ka': 'का',
-    'ki': 'की',
-    'ko': 'को',
-    'liye': 'लिए',
-    'aap': 'आप',
-    'aapka': 'आपका',
-    'aapke': 'आपके',
-    'aapko': 'आपको',
-    'hum': 'हम',
-    'humara': 'हमारा',
-    'humein': 'हमें',
-    'unka': 'उनका',
-    'log': 'लोग',
-    'insaan': 'इंसान',
-    'paisa': 'पैसा',
-    'samay': 'समय',
-    'din': 'दिन',
-    'hafta': 'हफ़्ता',
-    'hafte': 'हफ़्ते',
-    'saal': 'साल',
-    'tarika': 'तरीक़ा',
-    'tarike': 'तरीक़े',
-    'tarah': 'तरह',
-    'kaam': 'काम',
-    'karta': 'करता',
-    'karti': 'करती',
-    'karte': 'करते',
-    'hai': 'है',
-    'hain': 'हैं',
-    'hota': 'होता',
-    'hoti': 'होती',
-    'hote': 'होते',
-    'sakta': 'सकता',
-    'sakti': 'सकती',
-    'sakte': 'सकते',
-    'sako': 'सको',
-    'seekho': 'सीखो',
-    'seekhta': 'सीखता',
-    'seekha': 'सीखा',
-    'seekhna': 'सीखना',
-    'seekhoge': 'सीखोगे',
-    'samjho': 'समझो',
-    'samjhao': 'समझाओ',
-    'samjhata': 'समझाता',
-    'padho': 'पढ़ो',
-    'padhne': 'पढ़ने',
-    'likho': 'लिखो',
-    'dekho': 'देखो',
-    'dekhoge': 'देखोगे',
-    'dhoondho': 'ढूँढो',
-    'dhoondhta': 'ढूँढता',
-    'banao': 'बनाओ',
-    'banata': 'बनाता',
-    'banaya': 'बनाया',
-    'banayein': 'बनाएँ',
-    'madad': 'मदद',
-    'zaroorat': 'ज़रूरत',
-    'chahte': 'चाहते',
-    'jaante': 'जानते',
-    'jaanta': 'जानता',
-    'socho': 'सोचो',
-    'batao': 'बताओ',
-    'kehta': 'कहता',
-    'kehte': 'कहते',
-    'dikhao': 'दिखाओ',
-    'dikhata': 'दिखाता',
-    'rakho': 'रखो',
-    'rakhta': 'रखता',
-    'shuru': 'शुरू',
-    'shuruat': 'शुरुआत',
-    'poora': 'पूरा',
-    'koshish': 'कोशिश',
-    'chuno': 'चुनो',
-    'jawab': 'जवाब',
-    'sawal': 'सवाल',
-    'samasya': 'समस्या',
-    'galti': 'ग़लती',
-    'galtiyan': 'ग़लतियाँ',
-    'galtiyon': 'ग़लतियों',
-    'udaharan': 'उदाहरण',
-    'karan': 'कारण',
-    'niyam': 'नियम',
-    'sankhya': 'संख्या',
-    'shabd': 'शब्द',
-    'shabdon': 'शब्दों',
-    'mudda': 'मुद्दा',
-    'bhasha': 'भाषा',
-    'kadam': 'क़दम',
-    'chalo': 'चलो',
-    'taaki': 'ताकि',
-    'chahe': 'चाहे',
-    'halanki': 'हालाँकि',
-    'bajaye': 'बजाय',
-    'wajah': 'वजह',
-    'dhyan': 'ध्यान',
-    'yaad': 'याद',
-    'pakka': 'पक्का',
-    'savdhaan': 'सावधान',
-    'raho': 'रहो',
-    'karo': 'करो',
-    'mat': 'मत',
-    'apne': 'अपने',
-    'apna': 'अपना',
-    'khud': 'ख़ुद',
-    'bilkul': 'बिल्कुल',
-    'isi': 'इसी',
-    'isko': 'इसको',
-    'iska': 'इसका',
-    'iske': 'इसके',
-    'isse': 'इससे',
-    'jaise': 'जैसे',
-    'waise': 'वैसे',
-    'aise': 'ऐसे',
-    'matlab': 'मतलब',
-    'duniya': 'दुनिया',
-    'roz': 'रोज़',
-    'saara': 'सारा',
-    'saare': 'सारे'
-  };
-
-  // Fallback phonetic respellings when a device has ONLY an English voice and no Hindi voice
-  var SPEECH_EN_PHONETIC = {
-    'hai': 'hay',
-    'hain': 'hain',
-    'mein': 'main',
-    'kyunki': 'kyoon-ki',
-    'isliye': 'iss-liye',
-    'seekho': 'see-kho',
-    'seekhoge': 'see-kho-gay',
-    'samjho': 'sum-jho',
-    'samjhao': 'sum-jha-o',
-    'udaharan': 'oo-daa-ha-ran',
-    'zaroori': 'za-roo-ree',
-    'aasaan': 'aa-saan',
-    'mushkil': 'mush-kil',
-    'galti': 'gul-tee',
-    'galtiyan': 'gul-ti-yaan',
-    'jawab': 'ja-waab',
-    'sawal': 'sa-waal',
-    'kadam': 'ka-dum',
-    'matlab': 'mut-lub',
-    'tarika': 'ta-ree-kaa',
-    'pehle': 'peh-lay',
-    'doosre': 'doos-ray',
-    'apne': 'up-nay',
-    'karo': 'ka-ro',
-    'dekho': 'day-kho',
-    'socho': 'so-cho',
-    'padho': 'pu-dho',
-    'likho': 'li-kho'
-  };
-
-  // Prepares text for speak.js: if the device has a Hindi voice (hasHiVoice), Roman Hindi words in Hinglish mode
-  // can be converted or kept smooth; if only an English voice exists, phonetic respelling ensures natural pronunciation.
-  function prepareSpeech(text, isHinglish, hasHiVoice) {
-    if (!text || !isHinglish) return text;
-    return String(text).replace(/\b([A-Za-z]+)\b/g, function (w) {
-      var low = w.toLowerCase();
-      if (hasHiVoice && Object.prototype.hasOwnProperty.call(SPEECH_HI_DEV, low)) {
-        return SPEECH_HI_DEV[low];
-      }
-      if (!hasHiVoice && Object.prototype.hasOwnProperty.call(SPEECH_EN_PHONETIC, low)) {
-        return SPEECH_EN_PHONETIC[low];
-      }
-      return w;
-    });
+  /* ---------- Speech Preparation (No Word-by-Word Voice Chopping!) ---------- */
+  // Importantly, we do NOT convert scattered words to Devanagari mid-sentence because that would cause
+  // browser speech synthesis to split a single sentence into 10+ alternating voice utterances.
+  function prepareSpeech(text, isHinglish) {
+    if (!text) return '';
+    var s = String(text);
+    // Clean decorative UI separators so TTS reads smoothly
+    s = s.replace(/\s*·\s*/g, ', ');
+    return s;
   }
 
-  /* ---------- DOM Text-Node Toggling (Preserves Event Listeners, Code & Controls) ---------- */
+  /* ---------- DOM Text-Node Toggling & Async AI Refinement ---------- */
   var SKIP_SEL = 'button, input, select, textarea, nav, svg, pre, code, script, style, noscript, iframe, canvas, video, audio, ' +
     '.visually-hidden, .tts-skip, .hl-skip, .read-foot, .read-progress, .crumbs, .tabs, .site-head, .prog-strip, footer, .toasts, ' +
     '#fc-chip, .tts-bar, [aria-hidden="true"], .q-sure, .bar, #mod-side, .editor, .console, .term-hi, .ex-hi, [lang="sa"]';
 
-  function transformElement(root, toHl) {
-    if (!root) return;
+  function collectTextNodes(root) {
     var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode: function (n) {
         if (!n.nodeValue || !/[A-Za-z]/.test(n.nodeValue)) return NodeFilter.FILTER_REJECT;
@@ -686,14 +251,69 @@
     });
     var nodes = [];
     for (var n; (n = walker.nextNode());) nodes.push(n);
+    return nodes;
+  }
+
+  function transformElement(root, toHl, onRefined) {
+    if (!root) return;
+    var nodes = collectTextNodes(root);
+    var toFetchNodes = [];
+    var toFetchStrings = [];
+
     nodes.forEach(function (node) {
       if (toHl) {
         if (node._enText === undefined) node._enText = node.nodeValue;
+        var enTrimmed = node._enText.trim();
+        // Immediate local or cached conversion
         node.nodeValue = toHinglish(node._enText);
+        // Queue for Gemini AI conversational Hinglish refinement if not yet cached and has meaningful prose
+        if (enTrimmed.length >= 12 && !EXACT_MAP[enTrimmed] && !aiCache[enTrimmed]) {
+          toFetchNodes.push(node);
+          toFetchStrings.push(enTrimmed);
+        }
       } else if (node._enText !== undefined) {
         node.nodeValue = node._enText;
       }
     });
+
+    if (!toHl || !toFetchStrings.length) {
+      if (onRefined) onRefined(false);
+      return;
+    }
+
+    // Batch in chunks of 30 strings to /api/hinglish
+    var batchNodes = toFetchNodes.slice(0, 35);
+    var batchTexts = toFetchStrings.slice(0, 35);
+
+    fetch('/api/hinglish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ texts: batchTexts })
+    })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data || !Array.isArray(data.translations)) {
+          if (onRefined) onRefined(false);
+          return;
+        }
+        var updatedAny = false;
+        batchNodes.forEach(function (node, i) {
+          var tr = data.translations[i];
+          var origTrimmed = batchTexts[i];
+          if (tr && origTrimmed) {
+            aiCache[origTrimmed] = tr;
+            if (node.isConnected && isCardHinglish(node.parentElement) && node._enText) {
+              node.nodeValue = node._enText.replace(origTrimmed, tr);
+              updatedAny = true;
+            }
+          }
+        });
+        if (updatedAny) saveAiCache();
+        if (onRefined) onRefined(updatedAny);
+      })
+      .catch(function () {
+        if (onRefined) onRefined(false);
+      });
   }
 
   function setCardMode(root, on) {
@@ -701,8 +321,15 @@
     if (on) root.setAttribute('data-hl-on', '1');
     else root.removeAttribute('data-hl-on');
     root.classList.toggle('is-hinglish', !!on);
-    transformElement(root, !!on);
-    syncButtonsIn(root, !!on);
+    syncButtonsIn(root, !!on, !!on);
+    transformElement(root, !!on, function (updated) {
+      syncButtonsIn(root, root.getAttribute('data-hl-on') === '1', false);
+      if (updated && window.AIM_SPEAK && window.AIM_SPEAK.isPlaying && window.AIM_SPEAK.isPlaying()) {
+        if (typeof window.AIM_SPEAK.refreshCurrent === 'function') {
+          window.AIM_SPEAK.refreshCurrent();
+        }
+      }
+    });
   }
 
   function isCardHinglish(el) {
@@ -711,7 +338,7 @@
     return !!box;
   }
 
-  function syncButtonsIn(root, on) {
+  function syncButtonsIn(root, on, loading) {
     var btns = [];
     if (root.matches && root.matches('[data-hl-root]')) btns.push(root);
     if (root.querySelectorAll) {
@@ -730,7 +357,11 @@
       var lbl = b.querySelector('.hl-lbl');
       if (lbl) {
         var customAll = b.getAttribute('data-hl-all');
-        lbl.textContent = customAll ? (on ? 'English (all)' : 'Hinglish (all)') : (on ? 'Hinglish ✓' : 'Hinglish');
+        if (loading && on) {
+          lbl.textContent = 'Hinglish…';
+        } else {
+          lbl.textContent = customAll ? (on ? 'English (all)' : 'Hinglish (all)') : (on ? 'Hinglish ✓' : 'Hinglish');
+        }
       }
     });
   }
@@ -744,7 +375,6 @@
     return root;
   }
 
-  // Render a per-card Hinglish toggle button that pairs alongside Listen
   function btn(rootSel, label, o) {
     o = o || {};
     var isAll = rootSel === '.read-cards' || rootSel === 'main';
@@ -752,12 +382,11 @@
     return '<button type="button" class="btn btn-sm btn-ghost hl-btn' + (o.icon ? ' hl-icon' : '') + '" data-hl-root="' + esc(rootSel) + '"' +
       (o.within ? ' data-hl-in="' + esc(o.within) + '"' : '') +
       (isAll && rootSel === '.read-cards' ? ' data-hl-all="1"' : '') +
-      ' aria-pressed="false" aria-label="Toggle Hinglish: ' + esc(label || 'this card') + '" title="Switch between English and Hinglish">' +
+      ' aria-pressed="false" aria-label="Toggle Hinglish: ' + esc(label || 'this card') + '" title="Switch between English and natural Hinglish">' +
       '<span class="hl-badge" aria-hidden="true">अ/A</span>' +
       (o.icon ? '' : '<span class="hl-lbl">' + esc(txt) + '</span>') + '</button>';
   }
 
-  // Click handler for any [data-hl-root] toggle button
   document.addEventListener('click', function (ev) {
     var b = ev.target.closest && ev.target.closest('[data-hl-root]');
     if (!b) return;
@@ -766,14 +395,12 @@
     if (!root) return;
     var nextOn = root.getAttribute('data-hl-on') !== '1';
     setCardMode(root, nextOn);
-    // Also update any nested cards inside root (e.g., when clicking "Hinglish (all)" on .read-cards or header main)
     Array.prototype.forEach.call(root.querySelectorAll('.read-card, .gloss-term, .card, section[id^="sec-"], .quiz, .ex, .lab, details.fold, details.rf-check, .lm-card'), function (sub) {
       if (nextOn) sub.setAttribute('data-hl-on', '1');
       else sub.removeAttribute('data-hl-on');
       sub.classList.toggle('is-hinglish', nextOn);
-      syncButtonsIn(sub, nextOn);
+      syncButtonsIn(sub, nextOn, false);
     });
-    // If AIM_SPEAK is currently reading inside this root, re-speak the current block in the newly chosen language!
     if (window.AIM_SPEAK && window.AIM_SPEAK.isPlaying && window.AIM_SPEAK.isPlaying()) {
       if (typeof window.AIM_SPEAK.refreshCurrent === 'function') {
         window.AIM_SPEAK.refreshCurrent();
@@ -781,7 +408,6 @@
     }
   });
 
-  // Automatically re-apply Hinglish if async content (like module examples, diagrams, lab tasks, or study cards) is injected into a container that already has data-hl-on="1"
   var mainEl = document.getElementById('main');
   if (mainEl && window.MutationObserver) {
     var mo = new MutationObserver(function (mutations) {
@@ -799,13 +425,11 @@
     mo.observe(mainEl, { childList: true, subtree: true });
   }
 
-  // Automatically inject per-card Hinglish + Listen buttons into dynamic cards (labs, projects, exercises, study cards) that don't yet have them
   function autoInjectTools(scope) {
     if (!scope || !scope.querySelectorAll) return;
     var SPK = window.AIM_SPEAK;
     if (!SPK || typeof SPK.btn !== 'function') return;
 
-    // 1. Lab containers (.lab) rendered by assets/js/labs/*.js
     var labs = scope.matches && scope.matches('.lab') ? [scope] : Array.prototype.slice.call(scope.querySelectorAll('.lab'));
     labs.forEach(function (lab) {
       if (lab.querySelector('.lab-hl-bar')) return;
@@ -816,7 +440,6 @@
       lab.insertBefore(bar, lab.firstChild);
     });
 
-    // 2. Study Method cards (.lm-card), Daily Review cards (.rv-card), Recall checks (details.rf-check)
     var studyCards = Array.prototype.slice.call(scope.querySelectorAll('.lm-card, .rv-card, details.rf-check > .rf-check-body'));
     studyCards.forEach(function (card) {
       if (card.querySelector('[data-hl-root]')) return;
