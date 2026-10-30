@@ -21,11 +21,12 @@
     close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg>'
   };
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-  // a Listen button for app.js / core.js to place; nothing when this browser cannot read aloud
+  // a Hinglish toggle + Listen button pair for app.js / core.js to place; if browser cannot read aloud, still show Hinglish toggle
   function btn(rootSel, label, o) {
-    if (!OK) return '';
     o = o || {};
-    return '<button type="button" class="btn btn-sm btn-ghost tts-btn' + (o.icon ? ' tts-icon' : '') + '" data-tts-root="' + esc(rootSel) + '"' +
+    var hl = window.AIM_HINGLISH && !o.noHinglish ? window.AIM_HINGLISH.btn(rootSel, label, o) : '';
+    if (!OK) return hl;
+    return hl + '<button type="button" class="btn btn-sm btn-ghost tts-btn' + (o.icon ? ' tts-icon' : '') + '" data-tts-root="' + esc(rootSel) + '"' +
       (o.within ? ' data-tts-in="' + esc(o.within) + '"' : '') + ' aria-label="' + esc(label) + '" data-tts-label="' + esc(label) + '">' + ICON.spk +
       (o.icon ? '' : '<span class="tts-lbl">' + esc(o.text || 'Listen') + '</span>') + '</button>';
   }
@@ -77,11 +78,14 @@
       .replace(/[✓✔]/g, ' done: ').replace(/[✗✘]/g, ' not done: ').replace(/[○●◐⏱↓↑]/g, ' ')
       .replace(/\s+/g, ' ').trim();
   }
-  // English text with Hindi words: [{lang, text}], said in turn
-  function parts(text) {
+  // English or Hinglish text with Hindi words: [{lang, text}], said in turn
+  function parts(text, isHinglish) {
     var hv = hiVoice(), say = prefs.hindi !== 'skip', out = [];
     // a bracket "(देवनागरी, roman)": the Hindi voice says the Devanagari; without one, the roman spelling is read in English
     text = text.replace(GLOSS, function (all, dev, rom) { return !say ? '' : hv ? '(' + dev + ')' : '(' + rom + ')'; });
+    if (isHinglish && window.AIM_HINGLISH && typeof window.AIM_HINGLISH.prepareSpeech === 'function') {
+      text = window.AIM_HINGLISH.prepareSpeech(text, true, !!(say && hv));
+    }
     var last = 0, m;
     DEVRUN.lastIndex = 0;
     while ((m = DEVRUN.exec(text))) {
@@ -171,8 +175,10 @@
 
   /* ---------- the player ---------- */
   var Q = [], qi = 0, playing = false, token = 0, wd = 0, srcBtn = null, srcLabel = '', started = false, fails = 0, lastUserScroll = 0;
+  var activeRoot = null;
   function readEl(root, o) {
     o = o || {};
+    activeRoot = root;
     var list = blocksIn(root);
     if (!list.length) { showBar(); setMsg('There is nothing to read here.'); return; }
     var at = 0;
@@ -181,6 +187,7 @@
       for (var i = 0; i < list.length; i++) { var r = list[i].el.getBoundingClientRect(); if (r.bottom > top + 4) { at = i; break; } }
     }
     stop(true);
+    activeRoot = root;
     // the player names what is read: the given label, else the first heading of the part being read
     var h = root.querySelector('h1, h2, h3');
     Q = list; qi = at; srcBtn = o.button || null; srcLabel = o.label || (h ? h.textContent.replace(/\s+/g, ' ').trim() : '');
@@ -188,12 +195,20 @@
     showBar(); setMsg('');
     speakBlock();
   }
+  function liveBlockText(b) {
+    if (!b || !b.el || !b.el.isConnected) return b ? b.text : '';
+    var fresh = blocksIn(b.el);
+    if (fresh.length === 1) return fresh[0].text;
+    return b.text;
+  }
   function speakBlock() {
     if (qi >= Q.length) { finish(); return; }
     var b = Q[qi];
     if (!b.el.isConnected) { stop(); return; } // the page changed under us
+    var isHl = !!(window.AIM_HINGLISH && window.AIM_HINGLISH.isCardHinglish(b.el));
+    var curText = liveBlockText(b);
     highlight(b.el); playing = true; updateBar();
-    var ps = parts(b.text), t = ++token, i = 0;
+    var ps = parts(curText, isHl), t = ++token, i = 0;
     (function next() {
       if (t !== token) return;
       if (i >= ps.length) { qi++; speakBlock(); return; }
@@ -267,6 +282,7 @@
       '<button type="button" class="btn btn-primary icon-btn" data-tts-act="toggle" id="tts-toggle"></button>' +
       '<button type="button" class="btn btn-ghost icon-btn" data-tts-act="next" aria-label="Next paragraph" title="Next paragraph">' + ICON.next + '</button>' +
       '<button type="button" class="btn btn-ghost tts-rate" data-tts-act="rate" id="tts-rate"></button>' +
+      '<button type="button" class="btn btn-ghost tts-more" data-tts-act="hinglish" id="tts-hl" aria-pressed="false" title="Switch active reading between English and Hinglish">Hinglish</button>' +
       '<button type="button" class="btn btn-ghost tts-more" data-tts-act="opts" id="tts-more" aria-expanded="false" aria-controls="tts-opts">Voice</button>' +
       '<button type="button" class="btn btn-ghost icon-btn" data-tts-act="stop" aria-label="Stop reading and close" title="Stop and close">' + ICON.close + '</button></div></div>' +
       '<div class="tts-opts stack-sm" id="tts-opts" hidden><div class="control"><label for="tts-voice">Voice</label><select id="tts-voice"></select></div>' +
@@ -280,6 +296,14 @@
       else if (a === 'prev') step(-1);
       else if (a === 'next') step(1);
       else if (a === 'rate') { prefs.rate = RATES[(RATES.indexOf(prefs.rate) + 1) % RATES.length]; savePrefs(); if (playing) { halt(); speakBlock(); } updateBar(); }
+      else if (a === 'hinglish') {
+        var target = activeRoot || (Q[qi] && Q[qi].el && Q[qi].el.closest('[data-sec], .card, section, #main')) || document.getElementById('main');
+        if (target && window.AIM_HINGLISH) {
+          var nextOn = target.getAttribute('data-hl-on') !== '1';
+          window.AIM_HINGLISH.setCardMode(target, nextOn);
+          if (playing) { halt(); speakBlock(); } else updateBar();
+        }
+      }
       else if (a === 'opts') { var o = el('tts-opts'), open = o.hidden; o.hidden = !open; b.setAttribute('aria-expanded', String(open)); fillVoices(); padPage(); }
       else if (a === 'stop') { var back = srcBtn; stop(); if (back && back.isConnected) back.focus(); }
     });
@@ -309,11 +333,19 @@
   function updateBar(ended) {
     if (!bar) return;
     var b = Q[Math.min(qi, Q.length - 1)], what = (b && b.heading) || srcLabel || 'this page';
-    el('tts-now').textContent = !Q.length ? 'Read aloud' : ended ? 'Finished: ' + (srcLabel || 'this page') + '. Press play to hear it again.' : (playing ? 'Reading ' : 'Paused ') + (qi + 1) + ' of ' + Q.length + ' · ' + what;
+    var isHl = !!(b && b.el && window.AIM_HINGLISH && window.AIM_HINGLISH.isCardHinglish(b.el));
+    var langTag = isHl ? ' (Hinglish)' : '';
+    el('tts-now').textContent = !Q.length ? 'Read aloud' : ended ? 'Finished: ' + (srcLabel || 'this page') + '. Press play to hear it again.' : (playing ? 'Reading' + langTag + ' ' : 'Paused' + langTag + ' ') + (qi + 1) + ' of ' + Q.length + ' · ' + what;
     var t = el('tts-toggle');
     t.innerHTML = playing ? ICON.pause : ICON.play;
     t.setAttribute('aria-label', playing ? 'Pause' : 'Play'); t.title = playing ? 'Pause' : 'Play';
     var r = el('tts-rate'); r.textContent = prefs.rate + '×'; r.setAttribute('aria-label', 'Reading speed ' + prefs.rate + ' times. Change speed');
+    var hBtn = el('tts-hl');
+    if (hBtn) {
+      hBtn.setAttribute('aria-pressed', String(isHl));
+      hBtn.classList.toggle('is-on', isHl);
+      hBtn.textContent = isHl ? 'Hinglish ✓' : 'Hinglish';
+    }
   }
   function setBtnState(b, on) {
     if (!b || !b.isConnected) return;
@@ -344,6 +376,7 @@
   window.AIM_SPEAK = {
     supported: true, btn: btn, icon: ICON.spk,
     readEl: function (root, o) { readEl(root, o); },
+    refreshCurrent: function () { if (playing && Q.length) { halt(); speakBlock(); } else if (bar && !bar.hidden) updateBar(); },
     stop: function () { if (Q.length || (bar && !bar.hidden)) stop(); },
     isPlaying: function () { return playing; },
     _blocks: blocksIn, _parts: parts // for tests

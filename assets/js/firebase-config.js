@@ -3,12 +3,7 @@
    To switch sign-in on, follow "Turn on sign-in" in README.md and paste your Firebase web app config here, e.g.
    window.AIM_FIREBASE = { apiKey: "...", authDomain: "your-project.firebaseapp.com", projectId: "your-project", appId: "..." };
    These values are not secrets: they identify the project, and the Firestore security rules protect each learner's data. */
-window.AIM_FIREBASE = {
-  apiKey: "AIzaSyA-_uu1_rEV1fqmj-Qg5U5ylArvczPC-GM",
-  authDomain: "ai-marg.firebaseapp.com",
-  projectId: "ai-marg",
-  appId: "1:519581742822:web:34b83bc1660dba66352d27"
-};
+window.AIM_FIREBASE = null;
 
 /* Optional AI help (Gemini through Firebase AI Logic) for signed-in learners.
    Switch it on only after enabling Firebase AI Logic with the Gemini Developer API in the Firebase console

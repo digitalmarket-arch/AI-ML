@@ -584,11 +584,15 @@
   function setView(html, title) {
     leaveView();
     if (!quiet) { try { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); } catch (e) {} }
+    main.removeAttribute('data-hinglish');
+    var headHl = document.querySelector('.hl-head-btn');
+    if (headHl) { headHl.classList.remove('is-on'); headHl.setAttribute('aria-pressed', 'false'); }
     main.innerHTML = html;
     document.title = (title ? title + ' · ' : '') + (D.site.name || 'AI Marg');
     var h1 = main.querySelector('h1');
     if (h1) { h1.setAttribute('tabindex', '-1'); if (!quiet) h1.focus({ preventScroll: true }); }
     if (!quiet) { try { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); } catch (e) { window.scrollTo(0, 0); } }
+    if (window.AIM_HINGLISH && window.AIM_HINGLISH.autoInjectTools) window.AIM_HINGLISH.autoInjectTools(main);
     watchAsides();
   }
   // Wide screens pin the sidebar of two-column pages while the page scrolls. A sidebar taller than the window cannot
@@ -898,7 +902,7 @@
       });
     } else if (tab === 'lab') {
       var lab = labOf(m);
-      el.innerHTML = '<div class="stack"><div class="stack-sm"><h2>' + esc(lab.title) + '</h2><p class="muted">' + esc(lab.summary || '') + '</p></div><div id="labroot"></div></div>';
+      el.innerHTML = '<div class="stack"><div class="sec-head"><div class="stack-sm"><h2>' + esc(lab.title) + '</h2><p class="muted">' + esc(lab.summary || '') + '</p></div><div class="read-tools">' + SPK.btn('#tabpanel', 'Listen to this lab: ' + lab.title) + '</div></div><div id="labroot"></div></div>';
       mountLab(lab, document.getElementById('labroot'));
     } else if (tab === 'practice') {
       var exs = exOf(m.id);
@@ -912,7 +916,7 @@
       var nm = D.modules[D.modules.indexOf(m) + 1];
       var nxt = nm ? { href: '#m-' + nm.id, label: 'Next: ' + modNo(nm) + ' ' + nm.title } : { href: '#tests', label: 'Take a level test' };
       if (nm && nm.level !== m.level) nxt = { href: '#test-l' + m.level, label: 'Take the level ' + m.level + ' test' };
-      var quiz = new C.Quiz(document.getElementById('quizroot'), { questions: qz, mode: 'learn', key: m.id, confidence: !!ST(), next: nxt, onFinish: function (r) { recordQuiz(m.id, r.score); }, onAnswer: function (r) { if (ST()) ST().emit('answer', r); } });
+      var quiz = new C.Quiz(document.getElementById('quizroot'), { questions: qz, mode: 'learn', key: m.id, confidence: !!ST(), next: nxt, onFinish: function (r) { recordQuiz(m.id, r.score); }, onAnswer: function (r) { C.logActivity(); C.save(); if (ST()) ST().emit('answer', r); } });
       currentCleanup.push(function () { quiz.destroy(); });
     } else if (tab === 'notes') {
       var note = S().notes[m.id] || '';
@@ -920,7 +924,7 @@
         '<label for="note-' + esc(m.id) + '" class="visually-hidden">Notes for ' + esc(m.title) + '</label><textarea id="note-' + esc(m.id) + '" rows="12" placeholder="Example: Gradient descent = walking downhill in small steps. Learning rate = step size. Too big → overshoot.">' + esc(note) + '</textarea><span class="small muted" id="note-status"></span></div>';
       var ta = el.querySelector('textarea'), t = null;
       // data-dirty: typed but not saved yet, so a sync must not replace the text in the box (see aim:progress-replaced)
-      var flushNote = function () { if (!t) return; clearTimeout(t); t = null; delete ta.dataset.dirty; C.setNote(m.id, ta.value); C.save(); var st = document.getElementById('note-status'); if (st) st.textContent = 'Saved'; };
+      var flushNote = function () { if (!t) return; clearTimeout(t); t = null; delete ta.dataset.dirty; C.setNote(m.id, ta.value); if (ta.value.trim()) C.logActivity(); C.save(); var st = document.getElementById('note-status'); if (st) st.textContent = 'Saved'; };
       ta.addEventListener('input', function () { ta.dataset.dirty = '1'; clearTimeout(t); t = setTimeout(flushNote, 400); });
       pendingFlush.push(flushNote); currentCleanup.push(flushNote);
     }
@@ -928,7 +932,7 @@
   function listBlock(title, arr, ordered, key) {
     if (!arr || !arr.length) return '';
     var tag = ordered ? 'ol' : 'ul';
-    return '<section class="stack-sm"' + (key ? ' data-sec="' + key + '"' : '') + '><h2 class="h-sub">' + esc(title) + '</h2><' + tag + ' class="prose">' + arr.map(function (x) { return '<li>' + inline(x) + '</li>'; }).join('') + '</' + tag + '></section>';
+    return '<section class="stack-sm"' + (key ? ' data-sec="' + key + '"' : '') + '><div class="sec-head"><h2 class="h-sub">' + esc(title) + '</h2><div class="read-tools">' + SPK.btn('section', 'Listen to ' + title) + '</div></div><' + tag + ' class="prose">' + arr.map(function (x) { return '<li>' + inline(x) + '</li>'; }).join('') + '</' + tag + '></section>';
   }
   function recordQuiz(key, score) {
     var q = S().quiz[key] || { best: 0, attempts: 0 };
@@ -1007,7 +1011,7 @@
     var lab = LABS[id]; if (!lab) return viewNotFound();
     var m = modById[lab.module];
     setView('<div class="wrap stack">' + crumbs([['Home', 'home'], ['Labs', 'labs'], [lab.title]]) +
-      '<header class="stack-sm"><span class="eyebrow">' + (m ? 'Module ' + modNo(m) + ' · ' + esc(m.title) : 'Lab') + '</span><h1>' + esc(lab.title) + '</h1><p class="muted prose">' + esc(lab.summary || '') + '</p></header>' +
+      '<header class="sec-head"><div class="stack-sm"><span class="eyebrow">' + (m ? 'Module ' + modNo(m) + ' · ' + esc(m.title) : 'Lab') + '</span><h1>' + esc(lab.title) + '</h1><p class="muted prose">' + esc(lab.summary || '') + '</p></div><div class="read-tools">' + SPK.btn('main', 'Listen to this lab: ' + lab.title) + '</div></header>' +
       '<div id="labroot"></div>' + (m ? '<p><a href="#m-' + esc(m.id) + '">Go to the module: videos, practice and quiz →</a></p>' : '') + '</div>', lab.title);
     mountLab(lab, document.getElementById('labroot'));
   }
@@ -1032,7 +1036,7 @@
     var hintN = 0, solArmed = false;
     root.innerHTML = '<div class="ex"><div class="row-between">' + (opts.hideTitle ? '<span></span>' : '<h2 class="h-sub">' + esc(e.title) + '</h2>') + '<div class="row">' +
       (done ? '<span class="chip chip-ok">Solved</span>' : '') + (e.optional ? '<span class="chip chip-hi">Optional</span>' : '') + (e.difficulty && e.difficulty !== 'free' ? '<span class="chip chip-level">' + esc(e.difficulty) + '</span>' : '') +
-      (e.packages && e.packages.length ? '<span class="chip">' + esc(e.packages.join(', ')) + '</span>' : '') + '</div></div>' +
+      (e.packages && e.packages.length ? '<span class="chip">' + esc(e.packages.join(', ')) + '</span>' : '') + SPK.btn('.ex', 'Listen to exercise: ' + e.title) + '</div></div>' +
       (e.concept ? '<span class="small muted">Practises: ' + inline(e.concept) + '</span>' : '') +
       (e.optional ? '<div class="callout small">Optional: this module needs no coding. Try this after Module 1.2 (Python), or press <strong>Show solution</strong>, then <strong>Run</strong>, and read the output.</div>' : '') +
       '<div class="prose">' + md(e.task) + '</div>' +
@@ -1193,12 +1197,12 @@
     var html = '<div class="wrap stack-lg">' + crumbs([['Home', 'home'], ['Projects', 'projects'], [p.title]]) +
       '<header class="stack-sm"><div class="row"><span class="eyebrow">' + (p.level === 5 ? 'Grand capstone' : 'Level ' + p.level + ' project') + '</span>' + stars(p.difficulty || 3) + '<span class="chip num">~' + esc(p.hours || '?') + ' hours</span></div><h1>' + esc(p.title) + '</h1><p class="lede muted prose">' + inline(p.tagline || '') + '</p></header>' +
       '<div class="two-col"><div class="stack-lg">' +
-      '<section class="stack-sm prose"><h2 class="h-sub">The brief</h2><p>' + inline(p.brief || '') + '</p>' + (p.why ? '<div class="callout callout-indigo"><strong>Why build this:</strong> ' + inline(p.why) + '</div>' : '') + (p.indiaContext ? '<p class="small muted">' + inline(p.indiaContext) + '</p>' : '') + '</section>' +
-      (p.datasets && p.datasets.length ? '<section class="stack-sm"><h2 class="h-sub">Data</h2><ul class="prose">' + p.datasets.map(function (d) { return '<li>' + (d.url ? '<a href="' + esc(d.url) + '" target="_blank" rel="noopener">' + esc(d.name) + '</a>' : '<strong>' + esc(d.name) + '</strong>') + (d.note ? ' · <span class="muted">' + inline(d.note) + '</span>' : '') + '</li>'; }).join('') + '</ul></section>' : '') +
-      '<section class="stack-sm"><h2 class="h-sub">Milestones</h2><ul class="checklist">' + (p.milestones || []).map(function (ms, i) {
+      '<section class="stack-sm prose"><div class="sec-head"><h2 class="h-sub">The brief</h2><div class="read-tools">' + SPK.btn('section', 'Listen to the project brief') + '</div></div><p>' + inline(p.brief || '') + '</p>' + (p.why ? '<div class="callout callout-indigo"><strong>Why build this:</strong> ' + inline(p.why) + '</div>' : '') + (p.indiaContext ? '<p class="small muted">' + inline(p.indiaContext) + '</p>' : '') + '</section>' +
+      (p.datasets && p.datasets.length ? '<section class="stack-sm"><div class="sec-head"><h2 class="h-sub">Data</h2><div class="read-tools">' + SPK.btn('section', 'Listen to data section') + '</div></div><ul class="prose">' + p.datasets.map(function (d) { return '<li>' + (d.url ? '<a href="' + esc(d.url) + '" target="_blank" rel="noopener">' + esc(d.name) + '</a>' : '<strong>' + esc(d.name) + '</strong>') + (d.note ? ' · <span class="muted">' + inline(d.note) + '</span>' : '') + '</li>'; }).join('') + '</ul></section>' : '') +
+      '<section class="stack-sm"><div class="sec-head"><h2 class="h-sub">Milestones</h2><div class="read-tools">' + SPK.btn('section', 'Listen to milestones') + '</div></div><ul class="checklist">' + (p.milestones || []).map(function (ms, i) {
         return '<li><label><input type="checkbox" data-action="pstep" data-id="' + esc(id) + '" data-i="' + i + '"' + (st.steps[i] ? ' checked' : '') + '><span><strong>' + esc(ms.title) + '</strong><br><span class="small muted">' + inline(ms.detail || '') + '</span></span></label></li>';
       }).join('') + '</ul></section>' +
-      '<section class="stack-sm"><h2 class="h-sub">Rubric: grade yourself honestly</h2><div class="table-wrap"><table class="simple rubric"><thead><tr><th>Criterion</th><th>Basic</th><th>Good</th><th>Excellent</th></tr></thead><tbody>' +
+      '<section class="stack-sm"><div class="sec-head"><h2 class="h-sub">Rubric: grade yourself honestly</h2><div class="read-tools">' + SPK.btn('section', 'Listen to rubric') + '</div></div><div class="table-wrap"><table class="simple rubric"><thead><tr><th>Criterion</th><th>Basic</th><th>Good</th><th>Excellent</th></tr></thead><tbody>' +
       (p.rubric || []).map(function (r, i) {
         return '<tr><td><strong>' + esc(r.criterion) + '</strong></td>' + ['basic', 'good', 'excellent'].map(function (lv, k) {
           return '<td data-label="' + ['Basic', 'Good', 'Excellent'][k] + '"><label class="small" style="display:grid;grid-template-columns:20px 1fr;gap:6px"><input type="radio" name="rub-' + i + '" data-action="prub" data-id="' + esc(id) + '" data-i="' + i + '" value="' + (k + 1) + '"' + (st.rubric[i] === k + 1 ? ' checked' : '') + '><span>' + inline(r[lv] || '') + '</span></label></td>';
@@ -1207,7 +1211,7 @@
       listBlock('Stretch goals', p.stretch) + listBlock('Pitfalls to avoid', p.pitfalls) +
       (window.AIM_PUBLISH ? window.AIM_PUBLISH.html(p, st) : '') +
       '</div><aside class="stack">' + (p.freeStack ? '<div class="callout small"><strong>Free tools (₹0):</strong> ' + inline(p.freeStack) + '</div>' : '') +
-      '<div class="card stack-sm"><strong>Deliverables</strong><ul class="small">' + (p.deliverables || []).map(function (d) { return '<li>' + inline(d) + '</li>'; }).join('') + '</ul></div>' +
+      '<div class="card stack-sm"><div class="sec-head"><strong>Deliverables</strong><div class="read-tools">' + SPK.btn('.card', 'Listen to deliverables') + '</div></div><ul class="small">' + (p.deliverables || []).map(function (d) { return '<li>' + inline(d) + '</li>'; }).join('') + '</ul></div>' +
       (p.skills && p.skills.length ? '<div class="card stack-sm"><strong>Skills you will use</strong><ul class="small skill-list">' + p.skills.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul></div>' : '') +
       '<div class="card stack-sm"><strong>Your links</strong><label class="small" for="pl-repo">GitHub repo</label><input type="text" id="pl-repo" data-action="plink" data-k="repo" data-id="' + esc(id) + '" value="' + esc(st.links.repo || '') + '" placeholder="https://github.com/you/project">' +
       '<label class="small" for="pl-demo">Live demo</label><input type="text" id="pl-demo" data-action="plink" data-k="demo" data-id="' + esc(id) + '" value="' + esc(st.links.demo || '') + '" placeholder="https://huggingface.co/spaces/...">' +
@@ -1444,7 +1448,7 @@
     setView('<div class="wrap stack-lg">' + crumbs([['Home', 'home'], ['Career & FAQ']]) +
       '<header class="stack-sm"><h1>' + esc(pg.title || 'Careers') + '</h1><p class="lede muted prose">What to do with these skills in India: jobs, freelancing and AI services for agencies.</p></header>' +
       '<div class="prose stack">' + tocHTML(pg.sections) + sectionsHTML(pg.sections) + '</div>' +
-      (faq.length ? '<section class="stack" id="faq-list" data-tts-open><h2>Frequently asked questions</h2><div class="stack-sm">' + faq.map(function (f) { return '<details class="fold"><summary>' + esc(f.q) + '</summary><div class="prose">' + md(f.a) + '</div></details>'; }).join('') + '</div></section>' : '') +
+      (faq.length ? '<section class="stack" id="faq-list" data-tts-open><div class="sec-head"><h2>Frequently asked questions</h2><div class="read-tools">' + SPK.btn('#faq-list', 'Listen to frequently asked questions') + '</div></div><div class="stack-sm">' + faq.map(function (f) { return '<details class="fold"><summary>' + esc(f.q) + '</summary><div class="stack-sm"><div class="read-tools" style="justify-content:flex-end">' + SPK.btn('details.fold', 'Listen: ' + f.q) + '</div><div class="prose">' + md(f.a) + '</div></div></details>'; }).join('') + '</div></section>' : '') +
       (src.length ? '<section class="stack-sm"><h3>Sources checked</h3><ul class="small">' + src.map(function (s) { return '<li><a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.label) + '</a> <span class="muted">(' + esc(s.checked || '') + ')</span></li>'; }).join('') + '</ul></section>' : '') +
       '</div>', 'Career & FAQ');
   }
@@ -1521,7 +1525,7 @@
       var root = document.getElementById('card-root');
       function draw() {
         root.innerHTML = '<div class="card stack" style="min-height:260px;justify-content:center;text-align:center;align-items:center">' +
-          '<span class="eyebrow">' + esc((modById[g.moduleId] || {}).title || 'Glossary') + '</span>' +
+          '<div class="row-between" style="width:100%"><span class="eyebrow">' + esc((modById[g.moduleId] || {}).title || 'Glossary') + '</span><div class="read-tools">' + SPK.btn('#card-root .card', 'Listen to flashcard: ' + g.term) + '</div></div>' +
           '<div style="font-family:var(--font-display);font-size:var(--step-3);line-height:1.2">' + esc(g.term) + '</div>' +
           (flipped ? '<p class="prose" style="max-width:52ch">' + inline(g.simple) + '</p>' + (g.example ? '<p class="small muted prose" style="max-width:52ch">' + inline(g.example) + '</p>' : '') : '<p class="muted small">What does it mean?</p>') +
           '<div class="row" style="justify-content:center">' + (flipped ? '<button class="btn" data-c="again">Again</button><button class="btn btn-primary" data-c="know">I knew it</button>' : '<button class="btn btn-primary" data-c="flip">Flip card</button>') + '</div></div>';
@@ -1567,6 +1571,28 @@
       '<header class="row-between"><div class="stack-sm"><h1>My progress</h1><p class="muted" id="prog-saved">' + esc(savedLine()) + '</p></div>' + ring(overallProgress(), 'Whole course, Level 1 to Level 4', courseText(), 'ring-course') + '</header>' + saveWarn() +
       (!anyProgress(st) ? '<div class="callout row-between"><span>Nothing here yet. Your first step takes about 30 minutes.</span><a class="btn btn-primary" href="#start">Start here</a></div>' : '') +
       '<div class="lab-stats">' + stat('Whole course', courseText()) + stat('Day streak', C.streak()) + stat('Lesson cards read', D.modules.reduce(function (n, m) { return n + readDone(m); }, 0) + '/' + D.modules.reduce(function (n, m) { return n + readCards(m).length; }, 0)) + stat('Exercises solved', solved + '/' + D.exercises.length) + stat('Quizzes passed', passed + '/' + withQuiz.length) + stat('Level tests passed', testsPassed + '/' + D.levels.length) + stat('Lab tasks', labTasks) + stat('Projects done', projDone + '/' + D.projects.length) + stat('Videos & courses ticked', ticked) + '</div>' +
+      '<section class="card stack" id="d3-progress-card">' +
+        '<div class="sec-head">' +
+          '<div class="stack-sm"><h2 class="h-sub">Lessons &amp; exercises completion</h2><p class="small muted">D3 completion bars comparing lesson cards read and Python exercises solved across the course. Click any bar to open that level or module.</p></div>' +
+          '<div class="read-tools">' +
+            '<div class="row" role="group" aria-label="Chart breakdown">' +
+              '<button type="button" class="btn btn-sm btn-primary" data-d3-mode="levels" aria-pressed="true">By level</button>' +
+              '<button type="button" class="btn btn-sm" data-d3-mode="modules" aria-pressed="false">All ' + D.modules.length + ' modules</button>' +
+            '</div>' +
+            SPK.btn('#d3-progress-card', 'Listen to lessons and exercises completion') +
+          '</div>' +
+        '</div>' +
+        '<div class="d3-prog-legend" aria-hidden="true">' +
+          '<span class="d3-prog-swatch"><i style="background:var(--indigo)"></i> Completed lessons (cards read)</span>' +
+          '<span class="d3-prog-swatch"><i style="background:var(--ok)"></i> Completed exercises (solved)</span>' +
+          '<span class="d3-prog-swatch"><i style="background:var(--haldi)"></i> Fully completed modules</span>' +
+          '<span class="d3-prog-swatch"><i style="background:var(--surface-2);border:1px solid var(--line)"></i> Remaining</span>' +
+        '</div>' +
+        '<div class="d3-prog-wrap" id="d3-progress-wrap">' +
+          '<div id="d3-progress-viz"></div>' +
+          '<div class="d3-prog-tip" id="d3-prog-tip" hidden></div>' +
+        '</div>' +
+      '</section>' +
       (continueList(1).length ? '<section class="card stack-sm"><h2 class="h-sub">Continue watching</h2>' + continueHTML(5) + '</section>' : '') +
       (ST() ? '<div id="study-progress"></div>' : '') +
       '<section class="stack"><p class="small muted">Whole course: Level 1 (beginner) to Level 4 (advanced). Each level is a quarter of it. Inside a level, its modules count for 80%, passing its level test (70% or more) for 10% and finishing one of its projects for 10%. So a level reaches 100% only when all three are done.</p>' + D.levels.map(function (l) { return '<div class="stack-sm"><div class="row-between"><a href="#level-' + l.id + '"><strong>Level ' + l.id + ' · ' + esc(l.name) + '</strong></a><span class="num small">' + esc(levelText(l.id)) + '</span></div>' + bar(levelProgress(l.id), 'Level ' + l.id + ' progress', '', levelText(l.id)) + '</div>'; }).join('') + '</section>' +
@@ -1579,6 +1605,7 @@
       '<label class="small" for="import-box">Backup text</label><textarea id="import-box" rows="3" placeholder="{&quot;v&quot;:1, …}"></textarea><div class="row"><button class="btn btn-sm" data-action="import">Restore</button><button class="btn btn-sm btn-ghost" data-action="reset">Reset all progress</button></div></div>' +
       '</aside></div></div>', 'My progress');
     bindPlanner();
+    mountD3ProgressChart();
     if (ST()) ST().emit('progress', main);
     // the sign-in status (a remembered session comes back a moment after the page is drawn) and save problems
     // change later: update those lines in place
@@ -1595,6 +1622,428 @@
     if (cloudOn()) currentCleanup.push(K.on(upd));
     window.addEventListener('aim:save-status', upd);
     currentCleanup.push(function () { window.removeEventListener('aim:save-status', upd); });
+  }
+
+  var d3ProgMode = 'levels';
+  function mountD3ProgressChart() {
+    var host = document.getElementById('d3-progress-viz');
+    var card = document.getElementById('d3-progress-card');
+    var tip = document.getElementById('d3-prog-tip');
+    var wrap = document.getElementById('d3-progress-wrap');
+    if (!host || !card) return;
+    var d3 = window.d3;
+    if (!d3) {
+      host.innerHTML = '<div class="empty">Visualization library is loading…</div>';
+      return;
+    }
+
+    var modeBtns = Array.prototype.slice.call(card.querySelectorAll('[data-d3-mode]'));
+    function syncBtns() {
+      modeBtns.forEach(function (b) {
+        var on = b.getAttribute('data-d3-mode') === d3ProgMode;
+        b.classList.toggle('btn-primary', on);
+        b.setAttribute('aria-pressed', String(on));
+      });
+    }
+    modeBtns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        d3ProgMode = b.getAttribute('data-d3-mode') || 'levels';
+        syncBtns();
+        draw(true);
+      });
+    });
+    syncBtns();
+
+    function collectData() {
+      var st = S();
+      var totalLessonsDone = 0, totalLessons = 0;
+      var totalModsDone = 0, totalMods = D.modules.length;
+      D.modules.forEach(function (m) {
+        var rc = readCards(m).length, rd = readDone(m);
+        totalLessons += rc;
+        totalLessonsDone += rd;
+        if (moduleProgress(m) >= 100) totalModsDone++;
+      });
+      var totalEx = D.exercises.length;
+      var totalExDone = D.exercises.filter(function (e) { return st.ex[e.id] && st.ex[e.id].done; }).length;
+
+      var summaryBars = [
+        {
+          id: 'sum-lessons',
+          label: 'Completed lessons (cards)',
+          done: totalLessonsDone,
+          total: totalLessons,
+          pct: totalLessons ? Math.round((totalLessonsDone / totalLessons) * 100) : 0,
+          color: 'var(--indigo)',
+          sub: totalModsDone + '/' + totalMods + ' modules 100% done',
+          href: '#roadmap'
+        },
+        {
+          id: 'sum-exercises',
+          label: 'Completed exercises',
+          done: totalExDone,
+          total: totalEx,
+          pct: totalEx ? Math.round((totalExDone / totalEx) * 100) : 0,
+          color: 'var(--ok)',
+          sub: 'Python coding tasks solved',
+          href: '#practice'
+        },
+        {
+          id: 'sum-modules',
+          label: 'Completed modules',
+          done: totalModsDone,
+          total: totalMods,
+          pct: totalMods ? Math.round((totalModsDone / totalMods) * 100) : 0,
+          color: 'var(--haldi)',
+          sub: 'All lessons, labs, practice & quiz',
+          href: '#roadmap'
+        }
+      ];
+
+      var breakdown = [];
+      if (d3ProgMode === 'levels') {
+        breakdown = D.levels.map(function (l) {
+          var ms = modulesOf(l.id);
+          var lDone = 0, lTot = 0, eDone = 0, eTot = 0, mDone = 0;
+          ms.forEach(function (m) {
+            lDone += readDone(m);
+            lTot += readCards(m).length;
+            if (moduleProgress(m) >= 100) mDone++;
+            var exs = exOf(m.id);
+            eTot += exs.length;
+            eDone += exs.filter(function (e) { return st.ex[e.id] && st.ex[e.id].done; }).length;
+          });
+          return {
+            id: 'level-' + l.id,
+            label: 'Level ' + l.id + ' · ' + l.name,
+            title: 'Level ' + l.id + ': ' + l.title,
+            href: '#level-' + l.id,
+            lessonsDone: lDone,
+            lessonsTotal: lTot,
+            lessonsPct: lTot ? Math.round((lDone / lTot) * 100) : 0,
+            exDone: eDone,
+            exTotal: eTot,
+            exPct: eTot ? Math.round((eDone / eTot) * 100) : 0,
+            modsDone: mDone,
+            modsTotal: ms.length
+          };
+        });
+      } else {
+        breakdown = D.modules.map(function (m) {
+          var lDone = readDone(m), lTot = readCards(m).length;
+          var exs = exOf(m.id);
+          var eTot = exs.length;
+          var eDone = exs.filter(function (e) { return st.ex[e.id] && st.ex[e.id].done; }).length;
+          var shortTitle = m.title.length > 24 ? m.title.slice(0, 23) + '…' : m.title;
+          return {
+            id: m.id,
+            label: modNo(m) + ' ' + shortTitle,
+            title: 'Module ' + modNo(m) + ': ' + m.title,
+            href: '#m-' + m.id,
+            lessonsDone: lDone,
+            lessonsTotal: lTot,
+            lessonsPct: lTot ? Math.round((lDone / lTot) * 100) : 0,
+            exDone: eDone,
+            exTotal: eTot,
+            exPct: eTot ? Math.round((eDone / eTot) * 100) : 0,
+            modsDone: moduleProgress(m) >= 100 ? 1 : 0,
+            modsTotal: 1
+          };
+        });
+      }
+
+      return {
+        summaryBars: summaryBars,
+        breakdown: breakdown,
+        totalLessonsDone: totalLessonsDone,
+        totalLessons: totalLessons,
+        totalExDone: totalExDone,
+        totalEx: totalEx
+      };
+    }
+
+    function showTip(ev, html) {
+      if (!tip || !wrap) return;
+      tip.innerHTML = html;
+      tip.hidden = false;
+      var rect = wrap.getBoundingClientRect();
+      var x = (ev.clientX || (rect.left + rect.width / 2)) - rect.left + 12;
+      var y = (ev.clientY || (rect.top + 40)) - rect.top - 10;
+      var maxX = Math.max(8, rect.width - (tip.offsetWidth || 220) - 8);
+      tip.style.left = Math.min(Math.max(8, x), maxX) + 'px';
+      tip.style.top = Math.max(8, y) + 'px';
+    }
+    function hideTip() {
+      if (tip) tip.hidden = true;
+    }
+
+    function draw(animate) {
+      var data = collectData();
+      var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var dur = (animate !== false && !reduceMotion) ? 450 : 0;
+
+      var W = Math.max(540, Math.min(860, (host.clientWidth || 720)));
+      var leftPad = W < 620 ? 155 : 195;
+      var rightPad = 108;
+      var barW = W - leftPad - rightPad;
+
+      var summaryRowH = 44;
+      var summaryTop = 28;
+      var summarySectionH = data.summaryBars.length * summaryRowH;
+
+      var breakdownHeaderY = summaryTop + summarySectionH + 28;
+      var breakdownStartY = breakdownHeaderY + 28;
+      var rowH = d3ProgMode === 'levels' ? 48 : 34;
+      var H = breakdownStartY + data.breakdown.length * rowH + 16;
+
+      var x = d3.scaleLinear().domain([0, 100]).range([0, barW]);
+
+      host.innerHTML = '';
+      var svg = d3.select(host)
+        .append('svg')
+        .attr('class', 'd3-prog-svg')
+        .attr('viewBox', '0 0 ' + W + ' ' + H)
+        .attr('role', 'img')
+        .attr('aria-label', 'Completion bar chart: ' + data.totalLessonsDone + ' of ' + data.totalLessons + ' lessons read and ' + data.totalExDone + ' of ' + data.totalEx + ' exercises solved.');
+
+      // Section 1 heading: Overall completion bars
+      svg.append('text')
+        .attr('x', 4)
+        .attr('y', 16)
+        .attr('fill', 'var(--muted)')
+        .attr('font-size', '11.5px')
+        .attr('font-weight', '700')
+        .text('OVERALL COMPLETION BARS');
+
+      // Gridlines & percentage ticks
+      var ticks = [0, 25, 50, 75, 100];
+      var gridG = svg.append('g').attr('class', 'd3-grid');
+      gridG.selectAll('line.grid-line')
+        .data(ticks)
+        .join('line')
+        .attr('class', 'grid-line')
+        .attr('x1', function (t) { return leftPad + x(t); })
+        .attr('x2', function (t) { return leftPad + x(t); })
+        .attr('y1', summaryTop - 4)
+        .attr('y2', H - 8)
+        .attr('stroke', 'var(--line)')
+        .attr('stroke-dasharray', function (t) { return t === 0 || t === 100 ? null : '3,3'; });
+
+      gridG.selectAll('text.grid-lbl')
+        .data(ticks)
+        .join('text')
+        .attr('class', 'grid-lbl')
+        .attr('x', function (t) { return leftPad + x(t); })
+        .attr('y', 16)
+        .attr('text-anchor', 'middle')
+        .attr('fill', 'var(--muted)')
+        .attr('font-size', '11px')
+        .attr('font-family', 'var(--font-mono)')
+        .text(function (t) { return t + '%'; });
+
+      // Overall summary bars (Completed lessons, Completed exercises, Completed modules)
+      var sumRows = svg.append('g')
+        .attr('class', 'd3-summary-rows')
+        .selectAll('g.d3-row-group')
+        .data(data.summaryBars, function (d) { return d.id; })
+        .join('g')
+        .attr('class', 'd3-row-group')
+        .attr('tabindex', '0')
+        .attr('role', 'link')
+        .attr('aria-label', function (d) { return d.label + ': ' + d.done + ' of ' + d.total + ' (' + d.pct + '%)'; })
+        .attr('transform', function (d, i) { return 'translate(0,' + (summaryTop + i * summaryRowH) + ')'; })
+        .on('click', function (ev, d) { if (d.href) location.hash = d.href; })
+        .on('keydown', function (ev, d) { if ((ev.key === 'Enter' || ev.key === ' ') && d.href) { ev.preventDefault(); location.hash = d.href; } })
+        .on('mousemove', function (ev, d) {
+          showTip(ev, '<strong>' + esc(d.label) + '</strong><br><span class="num">' + d.done + ' / ' + d.total + ' (' + d.pct + '%)</span><br><span class="muted">' + esc(d.sub) + '</span>');
+        })
+        .on('mouseleave', hideTip)
+        .on('blur', hideTip);
+
+      sumRows.append('rect')
+        .attr('class', 'd3-row-bg')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', W)
+        .attr('height', summaryRowH - 4)
+        .attr('rx', 6)
+        .attr('fill', 'transparent');
+
+      sumRows.append('text')
+        .attr('x', 6)
+        .attr('y', 23)
+        .attr('fill', 'var(--ink)')
+        .attr('font-size', '13px')
+        .attr('font-weight', '600')
+        .text(function (d) { return d.label; });
+
+      // Track background
+      sumRows.append('rect')
+        .attr('x', leftPad)
+        .attr('y', 9)
+        .attr('width', barW)
+        .attr('height', 20)
+        .attr('rx', 6)
+        .attr('fill', 'var(--surface-2)')
+        .attr('stroke', 'var(--line)');
+
+      // Filled completion bar
+      var sumFill = sumRows.append('rect')
+        .attr('x', leftPad)
+        .attr('y', 9)
+        .attr('height', 20)
+        .attr('rx', 6)
+        .attr('fill', function (d) { return d.color; })
+        .attr('width', dur ? 0 : function (d) { return d.done > 0 ? Math.max(6, x(d.pct)) : 0; });
+
+      if (dur) {
+        sumFill.transition().duration(dur)
+          .attr('width', function (d) { return d.done > 0 ? Math.max(6, x(d.pct)) : 0; });
+      }
+
+      // Value count & percentage on the right
+      sumRows.append('text')
+        .attr('x', leftPad + barW + 8)
+        .attr('y', 23)
+        .attr('fill', 'var(--ink)')
+        .attr('font-size', '12px')
+        .attr('font-weight', '600')
+        .attr('font-family', 'var(--font-mono)')
+        .text(function (d) { return d.done + '/' + d.total + ' (' + d.pct + '%)'; });
+
+      // Divider & Section 2 heading: Breakdown by Level or Module
+      svg.append('line')
+        .attr('x1', 0)
+        .attr('x2', W)
+        .attr('y1', breakdownHeaderY - 14)
+        .attr('y2', breakdownHeaderY - 14)
+        .attr('stroke', 'var(--line)');
+
+      svg.append('text')
+        .attr('x', 4)
+        .attr('y', breakdownHeaderY + 6)
+        .attr('fill', 'var(--muted)')
+        .attr('font-size', '11.5px')
+        .attr('font-weight', '700')
+        .text(d3ProgMode === 'levels' ? 'BY LEVEL: LESSONS (TOP BAR) VS EXERCISES (BOTTOM BAR)' : 'BY MODULE: LESSONS (TOP BAR) VS EXERCISES (BOTTOM BAR)');
+
+      // Breakdown paired bars (Lessons + Exercises)
+      var bRows = svg.append('g')
+        .attr('class', 'd3-breakdown-rows')
+        .selectAll('g.d3-row-group')
+        .data(data.breakdown, function (d) { return d.id; })
+        .join('g')
+        .attr('class', 'd3-row-group')
+        .attr('tabindex', '0')
+        .attr('role', 'link')
+        .attr('aria-label', function (d) {
+          return d.title + ': Lessons ' + d.lessonsDone + ' of ' + d.lessonsTotal + ' (' + d.lessonsPct + '%), Exercises ' + d.exDone + ' of ' + d.exTotal + ' (' + d.exPct + '%)';
+        })
+        .attr('transform', function (d, i) { return 'translate(0,' + (breakdownStartY + i * rowH) + ')'; })
+        .on('click', function (ev, d) { if (d.href) location.hash = d.href; })
+        .on('keydown', function (ev, d) { if ((ev.key === 'Enter' || ev.key === ' ') && d.href) { ev.preventDefault(); location.hash = d.href; } })
+        .on('mousemove', function (ev, d) {
+          showTip(ev,
+            '<strong>' + esc(d.title) + '</strong><br>' +
+            'Lessons read: <strong class="num">' + d.lessonsDone + ' / ' + d.lessonsTotal + ' (' + d.lessonsPct + '%)</strong><br>' +
+            'Exercises solved: <strong class="num">' + d.exDone + ' / ' + d.exTotal + ' (' + d.exPct + '%)</strong>' +
+            (d.modsTotal > 1 ? '<br><span class="muted">Modules completed: ' + d.modsDone + '/' + d.modsTotal + '</span>' : '')
+          );
+        })
+        .on('mouseleave', hideTip)
+        .on('blur', hideTip);
+
+      var singleBarH = d3ProgMode === 'levels' ? 12 : 9;
+      var topBarY = d3ProgMode === 'levels' ? 8 : 5;
+      var botBarY = topBarY + singleBarH + 4;
+
+      bRows.append('rect')
+        .attr('class', 'd3-row-bg')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', W)
+        .attr('height', rowH - 2)
+        .attr('rx', 6)
+        .attr('fill', 'transparent');
+
+      bRows.append('text')
+        .attr('x', 6)
+        .attr('y', topBarY + singleBarH + 2)
+        .attr('fill', 'var(--ink)')
+        .attr('font-size', d3ProgMode === 'levels' ? '13px' : '12px')
+        .attr('font-weight', d3ProgMode === 'levels' ? '600' : '500')
+        .text(function (d) { return d.label; });
+
+      // Lessons track & bar
+      bRows.append('rect')
+        .attr('x', leftPad)
+        .attr('y', topBarY)
+        .attr('width', barW)
+        .attr('height', singleBarH)
+        .attr('rx', 4)
+        .attr('fill', 'var(--surface-2)');
+
+      var lFill = bRows.append('rect')
+        .attr('x', leftPad)
+        .attr('y', topBarY)
+        .attr('height', singleBarH)
+        .attr('rx', 4)
+        .attr('fill', 'var(--indigo)')
+        .attr('width', dur ? 0 : function (d) { return d.lessonsDone > 0 ? Math.max(5, x(d.lessonsPct)) : 0; });
+
+      // Exercises track & bar
+      bRows.append('rect')
+        .attr('x', leftPad)
+        .attr('y', botBarY)
+        .attr('width', barW)
+        .attr('height', singleBarH)
+        .attr('rx', 4)
+        .attr('fill', 'var(--surface-2)');
+
+      var eFill = bRows.append('rect')
+        .attr('x', leftPad)
+        .attr('y', botBarY)
+        .attr('height', singleBarH)
+        .attr('rx', 4)
+        .attr('fill', 'var(--ok)')
+        .attr('width', dur ? 0 : function (d) { return d.exDone > 0 ? Math.max(5, x(d.exPct)) : 0; });
+
+      if (dur) {
+        lFill.transition().duration(dur)
+          .attr('width', function (d) { return d.lessonsDone > 0 ? Math.max(5, x(d.lessonsPct)) : 0; });
+        eFill.transition().duration(dur)
+          .attr('width', function (d) { return d.exDone > 0 ? Math.max(5, x(d.exPct)) : 0; });
+      }
+
+      // Right-hand labels for Lessons & Exercises counts
+      bRows.append('text')
+        .attr('x', leftPad + barW + 8)
+        .attr('y', topBarY + singleBarH - 1)
+        .attr('fill', 'var(--indigo)')
+        .attr('font-size', '10.5px')
+        .attr('font-weight', '600')
+        .attr('font-family', 'var(--font-mono)')
+        .text(function (d) { return 'L: ' + d.lessonsDone + '/' + d.lessonsTotal; });
+
+      bRows.append('text')
+        .attr('x', leftPad + barW + 8)
+        .attr('y', botBarY + singleBarH - 1)
+        .attr('fill', 'var(--ok)')
+        .attr('font-size', '10.5px')
+        .attr('font-weight', '600')
+        .attr('font-family', 'var(--font-mono)')
+        .text(function (d) { return 'E: ' + d.exDone + '/' + d.exTotal; });
+    }
+
+    draw(true);
+    var onResize = function () { draw(false); };
+    var onReplaced = function () { draw(false); };
+    window.addEventListener('resize', onResize);
+    window.addEventListener('aim:progress-replaced', onReplaced);
+    currentCleanup.push(function () {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('aim:progress-replaced', onReplaced);
+    });
   }
   // My progress: where progress is kept (depends on sign-in, and on whether this browser lets the site save at all)
   function savedLine() {
@@ -1699,6 +2148,30 @@
     }
   }
   if (K) { K.on(updateAcctLink); updateAcctLink(K.status()); }
+
+  function updateStreakHead() {
+    var el = document.getElementById('streak-head');
+    if (!el) return;
+    var n = C.streak();
+    var st = S();
+    var todayCount = (st.log && st.log[C.today()]) || 0;
+    var numEl = document.getElementById('streak-num');
+    var lblEl = document.getElementById('streak-lbl');
+    if (numEl) numEl.textContent = String(n);
+    if (lblEl) lblEl.textContent = n === 1 ? 'day' : 'days';
+    el.classList.toggle('is-active', n > 0);
+    el.classList.toggle('is-today', todayCount > 0);
+    el.classList.toggle('is-pending', n > 0 && todayCount === 0);
+    var statusText = n > 0
+      ? n + '-day learning streak' + (todayCount > 0 ? ' (' + todayCount + ' learning interaction' + (todayCount === 1 ? '' : 's') + ' today)' : ' (interact today to keep your streak going)')
+      : '0-day learning streak. Read a lesson card, solve an exercise, or finish a lab task to start your streak!';
+    el.setAttribute('aria-label', statusText);
+    el.title = statusText;
+  }
+  C.onSave(updateStreakHead);
+  window.addEventListener('aim:progress-replaced', updateStreakHead);
+  window.addEventListener('aim:progress-reset', updateStreakHead);
+  updateStreakHead();
   // after a merge, the ticks, links and note boxes of a page left open show what is saved now
   // (a box with focus, or with typing not saved yet, is left alone)
   function syncInputs() {

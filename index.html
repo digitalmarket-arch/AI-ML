@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>AI Marg</title>
 <meta name="description" content="A free AI and machine learning course for Indian learners: the best free videos in Hindi, Hinglish and English, interactive labs, Python in the browser, tests and tough projects.">
+<meta property="og:title" content="AI Marg">
+<meta property="og:description" content="A free AI and machine learning course for Indian learners: the best free videos in Hindi, Hinglish and English, interactive labs, Python in the browser, tests and tough projects.">
 <meta name="theme-color" content="#2d388a">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232d388a'/%3E%3Ctext x='32' y='45' font-size='36' text-anchor='middle' fill='%23f3b91d' font-family='serif'%3E%E0%A4%AE%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,6 +50,12 @@
       <a href="#progress">My progress</a>
     </nav>
     <div class="head-tools">
+      <a class="btn btn-ghost streak-head" id="streak-head" href="#progress" aria-label="0-day learning streak" title="0-day learning streak. Interact with any lesson, lab, exercise or quiz to build your daily streak.">
+        <svg class="streak-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 2c.5 3.5 3.5 5.5 4.5 9a5.5 5.5 0 1 1-10.4 2.5C7 11 8.5 9.5 9 7.5c1 1.5 2 2 2 3.5 1-2.5 1.5-5 1-9z"/></svg>
+        <span class="streak-num num" id="streak-num">0</span>
+        <span class="streak-lbl" id="streak-lbl">d</span>
+      </a>
+      <button class="btn btn-ghost icon-btn hl-btn hl-head-btn" type="button" data-hl-root="main" aria-pressed="false" aria-label="Switch page to Hinglish" title="Switch page between English and Hinglish"><span class="hl-badge" aria-hidden="true">अ/A</span></button>
       <button class="btn btn-ghost icon-btn tts-btn" type="button" data-tts-root="main" data-tts-from="view" data-tts-label="Listen to this page" aria-label="Listen to this page" title="Listen to this page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg></button>
       <a class="btn btn-ghost icon-btn" href="#search" aria-label="Search the course (press /)" title="Search (/)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></a>
       <a class="btn btn-ghost acct-link" id="acct-link" href="#account" hidden>Sign in</a>
@@ -71,12 +79,14 @@
 <script src="data/pages.js"></script>
 <script src="data/labs.js"></script>
 <script src="assets/js/core.js"></script>
+<script src="assets/js/hinglish.js"></script>
 <script src="assets/js/speak.js"></script>
 <script src="assets/js/firebase-config.js"></script>
 <script src="assets/js/cloud.js"></script>
 <script src="assets/js/runner.js"></script>
 <script src="assets/js/publish.js"></script>
 <script src="assets/js/study.js"></script>
+<script src="node_modules/d3/dist/d3.min.js"></script>
 <script src="assets/js/app.js"></script>
 </body>
 </html>
