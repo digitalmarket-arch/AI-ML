@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const { GoogleGenAI, Type } = require('@google/genai');
+const ttsPersonas = require('./assets/js/tts-personas');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -25,7 +26,7 @@ function getAI() {
 // In-memory caches to keep repeated TTS and Hinglish conversions instant
 const ttsCache = new Map();
 const hlCache = new Map();
-const MAX_TTS_CACHE = 120;
+const MAX_TTS_CACHE = 160;
 const MAX_HL_CACHE = 400;
 
 function setCache(map, max, key, val) {
@@ -36,54 +37,120 @@ function setCache(map, max, key, val) {
   map.set(key, val);
 }
 
-// Neural Text-to-Speech endpoint (gemini-3.8-flash-lite-tts) tuned for natural Hinglish & Indian English
+// Track if gemini-3.8-flash-tts hit a Free Tier daily quota limit so we immediately use gemini-3.8-flash-lite-tts without extra latency
+let flashTtsQuotaCooldownUntil = 0;
+
+async function generateTtsAudio(ai, modelName, textInput, stylePrompt, voiceName) {
+  const cleanText =
+    modelName === 'gemini-3.8-flash-lite-tts'
+      ? textInput.replace(/<breath>\s*/g, '')
+      : textInput;
+  return ai.models.generateContent({
+    model: modelName,
+    contents: [
+      {
+        role: 'user',
+        parts: [
+          {
+            text: cleanText,
+            speechMetadata: {
+              style: stylePrompt,
+            },
+          },
+        ],
+      },
+    ],
+    config: {
+      responseModalities: ['AUDIO'],
+      speechConfig: {
+        voiceConfig: {
+          prebuiltVoiceConfig: { voiceName },
+        },
+      },
+    },
+  });
+}
+
+// Expressive Voice-Design Text-to-Speech endpoint (gemini-3.8-flash-tts with automatic high-throughput gemini-3.8-flash-lite-tts fallback)
+// Tuned for Indian Male (default) & Female voice personas and 3 human speaking styles
 app.post('/api/tts', async (req, res) => {
   try {
     const rawText = String((req.body && req.body.text) || '').trim();
     const isHinglish = Boolean(req.body && req.body.isHinglish);
-    const requestedVoice = String((req.body && req.body.voice) || 'Kore');
-    const allowedVoices = ['Kore', 'Puck', 'Zephyr', 'Charon', 'Fenrir'];
-    const voiceName = allowedVoices.includes(requestedVoice) ? requestedVoice : 'Kore';
+    const requestedPersona = String(
+      (req.body && (req.body.personaId || req.body.voice)) || ttsPersonas.DEFAULT_PERSONA_ID
+    );
+    const requestedStyle = String((req.body && req.body.style) || ttsPersonas.DEFAULT_STYLE_ID);
 
     if (!rawText) {
       return res.status(400).json({ error: 'Text is required for speech generation.' });
     }
 
+    const persona = ttsPersonas.getPersonaById(requestedPersona);
+    const styleObj = ttsPersonas.getStyleById(requestedStyle);
+    const voiceName = persona.voiceName;
     const clipped = rawText.slice(0, 1600);
-    const cacheKey = `${voiceName}|${isHinglish ? 'hl' : 'en'}|${clipped}`;
+    const expressiveText = ttsPersonas.injectNaturalBreaths(clipped, styleObj.id);
+    const cacheKey = ttsPersonas.buildTtsCacheKey({
+      personaId: persona.personaId,
+      voice: voiceName,
+      style: styleObj.id,
+      isHinglish,
+      text: clipped,
+    });
+
     if (ttsCache.has(cacheKey)) {
-      return res.json({ audioBase64: ttsCache.get(cacheKey), mimeType: 'audio/wav', cached: true });
+      return res.json({
+        audioBase64: ttsCache.get(cacheKey),
+        mimeType: 'audio/wav',
+        voiceName,
+        personaId: persona.personaId,
+        style: styleObj.id,
+        cached: true,
+      });
     }
 
     const ai = getAI();
-    const stylePrompt = isHinglish
-      ? 'Warm, engaging Indian AI & Machine Learning teacher speaking natural conversational Hinglish (Roman Hindi mixed with English technical terms) with authentic Indian pronunciation and smooth pacing'
-      : 'Warm, clear, articulate Indian AI & Machine Learning teacher speaking with natural Indian English intonation';
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash-lite-tts',
-      contents: [
-        {
-          role: 'user',
-          parts: [
-            {
-              text: clipped,
-              speechMetadata: {
-                style: stylePrompt,
-              },
-            },
-          ],
-        },
-      ],
-      config: {
-        responseModalities: ['AUDIO'],
-        speechConfig: {
-          voiceConfig: {
-            prebuiltVoiceConfig: { voiceName },
-          },
-        },
-      },
+    const stylePrompt = ttsPersonas.buildStylePrompt({
+      personaId: persona.personaId,
+      voice: voiceName,
+      style: styleObj.id,
+      isHinglish,
     });
+
+    let response;
+    const now = Date.now();
+    if (now < flashTtsQuotaCooldownUntil) {
+      response = await generateTtsAudio(
+        ai,
+        'gemini-3.8-flash-lite-tts',
+        expressiveText,
+        stylePrompt,
+        voiceName
+      );
+    } else {
+      try {
+        response = await generateTtsAudio(
+          ai,
+          'gemini-3.8-flash-tts',
+          expressiveText,
+          stylePrompt,
+          voiceName
+        );
+      } catch (primaryErr) {
+        const msg = String((primaryErr && primaryErr.message) || primaryErr || '');
+        if (/429|RESOURCE_EXHAUSTED|quota/i.test(msg)) {
+          flashTtsQuotaCooldownUntil = Date.now() + 15 * 60 * 1000;
+        }
+        response = await generateTtsAudio(
+          ai,
+          'gemini-3.8-flash-lite-tts',
+          expressiveText,
+          stylePrompt,
+          voiceName
+        );
+      }
+    }
 
     const base64Audio =
       response.candidates &&
@@ -99,7 +166,13 @@ app.post('/api/tts', async (req, res) => {
     }
 
     setCache(ttsCache, MAX_TTS_CACHE, cacheKey, base64Audio);
-    return res.json({ audioBase64: base64Audio, mimeType: 'audio/wav' });
+    return res.json({
+      audioBase64: base64Audio,
+      mimeType: 'audio/wav',
+      voiceName,
+      personaId: persona.personaId,
+      style: styleObj.id,
+    });
   } catch (err) {
     console.error('[/api/tts error]:', err && err.message ? err.message : err);
     return res.status(500).json({

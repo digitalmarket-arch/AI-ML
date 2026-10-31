@@ -178,12 +178,12 @@ main { padding-block: 28px 64px; flex: 1 0 auto; }
 .brand-mark b { color: var(--haldi-ink); font-weight: 400; }
 .nav { display: flex; gap: 2px; margin-left: auto; overflow-x: auto; scrollbar-width: none; }
 .nav::-webkit-scrollbar { display: none; }
-.nav a { padding: 8px; border-radius: var(--radius-sm); color: var(--muted); text-decoration: none; font-weight: 500; white-space: nowrap; font-size: .98rem; }
+.nav a { padding: 8px 7px; border-radius: var(--radius-sm); color: var(--muted); text-decoration: none; font-weight: 500; white-space: nowrap; font-size: .95rem; }
 .nav a:hover { color: var(--ink); background: var(--surface-2); }
 .nav a[aria-current="page"] { color: var(--indigo); background: var(--indigo-soft); }
 /* just above the menu breakpoint the full menu is tight: slightly smaller words keep it on one line */
-@media (min-width: 1101px) and (max-width: 1279px) { .nav a { padding: 8px 6px; font-size: .94rem; } }
-.head-tools { display: flex; gap: 6px; align-items: center; }
+@media (min-width: 1101px) and (max-width: 1279px) { .nav a { padding: 8px 5px; font-size: .9rem; } }
+.head-tools { display: flex; gap: 4px; align-items: center; flex: none; }
 .site-head .menu-btn { display: none; }
 @media (max-width: 1100px) {
   .site-head .menu-btn { display: inline-flex; margin-left: auto; }
@@ -557,28 +557,42 @@ details.fold > div { padding: 0 14px 14px; }
 .read-body .ex-list > li::before { content: counter(ex); position: absolute; left: 12px; top: 10px; width: 22px; height: 22px; border-radius: 50%; background: var(--haldi-soft); color: var(--ink); font-size: .8rem; font-weight: 700; line-height: 22px; text-align: center; }
 
 /* ---------- read aloud (assets/js/speak.js) ---------- */
-.tts-btn { display: none; }
+.tts-btn, .tts-head-rate { display: none; }
 html.tts .tts-btn { display: inline-flex; }
+html.tts .tts-head-rate { display: inline-block; }
+.tts-head-group { display: inline-flex; align-items: center; gap: 2px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 1px 4px 1px 2px; }
+.tts-head-group .tts-btn { width: 34px; height: 34px; }
+.tts-head-rate { height: 32px; padding: 0 4px; border: 0; background: transparent; color: var(--ink); font-size: .82rem; font-weight: 700; cursor: pointer; border-radius: 4px; }
+.tts-head-rate:hover { background: var(--surface); color: var(--indigo); }
+.tts-head-rate:focus-visible { outline: 2px solid var(--indigo); outline-offset: 1px; }
+@media (max-width: 480px) {
+  .tts-head-group { padding: 0 2px; gap: 0; }
+  .tts-head-group .tts-btn { width: 32px; height: 32px; }
+  .tts-head-rate { font-size: .75rem; padding: 0 2px; height: 30px; }
+}
 .tts-btn svg { width: 18px; height: 18px; flex: none; }
 .tts-btn.is-on { background: var(--indigo-soft); color: var(--indigo); }
 .tts-icon { width: 34px; height: 34px; padding: 0; margin-left: 6px; vertical-align: middle; }
 .read-tools { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .sec-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .tts-on { background: var(--haldi-soft) !important; box-shadow: 0 0 0 4px var(--haldi-soft); border-radius: 4px; }
-.tts-bar { position: fixed; z-index: 45; left: 50%; transform: translateX(-50%); bottom: calc(10px + env(safe-area-inset-bottom, 0px)); width: min(680px, calc(100vw - 20px)); box-sizing: border-box; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; background: var(--surface); border: 1px solid var(--indigo); border-radius: 16px; box-shadow: var(--shadow); }
+.tts-bar { position: fixed; z-index: 45; left: 50%; transform: translateX(-50%); bottom: calc(10px + env(safe-area-inset-bottom, 0px)); width: min(760px, calc(100vw - 20px)); box-sizing: border-box; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; background: var(--surface); border: 1px solid var(--indigo); border-radius: 16px; box-shadow: var(--shadow); }
 .tts-bar[hidden] { display: none; }
 .tts-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.tts-now { flex: 1 1 200px; min-width: 0; margin: 0; font-size: .88rem; font-weight: 600; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.tts-ctl { display: flex; align-items: center; gap: 2px; margin-left: auto; }
-.tts-ctl .icon-btn { width: 44px; height: 44px; }
+.tts-now { flex: 1 1 180px; min-width: 0; margin: 0; font-size: .88rem; font-weight: 600; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tts-ctl { display: flex; align-items: center; gap: 3px; margin-left: auto; flex-wrap: wrap; }
+.tts-ctl .icon-btn { width: 42px; height: 42px; }
 .tts-ctl .icon-btn svg { width: 20px; height: 20px; }
-.tts-rate, .tts-more { min-height: 44px; min-width: 44px; padding: 0 10px; font-variant-numeric: tabular-nums; }
+.tts-rate, .tts-more, .tts-gender { min-height: 40px; min-width: 42px; padding: 0 9px; font-size: .84rem; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tts-gender { background: var(--indigo-soft); color: var(--indigo); border-color: transparent; }
+.tts-gender.is-female { background: var(--haldi-soft); color: var(--haldi-ink); }
 .tts-opts { border-top: 1px solid var(--line); padding-top: 8px; }
+.tts-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 .tts-opts select { width: 100%; }
 .tts-check { display: flex; gap: 8px; align-items: center; }
 .tts-msg { margin: 0; color: var(--ink); }
 .tts-msg:empty, .tts-msg[hidden] { display: none; }
-@media (max-width: 380px) { .tts-ctl .icon-btn { width: 40px; } .tts-rate, .tts-more { padding: 0 8px; } .tts-bar { padding: 6px 8px; } }
+@media (max-width: 420px) { .tts-ctl .icon-btn { width: 38px; height: 38px; } .tts-rate, .tts-more, .tts-gender { padding: 0 7px; min-height: 38px; font-size: .78rem; } .tts-bar { padding: 6px 8px; } }
 /* room for the player at the end of the page, and the focus chip and messages sit above it */
 body.tts-bar-on { padding-bottom: calc(var(--tts-h, 64px) + 24px + env(safe-area-inset-bottom, 0px)); }
 html.tts-pad { scroll-padding-bottom: calc(var(--tts-h, 64px) + 24px + env(safe-area-inset-bottom, 0px)); }

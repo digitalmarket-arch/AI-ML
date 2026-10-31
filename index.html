@@ -56,7 +56,18 @@
         <span class="streak-lbl" id="streak-lbl">d</span>
       </a>
       <button class="btn btn-ghost icon-btn hl-btn hl-head-btn" type="button" data-hl-root="main" aria-pressed="false" aria-label="Switch page to Hinglish" title="Switch page between English and Hinglish"><span class="hl-badge" aria-hidden="true">अ/A</span></button>
-      <button class="btn btn-ghost icon-btn tts-btn" type="button" data-tts-root="main" data-tts-from="view" data-tts-label="Listen to this page" aria-label="Listen to this page" title="Listen to this page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg></button>
+      <div class="tts-head-group" role="group" aria-label="Listen to this page">
+        <button class="btn btn-ghost icon-btn tts-btn" type="button" data-tts-root="main" data-tts-from="view" data-tts-label="Listen to this page" aria-label="Listen to this page" title="Listen to this page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg></button>
+        <label class="visually-hidden" for="tts-head-rate">Reading speed</label>
+        <select class="tts-head-rate num" id="tts-head-rate" aria-label="Reading speed" title="Reading speed for Listen to this page">
+          <option value="0.75">0.75×</option>
+          <option value="1" selected>1×</option>
+          <option value="1.25">1.25×</option>
+          <option value="1.5">1.5×</option>
+          <option value="1.75">1.75×</option>
+          <option value="2">2×</option>
+        </select>
+      </div>
       <a class="btn btn-ghost icon-btn" href="#search" aria-label="Search the course (press /)" title="Search (/)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></a>
       <a class="btn btn-ghost acct-link" id="acct-link" href="#account" hidden>Sign in</a>
       <button class="btn btn-ghost icon-btn" id="theme-btn" type="button" data-action="theme" aria-label="Change theme">◐</button>
@@ -80,6 +91,7 @@
 <script src="data/labs.js"></script>
 <script src="assets/js/core.js"></script>
 <script src="assets/js/hinglish.js"></script>
+<script src="assets/js/tts-personas.js"></script>
 <script src="assets/js/speak.js"></script>
 <script src="assets/js/firebase-config.js"></script>
 <script src="assets/js/cloud.js"></script>

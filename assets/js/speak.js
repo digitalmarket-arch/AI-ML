@@ -32,23 +32,80 @@
   }
 
   /* ---------- preferences ---------- */
-  var KEY = 'aimarg.tts', RATES = [0.75, 1, 1.25, 1.5];
-  var NEURAL_VOICES = [
-    { id: 'neural:Kore', name: 'Kore', label: 'AI Neural · Kore (Warm Indian teacher — Best for Hinglish)' },
-    { id: 'neural:Puck', name: 'Puck', label: 'AI Neural · Puck (Energetic & conversational)' },
-    { id: 'neural:Zephyr', name: 'Zephyr', label: 'AI Neural · Zephyr (Clear & calm)' },
-    { id: 'neural:Charon', name: 'Charon', label: 'AI Neural · Charon (Deep & steady)' }
+  var P = window.AIM_TTS_PERSONAS || {};
+  var KEY = 'aimarg.tts', RATES = P.SUPPORTED_RATES || [0.75, 1, 1.25, 1.5, 1.75, 2];
+  var VOICE_PERSONAS = P.VOICE_PERSONAS || [
+    { id: 'neural:male-arjun', personaId: 'male-arjun', voiceName: 'Fenrir', gender: 'male', shortName: 'Arjun', badge: '♂ Male · Arjun', label: 'Arjun — Indian Male Mentor (Warm & Authoritative · Default)' },
+    { id: 'neural:male-rohan', personaId: 'male-rohan', voiceName: 'Puck', gender: 'male', shortName: 'Rohan', badge: '♂ Male · Rohan', label: 'Rohan — Indian Male Instructor (Upbeat & Conversational)' },
+    { id: 'neural:male-vikram', personaId: 'male-vikram', voiceName: 'Charon', gender: 'male', shortName: 'Vikram', badge: '♂ Male · Vikram', label: 'Vikram — Indian Male Professor (Deep, Calm & Steady)' },
+    { id: 'neural:female-ananya', personaId: 'female-ananya', voiceName: 'Kore', gender: 'female', shortName: 'Ananya', badge: '♀ Female · Ananya', label: 'Ananya — Indian Female Teacher (Warm, Clear & Expressive)' },
+    { id: 'neural:female-meera', personaId: 'female-meera', voiceName: 'Zephyr', gender: 'female', shortName: 'Meera', badge: '♀ Female · Meera', label: 'Meera — Indian Female Educator (Calm & Articulate)' }
   ];
-  var prefs = { rate: 1, voice: 'neural:Kore', hindi: 'say' };
+  var SPEAKING_STYLES = P.SPEAKING_STYLES || [
+    { id: 'mentor', shortLabel: 'Friendly Mentor', label: 'Friendly YouTube Mentor (CampusX / Krish Naik style — Default)' },
+    { id: 'professor', shortLabel: 'Calm Professor', label: 'Calm University Professor (NPTEL / IIT lecture style)' },
+    { id: 'buddy', shortLabel: 'Study Buddy', label: 'Energetic Study Buddy (Peer coaching style)' }
+  ];
+
+  var prefs = {
+    rate: 1,
+    voice: P.DEFAULT_PERSONA_ID || 'neural:male-arjun',
+    style: P.DEFAULT_STYLE_ID || 'mentor',
+    hindi: 'say',
+    lastMale: 'neural:male-arjun',
+    lastFemale: 'neural:female-ananya',
+    migratedV2: true
+  };
   try {
     var sv = JSON.parse(localStorage.getItem(KEY) || '{}') || {};
-    if (RATES.indexOf(sv.rate) >= 0) prefs.rate = sv.rate;
-    if (typeof sv.voice === 'string' && sv.voice) prefs.voice = sv.voice;
+    if (RATES.indexOf(Number(sv.rate)) >= 0) prefs.rate = Number(sv.rate);
+    if (typeof sv.voice === 'string' && sv.voice) {
+      prefs.voice = P.normalizeVoicePref ? P.normalizeVoicePref(sv.voice, sv.migratedV2) : sv.voice;
+    }
+    if (typeof sv.style === 'string' && sv.style) {
+      prefs.style = (P.getStyleById ? P.getStyleById(sv.style).id : sv.style);
+    }
+    if (typeof sv.lastMale === 'string' && sv.lastMale) prefs.lastMale = sv.lastMale;
+    if (typeof sv.lastFemale === 'string' && sv.lastFemale) prefs.lastFemale = sv.lastFemale;
     if (sv.hindi === 'skip') prefs.hindi = 'skip';
+    // Persist migrated V2 Male default if upgrading from legacy session
+    if (!sv.migratedV2) {
+      try { localStorage.setItem(KEY, JSON.stringify(prefs)); } catch (e2) {}
+    }
   } catch (e) {}
-  function savePrefs() { try { localStorage.setItem(KEY, JSON.stringify(prefs)); } catch (e) {} }
+  function savePrefs() {
+    prefs.migratedV2 = true;
+    var curP = currentPersona();
+    if (curP) {
+      if (curP.gender === 'male') prefs.lastMale = curP.id;
+      else if (curP.gender === 'female') prefs.lastFemale = curP.id;
+    }
+    try { localStorage.setItem(KEY, JSON.stringify(prefs)); } catch (e) {}
+  }
   function isNeuralVoice() { return !prefs.voice || prefs.voice.indexOf('neural:') === 0; }
-  function neuralVoiceName() { return isNeuralVoice() ? (prefs.voice.split(':')[1] || 'Kore') : 'Kore'; }
+  function currentPersona() {
+    if (!isNeuralVoice()) return null;
+    if (P.getPersonaById) return P.getPersonaById(prefs.voice);
+    for (var i = 0; i < VOICE_PERSONAS.length; i++) {
+      if (VOICE_PERSONAS[i].id === prefs.voice) return VOICE_PERSONAS[i];
+    }
+    return VOICE_PERSONAS[0];
+  }
+  function currentStyle() {
+    if (P.getStyleById) return P.getStyleById(prefs.style);
+    for (var i = 0; i < SPEAKING_STYLES.length; i++) {
+      if (SPEAKING_STYLES[i].id === prefs.style) return SPEAKING_STYLES[i];
+    }
+    return SPEAKING_STYLES[0];
+  }
+  function neuralVoiceName() {
+    var cp = currentPersona();
+    return cp ? cp.voiceName : 'Fenrir';
+  }
+  function neuralPersonaId() {
+    var cp = currentPersona();
+    return cp ? cp.personaId : 'male-arjun';
+  }
 
   /* ---------- browser fallback voices ---------- */
   var voices = [];
@@ -201,8 +258,11 @@
   var inFlightAudio = new Map();
   var activeAudio = null;
 
-  function fetchNeuralAudio(text, isHl, vName) {
-    var key = vName + '|' + (isHl ? 'hl' : 'en') + '|' + text;
+  function fetchNeuralAudio(text, isHl, vName, pId, styleId) {
+    vName = vName || neuralVoiceName();
+    pId = pId || neuralPersonaId();
+    styleId = styleId || currentStyle().id;
+    var key = pId + '|' + vName + '|' + styleId + '|' + (isHl ? 'hl' : 'en') + '|' + text;
     if (clientAudioCache.has(key)) {
       return Promise.resolve(clientAudioCache.get(key));
     }
@@ -212,7 +272,13 @@
     var p = fetch('/api/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: text, isHinglish: isHl, voice: vName })
+      body: JSON.stringify({
+        text: text,
+        isHinglish: isHl,
+        voice: vName,
+        personaId: pId,
+        style: styleId
+      })
     })
       .then(function (r) {
         if (!r.ok) throw new Error('TTS HTTP ' + r.status);
@@ -244,7 +310,7 @@
     var isHl = !!(window.AIM_HINGLISH && window.AIM_HINGLISH.isCardHinglish(nb.el));
     var txt = cleanForNeural(liveBlockText(nb), isHl);
     if (txt) {
-      fetchNeuralAudio(txt, isHl, neuralVoiceName()).catch(function () {});
+      fetchNeuralAudio(txt, isHl, neuralVoiceName(), neuralPersonaId(), currentStyle().id).catch(function () {});
     }
   }
 
@@ -290,7 +356,7 @@
       loadingAudio = true;
       updateBar();
       prefetchNextBlock(qi + 1);
-      fetchNeuralAudio(neuralText, isHl, neuralVoiceName())
+      fetchNeuralAudio(neuralText, isHl, neuralVoiceName(), neuralPersonaId(), currentStyle().id)
         .then(function (dataUri) {
           if (t !== token) return;
           loadingAudio = false;
@@ -382,7 +448,7 @@
   }
   function noVoice() {
     halt(); playing = false; highlight(null); setBtnState(srcBtn, false); updateBar();
-    setMsg('Could not play audio right now. Check your internet connection or try selecting another voice in the Voice menu.');
+    setMsg('Could not play audio right now. Check your internet connection or try selecting another voice in Pace & Voice.');
   }
 
   /* ---------- highlight and follow ---------- */
@@ -420,11 +486,17 @@
       '<button type="button" class="btn btn-primary icon-btn" data-tts-act="toggle" id="tts-toggle"></button>' +
       '<button type="button" class="btn btn-ghost icon-btn" data-tts-act="next" aria-label="Next paragraph" title="Next paragraph">' + ICON.next + '</button>' +
       '<button type="button" class="btn btn-ghost tts-rate" data-tts-act="rate" id="tts-rate"></button>' +
+      '<button type="button" class="btn btn-ghost tts-gender" data-tts-act="gender" id="tts-gender" title="Quick switch between Indian Male and Female teacher voices">♂ Male</button>' +
       '<button type="button" class="btn btn-ghost tts-more" data-tts-act="hinglish" id="tts-hl" aria-pressed="false" title="Switch active reading between English and Hinglish">Hinglish</button>' +
-      '<button type="button" class="btn btn-ghost tts-more" data-tts-act="opts" id="tts-more" aria-expanded="false" aria-controls="tts-opts">Voice</button>' +
+      '<button type="button" class="btn btn-ghost tts-more" data-tts-act="opts" id="tts-more" aria-expanded="false" aria-controls="tts-opts">Pace &amp; Voice</button>' +
       '<button type="button" class="btn btn-ghost icon-btn" data-tts-act="stop" aria-label="Stop reading and close" title="Stop and close">' + ICON.close + '</button></div></div>' +
-      '<div class="tts-opts stack-sm" id="tts-opts" hidden><div class="control"><label for="tts-voice">Voice engine</label><select id="tts-voice"></select></div>' +
-      '<label class="tts-check"><input type="checkbox" id="tts-hindi"> Say the Hindi words in brackets</label><p class="small muted" id="tts-note"></p></div>' +
+      '<div class="tts-opts stack-sm" id="tts-opts" hidden>' +
+      '<div class="tts-grid">' +
+      '<div class="control"><label for="tts-voice">Indian Teacher Voice (Male / Female)</label><select id="tts-voice"></select></div>' +
+      '<div class="control"><label for="tts-style">Speaking Style</label><select id="tts-style"></select></div>' +
+      '</div>' +
+      '<label class="tts-check"><input type="checkbox" id="tts-hindi"> Say the Hindi words in brackets</label>' +
+      '<p class="small muted" id="tts-note"></p></div>' +
       '<p class="tts-msg small" id="tts-msg" role="status"></p>';
     document.body.appendChild(bar);
     bar.addEventListener('click', function (ev) {
@@ -434,16 +506,20 @@
       else if (a === 'prev') step(-1);
       else if (a === 'next') step(1);
       else if (a === 'rate') {
-        prefs.rate = RATES[(RATES.indexOf(prefs.rate) + 1) % RATES.length];
-        savePrefs();
-        if (activeAudio) {
-          activeAudio.playbackRate = prefs.rate;
-          updateBar();
-        } else if (playing) {
-          halt(); speakBlock();
+        var nextRate = RATES[(RATES.indexOf(prefs.rate) + 1) % RATES.length];
+        setRate(nextRate);
+      }
+      else if (a === 'gender') {
+        if (P.toggleGenderPersona) {
+          prefs.voice = P.toggleGenderPersona(prefs.voice, prefs.lastMale, prefs.lastFemale);
         } else {
-          updateBar();
+          var cp = currentPersona();
+          prefs.voice = (cp && cp.gender === 'male') ? 'neural:female-ananya' : 'neural:male-arjun';
         }
+        savePrefs();
+        fillVoices();
+        updateBar();
+        if (playing) { halt(); speakBlock(); }
       }
       else if (a === 'hinglish') {
         var target = activeRoot || (Q[qi] && Q[qi].el && Q[qi].el.closest('[data-sec], .card, section, #main')) || document.getElementById('main');
@@ -457,8 +533,25 @@
       else if (a === 'stop') { var back = srcBtn; stop(); if (back && back.isConnected) back.focus(); }
     });
     bar.addEventListener('change', function (ev) {
-      if (ev.target.id === 'tts-voice') { prefs.voice = ev.target.value; savePrefs(); fillVoices(); if (playing) { halt(); speakBlock(); } }
-      if (ev.target.id === 'tts-hindi') { prefs.hindi = ev.target.checked ? 'say' : 'skip'; savePrefs(); if (playing) { halt(); speakBlock(); } }
+      if (ev.target.id === 'tts-voice') {
+        prefs.voice = ev.target.value;
+        savePrefs();
+        fillVoices();
+        updateBar();
+        if (playing) { halt(); speakBlock(); }
+      }
+      if (ev.target.id === 'tts-style') {
+        prefs.style = ev.target.value;
+        savePrefs();
+        fillVoices();
+        updateBar();
+        if (playing) { halt(); speakBlock(); }
+      }
+      if (ev.target.id === 'tts-hindi') {
+        prefs.hindi = ev.target.checked ? 'say' : 'skip';
+        savePrefs();
+        if (playing) { halt(); speakBlock(); }
+      }
     });
     bar.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') { var back = srcBtn; stop(); if (back && back.isConnected) back.focus(); } });
     if (window.ResizeObserver) new ResizeObserver(padPage).observe(bar);
@@ -466,24 +559,40 @@
   }
   function fillVoices() {
     var s = el('tts-voice'); if (!s) return;
-    var neuralOpts = NEURAL_VOICES.map(function (nv) {
-      return '<option value="' + esc(nv.id) + '"' + (prefs.voice === nv.id ? ' selected' : '') + '>' + esc(nv.label) + '</option>';
+    var maleOpts = VOICE_PERSONAS.filter(function (vp) { return vp.gender === 'male'; }).map(function (vp) {
+      return '<option value="' + esc(vp.id) + '"' + (prefs.voice === vp.id ? ' selected' : '') + '>' + esc(vp.label) + '</option>';
+    }).join('');
+    var femaleOpts = VOICE_PERSONAS.filter(function (vp) { return vp.gender === 'female'; }).map(function (vp) {
+      return '<option value="' + esc(vp.id) + '"' + (prefs.voice === vp.id ? ' selected' : '') + '>' + esc(vp.label) + '</option>';
     }).join('');
     var en = voices.filter(function (v) { return score(v, 'en') >= 0; }).sort(function (a, b) { return score(b, 'en') - score(a, 'en'); });
     var browserOpts = en.map(function (v) {
       return '<option value="' + esc(v.voiceURI) + '"' + (v.voiceURI === prefs.voice ? ' selected' : '') + '>Browser · ' + esc(v.name + ' (' + v.lang + ')') + '</option>';
     }).join('');
-    s.innerHTML = '<optgroup label="AI Neural Voices (Natural Hinglish & Indian English)">' + neuralOpts + '</optgroup>' +
+    s.innerHTML =
+      '<optgroup label="Indian Male Teacher Voices (Gemini 3.8 Flash TTS)">' + maleOpts + '</optgroup>' +
+      '<optgroup label="Indian Female Teacher Voices (Gemini 3.8 Flash TTS)">' + femaleOpts + '</optgroup>' +
       (browserOpts ? '<optgroup label="Device Browser Voices (Offline)">' + browserOpts + '</optgroup>' : '');
+
+    var stSel = el('tts-style');
+    if (stSel) {
+      stSel.innerHTML = SPEAKING_STYLES.map(function (st) {
+        return '<option value="' + esc(st.id) + '"' + (prefs.style === st.id ? ' selected' : '') + '>' + esc(st.label) + '</option>';
+      }).join('');
+      stSel.disabled = !isNeuralVoice();
+    }
+
     var h = el('tts-hindi'); if (h) h.checked = prefs.hindi !== 'skip';
     var n = el('tts-note');
     if (n) {
-      n.textContent = isNeuralVoice()
-        ? 'Using Gemini AI Neural Voice (' + neuralVoiceName() + ') tuned for natural conversational Hinglish & Indian English.'
-        : 'Using offline browser voice. Switch to an AI Neural Voice above for smoother Hinglish pronunciation.';
+      var cp = currentPersona();
+      var cs = currentStyle();
+      n.textContent = isNeuralVoice() && cp
+        ? 'Using Gemini 3.8 Flash TTS · ' + cp.shortName + ' (' + (cp.gender === 'male' ? 'Indian Male' : 'Indian Female') + ' · ' + cp.voiceName + ') in "' + cs.shortLabel + '" style with natural breath prosody.'
+        : 'Using offline browser voice. Select an Indian Male or Female AI teacher voice above for realistic Hinglish & Indian English.';
     }
   }
-  function showBar() { makeBar().hidden = false; document.body.classList.add('tts-bar-on'); html.classList.add('tts-pad'); updateBar(); padPage(); }
+  function showBar() { makeBar().hidden = false; document.body.classList.add('tts-bar-on'); html.classList.add('tts-pad'); fillVoices(); updateBar(); padPage(); }
   function hideBar() { if (!bar) return; bar.hidden = true; el('tts-opts').hidden = true; el('tts-more').setAttribute('aria-expanded', 'false'); document.body.classList.remove('tts-bar-on'); html.classList.remove('tts-pad'); }
   function barHeight() { return bar && !bar.hidden ? bar.offsetHeight : 0; }
   function padPage() { if (bar && !bar.hidden) html.style.setProperty('--tts-h', bar.offsetHeight + 'px'); }
@@ -492,19 +601,57 @@
     if (!bar) return;
     var b = Q[Math.min(qi, Q.length - 1)], what = (b && b.heading) || srcLabel || 'this page';
     var isHl = !!(b && b.el && window.AIM_HINGLISH && window.AIM_HINGLISH.isCardHinglish(b.el));
+    var cp = currentPersona();
+    var cs = currentStyle();
+    var voiceTag = cp ? ' · ' + cp.shortName + ' (' + cs.shortLabel + ')' : '';
     var langTag = isHl ? ' (Hinglish)' : '';
-    var statePrefix = loadingAudio ? 'Loading neural audio' + langTag + ' · ' : (playing ? 'Reading' + langTag + ' ' : 'Paused' + langTag + ' ');
-    el('tts-now').textContent = !Q.length ? 'Read aloud' : ended ? 'Finished: ' + (srcLabel || 'this page') + '. Press play to hear it again.' : statePrefix + (qi + 1) + ' of ' + Q.length + ' · ' + what;
+    var statePrefix = loadingAudio ? 'Loading ' + (cp ? cp.shortName : 'neural') + ' audio' + langTag + ' · ' : (playing ? 'Reading' + langTag + ' ' : 'Paused' + langTag + ' ');
+    el('tts-now').textContent = !Q.length ? 'Read aloud' : ended ? 'Finished: ' + (srcLabel || 'this page') + '. Press play to hear it again.' : statePrefix + (qi + 1) + ' of ' + Q.length + ' · ' + what + voiceTag;
     var t = el('tts-toggle');
     t.innerHTML = playing ? ICON.pause : ICON.play;
     t.setAttribute('aria-label', playing ? 'Pause' : 'Play'); t.title = playing ? 'Pause' : 'Play';
     var r = el('tts-rate'); r.textContent = prefs.rate + '×'; r.setAttribute('aria-label', 'Reading speed ' + prefs.rate + ' times. Change speed');
+    syncHeadRate();
+    var gBtn = el('tts-gender');
+    if (gBtn) {
+      var isFemale = !!(cp && cp.gender === 'female');
+      var gLabel = cp ? (isFemale ? '♀ ' + cp.shortName : '♂ ' + cp.shortName) : '♂ Male';
+      gBtn.textContent = gLabel;
+      gBtn.classList.toggle('is-female', isFemale);
+      gBtn.setAttribute(
+        'aria-label',
+        'Current voice: ' + (cp ? cp.shortName + ' (' + (isFemale ? 'Female' : 'Male') + ')' : 'Male') +
+        '. Switch to ' + (isFemale ? 'Male' : 'Female') + ' Indian voice'
+      );
+    }
     var hBtn = el('tts-hl');
     if (hBtn) {
       hBtn.setAttribute('aria-pressed', String(isHl));
       hBtn.classList.toggle('is-on', isHl);
       hBtn.textContent = isHl ? 'Hinglish ✓' : 'Hinglish';
     }
+  }
+  function syncHeadRate() {
+    var hr = el('tts-head-rate');
+    if (hr) {
+      hr.value = String(prefs.rate);
+    }
+  }
+  function setRate(nextRate) {
+    var norm = P.normalizeRate ? P.normalizeRate(nextRate) : (RATES.indexOf(Number(nextRate)) >= 0 ? Number(nextRate) : 1);
+    prefs.rate = norm;
+    savePrefs();
+    syncHeadRate();
+    if (activeAudio) {
+      activeAudio.playbackRate = prefs.rate;
+      updateBar();
+    } else if (playing) {
+      halt();
+      speakBlock();
+    } else {
+      updateBar();
+    }
+    return prefs.rate;
   }
   function setBtnState(b, on) {
     if (!b || !b.isConnected) return;
@@ -513,7 +660,13 @@
     var l = b.querySelector('.tts-lbl'); if (l) l.textContent = on ? 'Stop' : (b.getAttribute('data-tts-text') || 'Listen');
   }
 
-  /* ---------- buttons anywhere ---------- */
+  /* ---------- buttons & header speed dropdown ---------- */
+  document.addEventListener('change', function (ev) {
+    var t = ev.target;
+    if (t && t.id === 'tts-head-rate') {
+      setRate(Number(t.value));
+    }
+  });
   document.addEventListener('click', function (ev) {
     var b = ev.target.closest && ev.target.closest('[data-tts-root]'); if (!b) return;
     ev.preventDefault();
@@ -528,6 +681,7 @@
   window.addEventListener('hashchange', function () { if (Q.length) stop(); });
   window.addEventListener('pagehide', function () { halt(); });
 
+  syncHeadRate();
   loadVoices();
   if (BROWSER_OK) {
     if (synth.addEventListener) synth.addEventListener('voiceschanged', loadVoices); else synth.onvoiceschanged = loadVoices;
@@ -539,6 +693,9 @@
     refreshCurrent: function () { if (playing && Q.length) { halt(); speakBlock(); } else if (bar && !bar.hidden) updateBar(); },
     stop: function () { if (Q.length || (bar && !bar.hidden)) stop(); },
     isPlaying: function () { return playing; },
+    getPrefs: function () { return Object.assign({}, prefs); },
+    setRate: setRate,
+    getRate: function () { return prefs.rate; },
     _blocks: blocksIn, _parts: parts
   };
 })();
