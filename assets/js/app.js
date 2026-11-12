@@ -682,6 +682,7 @@
       '<li><strong>Practise.</strong> Solve small Python exercises right on the page.</li>' +
       '<li><strong>Test yourself.</strong> Score 70% or more on the quiz, then move on. A level is complete when its modules are done, you pass the level test and you finish one project.</li></ol></section>' +
       (st.last || Object.keys(st.watched).length || continueList(1).length ? '<section class="card stack-sm"><div class="row-between"><div class="stack-sm"><strong>Your progress</strong><span class="small muted num">' + esc(courseText()) + ' of the whole course · ' + C.streak() + '-day streak</span></div><a class="btn" href="#progress">Open my progress</a></div>' +
+        (cloudOn() && !K.status().user && !K.status().restoring ? '<p class="small" id="home-signin">It is saved only in this browser. <a href="#account">Sign in or sign up</a> (free, with Google) to keep it safe and use it on your phone and laptop.</p>' : '') +
         (continueList(1).length ? '<div class="stack-sm"><span class="eyebrow">Continue watching</span>' + continueHTML(3) + '</div>' : '') + '</section>' : '') +
       '</div>';
     setView(html, 'Home');
@@ -1643,9 +1644,10 @@
       var btn = st.reload ? '<button class="btn btn-primary" type="button" data-action="cloud-reload">Reload the page</button>'
         : '<button class="btn btn-primary' + (wait ? ' is-disabled" aria-disabled="true"' : '"') + ' type="button" data-action="cloud-signin">' + (wait ? (st.restoring ? 'Signing in…' : 'Connecting…') : st.restoring ? 'Try again' : 'Sign in with Google') + '</button>';
       var gone = st.deletedId ? '<div class="callout small" role="status">Your cloud copy is deleted and you are signed out. Your account ID is <code>' + esc(st.deletedId) + '</code>: give it if you ask for your sign-in record to be removed (see below). Note it now, because it is not shown again after you reload or leave the site.</div>' : '';
-      return gone + '<section class="card stack"><div class="stack-sm"><h2 class="h-sub">Keep your progress safe in your account</h2>' +
+      return gone + '<section class="card stack"><div class="stack-sm"><h2 class="h-sub">Sign in, or create your free account</h2>' +
         '<ul class="prose"><li>Continue on your phone exactly where you stopped on your laptop.</li><li>Nothing is lost if you clear your browser or change devices.</li><li>What you have already done on this device is kept and added to your account.</li></ul></div>' +
         '<div class="row">' + btn + '</div>' +
+        '<p class="small muted"><strong>New here?</strong> Signing in with Google for the first time creates your free account: there is no separate sign-up form and no new password to remember. To sign out later, come back to this page (tap the round letter at the top) and press <strong>Sign out</strong>.</p>' +
         (st.error ? '<p class="small pub-bad" role="alert">' + esc(st.error) + '</p>' : '') + '</section>' + privacy;
     }
     var when = st.lastSync ? new Date(st.lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
@@ -1683,17 +1685,23 @@
   }
   function updateAcctLink(st) {
     var a = document.getElementById('acct-link'); if (!a) return;
-    if (!st || !st.enabled) { a.hidden = true; return; }
+    var n = document.getElementById('nav-acct');
+    if (!st || !st.enabled) { a.hidden = true; if (n) n.hidden = true; return; }
     a.hidden = false;
+    // the menu says it in words: where to sign in (or sign up), and where to sign out
+    if (n) { n.hidden = false; n.textContent = st.user ? 'My account · Sign out' : st.restoring ? 'My account' : 'Sign in / Sign up'; }
+    var hn = document.getElementById('home-signin'); if (hn) hn.hidden = !!(st.user || st.restoring);
     if (st.user) {
       var nm = st.user.name || st.user.email || '?';
       var doing = { syncing: ', syncing', 'signing-out': ', signing out', deleting: ', deleting the cloud copy' }[st.state];
       var dot = doing ? 'is-syncing' : st.error ? 'is-error' : 'is-ok';
+      a.classList.remove('acct-long');
       a.innerHTML = '<span class="acct-badge ' + dot + '" aria-hidden="true">' + esc(nm.trim().charAt(0).toUpperCase()) + '</span>';
       a.setAttribute('aria-label', 'Account: ' + nm + (doing || (st.error ? ', sync problem' : ', synced')));
     } else {
       // a remembered session being restored is not "signed out": say so instead of offering Sign in
       var lbl = st.restoring ? (st.error ? 'Not synced' : 'Signing in…') : 'Sign in'; // short enough for the header on a phone
+      a.classList.toggle('acct-long', lbl !== 'Sign in'); // on narrow phones the longer labels show as the icon
       a.innerHTML = '<svg class="acct-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="acct-text">' + lbl + '</span>';
       if (st.restoring) a.setAttribute('aria-label', 'Account: ' + (st.error ? 'not synced, could not connect' : 'signing in')); else a.removeAttribute('aria-label');
     }

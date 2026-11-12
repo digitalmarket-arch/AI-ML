@@ -507,21 +507,33 @@ details.fold > div { padding: 0 14px 14px; }
 .acct-link { font-weight: 600; font-size: .9rem; padding-inline: 10px; white-space: nowrap; }
 .acct-ico { display: none; width: 22px; height: 22px; }
 /* small phones: the header keeps one row (brand, Menu, search, account, theme) without sideways scroll */
-@media (max-width: 400px) {
-  .site-head .wrap { gap: 6px; }
+/* phones: Menu becomes the menu icon (its name stays "Menu" / "Close"), which leaves room for "Sign in" in words */
+@media (max-width: 480px) {
+  .site-head .wrap { gap: 4px; }
   .head-tools { gap: 2px; }
-  .site-head .menu-btn { padding-inline: 10px; }
-  .acct-link { width: 44px; padding: 0; }
+  .site-head .menu-btn { font-size: 0; width: 40px; height: 40px; padding: 0; }
+  .site-head .menu-btn::before { content: "☰"; content: "☰" / ""; font-size: 1.3rem; line-height: 1; }
+  .site-head .menu-btn[aria-expanded="true"]::before { content: "✕"; content: "✕" / ""; }
+  .site-head .icon-btn { width: 40px; height: 40px; min-height: 40px; }
+  .acct-link { padding-inline: 8px; min-height: 40px; }
+}
+/* narrow phones: the longer account labels ("Signing in…", "Not synced") show as the icon; their name is still read out */
+@media (max-width: 400px) {
+  .acct-link.acct-long { width: 40px; padding: 0; }
+  .acct-link.acct-long .acct-ico { display: block; }
+  .acct-link.acct-long .acct-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+/* the smallest phones: Sign in becomes an icon too, and the header buttons are a little smaller */
+@media (max-width: 355px) {
+  .acct-link { width: 40px; padding: 0; }
   .acct-link .acct-ico { display: block; }
   .acct-link .acct-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .site-head .icon-btn, .site-head .acct-link { width: 40px; height: 40px; min-height: 40px; }
+  .brand-mark { font-size: 1.2rem; }
 }
-/* the smallest phones: Menu becomes an icon (its name stays "Menu" / "Close") to make room for the Listen button */
-@media (max-width: 360px) {
-  .site-head .wrap { gap: 4px; }
-  .site-head .menu-btn { font-size: 0; width: 38px; height: 38px; padding: 0; }
-  .site-head .menu-btn::before { content: "☰"; content: "☰" / ""; font-size: 1.25rem; line-height: 1; }
-  .site-head .menu-btn[aria-expanded="true"]::before { content: "✕"; content: "✕" / ""; }
-}
+.nav .nav-acct { font-weight: 600; color: var(--indigo); }
+@media (max-width: 1100px) { .nav .nav-acct { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 14px; } }
+@media (min-width: 1101px) { .nav .nav-acct { display: none; } }
 .acct-badge { position: relative; display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--indigo); color: var(--on-indigo); font-weight: 700; font-size: .85rem; }
 .acct-badge::after { content: ""; position: absolute; right: -2px; bottom: -2px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--surface); background: var(--ok); }
 .acct-badge.is-syncing::after { background: var(--haldi); }
