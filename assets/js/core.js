@@ -825,19 +825,20 @@
     var passed = score >= 70;
     if (this.onAnswer && this.mode === 'test') this.qs.forEach(function (q) { if (self.answers[q.id] != null) { try { self.onAnswer({ q: q, picked: self.answers[q.id], correct: self.answers[q.id] === q.answer, sure: 0, mode: 'test', key: self.key }); } catch (e) {} } });
     if (this.onFinish) this.onFinish({ score: score, correct: correct, total: this.qs.length });
+    var spkBtn = window.AIM_SPEAK && window.AIM_SPEAK.btn ? window.AIM_SPEAK.btn : function () { return ''; };
     var review = this.qs.map(function (q, idx) {
       var a = self.answers[q.id], ok = a === q.answer;
       var firstCode = q.code ? ' <code>' + esc(String(q.code).split('\n')[0].slice(0, 60)) + '</code>' : '';
       return '<details class="fold"' + (ok ? '' : ' open') + '><summary>' + (ok ? '✓ ' : '✗ ') + 'Q' + (idx + 1) + '. ' + inline(q.q) + firstCode + '</summary><div class="stack-sm">' +
+        '<div class="row-between"><div class="small">Your answer: <strong>' + (a == null ? 'not answered' : inline(q.options[a])) + '</strong></div><div class="read-tools">' + spkBtn('details.fold', 'Listen to question ' + (idx + 1)) + '</div></div>' +
         (q.code ? '<pre><code>' + esc(q.code) + '</code></pre>' : '') +
-        '<div class="small">Your answer: <strong>' + (a == null ? 'not answered' : inline(q.options[a])) + '</strong></div>' +
         (ok ? '' : '<div class="small">Correct answer: <strong>' + inline(q.options[q.answer]) + '</strong></div>') +
         '<div class="q-explain">' + inline(q.explain) + '</div></div></details>';
     }).join('');
     this.root.innerHTML = '<div class="stack"><div class="card score-box" tabindex="-1"><div class="score-big">' + score + '%</div><div class="stack-sm">' +
       '<strong>' + (timeUp ? 'Time is up. ' : '') + correct + ' of ' + this.qs.length + ' correct. ' + (passed ? 'Passed. Well done!' : 'Pass mark is 70%. Review the explanations below and try again.') + '</strong>' +
       '<div class="row">' + (passed && this.next ? '<a class="btn btn-primary" href="' + esc(this.next.href) + '">' + esc(this.next.label) + ' →</a><button class="btn" data-q="retry">Try again</button>' : '<button class="btn btn-primary" data-q="retry">Try again</button>') + '</div></div></div>' +
-      '<h3>Review your answers</h3><div class="stack-sm">' + review + '</div></div>';
+      '<div class="sec-head"><h3>Review your answers</h3><div class="read-tools">' + spkBtn('.stack', 'Listen to all review answers') + '</div></div><div class="stack-sm">' + review + '</div></div>';
     this.root.querySelector('[data-q="retry"]').addEventListener('click', function () { self.start(); self.reveal(); self.focusQ(); });
     this.changed(); // submitted: nothing left part-way to keep
     this.codeKeys();
