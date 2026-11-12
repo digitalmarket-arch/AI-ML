@@ -259,6 +259,12 @@ app.post('/api/hinglish', async (req, res) => {
   }
 });
 
+// tells the page which AI extras this server offers (a plain file host serves assets/js/server-config.js instead)
+app.get('/assets/js/server-config.js', (req, res) => {
+  const on = Boolean(process.env.GEMINI_API_KEY);
+  res.type('application/javascript').set('Cache-Control', 'no-store').send('window.AIM_SERVER = ' + JSON.stringify({ tts: on, hinglish: on }) + ';\n');
+});
+
 app.use(express.static(path.join(__dirname)));
 
 app.use((req, res) => {

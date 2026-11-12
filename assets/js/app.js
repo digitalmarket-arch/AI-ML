@@ -1625,7 +1625,18 @@
     currentCleanup.push(function () { window.removeEventListener('aim:save-status', upd); });
   }
 
-  var d3ProgMode = 'levels';
+  var d3ProgMode = 'levels', d3Load = null;
+  function loadD3() {
+    if (window.d3) return Promise.resolve();
+    if (!d3Load) d3Load = new Promise(function (resolve, reject) {
+      var sc = document.createElement('script');
+      sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js';
+      sc.onload = function () { if (window.d3) resolve(); else { d3Load = null; reject(); } };
+      sc.onerror = function () { d3Load = null; reject(); };
+      document.head.appendChild(sc);
+    });
+    return d3Load;
+  }
   function mountD3ProgressChart() {
     var host = document.getElementById('d3-progress-viz');
     var card = document.getElementById('d3-progress-card');
@@ -1634,7 +1645,11 @@
     if (!host || !card) return;
     var d3 = window.d3;
     if (!d3) {
-      host.innerHTML = '<div class="empty">Visualization library is loading…</div>';
+      // the chart library loads only for this chart (it is large), from a CDN: GitHub Pages has no node_modules folder
+      host.innerHTML = '<div class="empty">Loading the chart…</div>';
+      loadD3().then(function () { if (host.isConnected && window.d3) mountD3ProgressChart(); }, function () {
+        if (host.isConnected) host.innerHTML = '<div class="empty">The chart could not load. Check your internet connection; your progress is listed below.</div>';
+      });
       return;
     }
 

@@ -8,9 +8,10 @@
   'use strict';
   var synth = window.speechSynthesis, Utter = window.SpeechSynthesisUtterance;
   var BROWSER_OK = !!(synth && Utter && typeof synth.speak === 'function');
-  var OK = true; // Always enabled via Neural AI TTS + Browser Speech fallback
   var html = document.documentElement;
-  html.classList.add('tts');
+  // Listen works with the AI server's voices or with the device's own voices; with neither, no Listen buttons show
+  var OK = BROWSER_OK || !!(window.AIM_SERVER && window.AIM_SERVER.tts);
+  html.classList.add(OK ? 'tts' : 'no-tts');
 
   var ICON = {
     spk: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>',
@@ -82,7 +83,16 @@
     }
     try { localStorage.setItem(KEY, JSON.stringify(prefs)); } catch (e) {}
   }
-  function isNeuralVoice() { return !prefs.voice || prefs.voice.indexOf('neural:') === 0; }
+  // The Gemini voices need the site's own server (server.js, e.g. on AI Studio), which says so in assets/js/server-config.js.
+  // A plain file host such as GitHub Pages has none: Listen then reads with the device's own voices straight away (no
+  // failed request before each paragraph; iPhones only speak right after a tap).
+  var apiState = window.AIM_SERVER && window.AIM_SERVER.tts ? 'yes' : 'no';
+  function setApi(v) { // the server can still turn out to be missing (an old page, a host change): fall back for good
+    if (apiState === v) return;
+    apiState = v;
+    try { fillVoices(); updateBar(); } catch (e) {}
+  }
+  function isNeuralVoice() { return apiState !== 'no' && (!prefs.voice || prefs.voice.indexOf('neural:') === 0); }
   function currentPersona() {
     if (!isNeuralVoice()) return null;
     if (P.getPersonaById) return P.getPersonaById(prefs.voice);
@@ -249,7 +259,7 @@
       if (pre) t = pre + ' ' + t;
       if (/^H[1-6]$/.test(x.el.tagName)) heading = t;
       if (t && !/[.!?:;।]$/.test(t)) t += '.';
-      return { el: x.el, text: t, heading: heading };
+      return { el: x.el, text: t, heading: heading, pre: pre };
     }).filter(function (x) { return /[A-Za-z0-9ऀ-ॿ]/.test(x.text); });
   }
 
@@ -281,6 +291,7 @@
       })
     })
       .then(function (r) {
+        if (r.status === 404 || r.status === 405 || r.status === 501) setApi('no'); // no AI server on this host
         if (!r.ok) throw new Error('TTS HTTP ' + r.status);
         return r.json();
       })
@@ -338,7 +349,12 @@
   function liveBlockText(b) {
     if (!b || !b.el || !b.el.isConnected) return b ? b.text : '';
     var fresh = blocksIn(b.el);
-    if (fresh.length === 1) return fresh[0].text;
+    if (fresh.length === 1) {
+      // read on its own, the paragraph cannot see the label on the item around it ("Example 1." on the example)
+      var t = fresh[0].text;
+      if (b.pre && t.indexOf(b.pre) !== 0) t = b.pre + ' ' + t;
+      return t;
+    }
     return b.text;
   }
   function speakBlock() {
@@ -448,7 +464,9 @@
   }
   function noVoice() {
     halt(); playing = false; highlight(null); setBtnState(srcBtn, false); updateBar();
-    setMsg('Could not play audio right now. Check your internet connection or try selecting another voice in Pace & Voice.');
+    setMsg(apiState === 'no' || !isNeuralVoice()
+      ? 'This browser has no reading voice. On an Android phone, install or update "Speech Services by Google". On a computer, try Chrome or Edge.'
+      : 'Could not play audio right now. Check your internet connection or try selecting another voice in Pace & Voice.');
   }
 
   /* ---------- highlight and follow ---------- */
@@ -569,9 +587,10 @@
     var browserOpts = en.map(function (v) {
       return '<option value="' + esc(v.voiceURI) + '"' + (v.voiceURI === prefs.voice ? ' selected' : '') + '>Browser · ' + esc(v.name + ' (' + v.lang + ')') + '</option>';
     }).join('');
+    var noApi = apiState === 'no';
     s.innerHTML =
-      '<optgroup label="Indian Male Teacher Voices (Gemini 3.8 Flash TTS)">' + maleOpts + '</optgroup>' +
-      '<optgroup label="Indian Female Teacher Voices (Gemini 3.8 Flash TTS)">' + femaleOpts + '</optgroup>' +
+      '<optgroup label="Indian Male Teacher Voices (Gemini 3.8 Flash TTS)' + (noApi ? ', not available on this copy of the site' : '') + '"' + (noApi ? ' disabled' : '') + '>' + maleOpts + '</optgroup>' +
+      '<optgroup label="Indian Female Teacher Voices (Gemini 3.8 Flash TTS)' + (noApi ? ', not available on this copy of the site' : '') + '"' + (noApi ? ' disabled' : '') + '>' + femaleOpts + '</optgroup>' +
       (browserOpts ? '<optgroup label="Device Browser Voices (Offline)">' + browserOpts + '</optgroup>' : '');
 
     var stSel = el('tts-style');
@@ -589,6 +608,7 @@
       var cs = currentStyle();
       n.textContent = isNeuralVoice() && cp
         ? 'Using Gemini 3.8 Flash TTS · ' + cp.shortName + ' (' + (cp.gender === 'male' ? 'Indian Male' : 'Indian Female') + ' · ' + cp.voiceName + ') in "' + cs.shortLabel + '" style with natural breath prosody.'
+        : apiState === 'no' ? 'Reading with this device\'s own voices: this copy of the site has no AI voice server (the Gemini voices work where server.js runs, for example on AI Studio).'
         : 'Using offline browser voice. Select an Indian Male or Female AI teacher voice above for realistic Hinglish & Indian English.';
     }
   }
@@ -599,6 +619,7 @@
   function setMsg(m) { var x = el('tts-msg'); if (x) { x.textContent = m; x.hidden = !m; } padPage(); }
   function updateBar(ended) {
     if (!bar) return;
+    var gb = el('tts-gender'); if (gb) gb.hidden = apiState === 'no'; // Male / Female switches the AI voices only
     var b = Q[Math.min(qi, Q.length - 1)], what = (b && b.heading) || srcLabel || 'this page';
     var isHl = !!(b && b.el && window.AIM_HINGLISH && window.AIM_HINGLISH.isCardHinglish(b.el));
     var cp = currentPersona();

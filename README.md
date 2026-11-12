@@ -86,6 +86,15 @@ Every learner already gets **Copy prompt for your AI app** next to the study too
 
 **Privacy:** whatever a learner sends with Ask Gemini goes to Google, and on the free tier Google may use it to improve its products. The site says this next to the buttons; mention it in your privacy notice too.
 
+### Gemini voices and AI Hinglish: the optional server (`server.js`)
+
+The site works as plain files (GitHub Pages): read-aloud uses the voices on the learner's own device, and the Hinglish switch uses the built-in converter. `server.js` adds two extras when the site runs on a server with a Gemini API key (for example in Google AI Studio, or `npm install` then `GEMINI_API_KEY=... npm start` on your own computer):
+
+- **Gemini voices** for Listen (Indian male and female teacher voices in three speaking styles), through `/api/tts`;
+- **AI Hinglish** for the Hinglish switch, through `/api/hinglish`.
+
+The key stays on the server; it is never sent to the browser. The page checks once whether the server is there and otherwise uses the device's voices straight away. To use Google sign-in on another address (such as your AI Studio app's link), add that address in the Firebase console under **Authentication → Settings → Authorized domains**.
+
 ### Preview on your own computer
 
 If you have Python installed, open a terminal in this folder and run:

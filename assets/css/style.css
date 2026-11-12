@@ -172,7 +172,7 @@ main { padding-block: 28px 64px; flex: 1 0 auto; }
 
 /* ---------- header ---------- */
 .site-head { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--surface); border-bottom: 1px solid var(--line); }
-.site-head .wrap { display: flex; align-items: center; gap: 10px; min-height: 60px; }
+.site-head .wrap { display: flex; align-items: center; gap: 10px; min-height: 60px; max-width: 1320px; } /* the header row is wider than the content: the full menu and the tools fit side by side */
 .brand { display: flex; align-items: baseline; gap: 8px; text-decoration: none; color: var(--ink); white-space: nowrap; }
 .brand-mark { font-family: var(--font-display); font-size: 1.5rem; line-height: 1; }
 .brand-mark b { color: var(--haldi-ink); font-weight: 400; }
@@ -181,11 +181,11 @@ main { padding-block: 28px 64px; flex: 1 0 auto; }
 .nav a { padding: 8px 7px; border-radius: var(--radius-sm); color: var(--muted); text-decoration: none; font-weight: 500; white-space: nowrap; font-size: .95rem; }
 .nav a:hover { color: var(--ink); background: var(--surface-2); }
 .nav a[aria-current="page"] { color: var(--indigo); background: var(--indigo-soft); }
-/* just above the menu breakpoint the full menu is tight: slightly smaller words keep it on one line */
-@media (min-width: 1101px) and (max-width: 1279px) { .nav a { padding: 8px 5px; font-size: .9rem; } }
+/* just above the menu breakpoint (1220px) the full menu is tight: slightly smaller words keep it on one line */
+@media (min-width: 1220px) and (max-width: 1279px) { .nav a { padding: 8px 5px; font-size: .9rem; } }
 .head-tools { display: flex; gap: 4px; align-items: center; flex: none; }
 .site-head .menu-btn { display: none; }
-@media (max-width: 1100px) {
+@media (max-width: 1219px) {
   .site-head .menu-btn { display: inline-flex; margin-left: auto; }
   .nav { display: none; position: absolute; left: 0; right: 0; top: 100%; flex-direction: column; background: var(--surface); border-bottom: 1px solid var(--line); padding: 8px max(var(--gutter), env(safe-area-inset-right, 0px)) 12px max(var(--gutter), env(safe-area-inset-left, 0px)); margin: 0; }
   .nav.open { display: flex; }
@@ -445,7 +445,7 @@ details.fold > div { padding: 0 14px 14px; }
 @media (max-width: 560px) { table.simple th, table.simple td { padding: 8px 6px; } }
 /* the quizzes and tests table on a narrow phone leaves out Attempts, so each passed / retry result stays in view */
 @media (max-width: 420px) { .quiz-table .q-att { display: none; } }
-@media (max-width: 1100px) { .nav { max-height: calc(100dvh - 61px); overflow-y: auto; overscroll-behavior: contain; } }
+@media (max-width: 1219px) { .nav { max-height: calc(100dvh - 61px); overflow-y: auto; overscroll-behavior: contain; } }
 @media (pointer: coarse) {
   .btn, .seg button { min-height: 44px; }
   .icon-btn { width: 44px; height: 44px; }
@@ -532,8 +532,8 @@ details.fold > div { padding: 0 14px 14px; }
   .brand-mark { font-size: 1.2rem; }
 }
 .nav .nav-acct { font-weight: 600; color: var(--indigo); }
-@media (max-width: 1100px) { .nav .nav-acct { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 14px; } }
-@media (min-width: 1101px) { .nav .nav-acct { display: none; } }
+@media (max-width: 1219px) { .nav .nav-acct { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 14px; } }
+@media (min-width: 1220px) { .nav .nav-acct { display: none; } }
 .acct-badge { position: relative; display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--indigo); color: var(--on-indigo); font-weight: 700; font-size: .85rem; }
 .acct-badge::after { content: ""; position: absolute; right: -2px; bottom: -2px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--surface); background: var(--ok); }
 .acct-badge.is-syncing::after { background: var(--haldi); }
@@ -641,7 +641,7 @@ html.tts-pad.fc-chip-pad { scroll-padding-bottom: calc(var(--tts-h, 64px) + var(
 .streak-head:hover { background: var(--surface-2); color: var(--ink); text-decoration: none; }
 .streak-head .streak-ico { width: 17px; height: 17px; flex: none; transition: transform .2s ease, color .2s ease, fill .2s ease; }
 .streak-head .streak-num { font-variant-numeric: tabular-nums; line-height: 1; }
-.streak-head .streak-lbl { font-size: .78rem; font-weight: 600; opacity: .85; line-height: 1; }
+.streak-head .streak-lbl { font-size: .78rem; font-weight: 600; line-height: 1; }
 .streak-head.is-active { color: var(--haldi-ink); background: var(--haldi-soft); border-color: var(--haldi); }
 .streak-head.is-active .streak-ico { color: var(--haldi-ink); fill: var(--haldi); }
 .streak-head.is-today .streak-ico { transform: scale(1.08); }
@@ -651,3 +651,18 @@ html.tts-pad.fc-chip-pad { scroll-padding-bottom: calc(var(--tts-h, 64px) + var(
   .streak-head .streak-lbl { display: none; }
 }
 @media print { .tts-bar, .tts-btn, .hl-btn, .streak-head { display: none !important; } }
+
+/* small screens: the header keeps what is used most (Hinglish, Listen, Search, Sign in). Up to 680px the streak (still on
+   Home and My progress) and the reading speed (still in the read-aloud player) leave the header; on phones (480px and
+   less) the light/dark switch moves into the Menu */
+.nav .nav-theme { display: none; }
+@media (max-width: 680px) {
+  .site-head .streak-head, .site-head .tts-head-rate { display: none !important; }
+}
+@media (max-width: 480px) {
+  .site-head #theme-btn { display: none !important; }
+  .site-head .tts-head-group { background: none; border: 0; padding: 0; }
+  .site-head .tts-head-group .tts-btn, .site-head .hl-head-btn { width: 40px; height: 40px; }
+  .nav .nav-theme { display: block; width: 100%; text-align: left; font: inherit; font-weight: 500; color: var(--muted); background: none; border: 0; border-radius: var(--radius-sm); padding: 10px 12px; cursor: pointer; }
+  .nav .nav-theme:hover { color: var(--ink); background: var(--surface-2); }
+}

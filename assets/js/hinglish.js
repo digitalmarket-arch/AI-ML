@@ -285,6 +285,7 @@
     var batchNodes = toFetchNodes.slice(0, 35);
     var batchTexts = toFetchStrings.slice(0, 35);
 
+    if (!(window.AIM_SERVER && window.AIM_SERVER.hinglish)) { if (onRefined) onRefined(false); return; } // no AI server here: the built-in converter's text stays
     fetch('/api/hinglish', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

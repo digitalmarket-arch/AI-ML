@@ -1,0 +1,6 @@
+# installed by npm for server.js; never commit
+node_modules/
+# secrets (for example GEMINI_API_KEY) stay out of the repository
+.env
+.env.*
+!.env.example
