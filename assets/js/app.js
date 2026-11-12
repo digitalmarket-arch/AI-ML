@@ -53,7 +53,10 @@
           svg.removeAttribute('width'); svg.removeAttribute('height');
           svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', f.alt || f.title || 'Diagram'); svg.setAttribute('focusable', 'false');
         }
-        var key = el.querySelector('[data-sec="' + (f.after || 'overview') + '"]') ? (f.after || 'overview') : 'overview';
+        var want = f.after || 'overview', here = !!el.querySelector('[data-sec="' + want + '"]');
+        // a diagram for one of this module's lesson cards that is not drawn here (Play mode shows one card at a time)
+        if (!here && readCards(m).some(function (c) { return c.key === want; })) return;
+        var key = here ? want : 'overview';
         var sec = el.querySelector('[data-sec="' + key + '"]'), inCard = sec && (sec.querySelector('.fig-slot') || sec.querySelector('.read-body'));
         var anchor = lastAt[key] || (inCard ? null : sec);
         if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(fig, anchor.nextSibling);
@@ -143,6 +146,20 @@
   // a text field may hold several paragraphs, separated by a blank line
   function parasHTML(s) {
     return String(s || '').split(/\n\s*\n/).map(function (p) { return p.trim(); }).filter(Boolean).map(function (p) { return '<p>' + inline(modLinks(p)) + '</p>'; }).join('');
+  }
+  // what each lesson card says, as HTML by card key (the Overview tab, and Play mode's missions show the same cards)
+  function cardBodies(m) {
+    return {
+      overview: (m.overview ? parasHTML(m.overview) : '<p>' + esc((m.topics || []).join(', ')) + '</p>') + (m.whyItMatters ? '<div class="callout callout-indigo"><strong>Why it matters:</strong> ' + inline(modLinks(m.whyItMatters)) + '</div>' : ''),
+      outcomes: listHTML(m.outcomes), studySteps: listHTML(m.studySteps, true),
+      keyTerms: '<dl>' + (m.keyTerms || []).map(function (k) {
+        return '<div class="gloss-term"><dt>' + esc(k.term) + (k.hi ? ' <span class="term-hi">(' + esc(k.hi) + ')</span>' : '') + SPK.btn('.gloss-term', 'Listen: ' + k.term, { icon: true }) + '</dt><dd>' + inline(modLinks(k.meaning)) +
+          (k.like ? '<span class="term-more"><strong>Think of it like:</strong> ' + inline(modLinks(k.like)) + '</span>' : '') +
+          (k.example ? '<span class="term-more"><strong>Example:</strong> ' + inline(modLinks(k.example)) + '</span>' : '') + '</dd></div>';
+      }).join('') + '</dl>',
+      indiaExample: parasHTML(m.indiaExample),
+      commonMistakes: listHTML(m.commonMistakes), selfCheck: listHTML(m.selfCheck)
+    };
   }
   // short everyday examples under a card's text and diagrams. They live in data/examples/<module>.js and load with the
   // lesson cards (data/course.js loads on every page, so it stays small); a module may also hold them inline
@@ -868,17 +885,7 @@
         return inline(modLinks(p));
       });
       var cards = readCards(m);
-      var body = {
-        overview: (m.overview ? parasHTML(m.overview) : '<p>' + esc((m.topics || []).join(', ')) + '</p>') + (m.whyItMatters ? '<div class="callout callout-indigo"><strong>Why it matters:</strong> ' + inline(modLinks(m.whyItMatters)) + '</div>' : ''),
-        outcomes: listHTML(m.outcomes), studySteps: listHTML(m.studySteps, true),
-        keyTerms: '<dl>' + (m.keyTerms || []).map(function (k) {
-          return '<div class="gloss-term"><dt>' + esc(k.term) + (k.hi ? ' <span class="term-hi">(' + esc(k.hi) + ')</span>' : '') + SPK.btn('.gloss-term', 'Listen: ' + k.term, { icon: true }) + '</dt><dd>' + inline(modLinks(k.meaning)) +
-            (k.like ? '<span class="term-more"><strong>Think of it like:</strong> ' + inline(modLinks(k.like)) + '</span>' : '') +
-            (k.example ? '<span class="term-more"><strong>Example:</strong> ' + inline(modLinks(k.example)) + '</span>' : '') + '</dd></div>';
-        }).join('') + '</dl>',
-        indiaExample: parasHTML(m.indiaExample),
-        commonMistakes: listHTML(m.commonMistakes), selfCheck: listHTML(m.selfCheck)
-      };
+      var body = cardBodies(m);
       el.innerHTML = '<div class="stack-lg">' + (pre.length ? '<div class="callout callout-indigo small"><strong>Before this:</strong> ' + pre.join('; ') + '</div>' : '') +
         '<div><div class="card read-progress stack-sm" id="read-progress" tabindex="-1">' + readProgressInner(m) + '</div><p class="visually-hidden" aria-live="polite" id="read-live"></p></div>' +
         '<div class="stack read-cards">' + cards.map(function (c, i) { return readCardHTML(m, c, i, cards.length, body[c.key], readOn(m.id, c.key)); }).join('') + '</div>' +
@@ -935,13 +942,14 @@
     var tag = ordered ? 'ol' : 'ul';
     return '<section class="stack-sm"' + (key ? ' data-sec="' + key + '"' : '') + '><div class="sec-head"><h2 class="h-sub">' + esc(title) + '</h2><div class="read-tools">' + SPK.btn('section', 'Listen to ' + title) + '</div></div><' + tag + ' class="prose">' + arr.map(function (x) { return '<li>' + inline(x) + '</li>'; }).join('') + '</' + tag + '></section>';
   }
-  function recordQuiz(key, score) {
+  // noToast: the caller shows the result itself (Play mode's result screen)
+  function recordQuiz(key, score, noToast) {
     var q = S().quiz[key] || { best: 0, attempts: 0 };
     q.best = Math.max(q.best, score); q.attempts++; q.last = score; q.at = C.today();
     S().quiz[key] = q; C.logActivity(); C.save(); refreshSide();
     var chip = document.getElementById('quiz-best');
     if (chip) { chip.hidden = false; chip.className = 'chip num' + (q.best >= 70 ? ' chip-ok' : ''); chip.textContent = 'Best: ' + q.best + '% · ' + q.attempts + ' attempt' + (q.attempts > 1 ? 's' : ''); }
-    C.toast(score >= 70 ? 'Quiz passed with ' + score + '%. Well done!' : 'Scored ' + score + '%. Review and try again.');
+    if (!noToast) C.toast(score >= 70 ? 'Quiz passed with ' + score + '%. Well done!' : 'Scored ' + score + '%. Review and try again.');
   }
 
   /* ---------- labs ---------- */
@@ -2431,6 +2439,8 @@
     onLeave: function (fn) { currentCleanup.push(fn); },
     S: S, modById: modById, resById: resById, levelById: levelById, modulesOf: modulesOf, modNo: modNo, levelName: levelName,
     labOf: labOf, exOf: exOf, mainPicks: mainPicks, readCards: readCards, readOn: readOn, readDone: readDone,
+    // the lesson cards themselves, for Play mode (assets/js/game.js): the same contents and the same "Got it" ticks
+    cardBodies: cardBodies, readCardHTML: readCardHTML, placeFigures: placeFigures, placeExamples: placeExamples, recordQuiz: recordQuiz,
     moduleParts: moduleParts, levelProgress: levelProgress, overallProgress: overallProgress, refreshSide: refreshSide,
     isTicked: isTicked, tickKey: tickKey, isShared: isShared, isRecommended: isRecommended
   };  applyTheme();
