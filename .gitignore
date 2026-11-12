@@ -4,3 +4,6 @@ node_modules/
 .env
 .env.*
 !.env.example
+# Google AI Studio's own working files (screenshots, plans); not part of the site
+.aistudio/
+public/assets/aistudio/
