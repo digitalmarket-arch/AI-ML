@@ -150,6 +150,49 @@ for (const m of D.modules || []) {
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 for (const m of html.matchAll(/<script src="([^"]+)"/g)) if (!/^https?:/.test(m[1]) && !fs.existsSync(path.join(ROOT, m[1]))) errors.push(`index.html loads missing file ${m[1]}`);
 
+// Play mode (assets/js/game.js, assets/css/game.css): its UI text is plain English only (no Devanagari), and its code
+// runs as it is in every browser, with no build step (no ES2015+ syntax). Each file is checked once it exists.
+// The syntax check reads only the code: comments, strings and regular expressions are left out, so words such as
+// "let" in a comment or a message never count.
+function codeOnly(src, js) {
+  var out = '', i = 0, n = src.length, prev = '', j;
+  var nl = function (s) { return s.replace(/[^\n]/g, ''); }; // line breaks are kept, so a finding has its line number
+  while (i < n) {
+    var c = src.charAt(i), d = src.charAt(i + 1);
+    if (c === '/' && d === '*') { j = src.indexOf('*/', i + 2); j = j < 0 ? n : j + 2; out += ' ' + nl(src.slice(i, j)); i = j; continue; }
+    if (js && c === '/' && d === '/') { j = src.indexOf('\n', i); i = j < 0 ? n : j; continue; }
+    if (c === '"' || c === "'") {
+      for (j = i + 1; j < n && src.charAt(j) !== c && src.charAt(j) !== '\n'; j++) if (src.charAt(j) === '\\') j++;
+      out += '""' + nl(src.slice(i, j)); i = j + 1; prev = '"'; continue;
+    }
+    // a slash starts a regular expression where a value is expected: after an operator, a bracket or a keyword
+    if (js && c === '/' && (prev === '' || '(,=:[!&|?{};+-*%<>~^'.indexOf(prev) >= 0 || /(?:^|[^\w$])(?:return|typeof|case|do|else|in|of|new|delete|void|throw|instanceof)\s*$/.test(out.slice(-16)))) {
+      var cls = false;
+      for (j = i + 1; j < n && src.charAt(j) !== '\n'; j++) {
+        var x = src.charAt(j);
+        if (x === '\\') j++;
+        else if (x === '[') cls = true;
+        else if (x === ']') cls = false;
+        else if (x === '/' && !cls) break;
+      }
+      i = j + 1; while (i < n && /[a-z]/i.test(src.charAt(i))) i++;
+      out += '/r/'; prev = '/'; continue;
+    }
+    out += c; if (!/\s/.test(c)) prev = c; i++;
+  }
+  return out;
+}
+var ES2015 = [[/=>/, 'an arrow function (=>)'], [/`/, 'a template literal (backtick)'], [/\blet\b/, '"let"'], [/\bconst\b/, '"const"'], [/\?\.(?!\d)/, 'optional chaining (?.)']];
+['assets/js/game.js', 'assets/css/game.css'].forEach(function (f) {
+  var p = path.join(ROOT, f);
+  if (!fs.existsSync(p)) return;
+  var src = fs.readFileSync(p, 'utf8'), code = codeOnly(src, /\.js$/.test(f));
+  var line = function (s, k) { return s.slice(0, k).split('\n').length; };
+  var dv = /[\u0900-\u097F]/.exec(src);
+  if (dv) errors.push(f + ': Devanagari on line ' + line(src, dv.index) + ' (Play mode\'s text is plain English only)');
+  ES2015.forEach(function (x) { var m = x[0].exec(code); if (m) errors.push(f + ': ' + x[1] + ' on line ' + line(code, m.index) + ' (Play mode\'s code is ES5: there is no build step)'); });
+});
+
 const count = (x) => (Array.isArray(x) ? x.length : Object.values(x || {}).reduce((s, v) => s + v.length, 0));
 console.log(`modules ${count(D.modules)} · resources ${count(D.resources)} · questions ${count(D.quizzes)} · exercises ${count(D.exercises)} · projects ${count(D.projects)} · glossary ${count(D.glossary)}`);
 warnings.forEach(w => console.log('warning:', w));

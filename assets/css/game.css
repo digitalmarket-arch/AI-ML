@@ -1,0 +1,302 @@
+/* AI Marg Play mode (assets/js/game.js): the Play bar, the road and its stones, stamps, the result panel and moments.
+   Every rule sits under the Play root (.pl) or a .pl-* name, so nothing reaches Learn. Colours are the site's tokens
+   only, so light and dark both work. Calm mode (.pl-calm) and reduced motion (the site's global rule) stop every
+   animation; animations move only transform and opacity, for 1.2 s at most. */
+
+/* ---------- the Play root and shared pieces ---------- */
+.pl { max-width: 800px; display: flex; flex-direction: column; gap: 20px; }
+.pl > *, .pl section { min-width: 0; }
+.pl > div:empty { display: none; } /* a part that has not loaded (the flashback) */
+.pl h1 { font-size: var(--step-3); }
+.pl section, .pl-go, .pl-goalp { display: flex; flex-direction: column; gap: 10px; }
+.pl p, .pl ul, .pl ol { margin: 0; }
+.pl ul.pl-src, .pl-qlist, .pl-road, .pl-proj ul, .pl-stampbar, .pl-rounds, .pl-hands, .pl-counts, .pl-ladder, .pl-badges { list-style: none; padding: 0; }
+.pl li { margin: 0; }
+/* the haldi focus outline alone is 2.8:1 on white: an ink ring inside it brings it over 3:1 */
+.pl :focus-visible { box-shadow: 0 0 0 2px var(--ink); }
+.pl [tabindex="-1"]:focus-visible { box-shadow: none; }
+/* html's scroll padding keeps focus clear of the sticky header; this adds a little air */
+.pl h1, .pl h2, .pl a, .pl button, .pl summary, .pl input, .pl textarea { scroll-margin-top: 10px; }
+.pl .btn { min-height: 44px; }
+.pl .pl-wide { width: 100%; min-height: 48px; } /* beats .pl .btn: full-width buttons are answers and Next round */
+.pl-foot, .pl-stampbar, .pl-stamps, .pl-week, .pl-res-xp { display: flex; flex-wrap: wrap; gap: 8px; }
+.pl-rel { position: relative; }
+.pl-i { width: 24px; height: 24px; flex: none; }
+.pl-mk, .pl-st, .pl-sti, .pl-rmark, .pl-bi, .pl-dial { display: inline-grid; place-items: center; border-radius: 50%; flex: none; }
+.pl-mk { width: 36px; height: 36px; background: var(--indigo-soft); color: var(--indigo); }
+.pl-chip { display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; padding: 2px 10px; border-radius: 999px; background: var(--surface-2); color: var(--ink); font-size: .82rem; font-weight: 600; line-height: 1.5; }
+.pl-chip .pl-i { width: 18px; height: 18px; margin-left: -4px; }
+.pl-chip-here { background: var(--indigo); color: var(--on-indigo); }
+.pl-chip-ok { background: var(--ok-soft); color: var(--ok); }
+/* boxes on the page */
+.pl-back, .pl-qlist li, .pl-cp, .pl-proj, .pl-fold, .pl-hands > li, .pl-stats > div, .pl-rounds { border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); }
+.pl-rank, .pl-ring, .pl-switch { border: 1px solid var(--line); border-radius: 28px; background: var(--surface); color: var(--ink); }
+.pl-rank:hover, .pl-ring:hover, .pl-back:hover, .pl-cp:hover { border-color: var(--indigo); }
+.pl-stop, .pl-cp, .pl-row, .pl-rank, .pl-back { color: var(--ink); text-decoration: none; }
+
+/* ---------- the Play bar (not sticky: the site header already is) ---------- */
+.pl-top { display: flex; flex-direction: column; gap: 6px; }
+.pl-bar { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-height: 52px; }
+/* larger text: the goal ring drops to a line of its own instead of leaving the screen. Line breaks go by each part's
+   smallest width (the chip's icon and longest word; the title's 0), so at 100% text the bar stays on one line */
+.pl-rank { flex: 1 1 0; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 2px 8px; min-height: 48px; padding: 4px 16px 6px 6px; }
+.pl-rank .pl-mk { grid-row: span 2; }
+.pl-rk { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; line-height: 1.25; }
+.pl-rk span, .pl-gt, .pl-week, .pl-nd span, .pl-cp span span, .pl-row .small, .pl-badge .small, .pl-also, .pl-mem { color: var(--muted); }
+.pl-rk span, .pl-gt, .pl-week, .pl-cp span span, .pl-stats dt { font-size: var(--step--1); }
+.pl-thin { height: 4px; border-radius: 2px; background: var(--surface-2); overflow: hidden; }
+.pl-thin i { display: block; height: 100%; background: var(--haldi-ink); }
+.pl-back { flex: none; display: inline-flex; align-items: center; gap: 2px; min-width: 44px; min-height: 44px; padding: 0 12px 0 8px; font-weight: 600; }
+.pl-back span { font-size: 1.5rem; line-height: 1; }
+.pl-btitle { flex: 1 1 0; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--muted); font-weight: 600; }
+/* "Card 3 of 7" once at every width: on the narrowest phones the bar's title would be cut to a few letters (the h1 says
+   it too), so the card keeps its own counter there; from 360 px the bar says it and the card's counter goes, unless
+   the bar's title is cut short (pl-tcut, set by game.js: larger text, a long XP number in the ring) */
+@media (max-width: 359px) { .pl-btitle { display: none; } }
+@media (min-width: 360px) { .pl:not(.pl-tcut) .read-head .read-tools > .num { display: none; } }
+.pl-ring { flex: none; margin-left: auto; display: inline-flex; align-items: center; gap: 6px; min-height: 48px; padding: 4px 12px 4px 6px; font: inherit; cursor: pointer; }
+.pl-ring[aria-expanded="true"] { border-color: var(--indigo); background: var(--indigo-soft); }
+.pl-dial { --p: 0; position: relative; width: 34px; height: 34px; background: conic-gradient(var(--haldi-ink) calc(var(--p) * 1%), var(--line) 0); box-shadow: 0 0 0 1px var(--field-line); } /* the edge: the empty ring shows at 0 XP */
+.pl-dial::before { content: ""; position: absolute; inset: 5px; border-radius: 50%; background: var(--surface); }
+.pl-dial.is-met { background: var(--ok); }
+.pl-dial .pl-i { position: relative; width: 16px; height: 16px; color: var(--ok); stroke-width: 3; }
+.pl-gt { white-space: nowrap; }
+.pl-gt b { color: var(--ink); font-size: 1rem; }
+.pl-week { align-items: center; gap: 4px 10px; }
+.pl-dots { display: inline-flex; gap: 5px; }
+.pl-dots i, .pl-rdots i { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--muted); } /* an empty dot's ring: 3:1 on the page too */
+.pl-dots i.on, .pl-rdots i.done { background: var(--ok); border-color: var(--ok); }
+.pl-dots i.now { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--indigo); }
+.pl-src li { display: flex; justify-content: space-between; gap: 8px; padding: 4px 0; border-top: 1px solid var(--line); }
+.pl-goals { display: flex; flex-direction: column; gap: 8px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.pl-goals legend { padding: 0; margin-bottom: 4px; font-weight: 700; }
+.pl-gopt { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 12px; border: 1px solid var(--field-line); border-radius: var(--radius-sm); background: var(--surface); }
+.pl-gopt:has(input:checked) { border-color: var(--indigo); background: var(--indigo-soft); }
+.pl-gopt input { flex: none; margin: 0; }
+/* "+10 XP" rising from the bar; in Calm mode it just shows for a moment */
+.pl-pop { position: absolute; right: 16px; top: -6px; z-index: 2; padding: 1px 10px; border-radius: 999px; background: var(--indigo-soft); color: var(--indigo); font-weight: 700; font-size: .85rem; pointer-events: none; animation: pl-rise .7s ease-out both; }
+
+/* ---------- the Road ---------- */
+.pl-banner { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.pl-x { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--ink); cursor: pointer; }
+.pl-x:hover { background: var(--surface); }
+.pl-nd { display: flex; flex-direction: column; gap: 2px; }
+.pl-more, .pl-tip a, .pl-proj a { display: inline-flex; align-items: center; align-self: flex-start; min-height: 44px; font-weight: 600; }
+.pl-qlist { display: flex; flex-direction: column; gap: 6px; }
+.pl-qlist li { position: relative; display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 8px 12px; }
+/* the Road's hands-on quest link takes its whole row, so its target is the row (45 px tall), not its line of text */
+.pl-qlist a::after { content: ""; position: absolute; inset: -1px; }
+.pl-qlist li.is-done { border-color: var(--ok); }
+.pl-qn { font-weight: 700; color: var(--muted); }
+.is-done > .pl-qn, .pl-res-st { color: var(--ok); }
+.pl-lvbtns { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.pl-lvb { padding-inline: 4px; white-space: normal; } /* "Level / 1" at large text, not cut */
+.pl-lvb[aria-pressed="true"] { background: var(--indigo); border-color: var(--indigo); color: var(--on-indigo); }
+@media (max-width: 359px) { .pl-lvbtns { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.pl-lvsum, .pl-stitle, .pl-back, .pl-proj > summary, .pl-fold > summary { font-weight: 600; }
+/* the road: a grey band with a dashed centre line runs down the stops, with a stone at each */
+.pl-stop { position: relative; display: grid; grid-template-columns: 56px minmax(0, 1fr); align-items: center; gap: 10px; min-height: 72px; padding-right: 8px; border-radius: var(--radius-sm); }
+.pl-stop::before, .pl-stop::after { content: ""; position: absolute; top: 0; bottom: 0; }
+.pl-stop::before { left: 21px; width: 14px; background: var(--field-line); }
+.pl-stop::after { left: 27px; width: 2px; background: repeating-linear-gradient(var(--surface) 0 8px, transparent 8px 16px); }
+.pl-stop:hover .pl-stitle { color: var(--indigo); text-decoration: underline; }
+.pl-stop.is-here, .pl-ladder li.is-on { background: var(--indigo-soft); }
+.pl-stone { position: relative; z-index: 1; display: block; width: 40px; height: 48px; margin-left: 8px; flex: none; }
+.pl-stone svg { display: block; width: 40px; height: 48px; }
+.pl-sb { fill: var(--surface); stroke: var(--field-line); stroke-width: 2; }
+.pl-cap { fill: var(--surface); stroke: var(--lvc); stroke-width: 3; }
+.is-on .pl-cap { fill: var(--lvc); }
+.pl-lv1 { --lvc: var(--sindoor); }
+.pl-lv2 { --lvc: var(--indigo); }
+.pl-lv3 { --lvc: var(--ok); }
+.pl-lv4 { --lvc: var(--haldi); }
+.pl-lv4 .pl-cap { stroke: var(--haldi-ink); }
+.pl-sno { position: absolute; left: 0; right: 0; top: 24px; text-align: center; font-size: .78rem; font-weight: 700; line-height: 1.2; color: var(--ink); }
+.pl-sbody { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 8px 0; }
+.pl-stitle { font-weight: 700; line-height: 1.3; }
+.pl-stamps { gap: 4px; }
+.pl-st, .pl-sti, .pl-rmark, .pl-bi { border: 1.5px solid var(--field-line); color: var(--muted); }
+.pl-st { width: 26px; height: 26px; border-color: var(--muted); } /* the "not yet" outline: 3:1 on the page and on "You are here" */
+.pl-st .pl-i { width: 15px; height: 15px; }
+.pl-st.is-on, .pl-stp.is-on .pl-sti, .pl-row.is-done .pl-rmark { background: var(--ok); border-color: var(--ok); color: var(--surface); }
+.pl-proj > summary, .pl-fold > summary { padding: 11px 14px; cursor: pointer; }
+.pl-proj ul { padding: 0 14px 8px; }
+.pl-proj li { display: flex; flex-direction: column; padding-bottom: 6px; border-top: 1px solid var(--line); }
+.pl-fold table { margin-bottom: 6px; }
+.pl-cp { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 8px 14px 8px 8px; }
+.pl-cp > span:last-child { display: flex; flex-direction: column; min-width: 0; }
+.pl-cp .pl-barrier { width: 60px; }
+/* the toll barrier: a booth, a post and a striped arm that turns up from its pivot */
+.pl-barrier { display: inline-block; width: 96px; flex: none; }
+.pl-barrier svg { display: block; width: 100%; height: auto; overflow: visible; }
+.pl-booth { fill: var(--surface-2); stroke: var(--field-line); stroke-width: 2; }
+.pl-post, .pl-barrier circle { fill: var(--field-line); }
+.pl-arm { transform-origin: 30px 88px; }
+.pl-arm rect { fill: var(--surface); stroke: var(--sindoor); stroke-width: 2; }
+.pl-arm path { stroke: var(--sindoor); stroke-width: 8; }
+.pl-barrier.is-up .pl-arm { transform: rotate(-75deg); }
+.pl-barrier.is-lift .pl-arm { animation: pl-lift .7s ease-out both; }
+
+/* ---------- a Stop ---------- */
+.pl-stp { display: flex; align-items: center; gap: 8px; padding: 4px 14px 4px 4px; border: 1.5px dashed var(--muted); border-radius: 999px; background: var(--surface); }
+.pl-stp.is-on { border-style: solid; border-color: var(--ok); background: var(--ok-soft); }
+.pl-sti { width: 34px; height: 34px; }
+.pl-rounds { border-radius: var(--radius); }
+.pl-rounds li + li { border-top: 1px solid var(--line); }
+.pl-row { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 10px; min-height: 56px; padding: 8px 14px; }
+.pl-row:hover { background: var(--surface-2); }
+.pl-row > span:nth-child(2), .pl-badge > span:last-child { display: flex; flex-direction: column; min-width: 0; }
+.pl-rmark { width: 28px; height: 28px; }
+.pl-rmark .pl-i { width: 16px; height: 16px; }
+.pl-hands { display: flex; flex-direction: column; gap: 10px; }
+.pl-hands > li { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 12px; padding: 12px 14px; }
+.pl-hands .btn { align-self: flex-start; }
+.pl-hands ul { padding-left: 1.2em; }
+.pl-mem { display: flex; align-items: center; gap: 8px; }
+
+/* ---------- Postcard, Badges and stats, How Play works, Welcome ---------- */
+.pl-big { font-family: var(--font-display); font-size: var(--step-2); line-height: 1.2; }
+.pl-counts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 4px 16px; }
+.pl-lesson { border-left: 3px solid var(--haldi); padding-left: 12px; }
+.pl-jr textarea { min-height: 88px; }
+.pl-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; }
+.pl-stats > div { padding: 8px 12px; }
+.pl-stats dt { font-weight: 600; color: var(--muted); }
+.pl-stats dd { margin: 0; font-weight: 700; }
+.pl-ladder { display: flex; flex-direction: column; gap: 4px; }
+.pl-ladder li { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: 4px 10px; padding: 4px 12px 4px 4px; border: 2px solid transparent; border-radius: var(--radius-sm); }
+.pl-ladder li.is-on { border-color: var(--indigo); }
+.pl-ladder li.is-past .pl-mk { background: var(--ok-soft); color: var(--ok); }
+.pl-ladder .pl-chip { grid-column: 2 / -1; justify-self: start; }
+.pl-badges { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+@media (min-width: 400px) { .pl-badges { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.pl-badge { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: center; gap: 10px; padding: 10px 12px; border: 1.5px dashed var(--muted); border-radius: var(--radius); background: var(--surface); }
+.pl-badge.is-on { border: 1.5px solid var(--haldi-ink); background: var(--haldi-soft); }
+.pl-bi { width: 44px; height: 44px; }
+.pl-badge.is-on .pl-bi { border-color: var(--haldi-ink); background: var(--surface); color: var(--haldi-ink); }
+.pl-switch { align-self: flex-start; display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 6px 16px 6px 8px; border-color: var(--field-line); font: inherit; font-weight: 600; cursor: pointer; }
+.pl-knob { position: relative; width: 44px; height: 26px; border-radius: 13px; border: 2px solid var(--field-line); background: var(--surface-2); }
+.pl-knob::after { content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: var(--muted); transition: transform .15s; }
+.pl-switch[aria-checked="true"] .pl-knob { border-color: var(--indigo); background: var(--indigo); }
+.pl-switch[aria-checked="true"] .pl-knob::after { transform: translateX(18px); background: var(--on-indigo); }
+.pl-sws { min-width: 2em; color: var(--muted); }
+.pl-pic { display: block; width: 100%; max-width: 420px; height: auto; }
+.pl-pic-road { fill: var(--field-line); }
+.pl-pic-line { fill: none; stroke: var(--surface); stroke-width: 3; stroke-dasharray: 14 10; }
+.pl-lines { padding-left: 1.2em; font-size: var(--step-1); }
+
+/* ---------- the result panel and its moments ---------- */
+.pl-result { gap: 12px; border-color: var(--indigo); }
+.pl-res-xp { align-items: baseline; gap: 4px 12px; }
+.pl-xp { padding: 2px 12px; border-radius: 999px; background: var(--indigo-soft); color: var(--indigo); font-size: 1.15rem; font-weight: 700; }
+.pl-res-st { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+.pl-moment { position: relative; overflow: hidden; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.pl-moment > p { flex: 1 1 180px; }
+.pl-moment > .pl-badges { flex: 1 1 100%; }
+.pl-m-goal .pl-dial { width: 44px; height: 44px; }
+.pl-m-goal .pl-dial::before { inset: 6px; }
+.pl-permit, .pl-rstamp { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 50%; font-weight: 700; line-height: 1.2; letter-spacing: .06em; text-align: center; text-transform: uppercase; transform: rotate(-8deg); }
+.pl-permit { flex: none; width: 9.8em; height: 9.8em; padding: 8px; border: 5px double var(--sindoor); background: var(--surface); color: var(--sindoor); font-size: .74rem; } /* 116 px at 100% text */
+.pl-permit b { font-size: .95rem; }
+.pl-rstamp { position: absolute; top: -14px; right: 10px; z-index: 2; width: 6.25em; height: 6.25em; border: 4px double var(--ok); background: var(--surface); color: var(--ok); font-size: .7rem; pointer-events: none; } /* 70 px at 100% text */
+.pl-permit.is-land, .pl-rstamp { animation: pl-land .25s ease-out both; }
+.pl-drive { animation: pl-drive .6s ease-out both; }
+.pl-m-badges .pl-badge, .pl-close { animation: pl-in .3s ease-out both; }
+.pl-stone.is-fill .pl-cap { animation: pl-fade .6s ease-out both; }
+.pl-confetti { position: absolute; left: 50%; top: 50%; pointer-events: none; }
+.pl-confetti i { position: absolute; width: 8px; height: 5px; border-radius: 1px; background: var(--c); opacity: 0; animation: pl-cf 1.2s ease-out both; }
+.pl-rdots { display: inline-flex; align-items: center; gap: 5px; }
+.pl-rdots i { width: 10px; height: 10px; }
+.pl-rdots i.here { width: 14px; height: 14px; border: 3px solid var(--indigo); }
+@keyframes pl-rise { to { opacity: 0; transform: translateY(-24px); } }
+@keyframes pl-lift { from { transform: rotate(0); } }
+@keyframes pl-land { from { opacity: 0; transform: rotate(-8deg) scale(1.3); } }
+@keyframes pl-drive { from { opacity: 0; transform: translateX(-24px); } }
+@keyframes pl-in { from { opacity: 0; transform: scale(.8); } }
+@keyframes pl-fade { from { opacity: 0; } }
+@keyframes pl-cf { from { opacity: 1; transform: rotate(var(--a)) translateY(0); } to { opacity: 0; transform: rotate(var(--a)) translateY(calc(var(--d) * -1)) rotate(90deg); } }
+/* Calm mode: no motion at all; every moment keeps its words and its final picture. The site scrolls smoothly; with a
+   Calm Play page up, Play's focus moves and Tab jump instead */
+.pl-calm *, .pl-calm *::before, .pl-calm *::after { animation: none !important; transition: none !important; }
+html:has(.pl-calm) { scroll-behavior: auto; }
+@media print { .pl-pop, .pl-confetti { display: none; } }
+
+/* ---------- the rounds ---------- */
+.pl-lead b { font-size: 1.1rem; }
+.pl-say { display: flex; align-items: flex-start; gap: 8px; }
+.pl-say .pl-i { color: var(--ok); }
+.pl-say.is-no .pl-i { color: var(--bad); }
+.pl-tag { display: inline-block; margin-right: 6px; padding: 0 8px; border-radius: 999px; background: var(--indigo-soft); color: var(--indigo); font-size: .82rem; font-weight: 700; }
+/* two answers side by side; stacked on the narrowest phones */
+.pl-two, .pl-grades { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 359px) { .pl-two, .pl-grades { grid-template-columns: minmax(0, 1fr); } }
+.pl-two .btn { white-space: normal; }
+
+/* S4 card round: a card read before shows its first block only ("peek"); after Got it it closes ("shut"), so the
+   quick check is answered from memory. The Checked stamp sits on the card's corner, never over its Listen button. */
+.pl-peek .read-body > :not(:first-child), .pl-shut .read-body { display: none; }
+/* on its own: a browser without :is() drops this rule only, and the fold above still works */
+.pl-peek .read-body > :is(ol, ul, dl):first-child > :not(:first-child) { display: none; }
+.pl .read-card.pl-rel .read-head { padding-right: calc(.7rem * 6.25 + 4px); } /* clear of the Checked stamp at any text size */
+.pl .read-foot { flex-direction: column; align-items: stretch; }
+.pl-deep > div { padding: 0 14px 12px; }
+.pl-deep details > summary { padding: 10px 0; font-weight: 600; cursor: pointer; }
+
+/* S5 term match: big options with their key number; the right one and a wrong pick say so in words and icons */
+.pl-opts { display: flex; flex-direction: column; gap: 8px; }
+.pl .pl-opt { position: relative; flex-wrap: wrap; justify-content: flex-start; gap: 4px 12px; width: 100%; min-height: 52px; padding: 8px 14px; text-align: left; }
+.pl-opt[aria-disabled="true"] { cursor: default; }
+.pl-key { display: inline-grid; place-items: center; flex: none; width: 28px; height: 28px; border: 1.5px solid var(--field-line); border-radius: 50%; color: var(--muted); font-size: .85rem; }
+.pl-ot { flex: 1 1 8em; min-width: 0; }
+.pl-ow { display: inline-flex; align-items: center; gap: 4px; font-size: .85rem; }
+.pl-ow .pl-i { width: 18px; height: 18px; }
+.pl-opt.is-right { border-color: var(--ok); background: var(--ok-soft); }
+.pl-opt.is-wrong { border-color: var(--bad); background: var(--bad-soft); }
+.pl-opt.is-right .pl-ow, .pl-opt.is-right .pl-key { color: var(--ok); border-color: var(--ok); }
+.pl-opt.is-wrong .pl-ow, .pl-opt.is-wrong .pl-key { color: var(--bad); border-color: var(--bad); }
+.pl-opt.is-pulse { animation: pl-pulse .15s ease-out; }
+.pl-fb > .pl-say { font-size: 1.1rem; }
+@keyframes pl-pulse { 50% { transform: scale(1.03); } }
+
+/* S6 toll gate and S7 checkpoint: the barrier beside the facts; a lamp lights for each right answer, and a mark
+   after the lamp that lifts the barrier */
+.pl-tg { display: flex; align-items: center; gap: 16px; }
+.pl-tg > :last-child { flex: 1 1 auto; min-width: 0; }
+.pl-tg .pl-barrier { width: 84px; }
+.pl-facts { padding-left: 1.2em; }
+.pl-lamps { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
+.pl-lampw { display: inline-flex; gap: 5px; }
+.pl-lampw i { position: relative; width: 14px; height: 14px; border: 2px solid var(--muted); border-radius: 50%; background: var(--surface); }
+.pl-lampw i.on { border-color: var(--haldi-ink); background: var(--haldi-ink); }
+.pl-lampw i.goal { margin-right: 7px; }
+.pl-lampw i.goal::after { content: ""; position: absolute; top: -6px; bottom: -6px; right: -9px; width: 2px; background: var(--sindoor); }
+/* the quiz engine's own "Next stop" link under its score: secondary in Play, where the result panel's Next round is the
+   one main action (Learn's own pages keep it primary) */
+.pl .score-box a.btn-primary { background: var(--surface); color: var(--indigo); border-color: var(--line); }
+.pl .score-box a.btn-primary:hover { border-color: var(--indigo); }
+/* the quiz engine's options and its "How sure are you?" choices: large enough to tap in Play */
+.pl .q-opt { min-height: 48px; align-items: center; }
+.pl .q-sure .seg span { display: inline-flex; align-items: center; min-height: 44px; }
+/* the checkpoint's start card is Learn's own (shared with #test-l<n>): in Play its timer checkbox gets a 44 px row */
+.pl .test-start label.row { min-height: 44px; }
+@media (max-width: 359px) { .pl-tg { flex-direction: column; align-items: flex-start; } }
+
+/* S8 warm-up: the card's front, then the four grades in a 2 x 2 grid (one column on the narrowest phones), each
+   saying when the card comes back */
+.pl-wu-f { font-size: var(--step-1); font-weight: 600; }
+.pl .pl-g { flex-direction: column; align-items: flex-start; gap: 2px; min-height: 56px; text-align: left; }
+.pl-g .small { color: var(--muted); font-weight: 400; }
+/* a round's eyebrow, beside its stop's stone */
+.pl-rtop { display: flex; align-items: center; gap: 8px; }
+.pl-rtop .pl-stone, .pl-rtop .pl-stone svg { width: 26px; height: 31px; margin: 0; }
+
+/* ---------- Windows high contrast (forced colours): states that are drawn with colour alone keep a system colour ---------- */
+@media (forced-colors: active) {
+  .pl-st.is-on, .pl-dots i.on, .pl-rdots i.done, .pl-lampw i.on { forced-color-adjust: none; background: CanvasText; color: Canvas; border-color: CanvasText; }
+  .pl-lvb[aria-pressed="true"] { forced-color-adjust: none; background: Highlight; color: HighlightText; border-color: Highlight; }
+  .pl-dial { forced-color-adjust: none; background: conic-gradient(Highlight calc(var(--p) * 1%), GrayText 0); }
+  .pl-dial.is-met { background: Highlight; }
+  .pl-dial::before { background: Canvas; }
+  /* the knob in both states (the "on" knob's own colour rule is more specific than the first selector) */
+  .pl-knob::after, .pl-switch[aria-checked="true"] .pl-knob::after { forced-color-adjust: none; background: CanvasText; }
+}

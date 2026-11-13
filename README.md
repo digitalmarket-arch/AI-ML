@@ -14,6 +14,7 @@ The site is interactive:
 - **Lesson cards in simple English.** Each module's reading is split into short cards (the big idea, goals, study plan, key terms, an Indian example, common mistakes and self-check tasks), written in short sentences with every technical word explained where it is used, and harder words also given in Hindi, like "average (औसत, ausat)". Every key term has a plain meaning, an everyday comparison and an example (a line of code for coding terms). Every card has at least 5 Indian examples (1,204 in all). Press **Got it** after each card; the ticks count towards the module's progress.
 - **Listen (read aloud) everywhere.** A Listen button on every lesson card, page section, key term, glossary term and quiz question, and a speaker button at the top that reads any page from where you are. It uses the voices already on your phone or computer (an Indian English voice when there is one, and a Hindi voice for the Hindi words), so it is free and works offline on most phones. A small player lets you pause, skip, change speed and pick a voice; the paragraph being read is highlighted.
 - **A Study room built on research-backed learning methods and Vedic study practices:** Daily review (spaced repetition, Smaraṇa), recall and Why? checks on lesson cards, a Reflect tab per module (Feynman box, Manana questions, Japa rounds, Nididhyāsana), Śravaṇa listening cues and summaries, focus sessions (Dhāraṇā, with an optional Dhyāna breath and a Vairāgya distraction-free mode), a Svādhyāya journal, mixed practice with confidence ratings, a mistakes notebook, a knowledge map with next steps, and a **How to learn** page that explains all 40 methods and how strong the evidence is for each.
+- **Play mode: the same course as a game.** A second way to learn the same lessons, as short rounds on a road trip called *The AI Road*, with points, stamps and badges. Open it with the **Play mode** button on Home, the **Play this module** button on any module page, or the **Menu** on phones and tablets. See [Play mode](#play-mode) below.
 - **Progress tracking, notes, a study planner and a jargon glossary** in plain English. Everything is saved in your own browser, with optional Google sign-in to back up and sync progress across devices: press **Sign in** at the top right (on phones also in the **Menu**). The first Google sign-in creates your free account, so there is no separate sign-up form or password. To sign out, tap the round letter at the top right and press **Sign out**. No ads and no tracking.
 
 **What's inside:** 4 levels, 27 modules, 428 free resources (409 with verified links), 350 quiz questions, 81 auto-graded coding exercises, 27 labs, 18 projects and 180 glossary terms. The lesson cards are in simple English, with Hindi words in brackets for harder terms, a diagram and at least 5 examples on every card; the videos are in Hindi, Hinglish and Indian English.
@@ -26,6 +27,28 @@ The four levels are named in Sanskrit:
 | 2 | Abhyāsa (practice) | Core machine learning with scikit-learn |
 | 3 | Prāvīṇya (proficiency) | Deep learning, PyTorch, computer vision, NLP, transformers, MLOps |
 | 4 | Naipuṇya (mastery) | LLMs, RAG, fine-tuning, agents, generative vision, RL, research and career |
+
+## Play mode
+
+Play mode shows the same course as a road trip called **The AI Road**. The lessons, quizzes and saved progress are exactly the same as in Learn; only the way they are shown changes.
+
+- **Each level is a road, and each module is a Stop.** A Stop has a stamp for each part of the module: Read, Watch, Lab, Code and Quiz.
+- **Short rounds:**
+  - a *card round* shows one lesson card, then a *quick check* asks its question, answered from memory;
+  - a *term match* pairs the module's key terms with their meanings;
+  - the module quiz is a *toll gate*, whose barrier lifts at 70%;
+  - each level test is a *checkpoint*, and passing it stamps a **Road permit**;
+  - a *warm-up* reviews the cards that are due (the same cards as Daily review);
+  - *quick questions* bring back one past mistake and a couple of questions from earlier stops.
+- **XP (experience points)** come from real learning: answering from memory, passing quizzes, and finishing labs, exercises, videos and projects. Pressing **Got it** on its own earns nothing, and doing something again earns nothing new.
+- **Goals, ranks and badges:**
+  - a small daily goal (Light 20, Steady 30 or Strong 50 XP);
+  - a week line, where 3 learning days make a steady week;
+  - 10 ranks shown as vehicles, from Starter to Guide;
+  - 26 badges.
+  Ranks and badges never go down.
+- **Kind by design.** There are no lives, no leaderboards, no timers unless you switch one on, and no messages about losing anything. Missing a day costs nothing. **Calm mode** turns off all motion, and it is on by itself when your phone or computer is set to reduce motion.
+- **One progress.** Anything you do in Play counts in Learn, and the other way round. When you sign in, it syncs between devices like the rest of your progress. Learn pages opened from Play (a lab, a video, a project) show a **Back to Play** bar.
 
 ---
 
@@ -197,6 +220,13 @@ node scripts/check-data.js
 
 It catches broken ids, missing fields, wrong answer numbers and missing lab files. A missing comma or quote shows up as "does not load".
 
+If you change Play mode (`assets/js/game.js`), also run these two. They check its points rules, and how its progress merges when two devices sync:
+
+```bash
+node scripts/check-play.js
+node scripts/check-play-sync.js
+```
+
 ---
 
 ## How the links were chosen and checked
@@ -211,6 +241,7 @@ It catches broken ids, missing fields, wrong answer numbers and missing lab file
 - Python runs in the browser through Pyodide 0.29.5, loaded from `cdn.jsdelivr.net` the first time a learner presses Run (about 10–30 MB, then cached).
 - Fonts come from Google Fonts: Rozha One, Mukta and JetBrains Mono.
 - Labs are self-contained scripts in `assets/js/labs/`. Each one registers itself on `window.AILabs`.
+- Play mode is `assets/js/game.js` and `assets/css/game.css`. They load only when a Play page is opened, or a few seconds after the site opens for a learner who chose Play, so Learn pages are as fast as before. XP is worked out from the progress you already have, so Play adds no separate score that could drift from it.
 
 ## Credits
 

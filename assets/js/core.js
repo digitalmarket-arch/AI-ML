@@ -45,6 +45,8 @@
       var q = d.quiz[k];
       q.best = Math.max(0, Math.min(100, Math.round(Number(q.best) || 0))); q.attempts = Math.max(0, parseInt(q.attempts, 10) || 0);
       q.last = Math.max(0, Math.min(100, Number(q.last) || 0)); q.at = String(q.at || '').slice(0, 10);
+      // passAt / perfAt: when the quiz was first passed (70% or more) and first scored 100%; anything else is dropped
+      ['passAt', 'perfAt'].forEach(function (f) { if (own(q, f) && !when(q[f])) delete q[f]; });
     });
     ['lang', 'theme'].forEach(function (k) { if (typeof d.prefs[k] !== 'string') d.prefs[k] = b.prefs[k]; });
     if (['hi', 'en'].indexOf(d.prefs.lang) < 0) d.prefs.lang = 'hi';
@@ -139,7 +141,13 @@
   // another tab of the site saved: merge its work into this tab (a reset or a restore there replaces this tab's copy)
   function takeOther(text, replace) {
     var other; try { other = JSON.parse(text); } catch (e) { return false; }
-    assignInto(state, replace ? normalize(other) : mergeState(state, other));
+    var merged = replace ? normalize(other) : mergeState(state, other);
+    // Play mode's settings (prefs.play) are this browser's, and every change to them is stamped (at): the tab that
+    // changed them last wins, so a tab that never had them cannot erase them with its next save. Devices still keep
+    // their own (mergeState).
+    var op = !replace && isObj(other) && isObj(other.prefs) ? other.prefs.play : null, mine = isObj(state.prefs.play) ? state.prefs.play.at : '';
+    if (isObj(op) && typeof op.at === 'string' && op.at > (typeof mine === 'string' ? mine : '')) merged.prefs.play = op;
+    assignInto(state, merged);
     lastSeen = text;
     return true;
   }
@@ -264,7 +272,9 @@
       var x = a.quiz[k], y = b.quiz[k];
       if (!x) { a.quiz[k] = y; return; }
       var newer = String(y.at) > String(x.at) ? y : x;
-      a.quiz[k] = Object.assign({}, y, x, { best: Math.max(x.best, y.best), attempts: Math.max(x.attempts, y.attempts), last: newer.last, at: newer.at });
+      var q = a.quiz[k] = Object.assign({}, y, x, { best: Math.max(x.best, y.best), attempts: Math.max(x.attempts, y.attempts), last: newer.last, at: newer.at });
+      // the first pass and the first 100%: the earlier time of the two copies, left out when neither has one
+      ['passAt', 'perfAt'].forEach(function (f) { var t = earlier(x[f], y[f]); if (t) q[f] = t; else delete q[f]; });
     });
     keys(b.ex).forEach(function (k) {
       var x = a.ex[k] || {}, y = b.ex[k] || {};

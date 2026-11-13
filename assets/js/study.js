@@ -104,6 +104,7 @@
   var day = function (v) { return /^\d{4}-\d{2}-\d{2}$/.test(String(v)) ? String(v) : ''; };
   var iso = function (v) { return typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T[\d:.]+Z?$/.test(v) ? v.slice(0, 30) : ''; };
   var later = function (a, b) { return String(b || '') > String(a || '') ? b : a; };
+  var earlier = function (a, b) { return !a ? (b || '') : !b ? a : String(b) < String(a) ? b : a; }; // the earlier of two times; '' when neither is set
   function cleanMap(o, fn) {
     var out = {};
     if (!isObj(o)) return out;
@@ -166,6 +167,7 @@
     // every quiz question answered. c = tries and right answers per device; n and r are their totals.
     // lr last result, p option picked last (-1 unknown), su how sure (0 not asked, 1-3), wrongAt last wrong (time),
     // fix = times answered right since then (a mistake is fixed by two of them on different days, 12+ hours apart).
+    // f1 = when it was first answered right ('' when unknown: right answers saved before f1 existed stay undated).
     qa: {
       normalize: function (o) {
         return cleanMap(o, function (v) {
@@ -175,7 +177,7 @@
           var wrongAt = iso(v.wrongAt);
           var fix = (Array.isArray(v.fix) ? v.fix : []).map(function (x) { return iso(x) || (day(x) ? x + 'T12:00:00.000Z' : ''); }).filter(function (x) { return x && (!wrongAt || x > wrongAt); });
           return { c: c, n: devSum(c, 0), r: Math.min(devSum(c, 1), devSum(c, 0)), lr: v.lr ? 1 : 0, p: Math.floor(num(v.p, -1, 9, -1)), su: Math.floor(num(v.su, 0, 3, 0)),
-            at: iso(v.at), wrongAt: wrongAt, fix: fix.sort().slice(-6), ok: (Array.isArray(v.ok) ? v.ok : []).map(iso).filter(Boolean).sort().slice(-6), src: str(v.src, 12) };
+            at: iso(v.at), wrongAt: wrongAt, fix: fix.sort().slice(-6), ok: (Array.isArray(v.ok) ? v.ok : []).map(iso).filter(Boolean).sort().slice(-6), src: str(v.src, 12), f1: iso(v.f1) };
         });
       },
       merge: function (a, b) {
@@ -187,7 +189,7 @@
           var nw = String(y.at || '') > String(x.at || '') ? y : x, c = mergeDev(x.c, y.c), wrongAt = later(x.wrongAt, y.wrongAt);
           var fix = (x.fix || []).concat(y.fix || []).filter(function (t, i, arr) { return arr.indexOf(t) === i && (!wrongAt || t > wrongAt); }).sort().slice(-6);
           var okT = (x.ok || []).concat(y.ok || []).filter(function (t, i, arr) { return arr.indexOf(t) === i; }).sort().slice(-6);
-          out[k] = { c: c, n: devSum(c, 0), r: Math.min(devSum(c, 1), devSum(c, 0)), lr: nw.lr, p: nw.p, su: nw.su, at: nw.at, wrongAt: wrongAt, fix: fix, ok: okT, src: nw.src };
+          out[k] = { c: c, n: devSum(c, 0), r: Math.min(devSum(c, 1), devSum(c, 0)), lr: nw.lr, p: nw.p, su: nw.su, at: nw.at, wrongAt: wrongAt, fix: fix, ok: okT, src: nw.src, f1: earlier(x.f1, y.f1) };
         });
         return out;
       }
@@ -261,6 +263,42 @@
         a = a || { day: '', d: {} }; b = b || { day: '', d: {} };
         if (a.day === b.day) return { day: a.day, d: mergeDev(a.d, b.d) };
         return a.day > b.day ? a : b;
+      }
+    },
+    // Play mode (assets/js/game.js), registered here so every page merges it, even one that never opens Play.
+    // first = first visit; goal = daily XP goal (20, 30 or 50) and goalAt = when it was chosen; rank = the highest rank
+    // celebrated; goalDay = the last day the goal moment showed; badges[id] = when earned; e[fact] = the day a fact
+    // was first recorded ('0000-00-00' when undated). Every rule gives the same result in either order.
+    play: {
+      normalize: function (o) {
+        o = isObj(o) ? o : {};
+        var out = {}, b = {}, e = {}, nb = 0, ne = 0;
+        Object.keys(o).forEach(function (k) { if (!BAD.test(k)) out[k] = o[k]; }); // fields from a newer version stay
+        if (isObj(o.badges)) Object.keys(o.badges).forEach(function (k) { var t = iso(o.badges[k]); if (t && nb < 100 && !BAD.test(k) && /^[a-z0-9-]{2,24}$/.test(k)) { b[k] = t; nb++; } });
+        if (isObj(o.e)) Object.keys(o.e).forEach(function (k) { var d = day(o.e[k]); if (d && ne < 3000 && !BAD.test(k) && /^[a-z]{1,3}:[\w.\/:|~-]{1,120}$/.test(k)) { e[k] = d; ne++; } });
+        out.first = iso(o.first);
+        out.goal = [20, 30, 50].indexOf(Number(o.goal)) >= 0 ? Number(o.goal) : 30;
+        out.goalAt = iso(o.goalAt);
+        out.rank = Math.floor(num(o.rank, 0, 9, 0));
+        out.goalDay = day(o.goalDay);
+        out.badges = b; out.e = e;
+        return out;
+      },
+      merge: function (a, b) {
+        a = a || {}; b = b || {};
+        var early = function (x, y) { return !x ? (y || '') : !y ? x : (String(y) < String(x) ? y : x); };
+        var out = {}, badges = {}, e = {};
+        [b, a].forEach(function (o) { Object.keys(o).forEach(function (k) { if (!BAD.test(k)) out[k] = o[k]; }); }); // unknown fields: this copy first
+        [a.badges, b.badges].forEach(function (m) { Object.keys(m || {}).forEach(function (k) { if (!BAD.test(k)) badges[k] = early(badges[k], m[k]); }); });
+        [a.e, b.e].forEach(function (m) { Object.keys(m || {}).forEach(function (k) { if (!BAD.test(k)) e[k] = early(e[k], m[k]); }); });
+        var ga = String(a.goalAt || ''), gb = String(b.goalAt || '');
+        var g = gb > ga ? b : ga > gb ? a : (Number(b.goal) > Number(a.goal) ? b : a); // newer change wins; a tie is decided by value, so the order never matters
+        out.first = early(a.first, b.first);
+        out.goal = g.goal; out.goalAt = g.goalAt || '';
+        out.rank = Math.max(Number(a.rank) || 0, Number(b.rank) || 0);
+        out.goalDay = later(a.goalDay, b.goalDay) || '';
+        out.badges = badges; out.e = e;
+        return out;
       }
     }
   };
@@ -390,11 +428,13 @@
 
   /* ---------- quiz answers ---------- */
   function recordAnswer(qid, correct, sure, src, picked) {
-    var st = S(), x = st.qa[qid] || { c: {}, n: 0, r: 0, lr: 0, p: -1, su: 0, at: '', wrongAt: '', fix: [], ok: [], src: '' };
+    var st = S(), x = st.qa[qid] || { c: {}, n: 0, r: 0, lr: 0, p: -1, su: 0, at: '', wrongAt: '', fix: [], ok: [], src: '', f1: '' };
     var mine = x.c[DEV] || [0, 0];
     x.c[DEV] = [mine[0] + 1, mine[1] + (correct ? 1 : 0), now()];
     x.n = devSum(x.c, 0); x.r = Math.min(devSum(x.c, 1), x.n);
     x.lr = correct ? 1 : 0; x.p = typeof picked === 'number' ? picked : -1; x.su = sure || 0; x.at = now(); x.src = src || x.src;
+    // the first right answer keeps its time (Play mode dates its XP by it); an entry already right before f1 existed stays undated
+    if (correct && !x.f1 && x.r === 1) x.f1 = x.at;
     if (!correct) { x.wrongAt = x.at; x.fix = []; }
     else if (x.wrongAt) x.fix = (x.fix || []).concat(x.at).slice(-6);
     if (correct) x.ok = (x.ok || []).concat(x.at).slice(-6); // recent right answers (any question)
@@ -443,8 +483,10 @@
   /* ---------- events, routes, Reflect tab, Study room cards ---------- */
   // feature scripts are loaded when first needed; events and routes wait for them
   var FEAT = { review: 'study-review', reflect: 'study-reflect', focus: 'study-focus', practice: 'study-practice', mastery: 'study-mastery', methods: 'study-methods' };
+  FEAT.play = 'game'; // Play mode, the game-style way through the same course (assets/js/game.js)
   var EVENT_FEAT = { overview: ['reflect', 'review'], 'card-read': ['reflect', 'review'], watch: ['reflect'], watched: ['reflect'], home: ['mastery'], progress: ['mastery'], hub: [] };
   var ROUTE_FEAT = [[/^review(?:~.*)?$/, 'review'], [/^(?:focus|journal)(?:~.*)?$/, 'focus'], [/^(?:mixed|mistakes)(?:~.*)?$/, 'practice'], [/^mastery(?:~.*)?$/, 'mastery'], [/^methods(?:~.*)?$/, 'methods']];
+  ROUTE_FEAT.push([/^play(?:[-~].*)?$/, 'play']); // #play, #play-<module>, #play-<module>~<round>...; never #playground
   var ready = {}, loadedFeat = {}; // ready: loading started (a promise); loadedFeat: the script has run
   function need(names) {
     return Promise.all((names || []).map(function (n) {
@@ -453,7 +495,8 @@
       return ready[n];
     }));
   }
-  function needAll() { return need(Object.keys(FEAT)); }
+  // the Study room shows a card from every study feature; Play mode is not one, and its code loads only on its own pages
+  function needAll() { return need(Object.keys(FEAT).filter(function (n) { return n !== 'play'; })); }
   var subs = {};
   function on(ev, fn) {
     var cs = document.currentScript, owner = cs && cs.getAttribute('data-feature');
@@ -485,7 +528,7 @@
       need([ROUTE_FEAT[j][1]]).then(function () {
         if ((location.hash || '').replace(/^#/, '') === h) A.route();
       }, function (e) { A.setView('<div class="wrap stack"><h1>Could not load this page</h1><p class="callout">' + esc(e.message) + '</p></div>', 'Not loaded'); });
-      return 'study';
+      return ROUTE_FEAT[j][1] === 'play' ? 'play' : 'study'; // the menu marks the page being loaded
     }
     return null;
   }
@@ -640,6 +683,12 @@
   });
   if (window.AIM_CLOUD && window.AIM_CLOUD.on) window.AIM_CLOUD.on(function () { refreshAI(); emit('signin'); });
   window.addEventListener('aim:progress-replaced', function () { enrollTicked(); });
+  // Reset all progress also forgets what Play mode keeps in this browser: the XP last seen, the way back to Play and
+  // this tab's rounds (the synced part, state.play, is reset with the rest)
+  window.addEventListener('aim:progress-reset', function () {
+    try { localStorage.removeItem('aimarg.play.seen'); } catch (e) {}
+    try { sessionStorage.removeItem('aimarg.play.back'); sessionStorage.removeItem('aimarg.play.sess'); } catch (e) {}
+  });
 
   /* ---------- Study room (#study) ---------- */
   function viewHub() {
@@ -676,6 +725,24 @@
     var after = nav.querySelector('a[href="#practice"]');
     if (after && after.nextSibling) nav.insertBefore(a, after.nextSibling); else nav.appendChild(a);
     document.documentElement.classList.add('has-study');
+  })();
+  // the Play mode link, right after Study. It shows in the drop-down menu only: study.css hides it in the wide header
+  // row (1220px and wider), which is already full
+  (function () {
+    var nav = document.getElementById('site-nav'); if (!nav || nav.querySelector('a[href="#play"]')) return;
+    var a = document.createElement('a'); a.href = '#play'; a.className = 'nav-play'; a.textContent = 'Play mode';
+    var after = nav.querySelector('a[href="#study"]');
+    if (after && after.nextSibling) nav.insertBefore(a, after.nextSibling); else nav.appendChild(a);
+  })();
+  // a learner who chose Play mode on this device gets its code a little after the page has loaded, so #play opens at once
+  (function () {
+    var prefetch = function () {
+      setTimeout(function () {
+        var p = S().prefs.play;
+        if (p && p.start === 'play') need(['play']).then(null, function () {}); // offline: the Play page says so when opened
+      }, 3000);
+    };
+    if (document.readyState === 'complete') prefetch(); else window.addEventListener('load', prefetch);
   })();
   window.AIM_STUDY = {
     // content

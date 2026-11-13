@@ -624,4 +624,13 @@
       '<div class="row"><a class="btn btn-primary" href="#review">' + (n ? 'Start review' : 'Open daily review') + '</a></div></article>';
   });
   ST.on('hub', function () { prepare(false).then(refreshHub); });
+
+  /* ---------- Play mode's warm-up (assets/js/game.js) uses this page's own plan, grades and gaps ---------- */
+  // today's plan once the content of every module with recall cards has loaded: { due, fresh, newToday, quota, active,
+  // next: { day, reviews, fresh } }, in Daily review's order and with its new-card limit
+  ST.reviewPlan = function () {
+    return prepare(false).then(function () { var cn = counts(); cn.next = nextInfo(cn); return cn; });
+  };
+  ST.reviewGrades = GRADES; // [null, ['Again', 'You forgot it'], ...]: index = grade 1-4
+  ST.reviewGap = function (id, g) { return gapText(previewDays(id, g)); }; // when the card would come back: '1 day', '3 days', 'later today'
 })();

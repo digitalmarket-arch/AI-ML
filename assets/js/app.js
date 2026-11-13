@@ -103,6 +103,17 @@
   // read['moduleId/cardKey'] holds when a card was ticked, or '-' + when it was un-ticked (see core.js normalize)
   function readOn(mid, key) { var v = S().read[mid + '/' + key]; return !!v && String(v).charAt(0) !== '-'; }
   function readDone(m) { return readCards(m).filter(function (c) { return readOn(m.id, c.key); }).length; }
+  // tick (on) or un-tick a lesson card and save: Learn's Got it button and Play mode's card rounds both come here.
+  // Returns false for a module or card that does not exist.
+  function setRead(mid, key, on) {
+    var m = modById[mid];
+    if (!m || !readCards(m).some(function (c) { return c.key === key; })) return false;
+    var t = C.stamp();
+    S().read[mid + '/' + key] = on ? t : '-' + t;
+    if (on) C.logActivity();
+    C.save(); refreshSide();
+    return true;
+  }
   var READ_PART = 'Read the lesson cards';
   // learners who finished every other part of a module before lesson cards existed keep their 100%:
   // their cards are ticked once (re-checked after a restore brings in an older copy)
@@ -132,22 +143,28 @@
       return mm ? pre + '[' + modNo(mm) + ' ' + String(mm.title).replace(/[[\]]/g, '') + '](#m-' + id + ')' + rest : all;
     });
   }
-  function readBtnHTML(m, key, done) {
+  // pre: the prefix of the ids written (see readCardHTML)
+  function readBtnHTML(m, key, done, pre) {
     var title = (READ_SECS.filter(function (x) { return x[0] === key; })[0] || [key, key])[1];
-    return '<button type="button" class="btn btn-sm read-btn' + (done ? ' is-on' : ' btn-primary') + '" data-action="read-card" data-id="' + esc(m.id) + '" data-key="' + esc(key) + '" aria-pressed="' + done + '" aria-label="Got it: ' + esc(title) + '" aria-describedby="read-hint-' + esc(key) + '">' + (done ? '<span aria-hidden="true">✓ </span>' : '') + 'Got it</button>' +
-      '<span class="small muted" id="read-hint-' + esc(key) + '">' + (done ? 'Read. Press again if you want to come back to it.' : 'Press when you have understood this card.') + '</span>';
+    pre = pre || '';
+    return '<button type="button" class="btn btn-sm read-btn' + (done ? ' is-on' : ' btn-primary') + '" data-action="read-card" data-id="' + esc(m.id) + '" data-key="' + esc(key) + '" aria-pressed="' + done + '" aria-label="Got it: ' + esc(title) + '" aria-describedby="' + pre + 'read-hint-' + esc(key) + '">' + (done ? '<span aria-hidden="true">✓ </span>' : '') + 'Got it</button>' +
+      '<span class="small muted" id="' + pre + 'read-hint-' + esc(key) + '">' + (done ? 'Read. Press again if you want to come back to it.' : 'Press when you have understood this card.') + '</span>';
   }
-  function readCardHTML(m, c, i, n, body, done) {
-    return '<section class="card read-card stack-sm' + (done ? ' is-read' : '') + '" data-sec="' + esc(c.key) + '" id="read-' + esc(c.key) + '" aria-labelledby="read-h-' + esc(c.key) + '">' +
-      '<div class="read-head"><h2 class="h-sub" id="read-h-' + esc(c.key) + '" tabindex="-1">' + esc(c.title) + '</h2><span class="read-tools">' + SPK.btn('.read-card', 'Listen to this card: ' + c.title) + '<span class="small muted num tts-skip">Card ' + (i + 1) + ' of ' + n + '</span></span></div>' +
+  // opts (Play mode shows one card on its own page): idPrefix goes in front of every id the card writes (read-<key>,
+  // read-h-<key>, read-hint-<key>) and the aria references to them, so Learn's code that looks a card up by id leaves
+  // this copy alone; foot is HTML that takes the place of the Got it button and its hint
+  function readCardHTML(m, c, i, n, body, done, opts) {
+    var pre = esc((opts && opts.idPrefix) || ''), foot = opts && opts.foot != null ? String(opts.foot) : readBtnHTML(m, c.key, done, pre);
+    return '<section class="card read-card stack-sm' + (done ? ' is-read' : '') + '" data-sec="' + esc(c.key) + '" id="' + pre + 'read-' + esc(c.key) + '" aria-labelledby="' + pre + 'read-h-' + esc(c.key) + '">' +
+      '<div class="read-head"><h2 class="h-sub" id="' + pre + 'read-h-' + esc(c.key) + '" tabindex="-1">' + esc(c.title) + '</h2><span class="read-tools">' + SPK.btn('.read-card', 'Listen to this card: ' + c.title) + '<span class="small muted num tts-skip">Card ' + (i + 1) + ' of ' + n + '</span></span></div>' +
       '<div class="read-body prose stack-sm">' + body + '<div class="fig-slot"></div><div class="ex-slot" data-ex="' + esc(c.key) + '"></div></div>' +
-      '<div class="read-foot">' + readBtnHTML(m, c.key, done) + '</div></section>';
+      '<div class="read-foot">' + foot + '</div></section>';
   }
   // a text field may hold several paragraphs, separated by a blank line
   function parasHTML(s) {
     return String(s || '').split(/\n\s*\n/).map(function (p) { return p.trim(); }).filter(Boolean).map(function (p) { return '<p>' + inline(modLinks(p)) + '</p>'; }).join('');
   }
-  // what each lesson card says, as HTML by card key (the Overview tab, and Play mode's missions show the same cards)
+  // what each lesson card says, as HTML by card key (the Overview tab, and Play mode's card rounds show the same cards)
   function cardBodies(m) {
     return {
       overview: (m.overview ? parasHTML(m.overview) : '<p>' + esc((m.topics || []).join(', ')) + '</p>') + (m.whyItMatters ? '<div class="callout callout-indigo"><strong>Why it matters:</strong> ' + inline(modLinks(m.whyItMatters)) + '</div>' : ''),
@@ -598,6 +615,22 @@
     currentCleanup.forEach(function (f) { try { f(); } catch (e) {} });
     currentCleanup = [];
   }
+  // Back to Play: a Learn page opened from Play mode (a lab, a video, a project, the mistakes notebook...) starts with
+  // a bar that leads back. Play mode (assets/js/game.js) keeps the way back in this tab as sessionStorage
+  // 'aimarg.play.back' = JSON { href: '#play…', label: 'Stop 1.2' }; Play's own pages never show the bar.
+  var PLAY_BACK = 'aimarg.play.back', PLAY_ROUTE = /^#?play(?:[-~].*)?$/; // the same routes as study.js loads game.js for
+  function playBackHTML() {
+    var o = null, h = (location.hash || '').replace(/^#/, '');
+    try { o = JSON.parse(sessionStorage.getItem(PLAY_BACK) || 'null'); } catch (e) { return ''; }
+    if (!o || typeof o.href !== 'string' || o.href.charAt(0) !== '#' || !PLAY_ROUTE.test(o.href)) return '';
+    try { h = decodeURIComponent(h); } catch (e) {}
+    if (PLAY_ROUTE.test(h)) return '';
+    var label = typeof o.label === 'string' ? o.label.slice(0, 80) : '';
+    // tts-skip: the page's Listen starts at its heading, as it skips the breadcrumbs and tabs
+    return '<div class="play-back tts-skip" role="region" aria-label="Back to Play"><div class="wrap play-back-in">' +
+      '<a class="play-back-link" href="' + esc(o.href) + '"><span aria-hidden="true">‹</span><span>Back to Play' + (label ? ': ' + esc(label) : '') + '</span></a>' +
+      '<button type="button" class="btn btn-ghost btn-sm play-back-x" data-action="play-back-close">Hide this bar</button></div></div>';
+  }
   function setView(html, title) {
     leaveView();
     if (!quiet) { try { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); } catch (e) {} }
@@ -605,6 +638,7 @@
     var headHl = document.querySelector('.hl-head-btn');
     if (headHl) { headHl.classList.remove('is-on'); headHl.setAttribute('aria-pressed', 'false'); }
     main.innerHTML = html;
+    var back = playBackHTML(); if (back) main.insertAdjacentHTML('afterbegin', back);
     document.title = (title ? title + ' · ' : '') + (D.site.name || 'AI Marg');
     var h1 = main.querySelector('h1');
     if (h1) { h1.setAttribute('tabindex', '-1'); if (!quiet) h1.focus({ preventScroll: true }); }
@@ -680,13 +714,17 @@
     var nRes = D.resources.length, nHi = D.resources.filter(function (r) { return r.language === 'hindi' || r.language === 'hinglish'; }).length;
     var nIn = D.resources.filter(function (r) { return r.language === 'indian-english'; }).length;
     var nQ = Object.keys(D.quizzes).reduce(function (s, k) { return s + D.quizzes[k].length; }, 0);
+    // Play mode (study features on): a learner who chose it on this device sees Continue playing first
+    var play = !!ST(), playing = play && !!(st.prefs.play && st.prefs.play.start === 'play');
     var html = '<div class="wrap stack-lg">' +
       '<section class="hero"><div class="stack">' +
       '<span class="eyebrow">Free AI & ML course · Videos in Hindi, Hinglish & Indian English</span>' +
       '<h1>From your first line of Python to building <em>AI agents</em>.</h1>' +
       '<p class="lede">A guided path through the best free videos from Indian teachers first, in Hindi, Hinglish and Indian English, with interactive labs, Python you can run in the browser, tests and tough projects. No fees, and no sign-up needed.</p>' +
-      '<div class="row"><a class="btn btn-primary" href="#start">Start here</a>' +
-      (last ? '<a class="btn" href="#m-' + esc(last.id) + '">Continue: ' + esc(last.title) + '</a>' : '<a class="btn" href="#level-1">Open Level 1</a>') + '</div>' +
+      '<div class="row">' + (playing ? '<a class="btn btn-primary" href="#play">Continue playing</a>' : '') + '<a class="btn' + (playing ? '' : ' btn-primary') + '" href="#start">Start here</a>' +
+      (last ? '<a class="btn" href="#m-' + esc(last.id) + '">Continue: ' + esc(last.title) + '</a>' : '<a class="btn" href="#level-1">Open Level 1</a>') +
+      (play && !playing ? '<a class="btn" href="#play">Play mode</a>' : '') + '</div>' +
+      (play && !playing ? '<p class="small muted">New: learn the same course as a game. Earn points, stamps and badges as you go.</p>' : '') +
       (courseRaw() > 0 ? courseProgHTML() : '') +
       '</div>' + stations() + '</section>' +
       (ST() ? '<div id="study-today"></div>' : '') +
@@ -832,7 +870,8 @@
     var list = modulesOf(m.level), idx = list.indexOf(m), all = D.modules, gi = all.indexOf(m);
     var prev = all[gi - 1], next = all[gi + 1];
     var html = '<div class="wrap stack">' + crumbs([['Home', 'home'], ['Level ' + m.level + ' ' + (l ? l.name : ''), 'level-' + m.level], ['Module ' + modNo(m)]]) +
-      '<header class="row-between"><div class="stack-sm"><span class="eyebrow">Module ' + modNo(m) + (m.hours ? ' · about ' + m.hours + ' hours' : '') + '</span><h1>' + esc(m.title) + '</h1></div></header>' +
+      '<header class="row-between"><div class="stack-sm"><span class="eyebrow">Module ' + modNo(m) + (m.hours ? ' · about ' + m.hours + ' hours' : '') + '</span><h1>' + esc(m.title) + '</h1></div>' +
+      (ST() ? '<a class="btn btn-sm" href="#play-' + esc(m.id) + '">Play this module</a>' : '') + '</header>' +
       progStripHTML(['This module', moduleProgress(m), moduleProgress(m) + '%']) +
       '<div class="tabs" role="tablist" aria-label="Module sections">' + tabs.map(function (t) { return '<button role="tab" type="button" id="tab-' + t[0] + '" aria-controls="tabpanel" data-tab="' + t[0] + '" aria-selected="' + (t[0] === tab) + '" tabindex="' + (t[0] === tab ? '0' : '-1') + '">' + (t[2] ? '<span class="t-long">' + esc(t[1]) + '</span><span class="t-short">' + esc(t[2]) + '</span>' : esc(t[1])) + '</button>'; }).join('') + '</div>' +
       '<div class="two-col' + (tab === 'lab' ? ' full' : '') + '" id="mod-cols"><div class="tab-panel" id="tabpanel" role="tabpanel" aria-labelledby="tab-' + tab + '"></div><aside class="stack"><div class="stack" id="mod-side" data-mod="' + esc(m.id) + '">' + moduleSide(m) + '</div>' +
@@ -944,8 +983,12 @@
   }
   // noToast: the caller shows the result itself (Play mode's result screen)
   function recordQuiz(key, score, noToast) {
-    var q = S().quiz[key] || { best: 0, attempts: 0 };
+    var q = S().quiz[key] || { best: 0, attempts: 0 }, before = q.best || 0, t = C.stamp();
     q.best = Math.max(q.best, score); q.attempts++; q.last = score; q.at = C.today();
+    // when it was first passed and first scored 100% (Play mode dates its XP by them); quizzes passed before these
+    // times were kept stay undated
+    if (score >= 70 && before < 70 && !q.passAt) q.passAt = t;
+    if (score >= 100 && before < 100 && !q.perfAt) q.perfAt = t;
     S().quiz[key] = q; C.logActivity(); C.save(); refreshSide();
     var chip = document.getElementById('quiz-best');
     if (chip) { chip.hidden = false; chip.className = 'chip num' + (q.best >= 70 ? ' chip-ok' : ''); chip.textContent = 'Best: ' + q.best + '% · ' + q.attempts + ' attempt' + (q.attempts > 1 ? 's' : ''); }
@@ -966,7 +1009,8 @@
         shown[tid] = true;
         if (ticks()[tid]) return;
         var all = S().labs; if (!all[meta.id] || typeof all[meta.id] !== 'object') all[meta.id] = {};
-        all[meta.id][tid] = true; C.logActivity(); C.save(); C.toast('Lab task complete'); refreshSide();
+        all[meta.id][tid] = C.stamp(); // when it was done (older ticks hold true); every reader only asks whether it is set
+        C.logActivity(); C.save(); C.toast('Lab task complete'); refreshSide();
         setTimeout(syncLab, 0); // saving can merge in ticks another tab saved
       },
       isTaskDone: function (tid) { return !!ticks()[tid]; }
@@ -1264,36 +1308,61 @@
   }
   function viewTest(lv) {
     var l = levelById[lv], q = D.quizzes['test-l' + lv]; if (!l || !q) return viewNotFound();
-    var mins = Math.max(15, Math.round(q.length * 1.5)), key = 'test-l' + lv, kept = testSaved(key);
+    var mins = Math.max(15, Math.round(q.length * 1.5));
     setView('<div class="wrap stack">' + crumbs([['Home', 'home'], ['Tests', 'tests'], ['Level ' + lv]]) +
       '<header class="stack-sm"><span class="eyebrow">Level ' + lv + ' · ' + esc(l.name) + '</span><h1>Level ' + lv + ' test</h1><p class="muted prose">' + q.length + ' questions. Optional ' + mins + '-minute timer. You will see your score and full explanations after you submit.</p></header>' +
-      '<div id="testroot"><div class="card stack test-start">' +
-        (kept ? '<div class="callout stack-sm" id="test-kept"><p>You left this test part-way: <strong class="num">' + Math.min(kept.n, q.length) + ' of ' + q.length + '</strong> answered' + (kept.minutes ? ', <strong class="num">' + mmss(kept.left) + '</strong> left on the timer' : '') + '. Carry on where you stopped, or start again below.</p>' +
-          '<button class="btn btn-primary" id="resume" style="width:100%">Resume the test</button></div>' : '') +
-        '<ul class="small"><li>Pass mark 70% · ' + q.length + ' questions</li><li>Covers modules ' + lv + '.1 to ' + lv + '.' + modulesOf(lv).length + '</li>' +
-        (S().quiz[key] ? '<li>Your best so far: ' + esc(S().quiz[key].best) + '%</li>' : '') + '<li>If you leave part-way, your answers and the time left are kept, so you can carry on later.</li></ul>' +
-        '<label class="row"><input type="checkbox" id="timed" checked> Use the ' + mins + '-minute timer</label><button class="btn' + (kept ? '' : ' btn-primary') + '" id="begin" style="width:100%">' + (kept ? 'Start again' : 'Begin the test') + '</button></div></div></div>', 'Level ' + lv + ' test');
+      '<div id="testroot"></div></div>', 'Level ' + lv + ' test');
+    testRunner(lv, document.getElementById('testroot'), { timed: true });
+  }
+  // the card before a level test starts: Resume (a test left part-way) or Start again, what to expect, the optional timer
+  function testStartHTML(lv, kept, timed) {
+    var q = D.quizzes['test-l' + lv], mins = Math.max(15, Math.round(q.length * 1.5)), key = 'test-l' + lv;
+    return '<div class="card stack test-start">' +
+      (kept ? '<div class="callout stack-sm" id="test-kept"><p>You left this test part-way: <strong class="num">' + Math.min(kept.n, q.length) + ' of ' + q.length + '</strong> answered' + (kept.minutes ? ', <strong class="num">' + mmss(kept.left) + '</strong> left on the timer' : '') + '. Carry on where you stopped, or start again below.</p>' +
+        '<button class="btn btn-primary" id="resume" style="width:100%">Resume the test</button></div>' : '') +
+      '<ul class="small"><li>Pass mark 70% · ' + q.length + ' questions</li><li>Covers modules ' + lv + '.1 to ' + lv + '.' + modulesOf(lv).length + '</li>' +
+      (S().quiz[key] ? '<li>Your best so far: ' + esc(S().quiz[key].best) + '%</li>' : '') + '<li>If you leave part-way, your answers and the time left are kept, so you can carry on later.</li></ul>' +
+      '<label class="row"><input type="checkbox" id="timed"' + (timed ? ' checked' : '') + '> Use the ' + mins + '-minute timer</label><button class="btn' + (kept ? '' : ' btn-primary') + '" id="begin" style="width:100%">' + (kept ? 'Start again' : 'Begin the test') + '</button></div>';
+  }
+  // A level test in root: the start card, then the test. Learn's level-test page and Play mode's checkpoint run the
+  // same test and keep the same unfinished answers. Calling it again on the same root starts over from the start card
+  // (a test running there stops first, its answers kept).
+  // opts: timed (the timer box starts ticked), quiet (no score toast: the caller shows the result), onDone(r) once the
+  // score is saved, with the quiz engine's result { score (%), correct, total }; it runs before the engine draws its
+  // score box into root. Returns false when level lv has no test.
+  function testRunner(lv, root, opts) {
+    var q = D.quizzes['test-l' + lv]; if (!q || !root) return false;
+    opts = opts || {};
+    if (root._testStop) { root._testStop(); root._testStop = null; }
+    var mins = Math.max(15, Math.round(q.length * 1.5)), key = 'test-l' + lv, kept = testSaved(key);
+    root.innerHTML = testStartHTML(lv, kept, !!opts.timed);
     // from = a test left part-way (Resume), or null for a fresh start (which also drops a kept one)
     var run = function (from) {
-      var timed = from ? !!from.minutes : document.getElementById('timed').checked;
-      var quiz = new C.Quiz(document.getElementById('testroot'), { questions: q, mode: 'test', key: key, minutes: timed ? mins : 0, resume: from,
+      var timed = from ? !!from.minutes : root.querySelector('#timed').checked;
+      var quiz = new C.Quiz(root, { questions: q, mode: 'test', key: key, minutes: timed ? mins : 0, resume: from,
         // every answer and step (and every few seconds on the timer) is kept in this browser until the test is submitted
         onChange: function (s) { testKeep(key, s); },
-        onFinish: function (r) { testKeep(key, null); recordQuiz(key, r.score); }, onAnswer: function (r) { if (ST()) ST().emit('answer', r); } });
+        onFinish: function (r) { testKeep(key, null); recordQuiz(key, r.score, !!opts.quiet); if (opts.onDone) opts.onDone(r); },
+        onAnswer: function (r) { if (ST()) ST().emit('answer', r); } });
       liveTest = quiz;
       // closing or reloading the tab, or the phone putting it away, keeps the place too
       var keepNow = function () { quiz.changed(); };
       window.addEventListener('pagehide', keepNow); document.addEventListener('visibilitychange', keepNow);
-      currentCleanup.push(function () {
+      var stop = function () {
         window.removeEventListener('pagehide', keepNow); document.removeEventListener('visibilitychange', keepNow);
-        var s = quiz.onChange && quiz.snapshot();
         quiz.destroy(); if (liveTest === quiz) liveTest = null;
+      };
+      root._testStop = stop;
+      currentCleanup.push(function () {
+        var s = quiz.onChange && quiz.snapshot();
+        stop();
         if (s && s.n) C.toast('Your level ' + lv + ' test is kept (' + s.n + ' of ' + q.length + ' answered). Open it again to carry on.');
       });
       quiz.focusQ(); // keyboard and screen-reader users start at the first question, not at the top of the page
     };
-    document.getElementById('begin').addEventListener('click', function () { run(null); });
-    var rb = document.getElementById('resume'); if (rb) rb.addEventListener('click', function () { run(kept); });
+    root.querySelector('#begin').addEventListener('click', function () { run(null); });
+    var rb = root.querySelector('#resume'); if (rb) rb.addEventListener('click', function () { run(kept); });
+    return true;
   }
   // A level test left part-way (Back, a link, the search key, a reload, a closed tab) is kept in this browser: its
   // answers, the question it was on and the time left on its timer (the timer waits while the test is not open).
@@ -2258,12 +2327,8 @@
       // a double click must not also press the next card's button, which the scroll brings under the pointer
       if (ev.detail > 1 || Date.now() - readLastPress < 600) return;
       readLastPress = Date.now();
-      var rkey = t.getAttribute('data-key'), rmod = modById[id];
-      if (rmod && rkey) {
-        var ron = !readOn(id, rkey), rstamp = new Date().toISOString();
-        st.read[id + '/' + rkey] = ron ? rstamp : '-' + rstamp;
-        if (ron) C.logActivity();
-        C.save(); refreshSide();
+      var rkey = t.getAttribute('data-key'), rmod = modById[id], ron = !readOn(id, rkey);
+      if (rmod && rkey && setRead(id, rkey, ron)) {
         var rn = readCards(rmod).length, rd2 = readDone(rmod);
         readRefresh(rmod, (ron ? 'Marked as read. ' : 'Marked as not read. ') + rd2 + ' of ' + rn + ' cards read.' + (ron && rd2 === rn ? ' You have read the whole lesson.' : ''));
         if (ST()) ST().emit('card-read', rmod, rkey, ron);
@@ -2291,6 +2356,12 @@
       C.resetAll(); applyTheme(); C.toast('Progress reset'); route();
     }
     else if (a === 'theme') { cycleTheme(); }
+    else if (a === 'play-back-close') {
+      // Hide this bar: it stays hidden in this tab until Play mode sends the learner to Learn again
+      try { sessionStorage.removeItem(PLAY_BACK); } catch (e) {}
+      var pbar = t.closest('.play-back'); if (pbar) pbar.remove();
+      var ph = main.querySelector('h1'); if (ph) { try { ph.focus({ preventScroll: true }); } catch (e) { ph.focus(); } }
+    }
   });
   function fallbackCopy(txt) { var box = document.getElementById('import-box'); if (box) { box.value = txt; box.select(); } C.toast('Select the text in the box and copy it'); }
   // Restore: the text pasted into the box, or the file saved by "Download file" (fromFile)
@@ -2441,6 +2512,7 @@
     labOf: labOf, exOf: exOf, mainPicks: mainPicks, readCards: readCards, readOn: readOn, readDone: readDone,
     // the lesson cards themselves, for Play mode (assets/js/game.js): the same contents and the same "Got it" ticks
     cardBodies: cardBodies, readCardHTML: readCardHTML, placeFigures: placeFigures, placeExamples: placeExamples, recordQuiz: recordQuiz,
+    setRead: setRead, ensureExamples: ensureExamples, testRunner: testRunner,
     moduleParts: moduleParts, levelProgress: levelProgress, overallProgress: overallProgress, refreshSide: refreshSide,
     isTicked: isTicked, tickKey: tickKey, isShared: isShared, isRecommended: isRecommended
   };  applyTheme();
