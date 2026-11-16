@@ -1,0 +1,23 @@
+{
+  "name": "aimarg-reminders",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI Marg study reminders: a Cloudflare Worker that sends Web Push reminders at the time each learner picks.",
+  "type": "module",
+  "scripts": {
+    "test": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1 test/unit/*.test.js test/e2e/*.test.js",
+    "test:unit": "node --disable-warning=ExperimentalWarning --test test/unit/*.test.js",
+    "test:e2e": "node --test test/e2e/*.test.js",
+    "bench": "node test/bench.mjs",
+    "dev": "wrangler dev --local --test-scheduled",
+    "deploy": "wrangler deploy"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "devDependencies": {
+    "http_ece": "1.2.1",
+    "web-push": "4.0.0",
+    "wrangler": "4.161.0"
+  }
+}

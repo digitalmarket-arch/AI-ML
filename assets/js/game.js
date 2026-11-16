@@ -1396,7 +1396,8 @@
     return barHTML({ back: ROAD, title: 'Today' }) + '<h1 tabindex="-1">' + (s.met ? 'Done for today' : 'Your day so far') + '</h1>' +
       box('pl-today-h', 'Today', '<p class="pl-big num">' + n0(s.today) + ' of ' + s.goal + ' XP' + (s.met ? ' · Goal met ✓' : '') + '</p>' +
         (rows ? '<ul class="pl-counts">' + rows + '</ul>' : s.today ? '' : '<p>Nothing done yet today.</p>')) +
-      box('pl-tm-h', 'Next', '<p id="pl-tmrw">' + (tmrw[s.day] || (due ? 'Coming up tomorrow: ' + about(due, 'review card') : 'No review cards are due tomorrow yet.')) + '</p><p class="pl-week">' + weekInner(R.weekDots(S(), s.day)) + '</p>') +
+      box('pl-tm-h', 'Next', '<p id="pl-tmrw">' + (tmrw[s.day] || (due ? 'Coming up tomorrow: ' + about(due, 'review card') : 'No review cards are due tomorrow yet.')) + '</p><p class="pl-week">' + weekInner(R.weekDots(S(), s.day)) + '</p>' +
+        '<p><a href="#reminders" data-pl-out="Today">Remind me tomorrow</a></p>') +
       '<div id="pl-flash">' + (s.met && flash[s.day] || '') + '</div>' +
       box('pl-jr-h', 'Your journal', '<label for="pl-jr-t">One thing I learned today <span class="muted">(optional)</span></label><textarea id="pl-jr-t" maxlength="300" rows="3"></textarea>' +
         '<div class="row"><button type="button" class="btn" data-pl="jsave">Save to my journal</button><span class="small" id="pl-jr-msg"></span></div>') +

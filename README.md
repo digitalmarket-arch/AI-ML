@@ -15,7 +15,8 @@ The site is interactive:
 - **Listen (read aloud) everywhere.** A Listen button on every lesson card, page section, key term, glossary term and quiz question, and a speaker button at the top that reads any page from where you are. It uses the voices already on your phone or computer (an Indian English voice when there is one, and a Hindi voice for the Hindi words), so it is free and works offline on most phones. A small player lets you pause, skip, change speed and pick a voice; the paragraph being read is highlighted.
 - **A Study room built on research-backed learning methods and Vedic study practices:** Daily review (spaced repetition, Smaraṇa), recall and Why? checks on lesson cards, a Reflect tab per module (Feynman box, Manana questions, Japa rounds, Nididhyāsana), Śravaṇa listening cues and summaries, focus sessions (Dhāraṇā, with an optional Dhyāna breath and a Vairāgya distraction-free mode), a Svādhyāya journal, mixed practice with confidence ratings, a mistakes notebook, a knowledge map with next steps, and a **How to learn** page that explains all 40 methods and how strong the evidence is for each.
 - **Play mode: the same course as a game.** A second way to learn the same lessons, as short rounds on a road trip called *The AI Road*, with points, stamps and badges. Open it with the **Play mode** button on Home, the **Play this module** button on any module page, or the **Menu** on phones and tablets. See [Play mode](#play-mode) below.
-- **Progress tracking, notes, a study planner and a jargon glossary** in plain English. Everything is saved in your own browser, with optional Google sign-in to back up and sync progress across devices: press **Sign in** at the top right (on phones also in the **Menu**). The first Google sign-in creates your free account, so there is no separate sign-up form or password. To sign out, tap the round letter at the top right and press **Sign out**. No ads and no tracking.
+- **Reminders:** a gentle study reminder at a time you choose, as a notification on your phone (Android, or iPhone and iPad from the Home Screen) or in your calendar. See [Reminders](#reminders) below.
+- **Progress tracking, notes, a study planner and a jargon glossary** in plain English. Everything is saved in your own browser, with optional Google sign-in to back up and sync progress across devices: press **Sign in** at the top right (on phones also in the **Menu**). The first Google sign-in creates your free account, so there is no separate sign-up form or password. To sign out, tap the round letter at the top right and press **Sign out**. No ads and no tracking. If you turn on phone reminders, our reminder service keeps your device's notification address, your reminder settings (time, days, time zone, which page to open, whether to skip days you studied, and the last day you studied, as that browser knows it), when it last tried to send you a reminder or skipped one because you had studied, when the next one is due, when you turned reminders on and last saved them, and how many sends failed and tests you sent; **Turn off** deletes them. To stop misuse it also counts requests by a code made from your internet address, deleted within a few hours.
 
 **What's inside:** 4 levels, 27 modules, 428 free resources (409 with verified links), 350 quiz questions, 81 auto-graded coding exercises, 27 labs, 18 projects and 180 glossary terms. The lesson cards are in simple English, with Hindi words in brackets for harder terms, a diagram and at least 5 examples on every card; the videos are in Hindi, Hinglish and Indian English.
 
@@ -49,6 +50,17 @@ Play mode shows the same course as a road trip called **The AI Road**. The lesso
   Ranks and badges never go down.
 - **Kind by design.** There are no lives, no leaderboards, no timers unless you switch one on, and no messages about losing anything. Missing a day costs nothing. **Calm mode** turns off all motion, and it is on by itself when your phone or computer is set to reduce motion.
 - **One progress.** Anything you do in Play counts in Learn, and the other way round. When you sign in, it syncs between devices like the rest of your progress. Learn pages opened from Play (a lab, a video, a project) show a **Back to Play** bar.
+
+## Reminders
+
+Get a gentle reminder to study, at a time you choose. Missing a day costs nothing. Open **My progress** and press **Set up reminders** (the Study room has a Reminders card too).
+
+- **Phone notifications.** Choose a time and days, which page opens when you tap the reminder (Daily review or Play mode), and whether to skip days when you have already studied. Press **Turn on reminders** and choose **Allow**. **Send a test** checks that they arrive.
+  - **Android:** works in Chrome, even when Chrome is closed.
+  - **iPhone and iPad:** needs iOS 16.4 or newer. First add AI Marg to your Home Screen: in Safari tap Share (on newer iPhones it is behind the ••• button), then **Add to Home Screen**, and keep **Open as Web App** on if you see it; in Chrome tap Share, then **Add to Home Screen**. Open AI Marg from the new icon, go to **My progress**, tap **Set up reminders** and turn them on there. The Home Screen app keeps its own progress, so sign in to bring yours along.
+- **Calendar reminder.** Works on any phone, even without notifications: **Add to Google Calendar**, or **Download calendar file (.ics)** for the iPhone Calendar, Outlook and other apps.
+- **If reminders don't arrive,** the Reminders page lists fixes for phones that save battery (Xiaomi, Redmi, POCO, Vivo, iQOO, Oppo, Realme, OnePlus and Samsung).
+- Reminders belong to each device. They are not part of your synced progress, and **Turn off** deletes what the reminder service keeps.
 
 ---
 
@@ -117,6 +129,30 @@ The site works as plain files (GitHub Pages): read-aloud uses the voices on the 
 - **AI Hinglish** for the Hinglish switch, through `/api/hinglish`.
 
 The key stays on the server; it is never sent to the browser. The page checks once whether the server is there and otherwise uses the device's voices straight away. To use Google sign-in on another address (such as your AI Studio app's link), add that address in the Firebase console under **Authentication → Settings → Authorized domains**.
+
+### Reminder service (for the site owner)
+
+Phone reminders need a small sender, because a website cannot wake a phone by itself. It runs on Cloudflare's free plan and needs no card.
+
+**Put it online** (about 5 minutes, no coding):
+
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/digitalmarket-arch/AI-ML/tree/ccr-d2e52eb0-624rlk/reminders)
+
+1. Create a free Cloudflare account at [dash.cloudflare.com/sign-up](https://dash.cloudflare.com/sign-up). It needs no card.
+2. **Check your workers.dev name.** In the Cloudflare dashboard, open **Workers & Pages** in the menu. Find your *subdomain*: a name that ends in `.workers.dev` (it is shown next to **Your subdomain**, or under **Settings**). Cloudflare picks it for you, often from your email address, and it becomes part of a public address. If it shows your name or any part of your email, press **Change**, type a neutral name such as `ai-marg` (if that is taken, try `ai-marg-learn`), and save.
+3. Press the **Deploy to Cloudflare** button above.
+4. Sign in, and allow Cloudflare's GitHub app on your account when it asks. (Cloudflare copies the `reminders/` folder into a new repository in your GitHub account and builds it from there.)
+5. Keep the suggested names, then press **Create and deploy**.
+6. Wait for it to finish. Copy the address that ends in `.workers.dev` and send it to whoever maintains the site, so it can be put in `assets/js/remind.js`. Send the name of the new GitHub repository Cloudflare made too. Neither of them is a secret. If someone else maintains the site, also give them access to that repository (on GitHub: the repository's **Settings**, **Collaborators**, **Add people**), so they can send it fixes.
+
+There are no keys or passwords to copy: the deploy makes the database, and the Worker makes its own tables and its own signing keys (VAPID keys) and keeps them in that database. The private key never leaves Cloudflare and is never in this repository. Opening the address by itself shows `{"ok":false,"error":"origin"}`. That is normal: the service only answers the AI Marg site. To check that it runs, open the address with `/v1/health` at the end (no slash after it): it shows `{"ok":true,"version":"1"}`. A brand-new address can take a few minutes to start working. Developers can deploy from a terminal instead: `cd reminders && npm install && npx wrangler deploy`. More in [reminders/README.md](reminders/README.md).
+
+- **Switch it on in the site.** First check that the address holds no personal name or email; if it does, ask the owner to change the workers.dev name (step 2) and send the new address. Then put the Worker's address at the top of `assets/js/remind.js`, in place of `REMINDERS_URL` (`window.AIM_REMIND = window.AIM_REMIND || { url: 'https://....workers.dev' };`), and publish. The page asks the Worker for its public key by itself. Until then, the Reminders page says phone notifications are not switched on yet and offers the calendar reminder.
+- **What runs where.** The Reminders page (`assets/js/remind.js`) and the service worker that shows the notifications (`sw.js`) are part of this site on GitHub Pages. The sender is the Cloudflare Worker in `reminders/`, with a small Cloudflare D1 database of the devices that turned reminders on. Every minute it sends the reminders that are due, through the push services of Google, Apple, Mozilla and Microsoft.
+- **Free limits.** Cloudflare's free plan gives a Worker 100,000 requests a day and 10 ms of CPU time per run, and D1 5 GB with 100,000 row writes a day. The Worker sends at most 10 reminders a minute (14,400 a day) and keeps at most 20,000 devices (`BATCH` and `MAX_SUBS` in `reminders/wrangler.toml`), so it stays inside them. If many learners pick the same minute, some reminders arrive a few minutes late; one that is still waiting two hours after its time is skipped rather than sent at the wrong time of day (the same after an outage). If more than about 1,200 reminders are due at the same minute (most likely at the default 7:00 pm), some are more than two hours late and are skipped. Learners at that minute take turns, so the misses are shared out rather than falling on the same learners every day. Reminders due in the two hours after that minute wait behind it, so they can come up to two hours late, and the latest of them can be skipped too. Then raise `BATCH` (at most 18): see [reminders/README.md](reminders/README.md).
+- **Deploy again.** The service runs from the new repository the button made in your GitHub account, not from `reminders/` in this repository. A change pushed to that repository deploys by itself and keeps the same database and keys. A fix made in `reminders/` here takes effect only once it is copied into that repository, which needs access to it (step 6). If that database is ever deleted, the Worker makes new keys, and learners must turn reminders off and on again.
+- **Keep `sw.js` where it is.** Never rename or delete it: Safari drops the reminders of a site whose service worker file has gone.
+- **App icons** (`assets/icons/`, used for the Home Screen and the notifications) are made by `python3 scripts/make-icons.py`.
 
 ### Preview on your own computer
 
@@ -218,7 +254,7 @@ If you have [Node.js](https://nodejs.org) installed, run this before you publish
 node scripts/check-data.js
 ```
 
-It catches broken ids, missing fields, wrong answer numbers and missing lab files. A missing comma or quote shows up as "does not load".
+It catches broken ids, missing fields, wrong answer numbers and missing lab files. A missing comma or quote shows up as "does not load". It also checks that Play mode and the reminders (`assets/js/remind.js`, `sw.js`) stay plain English and plain ES5, and that every icon in `manifest.webmanifest` is there.
 
 If you change Play mode (`assets/js/game.js`), also run these two. They check its points rules, and how its progress merges when two devices sync:
 
@@ -242,6 +278,7 @@ node scripts/check-play-sync.js
 - Fonts come from Google Fonts: Rozha One, Mukta and JetBrains Mono.
 - Labs are self-contained scripts in `assets/js/labs/`. Each one registers itself on `window.AILabs`.
 - Play mode is `assets/js/game.js` and `assets/css/game.css`. They load only when a Play page is opened, or a few seconds after the site opens for a learner who chose Play, so Learn pages are as fast as before. XP is worked out from the progress you already have, so Play adds no separate score that could drift from it.
+- Reminders are `assets/js/remind.js` (loaded only for the Reminders page, or a few seconds after the site opens in a browser where reminders are on), `sw.js` (it only shows notifications; it never caches the site), `manifest.webmanifest` (for the Home Screen) and the Worker in `reminders/`.
 
 ## Credits
 

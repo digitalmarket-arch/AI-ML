@@ -254,7 +254,7 @@
       var nx = nextInfo(cn), what = [];
       if (nx.reviews) what.push(plural(nx.reviews, 'card') + ' due');
       if (nx.fresh) what.push('up to ' + plural(nx.fresh, 'new card'));
-      return stats + '<div class="rv-done"><p><strong>All done for today.</strong> Next review: ' + (nx.day ? esc(dayLabel(nx.day)) + (what.length ? ' (' + what.join(', ') + ')' : '') : 'none planned') + '.</p></div>' + expl;
+      return stats + '<div class="rv-done"><p><strong>All done for today.</strong> Next review: ' + (nx.day ? esc(dayLabel(nx.day)) + (what.length ? ' (' + what.join(', ') + ')' : '') : 'none planned') + '. <a href="#reminders">Get a reminder tomorrow</a></p></div>' + expl;
     }
     return stats + expl + '<div class="row"><button type="button" class="btn btn-primary" data-rv="start">Start review (' + plural(n, 'card') + ')</button>' +
       '<span class="small muted">One card at a time. Each answer is saved as you go.</span></div>';

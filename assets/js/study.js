@@ -705,6 +705,12 @@
     }, function (e) { var hub = document.getElementById('study-hub'); if (hub) hub.innerHTML = '<div class="callout">' + esc(e.message) + '</div>'; });
   }
   addRoute('study', viewHub, 'study');
+  // study reminders (#reminders, assets/js/remind.js); before How to learn, which stays the last card
+  addHubCard(80, function () {
+    return '<article class="card rm-hub" aria-labelledby="rm-hub-h"><h2 class="h-sub" id="rm-hub-h">Reminders</h2>' +
+      '<p class="small muted">A gentle reminder on your phone or in your calendar, at a time you choose.</p>' +
+      '<div class="row"><a class="btn" href="#reminders">Set up reminders</a></div></article>';
+  });
   // every answer in a module quiz or level test is remembered (Mistakes notebook, Knowledge map, Mixed practice)
   on('answer', function (r) { if (r && r.q && r.q.id) recordAnswer(r.q.id, !!r.correct, r.sure || 0, r.mode === 'test' ? 'test' : 'quiz', r.picked); });
 

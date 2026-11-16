@@ -1,0 +1,17 @@
+{
+  "name": "AI Marg",
+  "short_name": "AI Marg",
+  "description": "A free AI and machine learning course for Indian learners.",
+  "lang": "en",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f4f9",
+  "theme_color": "#2d388a",
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

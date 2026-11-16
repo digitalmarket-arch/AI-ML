@@ -1676,7 +1676,7 @@
       '<section class="stack"><p class="small muted">Whole course: Level 1 (beginner) to Level 4 (advanced). Each level is a quarter of it. Inside a level, its modules count for 80%, passing its level test (70% or more) for 10% and finishing one of its projects for 10%. So a level reaches 100% only when all three are done.</p>' + D.levels.map(function (l) { return '<div class="stack-sm"><div class="row-between"><a href="#level-' + l.id + '"><strong>Level ' + l.id + ' · ' + esc(l.name) + '</strong></a><span class="num small">' + esc(levelText(l.id)) + '</span></div>' + bar(levelProgress(l.id), 'Level ' + l.id + ' progress', '', levelText(l.id)) + '</div>'; }).join('') + '</section>' +
       '<div class="two-col"><section class="stack"><h2>Quizzes and level tests</h2>' + quizTable() + '</section><aside class="stack">' +
       (cloudOn() ? '<div class="card stack-sm" id="prog-acct">' + acctCard() + '</div>' : '') +
-      plannerCard() +
+      plannerCard() + remindCard() +
       '<div class="card stack-sm"><strong>Backup</strong><div class="row"><button class="btn btn-sm" data-action="export">Copy progress</button><button class="btn btn-sm" data-action="download">Download file</button></div>' +
       '<p class="small">Restore: choose the file you downloaded, or paste a copied backup into the box and press Restore.</p>' +
       '<div class="row"><button type="button" class="btn btn-sm" data-action="import-pick">Choose backup file</button><input type="file" id="import-file" data-action="import-file" accept=".json,application/json,text/plain" class="visually-hidden" tabindex="-1" aria-hidden="true"></div>' +
@@ -2162,6 +2162,48 @@
     return '<strong>Account</strong><span class="small muted">' + txt + '</span><a class="btn btn-sm" href="#account">' + (cs.user ? 'Manage account' : cs.restoring ? 'Open account' : 'Sign in') + '</a>';
   }
   function stat(k, v) { return '<div class="stat"><div class="k">' + esc(k) + '</div><div class="v">' + esc(v) + '</div></div>'; }
+  // My progress: study reminders in this browser, read from its storage only (assets/js/remind.js keeps it)
+  function remindCard() {
+    var r = null, line = 'Off', link = 'Set up reminders';
+    try { r = JSON.parse(localStorage.getItem('aimarg.remind') || 'null'); } catch (e) {}
+    // stopped: the browser dropped them (or notifications were blocked), not switched off by the learner
+    if (r && r.on && r.stopped) { line = 'Stopped on this device'; link = 'Turn them back on'; }
+    else if (r && r.on && /^\d\d:\d\d$/.test(r.time || '')) {
+      link = 'Change reminders';
+      var h = Number(r.time.slice(0, 2)), N = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      var d = [1, 2, 3, 4, 5, 6, 0].filter(function (x) { return Array.isArray(r.days) && r.days.indexOf(x) >= 0; }).map(function (x) { return N[x]; });
+      line = 'On: ' + (h % 12 || 12) + ':' + r.time.slice(3) + (h < 12 ? ' am' : ' pm') + ', ' + (d.length === 7 || !d.length ? 'every day' : d.length === 1 ? d[0] : d.slice(0, -1).join(', ') + ' and ' + d[d.length - 1]);
+    }
+    return '<div class="card stack-sm" id="prog-remind"><strong>Reminders</strong><span class="small muted">' + esc(line) + '</span><a class="btn btn-sm" href="#reminders">' + link + '</a></div>';
+  }
+  // #reminders: the page lives in assets/js/remind.js, loaded the first time it is needed. A browser where reminders
+  // are on loads it about 3 s after any page, so it can check that they still work.
+  var remindLoad = null;
+  function loadRemind() {
+    if (window.AIM_REMINDERS) return Promise.resolve(window.AIM_REMINDERS);
+    if (!remindLoad) remindLoad = new Promise(function (resolve, reject) {
+      var sc = document.createElement('script');
+      sc.src = 'assets/js/remind.js';
+      sc.onload = function () { if (window.AIM_REMINDERS) resolve(window.AIM_REMINDERS); else { remindLoad = null; reject(new Error('The reminders page did not load. Reload the page to try again.')); } };
+      sc.onerror = function () { remindLoad = null; if (sc.parentNode) sc.parentNode.removeChild(sc); reject(new Error('The reminders page did not load. Check your connection and try again.')); };
+      document.head.appendChild(sc);
+    });
+    return remindLoad;
+  }
+  function viewReminders() {
+    if (window.AIM_REMINDERS) return window.AIM_REMINDERS.view();
+    setView('<div class="wrap stack"><p class="muted" role="status">Loading…</p></div>', 'Reminders');
+    loadRemind().then(function () { if ((location.hash || '').replace(/^#/, '') === 'reminders') route(); }, function (e) {
+      if ((location.hash || '').replace(/^#/, '') === 'reminders') setView('<div class="wrap stack"><h1>Could not load this page</h1><p class="callout">' + esc(e.message) + '</p></div>', 'Not loaded');
+    });
+  }
+  (function () {
+    var on = false;
+    try { var r = JSON.parse(localStorage.getItem('aimarg.remind') || 'null'); on = !!(r && r.on); } catch (e) {}
+    if (!on) return;
+    var later = function () { setTimeout(function () { loadRemind().then(null, function () {}); }, 3000); };
+    if (document.readyState === 'complete') later(); else window.addEventListener('load', later);
+  })();
 
   function viewNotFound() {
     setView('<div class="wrap stack"><h1>Page not found</h1><p class="muted">That link does not match anything here. <a href="#home">Go home</a> or open the <a href="#roadmap">roadmap</a>.</p></div>', 'Not found');
@@ -2177,7 +2219,8 @@
       '<li>Your name and email come from Google so you can see which account you used. No password is ever seen by this site.</li>' +
       '<li>It is stored with Google Firebase in Mumbai, India. Each account can read and write only its own copy. The site owner can see the stored data and the name and email of each account in the Firebase console, and uses them only to run this site. Nothing is sold, shared or used for ads.</li>' +
       '<li>You can delete your cloud copy below at any time. That removes your progress; to also remove your sign-in record, ask on <a href="https://github.com/digitalmarket-arch/AI-ML/issues" target="_blank" rel="noopener">GitHub</a> and give your account ID (do not post your email). It is shown on this page under More options while you are signed in, and right after you delete your cloud copy.</li>' +
-      '<li>Signing in is optional: without it, progress stays in this browser.</li></ul></section>';
+      '<li>Signing in is optional: without it, progress stays in this browser.</li>' +
+      '<li>Study reminders are not part of your account. When phone notifications are on, our reminder service keeps this device\'s notification address and your reminder settings. See <a href="#reminders">Reminders</a>.</li></ul></section>';
     if (!st.user) {
       // restoring: this browser was signed in before and the session is being brought back (or could not be yet);
       // reload: the sign-in library failed to load, and the browser only tries again after a reload
@@ -2445,6 +2488,7 @@
     else if (h === 'career' || h === 'faq') { viewCareer(); navKey = 'career'; if (h === 'faq' && !quiet) jumpTo(document.getElementById('faq-list'), true); }
     else if (h === 'progress') viewProgress();
     else if (h === 'account') { viewAccount(); navKey = 'progress'; }
+    else if (h === 'reminders') { viewReminders(); navKey = 'progress'; }
     else if (ST() && (m = ST().route(h))) navKey = m;
     else viewNotFound();
     } catch (err) { if (window.console) console.error(err); viewNotFound(); }
@@ -2505,6 +2549,7 @@
   // set before the first route(), so a study page opened directly (bookmark, reload) can draw itself
   window.AIM_APP = {
     route: route, moduleProgress: moduleProgress, watchList: watchList,
+    remindCard: remindCard, // the Reminders card on My progress (assets/js/remind.js draws it again after a change)
     // building blocks for the study features (assets/js/study*.js)
     setView: setView, crumbs: crumbs, ring: ring, bar: bar, main: main,
     onLeave: function (fn) { currentCleanup.push(fn); },

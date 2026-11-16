@@ -1,0 +1,9 @@
+# installed by npm; never commit
+node_modules/
+# wrangler's local state (local D1 database, build output)
+.wrangler/
+# local secrets for wrangler dev (the tests write test VAPID keys here)
+.dev.vars
+.dev.vars.*
+.env
+.env.*

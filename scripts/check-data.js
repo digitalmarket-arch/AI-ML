@@ -150,8 +150,9 @@ for (const m of D.modules || []) {
 const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 for (const m of html.matchAll(/<script src="([^"]+)"/g)) if (!/^https?:/.test(m[1]) && !fs.existsSync(path.join(ROOT, m[1]))) errors.push(`index.html loads missing file ${m[1]}`);
 
-// Play mode (assets/js/game.js, assets/css/game.css): its UI text is plain English only (no Devanagari), and its code
-// runs as it is in every browser, with no build step (no ES2015+ syntax). Each file is checked once it exists.
+// Play mode (assets/js/game.js, assets/css/game.css) and the study reminders (assets/js/remind.js, sw.js): their UI text
+// is plain English only (no Devanagari), and their code runs as it is in every browser, with no build step (no ES2015+
+// syntax). Each file is checked once it exists.
 // The syntax check reads only the code: comments, strings and regular expressions are left out, so words such as
 // "let" in a comment or a message never count.
 function codeOnly(src, js) {
@@ -182,16 +183,41 @@ function codeOnly(src, js) {
   }
   return out;
 }
-var ES2015 = [[/=>/, 'an arrow function (=>)'], [/`/, 'a template literal (backtick)'], [/\blet\b/, '"let"'], [/\bconst\b/, '"const"'], [/\?\.(?!\d)/, 'optional chaining (?.)']];
-['assets/js/game.js', 'assets/css/game.css'].forEach(function (f) {
+var ES2015 = [[/=>/, 'an arrow function (=>)'], [/`/, 'a template literal (backtick)'], [/\blet\b/, '"let"'], [/\bconst\b/, '"const"'], [/\?\.(?!\d)/, 'optional chaining (?.)'],
+  [/\bclass\b\s*(?:[A-Za-z_$][\w$]*\s*)?(?:extends\b[^{;]*)?\{/, 'a class']];
+['assets/js/game.js', 'assets/css/game.css', 'assets/js/remind.js', 'sw.js'].forEach(function (f) {
   var p = path.join(ROOT, f);
   if (!fs.existsSync(p)) return;
   var src = fs.readFileSync(p, 'utf8'), code = codeOnly(src, /\.js$/.test(f));
   var line = function (s, k) { return s.slice(0, k).split('\n').length; };
   var dv = /[\u0900-\u097F]/.exec(src);
-  if (dv) errors.push(f + ': Devanagari on line ' + line(src, dv.index) + ' (Play mode\'s text is plain English only)');
-  ES2015.forEach(function (x) { var m = x[0].exec(code); if (m) errors.push(f + ': ' + x[1] + ' on line ' + line(code, m.index) + ' (Play mode\'s code is ES5: there is no build step)'); });
+  var who = /game\./.test(f) ? 'Play mode\'s' : 'the reminders\'';
+  if (dv) errors.push(f + ': Devanagari on line ' + line(src, dv.index) + ' (' + who + ' text is plain English only)');
+  ES2015.forEach(function (x) { if (x[1] === 'a class' && !/\.js$/.test(f)) return; var m = x[0].exec(code); if (m) errors.push(f + ': ' + x[1] + ' on line ' + line(code, m.index) + ' (' + who + ' code is ES5: there is no build step)'); });
 });
+// files that index.html's head links (stylesheets, the manifest, the Home Screen icon) are there
+for (const m of html.matchAll(/<link\b[^>]*\bhref="([^"]+)"/g)) if (!/^(?:https?:|data:)/.test(m[1]) && !fs.existsSync(path.join(ROOT, m[1]))) errors.push(`index.html links missing file ${m[1]}`);
+// study reminders: the service worker keeps its address for good (Safari drops reminders whose worker script is gone),
+// and every icon the web app manifest lists is there, at the size it states (a relative path: the site lives under /AI-ML/)
+if (!fs.existsSync(path.join(ROOT, 'sw.js'))) errors.push('sw.js is missing: never rename or delete it (reminders stop when it is gone)');
+{
+  const mf = path.join(ROOT, 'manifest.webmanifest');
+  let man = null;
+  if (!fs.existsSync(mf)) errors.push('manifest.webmanifest is missing');
+  else try { man = JSON.parse(fs.readFileSync(mf, 'utf8')); } catch (e) { errors.push(`manifest.webmanifest is not valid JSON: ${e.message}`); }
+  if (man) {
+    if (!Array.isArray(man.icons) || !man.icons.length) errors.push('manifest.webmanifest lists no icons');
+    for (const ic of man.icons || []) {
+      const src = String((ic && ic.src) || ''), f = path.join(ROOT, src);
+      if (!src || /^(?:[a-z]+:|\/)/i.test(src)) { errors.push(`manifest.webmanifest: icon "${src}" must be a relative path`); continue; }
+      if (!fs.existsSync(f)) { errors.push(`manifest.webmanifest: icon ${src} not found`); continue; }
+      const b = fs.readFileSync(f), png = b.length > 24 && b.toString('latin1', 1, 4) === 'PNG';
+      if (!png) { errors.push(`manifest.webmanifest: icon ${src} is not a PNG`); continue; }
+      const wh = b.readUInt32BE(16) + 'x' + b.readUInt32BE(20);
+      if (ic.sizes && String(ic.sizes).split(/\s+/).indexOf(wh) < 0) errors.push(`manifest.webmanifest: icon ${src} is ${wh}, not ${ic.sizes}`);
+    }
+  }
+}
 
 const count = (x) => (Array.isArray(x) ? x.length : Object.values(x || {}).reduce((s, v) => s + v.length, 0));
 console.log(`modules ${count(D.modules)} · resources ${count(D.resources)} · questions ${count(D.quizzes)} · exercises ${count(D.exercises)} · projects ${count(D.projects)} · glossary ${count(D.glossary)}`);

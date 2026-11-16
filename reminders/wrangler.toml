@@ -1,0 +1,34 @@
+# AI Marg study reminders: a Cloudflare Worker (free plan) that sends Web Push reminders.
+# How it works and how to deploy it: README.md in this folder.
+# The database has no database_id: `wrangler deploy` (and the Deploy to Cloudflare button) creates a D1 database
+# with this name the first time, and keeps using it after that. The Worker makes its own tables and its own VAPID
+# keys (kept in that database), so there are no secrets to set and no setup step. Never set DEV here.
+name = "aimarg-reminders"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+workers_dev = true
+
+[triggers]
+crons = ["* * * * *"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "aimarg-reminders"
+
+[vars]
+ALLOWED_ORIGINS = "https://digitalmarket-arch.github.io"
+VAPID_SUBJECT = "https://digitalmarket-arch.github.io/AI-ML/"
+BATCH = "10"
+MAX_SUBS = "20000"
+
+# Logs: keep the Worker's own lines (counts per run, and errors without addresses), and no
+# per-request logs or traces, which would hold learners' IP and notification addresses. Set here
+# so it never depends on the account's defaults.
+[observability]
+enabled = true
+
+[observability.logs]
+invocation_logs = false
+
+[observability.traces]
+enabled = false
