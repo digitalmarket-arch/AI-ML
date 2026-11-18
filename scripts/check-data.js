@@ -185,18 +185,85 @@ function codeOnly(src, js) {
 }
 var ES2015 = [[/=>/, 'an arrow function (=>)'], [/`/, 'a template literal (backtick)'], [/\blet\b/, '"let"'], [/\bconst\b/, '"const"'], [/\?\.(?!\d)/, 'optional chaining (?.)'],
   [/\bclass\b\s*(?:[A-Za-z_$][\w$]*\s*)?(?:extends\b[^{;]*)?\{/, 'a class']];
-['assets/js/game.js', 'assets/css/game.css', 'assets/js/remind.js', 'sw.js'].forEach(function (f) {
+['assets/js/game.js', 'assets/css/game.css', 'assets/js/remind.js', 'sw.js', 'assets/js/watch.js', 'assets/css/watch.css'].forEach(function (f) {
   var p = path.join(ROOT, f);
   if (!fs.existsSync(p)) return;
   var src = fs.readFileSync(p, 'utf8'), code = codeOnly(src, /\.js$/.test(f));
   var line = function (s, k) { return s.slice(0, k).split('\n').length; };
   var dv = /[\u0900-\u097F]/.exec(src);
-  var who = /game\./.test(f) ? 'Play mode\'s' : 'the reminders\'';
+  var who = /game\./.test(f) ? 'Play mode\'s' : /watch\./.test(f) ? 'Watch mode\'s' : 'the reminders\'';
   if (dv) errors.push(f + ': Devanagari on line ' + line(src, dv.index) + ' (' + who + ' text is plain English only)');
   ES2015.forEach(function (x) { if (x[1] === 'a class' && !/\.js$/.test(f)) return; var m = x[0].exec(code); if (m) errors.push(f + ': ' + x[1] + ' on line ' + line(code, m.index) + ' (' + who + ' code is ES5: there is no build step)'); });
 });
 // files that index.html's head links (stylesheets, the manifest, the Home Screen icon) are there
 for (const m of html.matchAll(/<link\b[^>]*\bhref="([^"]+)"/g)) if (!/^(?:https?:|data:)/.test(m[1]) && !fs.existsSync(path.join(ROOT, m[1]))) errors.push(`index.html links missing file ${m[1]}`);
+
+// Watch mode: its video path, data/watch.js (made from the module notes and the playlists: README.md > "Watch mode").
+// Modules come in course order (each once), every step's resource exists, step kinds are v (a video), p (a lesson in
+// parts), l (part of a playlist, with its list id) or x (a course on another site, with no videos); video ids are
+// YouTube's 11 characters; each video plays once in the whole path, and every "also" video plays in an earlier step;
+// titles have no Devanagari; lengths are whole seconds (0 when not known); a video step plays a YouTube video or
+// playlist, a course on another site is not one; every module has something of its own to play. Watch mode loads the
+// path and its own code on its own pages only, so index.html never loads them (any quotes, ./, or ?version).
+for (const m of html.matchAll(/<(?:script|link)\b[^>]*?\b(?:src|href)\s*=\s*["']?(?:\.\/)?(data\/watch\.js|assets\/js\/watch\.js|assets\/css\/watch\.css)(?=[?#"'\s>])/gi)) errors.push(`index.html loads ${m[1]}: Watch mode loads it on its own pages only`);
+{
+  const f = path.join(ROOT, 'data/watch.js'), where = 'data/watch.js';
+  let w;
+  if (!fs.existsSync(f)) errors.push(`${where} is missing (Watch mode's video path)`);
+  else {
+    const sb = { window: {} }; vm.createContext(sb);
+    try { vm.runInContext(fs.readFileSync(f, 'utf8'), sb, { filename: f }); w = (sb.window.AIM || {}).watch; } catch (e) { errors.push(`${where} does not load: ${e.message}`); w = null; }
+    if (w !== null && (!w || typeof w !== 'object' || !Array.isArray(w.mods))) errors.push(`${where}: window.AIM.watch must be { v: 1, built: 'YYYY-MM-DD', mods: [...] }`);
+    else if (w) {
+      if (w.v !== 1) errors.push(`${where}: v must be 1`);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(String(w.built || ''))) errors.push(`${where}: built must be a day, YYYY-MM-DD`);
+      const order = (D.modules || []).map(m => m.id), resById = {}, VID = /^(?!constructor$)[A-Za-z0-9_-]{11}$/, played = new Set(), seenMods = new Set();
+      (D.resources || []).forEach(r => { resById[r.id] = r; });
+      let last = -1, nVids = 0;
+      w.mods.forEach((m, mi) => {
+        const at = order.indexOf(m && m.id);
+        if (at < 0) { errors.push(`${where}: mods[${mi}] is not a module of the course: ${m && m.id}`); return; }
+        if (seenMods.has(m.id)) errors.push(`${where}: module ${m.id} comes twice`);
+        else if (at < last) errors.push(`${where}: module ${m.id} is out of course order (Level 1 to Level 4, as in data/course.js)`);
+        seenMods.add(m.id); last = Math.max(last, at);
+        if (!Array.isArray(m.steps)) { errors.push(`${where}: ${m.id}: steps must be a list`); return; }
+        // something of its own to play (a video, or a course on another site): else "Watch this module" has nothing to show
+        if (!m.steps.some(s => s && (s.k === 'x' || (Array.isArray(s.vids) && s.vids.length)))) errors.push(`${where}: ${m.id} has nothing of its own to play (no videos of its own and no course on another site): give it a step, or leave the module out of the path`);
+        m.steps.forEach((s, si) => {
+          const here = `${where}: ${m.id} step ${si + 1}`, r = resById[s && s.r];
+          if (!r) { errors.push(`${here}: unknown resource ${s && s.r}`); return; }
+          if (!(r.modules || []).includes(m.id)) warnings.push(`${here}: resource ${s.r} is not listed for this module in data/resources.js`);
+          if (!['v', 'p', 'l', 'x'].includes(s.k)) { errors.push(`${here}: kind k must be "v", "p", "l" or "x"`); return; }
+          // the kind must fit the resource: Watch mode ticks the resource in Learn when its videos are watched (its YouTube
+          // ids are read from its links when they are not filled in, as app.js does with core.js ytIds)
+          const ytLink = u => /[?&]list=[A-Za-z0-9_-]{10,}/.test(u || '') || /(?:[?&]v=|youtu\.be\/|\/embed\/|\/shorts\/)[A-Za-z0-9_-]{11}/.test(u || '');
+          const yt = !!(r.videoId || r.listId || (Array.isArray(r.parts) && r.parts.length) || ytLink(r.url) || ytLink(r.firstVideoUrl));
+          if (s.k === 'x' && yt) errors.push(`${here}: resource ${s.r} is a YouTube video or playlist, so it plays here: its kind is "v", "p" or "l", not "x"`);
+          if (s.k !== 'x' && !yt) errors.push(`${here}: resource ${s.r} is not a YouTube video or playlist (a course on another site is kind "x")`);
+          if (s.k === 'x') { if (s.vids !== undefined || s.also !== undefined) errors.push(`${here}: a course on another site (k "x") has no vids or also`); return; }
+          if (s.k === 'l' && !/^[A-Za-z0-9_-]{10,}$/.test(String(s.list || ''))) errors.push(`${here}: a part of a playlist (k "l") needs its list id`);
+          const also = s.also === undefined ? [] : s.also;
+          if (!Array.isArray(s.vids) || !Array.isArray(also)) { errors.push(`${here}: vids and also must be lists`); return; }
+          if (!s.vids.length && !also.length) errors.push(`${here}: plays nothing (no vids and no also)`);
+          // also first: those videos must already play in an earlier step
+          also.forEach(id => { if (!VID.test(String(id))) errors.push(`${here}: also has a bad video id ${id}`); else if (!played.has(id)) errors.push(`${here}: also video ${id} does not play earlier in the path`); });
+          s.vids.forEach((v, vi) => {
+            if (!Array.isArray(v) || v.length !== 3) { errors.push(`${here}: vids[${vi}] must be [video id, title, seconds]`); return; }
+            if (!VID.test(String(v[0]))) errors.push(`${here}: vids[${vi}] has a bad video id ${v[0]}`);
+            else if (played.has(v[0])) errors.push(`${here}: video ${v[0]} plays twice in the path (put it in also)`);
+            else played.add(v[0]);
+            if (typeof v[1] !== 'string' || !v[1].trim()) errors.push(`${here}: vids[${vi}] needs a title`);
+            else if (/[ऀ-ॿ]/.test(v[1])) errors.push(`${here}: the title of ${v[0]} has Devanagari (titles are plain English)`);
+            if (!Number.isInteger(v[2]) || v[2] < 0) errors.push(`${here}: the length of ${v[0]} must be whole seconds (0 when not known)`);
+            nVids++;
+          });
+        });
+      });
+      for (const id of order) if (!seenMods.has(id)) warnings.push(`${where}: module ${id} has no steps in Watch mode`);
+      if (!nVids) errors.push(`${where}: the path plays no videos`);
+    }
+  }
+}
 // study reminders: the service worker keeps its address for good (Safari drops reminders whose worker script is gone),
 // and every icon the web app manifest lists is there, at the size it states (a relative path: the site lives under /AI-ML/)
 if (!fs.existsSync(path.join(ROOT, 'sw.js'))) errors.push('sw.js is missing: never rename or delete it (reminders stop when it is gone)');

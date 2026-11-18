@@ -300,9 +300,128 @@
         out.badges = badges; out.e = e;
         return out;
       }
+    },
+    // Watch mode (assets/js/watch.js), registered here like the play part, so every page merges it, even one that never
+    // opens Watch mode. v[video id] = when it was marked watched, u[video id] = when it was un-marked: the later of the
+    // two wins, as with core.js watched / unwatched (on the same time the mark wins). cur = where the learner is:
+    // { v: video id, s: seconds, t: when (ms), c: the parts of that video really played, as [from, to) seconds }, or
+    // null; the later t wins. On a course on another site, cur.x = '<module id>|<resource id>' (v is then a video next to
+    // it). p[video id] = { s, t, c }: where the learner left the other videos they played (moved away from, finished or
+    // un-marked), so coming back to one starts there and its parts played still add up; per video the later t wins, and
+    // only the newest WATCH_PLACES are kept. The cur that loses a merge is kept with the places (as watch.js keeps the
+    // place it replaces when the learner moves on), unless it is the winner itself or a course card. Fields from a
+    // newer version are kept. Every rule gives the same result in either order, and in any grouping of three copies.
+    watch: {
+      normalize: function (o) {
+        o = isObj(o) ? o : {};
+        var out = {}, v = {}, u = {};
+        Object.keys(o).forEach(function (k) { if (!BAD.test(k) && !WATCH_OWN.test(k)) out[k] = o[k]; });
+        if (isObj(o.v)) Object.keys(o.v).forEach(function (id) { var t = wStamp(o.v[id]); if (t && wId(id)) v[id] = t; });
+        if (isObj(o.u)) Object.keys(o.u).forEach(function (id) {
+          var t = wStamp(o.u[id]);
+          if (!t || !wId(id) || (own(v, id) && !(t > v[id]))) return;
+          delete v[id]; u[id] = t;
+        });
+        out.v = v; out.u = u; out.cur = wCur(o.cur); out.p = wPlaces(o.p);
+        return out;
+      },
+      merge: function (a, b) {
+        a = isObj(a) ? a : {}; b = isObj(b) ? b : {};
+        var out = {}, v = {}, u = {}, m = function (o, k) { return isObj(o[k]) ? o[k] : {}; };
+        var av = m(a, 'v'), bv = m(b, 'v'), au = m(a, 'u'), bu = m(b, 'u'), ids = {};
+        // a newer version's fields: from either copy; when both have one, the same value whichever copy comes first
+        [a, b].forEach(function (o) {
+          Object.keys(o).forEach(function (k) {
+            if (BAD.test(k) || WATCH_OWN.test(k)) return;
+            if (!own(out, k) || String(JSON.stringify(o[k])) > String(JSON.stringify(out[k]))) out[k] = o[k];
+          });
+        });
+        [av, bv, au, bu].forEach(function (o) { Object.keys(o).forEach(function (id) { if (!BAD.test(id)) ids[id] = 1; }); });
+        Object.keys(ids).forEach(function (id) {
+          var on = later(av[id], bv[id]), off = later(au[id], bu[id]);
+          if (on && !(String(off || '') > String(on))) v[id] = on; else if (off) u[id] = off;
+        });
+        out.v = v; out.u = u;
+        var x = wCur(a.cur), y = wCur(b.cur), key = function (c) { return c.v + ' ' + c.s + ' ' + JSON.stringify(c.c || []) + ' ' + (c.x || ''); };
+        out.cur = !x || !y ? x || y : y.t !== x.t ? (y.t > x.t ? y : x) : key(y) > key(x) ? y : x; // on the same time, the same pick in either order
+        // the kept places: per video the later t wins (on the same time, the same pick either way)
+        var pa = wPlaces(a.p), pb = wPlaces(b.p), p = {}, pk = function (c) { return c.s + ' ' + JSON.stringify(c.c || []); };
+        var newer = function (e, f) { return !e || !f ? e || f : f.t !== e.t ? (f.t > e.t ? f : e) : pk(f) > pk(e) ? f : e; };
+        Object.keys(pa).concat(Object.keys(pb)).forEach(function (id) { p[id] = newer(pa[id], pb[id]); });
+        // the place that loses (an older cur, say in a video the other device then moved away from) is kept with the
+        // places, as watch.js setCur does when the learner moves on: its parts played still count, and an un-mark's
+        // place without parts still beats an older one with parts. Any loser that is not the winner itself is kept
+        // (keeping only one of another video would give a different result in another grouping of three copies); a
+        // course card is not (its v is only the video next to it, at 0:00)
+        var lo = x && y ? (out.cur === x ? y : x) : null;
+        if (lo && !lo.x && (lo.t !== out.cur.t || key(lo) !== key(out.cur))) p[lo.v] = newer(p[lo.v], wPlace(lo));
+        out.p = wCap(p);
+        return out;
+      }
     }
   };
+  // the watch part's helpers: a YouTube video id (11 letters, digits, - or _), a tick's time (an ISO time; older copies
+  // may hold a day), a place { s, t, c } (null when it is not a good one), where the learner is (cur: a place of a
+  // video, and x on a course on another site), and the kept places (p: at most WATCH_PLACES, the newest; watch.js
+  // PLACES is the same number. A finished video takes a place too, so it is large: 200 places are about 10 KB)
+  var WATCH_OWN = /^(?:v|u|cur|p)$/, WATCH_X = /^[A-Za-z0-9_-]{1,80}\|[A-Za-z0-9_.-]{1,120}$/, WATCH_PLACES = 200;
+  function wId(id) { return /^[A-Za-z0-9_-]{11}$/.test(id) && !BAD.test(id); }
+  function wStamp(t) { return typeof t === 'string' && t.length <= 40 && /^\d{4}-\d{2}-\d{2}/.test(t) ? t : ''; }
+  function wPlace(c) {
+    if (!isObj(c)) return null;
+    var t = Number(c.t), s = Number(c.s);
+    // (t below 1 is refused before it is rounded down: kept as 0, the next normalize would drop it)
+    if (!isFinite(t) || t < 1 || !isFinite(s) || s < 0) return null;
+    var out = { s: Math.floor(Math.min(s, 1e6)), t: Math.floor(Math.min(t, 864e13)) }, sp = C.spans ? C.spans(c.c, 100) : [];
+    if (sp.length) out.c = sp;
+    return out;
+  }
+  function wCur(c) {
+    var pl = isObj(c) && wId(String(c.v)) ? wPlace(c) : null;
+    if (!pl) return null;
+    var out = { v: String(c.v), s: pl.s, t: pl.t };
+    if (pl.c) out.c = pl.c;
+    if (typeof c.x === 'string' && WATCH_X.test(c.x)) out.x = c.x;
+    return out;
+  }
+  function wPlaces(o) {
+    var out = {};
+    if (isObj(o)) Object.keys(o).forEach(function (id) { var pl = wId(id) ? wPlace(o[id]) : null; if (pl) out[id] = pl; });
+    return wCap(out);
+  }
+  // the newest WATCH_PLACES places (on the same time, the smaller video id first), so every copy keeps the same ones
+  function wCap(o) {
+    var ks = Object.keys(o), out = {};
+    if (ks.length <= WATCH_PLACES) return o;
+    ks.sort(function (a, b) { return o[b].t - o[a].t || (a < b ? -1 : a > b ? 1 : 0); });
+    ks.slice(0, WATCH_PLACES).forEach(function (k) { out[k] = o[k]; });
+    return out;
+  }
   Object.keys(PARTS).forEach(function (k) { C.registerPart(k, PARTS[k]); });
+  // A second copy of the Watch mode part, under its own key, which pages from before Watch mode never write. Why: such
+  // a page (a tab left open from before the site was updated) does not know the watch part, so it keeps the first copy
+  // of it that it ever read, and writes that old copy back with every save (and to the account copy when signed in),
+  // over newer Watch progress made in another tab. So every save here also writes the part to WATCH_COPY, and a page
+  // that loads merges it back in (the newer of each mark and place wins, as always). The copy also keeps core.js's
+  // reset and restore signal ('aimarg.sync', which older pages write too) as it was when the copy was written, as
+  // game.js does for the play part. After a Reset all progress, a sign-out that removes the progress from this device,
+  // or a Restore from file, in any tab, the signal is another one: the copy is then never merged again, and it is
+  // removed (it can hold the progress of someone who has left this device). It is left out too when the saved
+  // progress has no watch part at all. This runs while the page loads, before cloud.js's first sync (after the page's
+  // load event). The copy cannot tell whose progress it holds, so an older page's own Reset or Restore (signed in,
+  // after that page's sync wrote its old part to the account) can lose Watch progress made in newer tabs since it
+  // opened: a rare case, accepted (README says so).
+  var WATCH_COPY = 'aimarg.watch.part';
+  (function () {
+    var ls = function () { return window.localStorage; }, main = null, copy = null, sig = null;
+    try { main = JSON.parse(ls().getItem('aimarg.progress.v1') || 'null'); copy = JSON.parse(ls().getItem(WATCH_COPY) || 'null'); sig = ls().getItem('aimarg.sync'); } catch (e) {}
+    var fresh = isObj(copy) && copy.sync === sig; // written after the last reset or restore
+    if (fresh && isObj(main) && own(main, 'watch')) C.state.watch = PARTS.watch.merge(C.state.watch, PARTS.watch.normalize(copy.watch));
+    else if (copy !== null && !fresh) { try { ls().removeItem(WATCH_COPY); } catch (e) {} } // from before a reset or restore, or damaged
+    C.onSave(function (s) {
+      try { if (isObj(s.watch)) ls().setItem(WATCH_COPY, JSON.stringify({ sync: ls().getItem('aimarg.sync'), watch: s.watch })); else ls().removeItem(WATCH_COPY); } catch (e) {}
+    });
+  })();
 
   /* ---------- review log helpers ---------- */
   function reviewLog(d) { var e = S().rlog[d] || {}; return [devSum(e, 0), devSum(e, 1)]; } // [reviewed, remembered] on day d, all devices
@@ -484,9 +603,11 @@
   // feature scripts are loaded when first needed; events and routes wait for them
   var FEAT = { review: 'study-review', reflect: 'study-reflect', focus: 'study-focus', practice: 'study-practice', mastery: 'study-mastery', methods: 'study-methods' };
   FEAT.play = 'game'; // Play mode, the game-style way through the same course (assets/js/game.js)
+  FEAT.watch = 'watch'; // Watch mode, every recommended video one after another (assets/js/watch.js)
   var EVENT_FEAT = { overview: ['reflect', 'review'], 'card-read': ['reflect', 'review'], watch: ['reflect'], watched: ['reflect'], home: ['mastery'], progress: ['mastery'], hub: [] };
   var ROUTE_FEAT = [[/^review(?:~.*)?$/, 'review'], [/^(?:focus|journal)(?:~.*)?$/, 'focus'], [/^(?:mixed|mistakes)(?:~.*)?$/, 'practice'], [/^mastery(?:~.*)?$/, 'mastery'], [/^methods(?:~.*)?$/, 'methods']];
   ROUTE_FEAT.push([/^play(?:[-~].*)?$/, 'play']); // #play, #play-<module>, #play-<module>~<round>...; never #playground
+  ROUTE_FEAT.push([/^watch(?:-.*)?$/, 'watch']); // #watch, #watch-<module>; never a module page's #m-<module>~watch tab
   var ready = {}, loadedFeat = {}; // ready: loading started (a promise); loadedFeat: the script has run
   function need(names) {
     return Promise.all((names || []).map(function (n) {
@@ -495,8 +616,9 @@
       return ready[n];
     }));
   }
-  // the Study room shows a card from every study feature; Play mode is not one, and its code loads only on its own pages
-  function needAll() { return need(Object.keys(FEAT).filter(function (n) { return n !== 'play'; })); }
+  // the Study room shows a card from every study feature; Play mode and Watch mode are not ones, and their code loads
+  // only on their own pages
+  function needAll() { return need(Object.keys(FEAT).filter(function (n) { return n !== 'play' && n !== 'watch'; })); }
   var subs = {};
   function on(ev, fn) {
     var cs = document.currentScript, owner = cs && cs.getAttribute('data-feature');
@@ -523,12 +645,18 @@
     }
     for (var j = 0; j < ROUTE_FEAT.length; j++) {
       if (!ROUTE_FEAT[j][0].test(h) || loadedFeat[ROUTE_FEAT[j][1]]) continue;
-      var A = app();
+      var A = app(), f = ROUTE_FEAT[j][1], name = f === 'play' ? 'Play mode' : f === 'watch' ? 'Watch mode' : '';
       A.setView('<div class="wrap stack"><p class="muted" role="status">Loading…</p></div>', 'Loading');
-      need([ROUTE_FEAT[j][1]]).then(function () {
+      need([f]).then(function () {
         if ((location.hash || '').replace(/^#/, '') === h) A.route();
-      }, function (e) { A.setView('<div class="wrap stack"><h1>Could not load this page</h1><p class="callout">' + esc(e.message) + '</p></div>', 'Not loaded'); });
-      return ROUTE_FEAT[j][1] === 'play' ? 'play' : 'study'; // the menu marks the page being loaded
+      }, function (e) {
+        if ((location.hash || '').replace(/^#/, '') !== h) return; // the learner has gone on to another page meanwhile
+        // say which page did not load (Play mode and Watch mode are not study tools), and offer to try again
+        A.setView('<div class="wrap stack"><h1>Could not load this page</h1>' +
+          '<p class="callout">' + (name ? name + ' did not load. Check your connection and try again.' : esc(e.message)) + '</p>' +
+          '<div class="row"><button type="button" class="btn btn-primary" data-study-retry>Try again</button><a class="btn" href="#home">Home</a></div></div>', 'Not loaded');
+      });
+      return f === 'play' || f === 'watch' ? f : 'study'; // the menu marks the page being loaded
     }
     return null;
   }
@@ -681,6 +809,8 @@
       out.innerHTML = '<p class="small pub-bad" role="alert">' + esc(e.message) + '</p>';
     }).then(function () { out.tabIndex = -1; try { out.focus({ preventScroll: true }); } catch (e) {} });
   });
+  // Try again, on a page whose script did not load (see route)
+  document.addEventListener('click', function (ev) { var b = ev.target.closest && ev.target.closest('[data-study-retry]'); if (b && app()) app().route(); });
   if (window.AIM_CLOUD && window.AIM_CLOUD.on) window.AIM_CLOUD.on(function () { refreshAI(); emit('signin'); });
   window.addEventListener('aim:progress-replaced', function () { enrollTicked(); });
   // Reset all progress also forgets what Play mode keeps in this browser: the XP last seen, the way back to Play and
@@ -738,6 +868,13 @@
     var nav = document.getElementById('site-nav'); if (!nav || nav.querySelector('a[href="#play"]')) return;
     var a = document.createElement('a'); a.href = '#play'; a.className = 'nav-play'; a.textContent = 'Play mode';
     var after = nav.querySelector('a[href="#study"]');
+    if (after && after.nextSibling) nav.insertBefore(a, after.nextSibling); else nav.appendChild(a);
+  })();
+  // the Watch mode link, right after Play mode, and like it in the drop-down menu only (study.css)
+  (function () {
+    var nav = document.getElementById('site-nav'); if (!nav || nav.querySelector('a[href="#watch"]')) return;
+    var a = document.createElement('a'); a.href = '#watch'; a.className = 'nav-watch'; a.textContent = 'Watch mode';
+    var after = nav.querySelector('a[href="#play"]') || nav.querySelector('a[href="#study"]');
     if (after && after.nextSibling) nav.insertBefore(a, after.nextSibling); else nav.appendChild(a);
   })();
   // a learner who chose Play mode on this device gets its code a little after the page has loaded, so #play opens at once

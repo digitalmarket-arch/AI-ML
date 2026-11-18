@@ -560,6 +560,9 @@
     var alive = true, player = null, timer = null, slow = null, note = null, completed = false, played = false, reportedAt = 0;
     var parts = partsOf(r), isList = !!(r.listId || parts);
     var saved = (hooks.getPos && hooks.getPos()) || null;
+    // a place saved while the lesson was one video (no n: a lesson in parts saves how many parts it has) is not a place
+    // in its parts (its first part can be another video), so it starts at Part 1
+    if (parts && saved && !saved.n) saved = null;
     // seen.c: the seconds of video seen.i really watched; seen.v: the playlist videos watched; last: the previous reading
     var seen = { i: saved ? saved.i || 0 : 0, c: spans(saved && saved.c, 100), v: spans(saved && saved.v, 400) }, last = null;
     var wasDone = !!(hooks.isDone && hooks.isDone());
@@ -866,6 +869,7 @@
     esc: esc, inline: inline, md: md, toast: toast, pct: pct,
     LANG_LABEL: LANG_LABEL, langChip: langChip, langRank: langRank,
     ytIds: ytIds, embedSrc: embedSrc, canEmbed: canEmbed, playerHTML: playerHTML, play: play, ensureYT: ensureYT,
+    spans: spans, spanLen: spanLen, // the parts of a video really watched (Watch mode counts a video with the same rule)
     Quiz: Quiz
   };
 })();

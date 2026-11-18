@@ -369,6 +369,17 @@
     }
     C.setWatched(k, false);
   }
+  // Watch mode (assets/js/watch.js): the same tick as "I finished this" on module mid's page (per module for a shared
+  // playlist). Watch mode ticks a resource once every one of its videos there is watched (not a course whose only video
+  // there is its YouTube intro, r.intro: the learner ticks that one), and un-ticks only a course on another site, when
+  // the learner un-ticks it there. Returns true when the tick changed; the caller saves.
+  function tickRes(mid, rid, on) {
+    var r = resById[rid];
+    if (!r || !modById[mid] || (r.modules || []).indexOf(mid) < 0 || isTicked(mid, r) === !!on) return false;
+    setTick(mid, rid, !!on);
+    if (on) C.logActivity();
+    return true;
+  }
   // a saved place's key -> { r, mid } (mid: the module page it belongs to, or null for the Library)
   function placeOf(k) {
     var st = S(), cut = k.indexOf('|'), r = resById[cut > 0 ? k.slice(cut + 1) : k];
@@ -421,6 +432,7 @@
     var p = S().pos[tickKey(mid, r)];
     if (!p || isTicked(mid, r)) return '';
     if ((r.listId || r.parts) && p.n) return p.i > 0 || p.s > 5 ? (r.parts ? 'Part ' : 'Video ') + Math.min(p.i + 1, p.n) + ' of ' + p.n : '';
+    if (r.parts && r.parts.length > 1) return ''; // saved when the lesson was one video: not a place in its parts (core.js play starts at Part 1)
     return p.s > 5 ? 'Stopped at ' + fmtTime(p.s) : '';
   }
   function posChip(r, mid) { var t = posText(r, mid); return '<span class="chip chip-pos num" data-pos="' + esc(tickKey(mid, r)) + '"' + (t ? '' : ' hidden') + '>' + esc(t) + '</span>'; }
@@ -716,6 +728,8 @@
     var nQ = Object.keys(D.quizzes).reduce(function (s, k) { return s + D.quizzes[k].length; }, 0);
     // Play mode (study features on): a learner who chose it on this device sees Continue playing first
     var play = !!ST(), playing = play && !!(st.prefs.play && st.prefs.play.start === 'play');
+    // Watch mode (study features on, assets/js/watch.js): Continue watching once there is a place to come back to
+    var watching = play && !!(st.watch && st.watch.cur && st.watch.cur.v);
     var html = '<div class="wrap stack-lg">' +
       '<section class="hero"><div class="stack">' +
       '<span class="eyebrow">Free AI & ML course · Videos in Hindi, Hinglish & Indian English</span>' +
@@ -723,8 +737,12 @@
       '<p class="lede">A guided path through the best free videos from Indian teachers first, in Hindi, Hinglish and Indian English, with interactive labs, Python you can run in the browser, tests and tough projects. No fees, and no sign-up needed.</p>' +
       '<div class="row">' + (playing ? '<a class="btn btn-primary" href="#play">Continue playing</a>' : '') + '<a class="btn' + (playing ? '' : ' btn-primary') + '" href="#start">Start here</a>' +
       (last ? '<a class="btn" href="#m-' + esc(last.id) + '">Continue: ' + esc(last.title) + '</a>' : '<a class="btn" href="#level-1">Open Level 1</a>') +
-      (play && !playing ? '<a class="btn" href="#play">Play mode</a>' : '') + '</div>' +
+      (play && !playing ? '<a class="btn" href="#play">Play mode</a>' : '') +
+      // (Continue watching: named for screen readers, as the progress card below has a Continue watching of Learn's own,
+      // and hidden like that one in distraction-free focus mode)
+      (play ? (watching ? '<a class="btn fc-hide-cw" href="#watch" aria-label="Continue watching in Watch mode">Continue watching</a>' : '<a class="btn" href="#watch">Watch mode</a>') : '') + '</div>' +
       (play && !playing ? '<p class="small muted">New: learn the same course as a game. Earn points, stamps and badges as you go.</p>' : '') +
+      (play && !watching ? '<p class="small muted">Or just watch: Watch mode plays every recommended video, from beginner to advanced, one after another.</p>' : '') +
       (courseRaw() > 0 ? courseProgHTML() : '') +
       '</div>' + stations() + '</section>' +
       (ST() ? '<div id="study-today"></div>' : '') +
@@ -871,7 +889,7 @@
     var prev = all[gi - 1], next = all[gi + 1];
     var html = '<div class="wrap stack">' + crumbs([['Home', 'home'], ['Level ' + m.level + ' ' + (l ? l.name : ''), 'level-' + m.level], ['Module ' + modNo(m)]]) +
       '<header class="row-between"><div class="stack-sm"><span class="eyebrow">Module ' + modNo(m) + (m.hours ? ' · about ' + m.hours + ' hours' : '') + '</span><h1>' + esc(m.title) + '</h1></div>' +
-      (ST() ? '<a class="btn btn-sm" href="#play-' + esc(m.id) + '">Play this module</a>' : '') + '</header>' +
+      (ST() ? '<div class="row"><a class="btn btn-sm" href="#play-' + esc(m.id) + '">Play this module</a><a class="btn btn-sm" href="#watch-' + esc(m.id) + '">Watch this module</a></div>' : '') + '</header>' +
       progStripHTML(['This module', moduleProgress(m), moduleProgress(m) + '%']) +
       '<div class="tabs" role="tablist" aria-label="Module sections">' + tabs.map(function (t) { return '<button role="tab" type="button" id="tab-' + t[0] + '" aria-controls="tabpanel" data-tab="' + t[0] + '" aria-selected="' + (t[0] === tab) + '" tabindex="' + (t[0] === tab ? '0' : '-1') + '">' + (t[2] ? '<span class="t-long">' + esc(t[1]) + '</span><span class="t-short">' + esc(t[2]) + '</span>' : esc(t[1])) + '</button>'; }).join('') + '</div>' +
       '<div class="two-col' + (tab === 'lab' ? ' full' : '') + '" id="mod-cols"><div class="tab-panel" id="tabpanel" role="tabpanel" aria-labelledby="tab-' + tab + '"></div><aside class="stack"><div class="stack" id="mod-side" data-mod="' + esc(m.id) + '">' + moduleSide(m) + '</div>' +
@@ -2559,7 +2577,9 @@
     cardBodies: cardBodies, readCardHTML: readCardHTML, placeFigures: placeFigures, placeExamples: placeExamples, recordQuiz: recordQuiz,
     setRead: setRead, ensureExamples: ensureExamples, testRunner: testRunner,
     moduleParts: moduleParts, levelProgress: levelProgress, overallProgress: overallProgress, refreshSide: refreshSide,
-    isTicked: isTicked, tickKey: tickKey, isShared: isShared, isRecommended: isRecommended
+    isTicked: isTicked, tickKey: tickKey, isShared: isShared, isRecommended: isRecommended,
+    // Watch mode (assets/js/watch.js): Learn's tick of a resource, and a day's study activity from real playback
+    tickRes: tickRes, watchedToday: watchedToday
   };  applyTheme();
   curKey = entryKey().k;
   route();

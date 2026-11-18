@@ -555,8 +555,9 @@ a.mt-stat:hover .k { text-decoration: underline; }
 }
 
 /* ===== Play mode: the small parts on every page (the game itself is styled by game.css, loaded with it) ===== */
-/* the Play mode menu link shows in the drop-down menu only: the wide header row (1220px and up) is already full */
-@media (min-width: 1220px) { .nav .nav-play { display: none; } }
+/* the Play mode and Watch mode menu links show in the drop-down menu only: the wide header row (1220px and up) is
+   already full */
+@media (min-width: 1220px) { .nav .nav-play, .nav .nav-watch { display: none; } }
 /* Back to Play: the first thing on a Learn page opened from Play mode (app.js setView), flush under the header */
 .play-back { margin: -28px 0 20px; background: var(--indigo-soft); border-bottom: 1px solid var(--line); }
 .play-back-in { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 48px; padding-block: 2px; }

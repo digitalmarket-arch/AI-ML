@@ -611,9 +611,9 @@ window.AIM.resources = [
   "id": "3blue1brown-grant-sanderson-large-language-models-explai",
   "title": "Large Language Models explained briefly",
   "creator": "3Blue1Brown (Grant Sanderson)",
-  "platform": "Website",
+  "platform": "YouTube",
   "type": "video",
-  "url": "https://www.3blue1brown.com/lessons/mini-llm/",
+  "url": "https://www.youtube.com/watch?v=LPZh9BOjkQs",
   "firstVideoUrl": "",
   "language": "english",
   "level": "beginner",
@@ -627,13 +627,13 @@ window.AIM.resources = [
    "transformers and attention (intuition)"
   ],
   "approxHours": 0.2,
-  "cost": "Free",
+  "cost": "Free on YouTube",
   "why": "A short, beautifully animated explainer, originally made for a Computer History Museum exhibit. It gives a non-coder an accurate mental model of how ChatGPT-style models work.",
-  "caveats": "Very short, so use it as a hook, not the whole lesson.",
+  "caveats": "Very short, so use it as a hook, not the whole lesson. The same video, with a written version, is on 3Blue1Brown's site: https://www.3blue1brown.com/lessons/mini-llm/.",
   "year": 2024,
   "status": "verified",
   "listId": "",
-  "videoId": ""
+  "videoId": "LPZh9BOjkQs"
  },
  {
   "id": "google-creative-lab-teachable-machine-train-your-own-ai-",
@@ -7105,12 +7105,12 @@ window.AIM.resources = [
  },
  {
   "id": "digitalsreeni-unet-image-segmentation-part1",
-  "title": "Image Segmentation using U-Net (Part 1: What is U-net? and following parts)",
+  "title": "Image Segmentation using U-Net (Parts 1 to 6)",
   "creator": "DigitalSreeni (Dr. Sreenivas Bhattiprolu)",
   "platform": "YouTube",
   "type": "video",
-  "url": "https://www.youtube.com/watch?v=68HR_eyzk00",
-  "firstVideoUrl": "https://www.youtube.com/watch?v=68HR_eyzk00",
+  "url": "https://www.youtube.com/watch?v=azM57JuQpQI",
+  "firstVideoUrl": "",
   "language": "indian-english",
   "level": "intermediate",
   "modules": [
@@ -7121,14 +7121,22 @@ window.AIM.resources = [
    "encoder-decoder architecture",
    "training a segmentation model in Keras"
   ],
-  "approxHours": 0,
+  "approxHours": 1.8,
   "cost": "free",
   "why": "A slow, clear Indian-English explanation of U-Net followed by a numbered multi-part code-along (Parts 1 to 6), which fills the segmentation gap that the Hindi resources leave.",
-  "caveats": "Keras/TensorFlow, recorded several years ago, with microscopy-style example images. The search snippet did not name the channel; DigitalSreeni is inferred from the numbered-title style shared with his 'Tutorial 118/119 U-Net' and '228 - ... U-net' videos and the bnsreenu/python_for_microscopists GitHub repo (README by Dr. Sreenivas Bhattiprolu). Year and total length not confirmed.",
+  "caveats": "Six videos: Play here plays Part 1 to Part 6 in order, and ticks this only when you have watched all six. On YouTube they are videos 73 to 78 of DigitalSreeni's 'Python tutorials from basics to deep learning (with code)' playlist. Keras/TensorFlow, recorded several years ago, with microscopy-style example images.",
   "year": 0,
   "status": "verified",
   "listId": "",
-  "videoId": "68HR_eyzk00"
+  "videoId": "azM57JuQpQI",
+  "parts": [
+   "azM57JuQpQI",
+   "68HR_eyzk00",
+   "sb0uglcqO2Y",
+   "0kiroPnV1tM",
+   "cUHPL_dk17E",
+   "RaswBvMnFxk"
+  ]
  },
  {
   "id": "prof-vineeth-n-balasubramanian-iit-hyderabad-nptel-nptel",
@@ -8373,7 +8381,7 @@ window.AIM.resources = [
  },
  {
   "id": "3blue1brown-grant-sanderson-but-what-is-a-gpt-visual-int",
-  "title": "But what is a GPT? Visual intro to transformers (3Blue1Brown Deep Learning chapter 5)",
+  "title": "But what is a GPT? and Attention in transformers (3Blue1Brown Deep Learning chapters 5 and 6)",
   "creator": "3Blue1Brown (Grant Sanderson)",
   "platform": "YouTube",
   "type": "video",
@@ -8392,14 +8400,18 @@ window.AIM.resources = [
    "softmax and temperature",
    "how data flows through a transformer"
   ],
-  "approxHours": 0.5,
+  "approxHours": 0.9,
   "cost": "Free on YouTube",
-  "why": "The best visual explanation of what a GPT actually computes, with no code needed, so it suits a non-coder. The next chapter, on attention, continues it.",
-  "caveats": "Concepts only, no code. Find the follow-up chapters in 3Blue1Brown's 'Neural networks' playlist: https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi.",
+  "why": "The best visual explanation of what a GPT actually computes, with no code needed, so it suits a non-coder. Chapter 6, on attention, continues it.",
+  "caveats": "Two videos: Play here plays chapter 5, then chapter 6 on attention, and ticks this only when you have watched both. Concepts only, no code. The later chapters are in 3Blue1Brown's 'Neural networks' playlist: https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi.",
   "year": 2024,
   "status": "verified",
   "listId": "",
-  "videoId": "wjZofJX0v4M"
+  "videoId": "wjZofJX0v4M",
+  "parts": [
+   "wjZofJX0v4M",
+   "eMlx5fFNoYc"
+  ]
  },
  {
   "id": "deeplearning-ai-jay-alammar-maarten-grootendorst-how-tra",

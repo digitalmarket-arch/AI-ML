@@ -242,8 +242,8 @@
       throw new Error('write ' + r.status);
     });
   }
-  // what a sync would send, leaving out where videos were stopped
-  function sig(s) { try { return JSON.stringify(s, function (k, v) { return this === s && (k === 'pos' || k === 'posOff') ? undefined : v; }); } catch (e) { return ''; } }
+  // what a sync would send, leaving out where videos were stopped (Learn's places, and Watch mode's watch.cur and watch.p)
+  function sig(s) { try { return JSON.stringify(s, function (k, v) { return (this === s && (k === 'pos' || k === 'posOff')) || ((k === 'cur' || k === 'p') && !!s && this === s.watch) ? undefined : v; }); } catch (e) { return ''; } }
   // copy merged progress into the live progress object, so open pages and labs that hold parts of it keep working
   function assign(dst, src) {
     Object.keys(dst).forEach(function (k) { if (!Object.prototype.hasOwnProperty.call(src, k)) delete dst[k]; });

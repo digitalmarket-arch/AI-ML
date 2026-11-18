@@ -15,6 +15,7 @@ The site is interactive:
 - **Listen (read aloud) everywhere.** A Listen button on every lesson card, page section, key term, glossary term and quiz question, and a speaker button at the top that reads any page from where you are. It uses the voices already on your phone or computer (an Indian English voice when there is one, and a Hindi voice for the Hindi words), so it is free and works offline on most phones. A small player lets you pause, skip, change speed and pick a voice; the paragraph being read is highlighted.
 - **A Study room built on research-backed learning methods and Vedic study practices:** Daily review (spaced repetition, Smaraṇa), recall and Why? checks on lesson cards, a Reflect tab per module (Feynman box, Manana questions, Japa rounds, Nididhyāsana), Śravaṇa listening cues and summaries, focus sessions (Dhāraṇā, with an optional Dhyāna breath and a Vairāgya distraction-free mode), a Svādhyāya journal, mixed practice with confidence ratings, a mistakes notebook, a knowledge map with next steps, and a **How to learn** page that explains all 40 methods and how strong the evidence is for each.
 - **Play mode: the same course as a game.** A second way to learn the same lessons, as short rounds on a road trip called *The AI Road*, with points, stamps and badges. Open it with the **Play mode** button on Home, the **Play this module** button on any module page, or the **Menu** on phones and tablets. See [Play mode](#play-mode) below.
+- **Watch mode: just watch.** A third way: every video the module notes recommend, from Level 1 (beginner) to Level 4 (advanced), one after another in one player. Press play once, and the next video starts by itself. Open it with the **Watch mode** button on Home (**Continue watching** once you have started), the **Watch this module** button on any module page, or the **Menu** on phones and tablets. See [Watch mode](#watch-mode) below.
 - **Reminders:** a gentle study reminder at a time you choose, as a notification on your phone (Android, or iPhone and iPad from the Home Screen) or in your calendar. See [Reminders](#reminders) below.
 - **Progress tracking, notes, a study planner and a jargon glossary** in plain English. Everything is saved in your own browser, with optional Google sign-in to back up and sync progress across devices: press **Sign in** at the top right (on phones also in the **Menu**). The first Google sign-in creates your free account, so there is no separate sign-up form or password. To sign out, tap the round letter at the top right and press **Sign out**. No ads and no tracking. If you turn on phone reminders, our reminder service keeps your device's notification address, your reminder settings (time, days, time zone, which page to open, whether to skip days you studied, and the last day you studied, as that browser knows it), when it last tried to send you a reminder or skipped one because you had studied, when the next one is due, when you turned reminders on and last saved them, and how many sends failed and tests you sent; **Turn off** deletes them. To stop misuse it also counts requests by a code made from your internet address, deleted within a few hours.
 
@@ -50,6 +51,36 @@ Play mode shows the same course as a road trip called **The AI Road**. The lesso
   Ranks and badges never go down.
 - **Kind by design.** There are no lives, no leaderboards, no timers unless you switch one on, and no messages about losing anything. Missing a day costs nothing. **Calm mode** turns off all motion, and it is on by itself when your phone or computer is set to reduce motion.
 - **One progress.** Anything you do in Play counts in Learn, and the other way round. When you sign in, it syncs between devices like the rest of your progress. Learn pages opened from Play (a lab, a video, a project) show a **Back to Play** bar.
+
+## Watch mode
+
+Watch mode is for learners who only want to watch. It plays every video that the module notes recommend, from Level 1 (beginner) to Level 4 (advanced), one after another: press play once, and when a video ends the next one starts by itself. There is nothing else to do: no reading, quizzes or labs.
+
+- **The page.** How many videos you have watched and about how many hours are left; the player, with **Previous**, **Next**, **Mark as watched**, **Open on YouTube** and an **Autoplay** switch; and every video of the course, level by level. Open a module to see its videos and play any of them.
+- **How long it is.** 1,345 videos, about 738 hours, because it plays every course a module recommends, not only its main pick (the Python module alone has four full Python courses). Press **Next** to skip a video you do not need: it stays unwatched in the list, and you can come back to it.
+- **The end of a video.** With Autoplay on, the next video starts after 5 seconds (**Cancel** stops it). With Autoplay off, press **Play next**.
+- **Courses on other sites** (Coursera, NPTEL, Kaggle and others, and two whole YouTube channels) cannot play here. When the path reaches one, the player shows a card with what the course costs (for Coursera, how to join for free): open the course in a new tab, and tick **I finished this** when you are done, or **Skip for now**. Autoplay stops there.
+- **A video that cannot play here** (its owner allows YouTube only, or it was removed): the player says so, with **Open on YouTube** and **Skip to next**. With Autoplay on, once you are watching, it skips after 8 seconds (**Cancel** stops it, and so does **Open on YouTube**: watch it there, then press **Mark as watched**). If its owner allows YouTube only, the list then marks it "plays on YouTube only" on this device.
+- **How it counts.** A video counts as watched when most of it (80%) was really played here (skipping ahead does not count, the same rule as Learn's player), or when you press **Mark as watched** (press it again to undo). It also counts when the video's course is ticked in Learn for that module. When every video of a course in a module is watched, Watch mode ticks that course in Learn for you, the same tick as **I finished this** on the module page. A course on its own site that plays here only through one YouTube video, such as its set-up video, is never ticked for you: tick it yourself when you finish the course, as in Learn. Watch mode never un-ticks Learn by itself.
+- **Your place.** Watch mode remembers the video you were on and the second you stopped at, so it carries on from there. It also remembers where you stopped in the last 200 videos you played: go back to one (**Previous**, or **Play** in the list) and it starts there, and what you watched of it before still counts. If you watch the same video on two devices before they sync, Watch mode keeps the place from the device where you watched it last, and only the parts watched there count: if you did finish the video, press **Mark as watched**. Just opening a module's videos (**Watch this module**) does not move your place until you play something there. A few minutes of watching count as a study day, like Learn's player. Missing a day costs nothing.
+- **One progress.** What you watch is saved with the rest of your progress, and syncs between devices when you sign in. Autoplay, the speed you chose in the player, and the "plays on YouTube only" marks stay on each device.
+
+### The video path: `data/watch.js`
+
+The path was made once, by a script, from the module notes and the YouTube playlists, and is kept in `data/watch.js`. For each module, a curator read every recommended video and playlist and the module's note about it, and picked exactly the videos the note recommends, in the module's order, leaving out trailers and announcements; a second reviewer then checked every pick against the note. A playlist that several modules use is split by topic, so each module plays its own part. Each video plays once in the whole path: a video that an earlier module already plays is listed as "also" (it still counts for its course in the later module). Courses on other sites come at the end of their module. The path made on 17 November 2026 has 1,345 videos (about 738 hours) in 27 modules, plus 45 stops at courses on other sites (36 different courses: a few come back in later modules). The video lengths come from the playlists' public pages on YouTube and from YouTube's own player.
+
+```js
+window.AIM.watch = { v: 1, built: '2026-11-17', mods: [            // modules in course order, Level 1 to 4
+  { id: 'l1-ai-basics', steps: [                                    // a module id from data/course.js
+    { r: '<resource id>', k: 'v', vids: [['<video id>', 'Title', 600]] },            // one video
+    { r: '<resource id>', k: 'l', list: '<playlist id>', vids: [[...], [...]], also: ['<video id>'] }, // part of a playlist
+    { r: '<resource id>', k: 'p', vids: [[...], [...]] },           // one lesson in a few parts
+    { r: '<resource id>', k: 'x' }                                  // a course on another site (no videos)
+  ] }
+] };
+```
+
+`r` is a resource in `data/resources.js`; each video is `[YouTube video id, title, length in seconds]` (0 when the length is not known: the page then guesses it from the average, and says "about"). `node scripts/check-data.js` checks the file: modules in course order, resources that exist, the step kinds (a video step must be a YouTube video or playlist, and a course on another site must not be one), 11-character video ids, no video twice, every "also" video played earlier, something of its own to play in every module, and no Devanagari in titles. A small fix by hand (for example, taking out a video that was removed from YouTube) is fine if it keeps this format; run the check after it.
 
 ## Reminders
 
@@ -180,6 +211,7 @@ All content lives in the `data/` folder as JavaScript files that hold JSON (a si
 | `data/projects.js` | Projects and capstones |
 | `data/glossary.js` | Jargon buster |
 | `data/pages.js` | "Start here", career guide, FAQ and sources |
+| `data/watch.js` | Watch mode's video path: every recommended video, module by module, in the order it plays. It was made once from the module notes and the playlists; edit it by hand (format under [Watch mode](#the-video-path-datawatchjs)) |
 
 ### Add a video or course
 
@@ -203,6 +235,8 @@ Copy an existing entry in `data/resources.js` and change the values:
  // "parts": ["videoId1", "videoId2"]  // optional: one resource in a few separate videos; plays them in order and ticks after all
 }
 ```
+
+Watch mode does not pick up a new video by itself. To play it there too, add a step for it to its module in `data/watch.js` (the format is under [The video path](#the-video-path-datawatchjs)), then run `node scripts/check-data.js`.
 
 ### Edit a lesson card
 
@@ -254,7 +288,7 @@ If you have [Node.js](https://nodejs.org) installed, run this before you publish
 node scripts/check-data.js
 ```
 
-It catches broken ids, missing fields, wrong answer numbers and missing lab files. A missing comma or quote shows up as "does not load". It also checks that Play mode and the reminders (`assets/js/remind.js`, `sw.js`) stay plain English and plain ES5, and that every icon in `manifest.webmanifest` is there.
+It catches broken ids, missing fields, wrong answer numbers and missing lab files. A missing comma or quote shows up as "does not load". It also checks that Play mode, Watch mode and the reminders (`assets/js/remind.js`, `sw.js`) stay plain English and plain ES5, checks Watch mode's video path (`data/watch.js`), and checks that every icon in `manifest.webmanifest` is there.
 
 If you change Play mode (`assets/js/game.js`), also run these two. They check its points rules, and how its progress merges when two devices sync:
 
@@ -278,6 +312,7 @@ node scripts/check-play-sync.js
 - Fonts come from Google Fonts: Rozha One, Mukta and JetBrains Mono.
 - Labs are self-contained scripts in `assets/js/labs/`. Each one registers itself on `window.AILabs`.
 - Play mode is `assets/js/game.js` and `assets/css/game.css`. They load only when a Play page is opened, or a few seconds after the site opens for a learner who chose Play, so Learn pages are as fast as before. XP is worked out from the progress you already have, so Play adds no separate score that could drift from it.
+- Watch mode is `assets/js/watch.js`, `assets/css/watch.css` and its video path `data/watch.js`. They load only when a Watch mode page is opened, so every other page is as fast as before. It plays the videos with YouTube's player API (the privacy-enhanced youtube-nocookie.com player that Learn already uses), and sends nothing anywhere else. The browser also keeps a second copy of Watch mode's progress (`aimarg.watch.part`), so a tab left open from before an update, which does not know Watch mode, does not erase newer Watch progress with its own saves. After Reset all progress, a sign-out that removes the progress from the device, or Restore from file (in any tab), that copy is never used again, so it never brings back progress that was removed. Doing one of those in such an old tab while signed in can lose Watch progress made in newer tabs since that tab was opened.
 - Reminders are `assets/js/remind.js` (loaded only for the Reminders page, or a few seconds after the site opens in a browser where reminders are on), `sw.js` (it only shows notifications; it never caches the site), `manifest.webmanifest` (for the Home Screen) and the Worker in `reminders/`.
 
 ## Credits
